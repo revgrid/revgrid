@@ -1,7 +1,7 @@
 import { RevUnreachableCaseError } from './revgrid-error';
 
 /** @public */
-export const enum SelectionAreaTypeId {
+export const enum RevSelectionAreaTypeId {
     all,
     rectangle,
     row,
@@ -9,36 +9,36 @@ export const enum SelectionAreaTypeId {
 }
 
 /** @public */
-type SelectionAreaTypeObject = typeof SelectionAreaTypeId;
+type RevSelectionAreaTypeObject = typeof RevSelectionAreaTypeId;
 
 /** @public */
-export type SelectionAreaType = keyof SelectionAreaTypeObject;
+export type RevSelectionAreaType = keyof RevSelectionAreaTypeObject;
 
 /** @public */
-export namespace SelectionAreaType {
-    export function toId(type: SelectionAreaType): SelectionAreaTypeId {
+export namespace RevSelectionAreaType {
+    export function toId(type: RevSelectionAreaType): RevSelectionAreaTypeId {
         switch (type) {
-            case 'all': return SelectionAreaTypeId.all;
-            case 'rectangle': return SelectionAreaTypeId.rectangle;
-            case 'row': return SelectionAreaTypeId.row;
-            case 'column': return SelectionAreaTypeId.column;
+            case 'all': return RevSelectionAreaTypeId.all;
+            case 'rectangle': return RevSelectionAreaTypeId.rectangle;
+            case 'row': return RevSelectionAreaTypeId.row;
+            case 'column': return RevSelectionAreaTypeId.column;
             default:
                 throw new RevUnreachableCaseError('SATTI10198', type);
         }
     }
-    export function fromId(id: SelectionAreaTypeId): SelectionAreaType {
+    export function fromId(id: RevSelectionAreaTypeId): RevSelectionAreaType {
         switch (id) {
-            case SelectionAreaTypeId.all: return 'all';
-            case SelectionAreaTypeId.rectangle: return 'rectangle';
-            case SelectionAreaTypeId.row: return 'row';
-            case SelectionAreaTypeId.column: return 'column';
+            case RevSelectionAreaTypeId.all: return 'all';
+            case RevSelectionAreaTypeId.rectangle: return 'rectangle';
+            case RevSelectionAreaTypeId.row: return 'row';
+            case RevSelectionAreaTypeId.column: return 'column';
             default:
                 throw new RevUnreachableCaseError('SATFI10198', id);
         }
     }
-    export function arrayFromIds(ids: SelectionAreaTypeId[]) {
+    export function arrayFromIds(ids: RevSelectionAreaTypeId[]) {
         const count = ids.length;
-        const typeArray = new Array<SelectionAreaType>(count);
+        const typeArray = new Array<RevSelectionAreaType>(count);
         for (let i = 0; i < count; i++) {
             const id = ids[i];
             typeArray[i] = fromId(id);
@@ -48,7 +48,7 @@ export namespace SelectionAreaType {
 }
 
 /** @public */
-type RowOrColumnSelectionAreaTypeObject = Pick<SelectionAreaTypeObject, 'row' | 'column'>;
+type RevRowOrColumnSelectionAreaTypeObject = Pick<RevSelectionAreaTypeObject, 'row' | 'column'>;
 
 /** @public */
-export type RowOrColumnSelectionAreaType = keyof RowOrColumnSelectionAreaTypeObject;
+export type RevRowOrColumnSelectionAreaType = keyof RevRowOrColumnSelectionAreaTypeObject;

@@ -1,7 +1,7 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
 import { Integer } from '@xilytix/sysutils';
-import { HorizontalAlign } from '../../../../../standard/internal-api';
+import { RevHorizontalAlign } from '../../../../../standard/internal-api';
 import { RevSourcedFieldDefinition, RevSourcedFieldSourceDefinition } from '../../../../sourced-field/server/internal-api';
 
 /** @public */
@@ -15,7 +15,7 @@ export namespace RevSingleHeadingDataRowArraySourcedFieldDefinition {
         sourceDefinition: RevSourcedFieldSourceDefinition,
         sourcelessName: string,
         defaultHeading: string,
-        defaultTextAlign: HorizontalAlign,
+        defaultTextAlign: RevHorizontalAlign,
         defaultWidth?: Integer,
         key?: string,
     ): RevSingleHeadingDataRowArraySourcedFieldDefinition {

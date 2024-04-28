@@ -1,4 +1,4 @@
-import { DataServer, RevApiError, RevAssertError, SchemaField } from '../../grid/grid-public-api';
+import { RevApiError, RevAssertError, RevDataServer, SchemaField } from '../../grid/grid-public-api';
 import { SingleHeadingDataServer } from '../single-heading/single-heading-data-server';
 import { SingleHeadingSchemaField } from '../single-heading/single-heading-schema-field';
 import { DataRowArrayDataServer } from './data-row-array-data-server';
@@ -81,7 +81,7 @@ export class SingleHeadingDataRowArrayServerSet<SF extends SingleHeadingSchemaFi
     }
 
     // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-    private convertDataValueToString(value: DataServer.ViewValue | string): string {
+    private convertDataValueToString(value: RevDataServer.ViewValue | string): string {
         switch (typeof value) {
             case 'string': return value;
             case 'number': return value.toString();
@@ -118,9 +118,9 @@ export class SingleHeadingDataRowArrayServerSet<SF extends SingleHeadingSchemaFi
 export namespace SingleHeadingDataRowArrayServerSet {
     export type CreateFieldEventer<SF extends SchemaField> = (this: void, index: number, key: string, heading: string) => SF;
     // eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
-    export interface DataRow extends DataServer.ObjectViewRow {
+    export interface DataRow extends RevDataServer.ObjectViewRow {
         // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-        [fieldName: string]: DataServer.ViewValue | string; // can also have header
+        [fieldName: string]: RevDataServer.ViewValue | string; // can also have header
     }
 }
 

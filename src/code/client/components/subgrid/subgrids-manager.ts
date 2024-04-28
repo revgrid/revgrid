@@ -1,45 +1,45 @@
-import { DataServer } from '../../interfaces/data/data-server';
-import { MainSubgrid } from '../../interfaces/data/main-subgrid';
-import { MetaModel } from '../../interfaces/data/meta-model';
-import { Subgrid } from '../../interfaces/data/subgrid';
-import { SchemaField } from '../../interfaces/schema/schema-field';
-import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
-import { GridSettings } from '../../interfaces/settings/grid-settings';
+import { RevDataServer } from '../../interfaces/data/data-server';
+import { RevMainSubgrid } from '../../interfaces/data/main-subgrid';
+import { RevMetaModel } from '../../interfaces/data/meta-model';
+import { RevSubgrid } from '../../interfaces/data/subgrid';
+import { RevSchemaField } from '../../interfaces/schema/schema-field';
+import { RevBehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
+import { RevGridSettings } from '../../interfaces/settings/grid-settings';
 import { RevClientObject } from '../../types-utils/client-object';
 import { RevAssertError } from '../../types-utils/revgrid-error';
-import { ColumnsManager } from '../column/columns-manager';
-import { MainSubgridImplementation } from './main-subgrid-implementation';
-import { SubgridImplementation } from './subgrid-implementation';
+import { RevColumnsManager } from '../column/columns-manager';
+import { RevMainSubgridImplementation } from './main-subgrid-implementation';
+import { RevSubgridImplementation } from './subgrid-implementation';
 
 /** @public */
-export class SubgridsManager<BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevClientObject {
-    readonly subgrids: Subgrid<BCS, SF>[];
-    readonly mainSubgrid: MainSubgrid<BCS, SF>;
-    readonly headerSubgrid: Subgrid<BCS, SF> | undefined;
-    readonly filterSubgrid: Subgrid<BCS, SF> | undefined;
-    readonly summarySubgrid: Subgrid<BCS, SF> | undefined;
-    readonly footerSubgrid: Subgrid<BCS, SF> | undefined;
+export class RevSubgridsManager<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {
+    readonly subgrids: RevSubgrid<BCS, SF>[];
+    readonly mainSubgrid: RevMainSubgrid<BCS, SF>;
+    readonly headerSubgrid: RevSubgrid<BCS, SF> | undefined;
+    readonly filterSubgrid: RevSubgrid<BCS, SF> | undefined;
+    readonly summarySubgrid: RevSubgrid<BCS, SF> | undefined;
+    readonly footerSubgrid: RevSubgrid<BCS, SF> | undefined;
 
-    readonly mainDataServer: DataServer<SF>;
+    readonly mainDataServer: RevDataServer<SF>;
 
     /** @internal */
-    readonly subgridImplementations = new Array<SubgridImplementation<BCS, SF>>();
+    readonly subgridImplementations = new Array<RevSubgridImplementation<BCS, SF>>();
     /** @internal */
-    readonly _handledSubgrids = new Array<SubgridImplementation<BCS, SF> | undefined>();
+    readonly _handledSubgrids = new Array<RevSubgridImplementation<BCS, SF> | undefined>();
 
     /** @internal */
     constructor(
         readonly clientId: string,
         readonly internalParent: RevClientObject,
         /** @internal */
-        private readonly _gridSettings: GridSettings,
+        private readonly _gridSettings: RevGridSettings,
         /** @internal */
-        private readonly _columnsManager: ColumnsManager<BCS, SF>,
-        definitions: Subgrid.Definition<BCS, SF>[],
+        private readonly _columnsManager: RevColumnsManager<BCS, SF>,
+        definitions: RevSubgrid.Definition<BCS, SF>[],
     ) {
         this.subgrids = this.subgridImplementations;
         const subgrids = this.subgridImplementations;
-        definitions.sort((left, right) => Subgrid.Role.gridOrderCompare(left.role, right.role));
+        definitions.sort((left, right) => RevSubgrid.Role.gridOrderCompare(left.role, right.role));
         for (const definition of definitions) {
             if (definition !== undefined) {
                 const subgridHandle = this._handledSubgrids.length;
@@ -50,7 +50,7 @@ export class SubgridsManager<BCS extends BehavioredColumnSettings, SF extends Sc
                 switch (role) {
                     case 'header': this.headerSubgrid = subgrid; break;
                     case 'filter': this.filterSubgrid = subgrid; break;
-                    case 'main': this.mainSubgrid = subgrid as MainSubgrid<BCS, SF>; break;
+                    case 'main': this.mainSubgrid = subgrid as RevMainSubgrid<BCS, SF>; break;
                     case 'summary': this.summarySubgrid = subgrid; break;
                     case 'footer': this.footerSubgrid = subgrid; break;
                 }
@@ -69,12 +69,12 @@ export class SubgridsManager<BCS extends BehavioredColumnSettings, SF extends Sc
         this.destroySubgrids();
     }
 
-    getSubgridWithDataServer(dataServer: DataServer<SF>): Subgrid<BCS, SF> {
+    getSubgridWithDataServer(dataServer: RevDataServer<SF>): RevSubgrid<BCS, SF> {
         return this.getSubgridImplementationWithDataServer(dataServer);
     }
 
     /** @internal */
-    getSubgridImplementationWithDataServer(dataServer: DataServer<SF>): Subgrid<BCS, SF> {
+    getSubgridImplementationWithDataServer(dataServer: RevDataServer<SF>): RevSubgrid<BCS, SF> {
         if (dataServer === this.mainDataServer) {
             return this.mainSubgrid;
         } else {
@@ -91,7 +91,7 @@ export class SubgridsManager<BCS extends BehavioredColumnSettings, SF extends Sc
     }
 
     /** @internal */
-    getSubgridByHandle(handle: SubgridImplementation.Handle) { return this._handledSubgrids[handle]; }
+    getSubgridByHandle(handle: RevSubgridImplementation.Handle) { return this._handledSubgrids[handle]; }
 
     /**
      * Resolves a `subgridSpec` to a Subgrid (and its DataModel).
@@ -100,11 +100,11 @@ export class SubgridsManager<BCS extends BehavioredColumnSettings, SF extends Sc
      * @internal
      */
     private createSubgridFromDefinition(
-        subgridHandle: SubgridImplementation.Handle,
-        definition: Subgrid.Definition<BCS, SF>,
+        subgridHandle: RevSubgridImplementation.Handle,
+        definition: RevSubgrid.Definition<BCS, SF>,
     ) {
-        const role = definition.role ?? Subgrid.Role.defaultRole;
-        const isMainRole = role === Subgrid.RoleEnum.main;
+        const role = definition.role ?? RevSubgrid.Role.defaultRole;
+        const isMainRole = role === RevSubgrid.RoleEnum.main;
 
         let dataServer = definition.dataServer;
         if (typeof dataServer === 'function') {
@@ -138,16 +138,16 @@ export class SubgridsManager<BCS extends BehavioredColumnSettings, SF extends Sc
      * @internal
      */
     private createSubgrid(
-        subgridHandle: SubgridImplementation.Handle,
-        role: Subgrid.Role, dataServer: DataServer<SF>, metaModel: MetaModel | undefined,
+        subgridHandle: RevSubgridImplementation.Handle,
+        role: RevSubgrid.Role, dataServer: RevDataServer<SF>, metaModel: RevMetaModel | undefined,
         selectable: boolean,
         defaultRowHeight: number | undefined, rowHeightsCanDiffer: boolean,
-        rowPropertiesPrototype: MetaModel.RowPropertiesPrototype | undefined,
-        getCellPainterEventer: Subgrid.GetCellPainterEventer<BCS, SF>,
+        rowPropertiesPrototype: RevMetaModel.RowPropertiesPrototype | undefined,
+        getCellPainterEventer: RevSubgrid.GetCellPainterEventer<BCS, SF>,
     ) {
-        let subgrid: SubgridImplementation<BCS, SF>;
-        if (role === Subgrid.RoleEnum.main) {
-            subgrid = new MainSubgridImplementation<BCS, SF>(
+        let subgrid: RevSubgridImplementation<BCS, SF>;
+        if (role === RevSubgrid.RoleEnum.main) {
+            subgrid = new RevMainSubgridImplementation<BCS, SF>(
                 this._gridSettings,
                 this._columnsManager,
                 subgridHandle,
@@ -162,7 +162,7 @@ export class SubgridsManager<BCS extends BehavioredColumnSettings, SF extends Sc
                 getCellPainterEventer,
             );
         } else {
-            subgrid = new SubgridImplementation(
+            subgrid = new RevSubgridImplementation(
                 this._gridSettings,
                 this._columnsManager,
                 subgridHandle,
@@ -260,7 +260,7 @@ export class SubgridsManager<BCS extends BehavioredColumnSettings, SF extends Sc
         return height;
     }
 
-    calculatePreMainPlusFixedRowCountAndHeight(): SubgridsManager.CountAndHeight {
+    calculatePreMainPlusFixedRowCountAndHeight(): RevSubgridsManager.CountAndHeight {
         const subgrids = this.subgridImplementations;
         const subgridCount = subgrids.length;
 
@@ -340,7 +340,7 @@ export class SubgridsManager<BCS extends BehavioredColumnSettings, SF extends Sc
         return height;
     }
 
-    calculatePostMainAndFooterHeights(): SubgridsManager.PostMainAndFooterHeights {
+    calculatePostMainAndFooterHeights(): RevSubgridsManager.PostMainAndFooterHeights {
         let hadMain = false;
         let othersHeight = 0;
         let footersHeight = 0;
@@ -378,7 +378,7 @@ export class SubgridsManager<BCS extends BehavioredColumnSettings, SF extends Sc
         }
     }
 
-    calculateSummariesFootersHeights(): SubgridsManager.SummariesFootersHeights {
+    calculateSummariesFootersHeights(): RevSubgridsManager.SummariesFootersHeights {
         let summariesHeight = 0;
         let footersHeight = 0;
         let footerSubgridCount = 0;
@@ -460,7 +460,7 @@ export class SubgridsManager<BCS extends BehavioredColumnSettings, SF extends Sc
 }
 
 /** @public */
-export namespace SubgridsManager {
+export namespace RevSubgridsManager {
     export interface CountAndHeight {
         count: number; // number of rows
         height: number; // height of all rows in pixels

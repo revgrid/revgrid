@@ -1,5 +1,5 @@
-export { defaultColumnSettings } from './default-column-settings';
-export { defaultGridSettings } from './default-grid-settings';
-export { defaultOnlyColumnSettings } from './default-only-column-settings';
-export { defaultOnlyGridSettings } from './default-only-grid-settings';
+export { revDefaultColumnSettings } from './default-column-settings';
+export { revDefaultGridSettings } from './default-grid-settings';
+export { revDefaultOnlyColumnSettings } from './default-only-column-settings';
+export { revDefaultOnlyGridSettings } from './default-only-grid-settings';
 

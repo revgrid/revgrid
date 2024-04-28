@@ -1,30 +1,30 @@
 
 import { IndexSignatureHack } from '@xilytix/sysutils';
 import {
-    CachedCanvasRenderingContext2D,
-    GridSettings,
-    Rectangle
+    RevCachedCanvasRenderingContext2D,
+    RevGridSettings,
+    RevRectangle
 } from '../../client/internal-api';
 
 /** @public */
-export class StandardCheckboxPainter {
+export class RevStandardCheckboxPainter {
     constructor(
         private readonly _editable: boolean,
-        private readonly _renderingContext: CachedCanvasRenderingContext2D
+        private readonly _renderingContext: RevCachedCanvasRenderingContext2D
     ) {
     }
 
     writeFingerprintOrCheckPaint(
-        fingerprint: Partial<StandardCheckboxPainter.PaintFingerprint | undefined>,
-        bounds: Rectangle,
+        fingerprint: Partial<RevStandardCheckboxPainter.PaintFingerprint | undefined>,
+        bounds: RevRectangle,
         booleanValue: boolean | undefined | null,
-        boxDetails: StandardCheckboxPainter.BoxDetails,
+        boxDetails: RevStandardCheckboxPainter.BoxDetails,
         color: string,
         font: string,
     ): number | undefined {
         const idealBoundsWidth = boxDetails.idealBoxSideLength + boxDetails.sumOfResolvedLeftRightPadding;
 
-        if (boxDetails.maxBoxSideLength < StandardCheckboxPainter.minimumBoxSideLength) {
+        if (boxDetails.maxBoxSideLength < RevStandardCheckboxPainter.minimumBoxSideLength) {
             if (fingerprint !== undefined) {
                 this.writeUndefinedFingerprint(fingerprint);
                 return undefined;
@@ -73,8 +73,8 @@ export class StandardCheckboxPainter {
                 if (booleanValue === null) {
                     const gc = this._renderingContext;
                     gc.cache.font = font;
-                    const charWidth = Math.ceil(gc.getCharWidth(StandardCheckboxPainter.valueNotBooleanChar));
-                    const charTextHeight = gc.getTextHeight(StandardCheckboxPainter.valueNotBooleanChar);
+                    const charWidth = Math.ceil(gc.getCharWidth(RevStandardCheckboxPainter.valueNotBooleanChar));
+                    const charTextHeight = gc.getTextHeight(RevStandardCheckboxPainter.valueNotBooleanChar);
                     const ascent = charTextHeight.ascent;
                     const descent = charTextHeight.descent;
                     if (charWidth > boxDetails.maxBoxWidth || ascent + descent > boundsHeight) { // make sure it fits
@@ -105,7 +105,7 @@ export class StandardCheckboxPainter {
                             gc.cache.strokeStyle = color;
                             gc.cache.textBaseline = 'middle';
                             gc.cache.textAlign = 'center';
-                            gc.fillText(StandardCheckboxPainter.valueNotBooleanChar, pixelCenterBoundsX, pixelCenterBoundsY);
+                            gc.fillText(RevStandardCheckboxPainter.valueNotBooleanChar, pixelCenterBoundsX, pixelCenterBoundsY);
 
                             if (verticalBoxLength !== undefined) {
                                 // Draw 2 vertical lines either side of character in the same place that the vertical lines in the box would be
@@ -153,11 +153,11 @@ export class StandardCheckboxPainter {
     }
 
     calculateClickBox(
-        bounds: Rectangle,
+        bounds: RevRectangle,
         booleanValue: boolean | undefined | null,
         cellPadding: number,
         font: string,
-    ): Rectangle | undefined{
+    ): RevRectangle | undefined{
         const {
             maxBoxBoundsWidth,
             maxBoxBoundsHeight,
@@ -166,7 +166,7 @@ export class StandardCheckboxPainter {
             boxSideLength,
         } = this.calculateBoxDetails(bounds, cellPadding);
 
-        if (maxBoxSideLength < StandardCheckboxPainter.minimumBoxSideLength) {
+        if (maxBoxSideLength < RevStandardCheckboxPainter.minimumBoxSideLength) {
             return undefined;
         } else {
             const centerBoundsX = bounds.x + maxBoxBoundsWidth / 2;
@@ -185,8 +185,8 @@ export class StandardCheckboxPainter {
                 if (booleanValue === null) {
                     const gc = this._renderingContext;
                     gc.cache.font = font;
-                    const charWidth = Math.ceil(gc.getCharWidth(StandardCheckboxPainter.valueNotBooleanChar));
-                    const charTextHeight = gc.getTextHeight(StandardCheckboxPainter.valueNotBooleanChar);
+                    const charWidth = Math.ceil(gc.getCharWidth(RevStandardCheckboxPainter.valueNotBooleanChar));
+                    const charTextHeight = gc.getTextHeight(RevStandardCheckboxPainter.valueNotBooleanChar);
                     const ascent = charTextHeight.ascent;
                     const halfBoundsHeight = bounds.height / 2;
                     const descent = charTextHeight.descent;
@@ -230,9 +230,9 @@ export class StandardCheckboxPainter {
     }
 
     calculateBoxDetails(
-        bounds: Rectangle,
+        bounds: RevRectangle,
         cellPadding: number,
-    ): StandardCheckboxPainter.BoxDetails {
+    ): RevStandardCheckboxPainter.BoxDetails {
         let maxBoxBoundsWidth = bounds.width;
         if (maxBoxBoundsWidth % 2 === 0) {
             maxBoxBoundsWidth--; // make sure odd width
@@ -254,8 +254,8 @@ export class StandardCheckboxPainter {
         if (idealNonEditableBoxSideLength % 2 === 0) {
             idealNonEditableBoxSideLength++; // make sure odd length
         }
-        if (idealNonEditableBoxSideLength < StandardCheckboxPainter.minimumBoxSideLength) {
-            idealNonEditableBoxSideLength = StandardCheckboxPainter.minimumBoxSideLength;
+        if (idealNonEditableBoxSideLength < RevStandardCheckboxPainter.minimumBoxSideLength) {
+            idealNonEditableBoxSideLength = RevStandardCheckboxPainter.minimumBoxSideLength;
         }
 
         const editable = this._editable;
@@ -293,16 +293,16 @@ export class StandardCheckboxPainter {
         }
     }
 
-    writeUndefinedFingerprint(fingerprint: Partial<StandardCheckboxPainter.PaintFingerprint>) {
+    writeUndefinedFingerprint(fingerprint: Partial<RevStandardCheckboxPainter.PaintFingerprint>) {
         this.writeFingerprint(fingerprint, null, 0, 0, '', '');
     }
 
     private writeFingerprint(
-        fingerprint: Partial<StandardCheckboxPainter.PaintFingerprint>,
+        fingerprint: Partial<RevStandardCheckboxPainter.PaintFingerprint>,
         value: boolean | undefined | null,
         boxLineWidth: number,
         boxSideLength: number | undefined,
-        color: GridSettings.Color,
+        color: RevGridSettings.Color,
         errorFont: string | undefined,
     ) {
         fingerprint.value = value;
@@ -314,7 +314,7 @@ export class StandardCheckboxPainter {
 }
 
 /** @public */
-export namespace StandardCheckboxPainter {
+export namespace RevStandardCheckboxPainter {
     export const minimumBoxSideLength = 5; // pixels
     export const valueNotBooleanChar = '!';
 
@@ -333,7 +333,7 @@ export namespace StandardCheckboxPainter {
         value: boolean | undefined |null;
         boxLineWidth: number;
         boxSideLength: number | undefined;
-        color: GridSettings.Color;
+        color: RevGridSettings.Color;
         errorFont: string | undefined;
     }
 

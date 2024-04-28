@@ -1,3 +1,3 @@
-export { readonlyDefaultStandardBehavioredColumnSettings } from './readonly-default-standard-behaviored-column-settings';
-export { readonlyDefaultStandardBehavioredGridSettings } from './readonly-default-standard-behaviored-grid-settings';
+export { revStandardReadonlyDefaultBehavioredColumnSettings } from './standard-readonly-default-behaviored-column-settings';
+export { revStandardReadonlyDefaultBehavioredGridSettings } from './standard-readonly-default-behaviored-grid-settings';
 

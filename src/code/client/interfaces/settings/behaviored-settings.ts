@@ -1,25 +1,25 @@
 /** @public */
-export interface BehavioredSettings {
+export interface RevBehavioredSettings {
     /** @internal */
-    resizeEventer: BehavioredSettings.ResizeEventer | undefined;
+    resizeEventer: RevBehavioredSettings.ResizeEventer | undefined;
     /** @internal */
-    viewRenderInvalidatedEventer: BehavioredSettings.ViewRenderInvalidatedEventer | undefined;
+    viewRenderInvalidatedEventer: RevBehavioredSettings.ViewRenderInvalidatedEventer | undefined;
     /** @internal */
-    viewLayoutInvalidatedEventer: BehavioredSettings.ViewLayoutInvalidatedEventer | undefined;
+    viewLayoutInvalidatedEventer: RevBehavioredSettings.ViewLayoutInvalidatedEventer | undefined;
     /** @internal */
-    horizontalViewLayoutInvalidatedEventer: BehavioredSettings.ViewLayoutInvalidatedEventer | undefined;
+    horizontalViewLayoutInvalidatedEventer: RevBehavioredSettings.ViewLayoutInvalidatedEventer | undefined;
     /** @internal */
-    verticalViewLayoutInvalidatedEventer: BehavioredSettings.ViewLayoutInvalidatedEventer | undefined;
+    verticalViewLayoutInvalidatedEventer: RevBehavioredSettings.ViewLayoutInvalidatedEventer | undefined;
 
     beginChange(): void;
     endChange(): boolean;
 
-    subscribeChangedEvent(handler: BehavioredSettings.ChangedEventHandler): void;
-    unsubscribeChangedEvent(handler: BehavioredSettings.ChangedEventHandler): void;
+    subscribeChangedEvent(handler: RevBehavioredSettings.ChangedEventHandler): void;
+    unsubscribeChangedEvent(handler: RevBehavioredSettings.ChangedEventHandler): void;
 }
 
 /** @public */
-export namespace BehavioredSettings {
+export namespace RevBehavioredSettings {
     export type ChangedEventHandler = (this: void) => void;
 
     /** @internal */

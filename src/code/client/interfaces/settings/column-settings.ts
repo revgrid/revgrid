@@ -1,4 +1,4 @@
-import { OnlyColumnSettings } from './only-column-settings';
+import { RevOnlyColumnSettings } from './only-column-settings';
 
 /** @public */
-export type ColumnSettings = OnlyColumnSettings;
+export type RevColumnSettings = RevOnlyColumnSettings;

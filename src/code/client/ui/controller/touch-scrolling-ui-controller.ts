@@ -1,19 +1,19 @@
 
-import { ScrollDimension } from '../../components/view/scroll-dimension';
-import { LinedHoverCell } from '../../interfaces/data/hover-cell';
-import { SchemaField } from '../../interfaces/schema/schema-field';
-import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
-import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
-import { Rectangle } from '../../types-utils/rectangle';
-import { UiController } from './ui-controller';
+import { RevScrollDimension } from '../../components/view/scroll-dimension';
+import { RevLinedHoverCell } from '../../interfaces/data/lined-hover-cell';
+import { RevSchemaField } from '../../interfaces/schema/schema-field';
+import { RevBehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
+import { RevBehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
+import { RevRectangle } from '../../types-utils/rectangle';
+import { RevUiController } from './ui-controller';
 
 /** @internal */
-export class TouchScrollingUiController<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends UiController<BGS, BCS, SF> {
+export class RevTouchScrollingUiController<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevUiController<BGS, BCS, SF> {
 
-    readonly typeName = TouchScrollingUiController.typeName;
+    readonly typeName = RevTouchScrollingUiController.typeName;
 
     private _stepTimeoutHandle: ReturnType<typeof setTimeout>;
-    private touches: TouchScrollingUiController.TouchedBounds[];
+    private touches: RevTouchScrollingUiController.TouchedBounds[];
 
     override handleTouchStart(eventDetail: TouchEvent) {
         this.stopDeceleration();
@@ -25,11 +25,11 @@ export class TouchScrollingUiController<BGS extends BehavioredGridSettings, BCS 
         }
     }
 
-    override handleClick(_event: MouseEvent, cell: LinedHoverCell<BCS, SF> | null | undefined) {
+    override handleClick(_event: MouseEvent, cell: RevLinedHoverCell<BCS, SF> | null | undefined) {
         return cell;
     }
 
-    override handleDblClick(_event: MouseEvent, cell: LinedHoverCell<BCS, SF> | null | undefined) {
+    override handleDblClick(_event: MouseEvent, cell: RevLinedHoverCell<BCS, SF> | null | undefined) {
         return cell;
     }
 
@@ -45,7 +45,7 @@ export class TouchScrollingUiController<BGS extends BehavioredGridSettings, BCS 
             this.viewLayout.scrollHorizontalViewportBy(xOffset);
             this.viewLayout.scrollVerticalViewportBy(yOffset);
 
-            if (touchCount >= TouchScrollingUiController.MAX_TOUCHES) {
+            if (touchCount >= RevTouchScrollingUiController.MAX_TOUCHES) {
                 this.touches.shift();
             }
 
@@ -78,25 +78,25 @@ export class TouchScrollingUiController<BGS extends BehavioredGridSettings, BCS 
         if (cell === undefined) {
             return undefined;
         } else {
-            const bounds = cell.viewCell.bounds as TouchScrollingUiController.TouchedBounds;
+            const bounds = cell.viewCell.bounds as RevTouchScrollingUiController.TouchedBounds;
             bounds.timestamp = Date.now();
             return bounds;
         }
     }
 
-    private decelerateY(startTouch: TouchScrollingUiController.TouchedBounds, endTouch: TouchScrollingUiController.TouchedBounds) {
+    private decelerateY(startTouch: RevTouchScrollingUiController.TouchedBounds, endTouch: RevTouchScrollingUiController.TouchedBounds) {
         const offset = endTouch.y - startTouch.y;
         const timeOffset = endTouch.timestamp - startTouch.timestamp;
         this.decelerate(this.viewLayout.verticalScrollDimension, offset, timeOffset);
     }
 
-    private decelerateX(startTouch: TouchScrollingUiController.TouchedBounds, endTouch: TouchScrollingUiController.TouchedBounds) {
+    private decelerateX(startTouch: RevTouchScrollingUiController.TouchedBounds, endTouch: RevTouchScrollingUiController.TouchedBounds) {
         const offset = endTouch.x - startTouch.x;
         const timeOffset = endTouch.timestamp - startTouch.timestamp;
         this.decelerate(this.viewLayout.horizontalScrollDimension, offset, timeOffset);
     }
 
-    private decelerate(scrollDimension: ScrollDimension<BGS>, offset: number, timeOffset: number) {
+    private decelerate(scrollDimension: RevScrollDimension<BGS>, offset: number, timeOffset: number) {
         const velocity = (Math.abs(offset) / timeOffset) * 100;
         const dir = -Math.sign(offset);
         const interval = this.getInitialInterval(velocity);
@@ -104,7 +104,7 @@ export class TouchScrollingUiController<BGS extends BehavioredGridSettings, BCS 
         this.step(scrollDimension, velocity, dir, interval);
     }
 
-    private step(scrollDimension: ScrollDimension<BGS>, velocity: number, dir: number, interval: number) {
+    private step(scrollDimension: RevScrollDimension<BGS>, velocity: number, dir: number, interval: number) {
         if (velocity > 0) {
             const viewportStart = scrollDimension.viewportStart;
             if (viewportStart !== undefined) {
@@ -116,7 +116,7 @@ export class TouchScrollingUiController<BGS extends BehavioredGridSettings, BCS 
                     return;
                 }
 
-                velocity -= TouchScrollingUiController.DEC_STEP_SIZE;
+                velocity -= RevTouchScrollingUiController.DEC_STEP_SIZE;
 
                 const nextInterval = this.updateInterval(interval, velocity);
                 this._stepTimeoutHandle = setTimeout(
@@ -152,7 +152,7 @@ export class TouchScrollingUiController<BGS extends BehavioredGridSettings, BCS 
     }
 
     private updateInterval(interval: number, velocity: number) {
-        if (interval >= TouchScrollingUiController.MAX_INTERVAL) {
+        if (interval >= RevTouchScrollingUiController.MAX_INTERVAL) {
             return interval;
         }
 
@@ -175,14 +175,14 @@ export class TouchScrollingUiController<BGS extends BehavioredGridSettings, BCS 
 }
 
 /** @internal */
-export namespace TouchScrollingUiController {
+export namespace RevTouchScrollingUiController {
     export const typeName = 'touchscrolling';
 
     export const MAX_INTERVAL = 200;
     export const MAX_TOUCHES = 70;
     export const DEC_STEP_SIZE = 5;
 
-    export interface TouchedBounds extends Rectangle {
+    export interface TouchedBounds extends RevRectangle {
         timestamp: number;
     }
 }

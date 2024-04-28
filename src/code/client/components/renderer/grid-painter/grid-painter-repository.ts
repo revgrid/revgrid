@@ -1,42 +1,42 @@
-import { SchemaField } from '../../../interfaces/schema/schema-field';
-import { BehavioredColumnSettings } from '../../../interfaces/settings/behaviored-column-settings';
-import { BehavioredGridSettings } from '../../../interfaces/settings/behaviored-grid-settings';
-import { GridSettings } from '../../../interfaces/settings/grid-settings';
-import { Registry } from '../../../types-utils/registry';
+import { RevSchemaField } from '../../../interfaces/schema/schema-field';
+import { RevBehavioredColumnSettings } from '../../../interfaces/settings/behaviored-column-settings';
+import { RevBehavioredGridSettings } from '../../../interfaces/settings/behaviored-grid-settings';
+import { RevGridSettings } from '../../../interfaces/settings/grid-settings';
+import { RevRegistry } from '../../../types-utils/registry';
 import { RevAssertError } from '../../../types-utils/revgrid-error';
-import { Canvas } from '../../canvas/canvas';
-import { Focus } from '../../focus/focus';
-import { Mouse } from '../../mouse/mouse';
-import { Selection } from '../../selection/selection';
-import { SubgridsManager } from '../../subgrid/subgrids-manager';
-import { ViewLayout } from '../../view/view-layout';
-import { AsNeededGridPainter } from './as-needed-grid-painter';
-import { ByColumnsAndRowsGridPainter } from './by-columns-and-rows-grid-painter';
-import { ByColumnsDiscreteGridPainter } from './by-columns-discrete-grid-painter';
-import { ByColumnsGridPainter } from './by-columns-grid-painter';
-import { ByRowsGridPainter } from './by-rows-grid-painter';
-import { GridPainter } from './grid-painter';
+import { RevCanvas } from '../../canvas/canvas';
+import { RevFocus } from '../../focus/focus';
+import { RevMouse } from '../../mouse/mouse';
+import { RevSelection } from '../../selection/selection';
+import { RevSubgridsManager } from '../../subgrid/subgrids-manager';
+import { RevViewLayout } from '../../view/view-layout';
+import { RevAsNeededGridPainter } from './as-needed-grid-painter';
+import { RevByColumnsAndRowsGridPainter } from './by-columns-and-rows-grid-painter';
+import { RevByColumnsDiscreteGridPainter } from './by-columns-discrete-grid-painter';
+import { RevByColumnsGridPainter } from './by-columns-grid-painter';
+import { RevByRowsGridPainter } from './by-rows-grid-painter';
+import { RevGridPainter } from './grid-painter';
 
-export class GridPainterRepository<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
-    private constructorRegistry = new Registry<GridPainter.Constructor<BGS, BCS, SF>>();
-    private cache = new Map<string, GridPainter<BGS, BCS, SF>>();
+export class RevGridPainterRepository<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> {
+    private constructorRegistry = new RevRegistry<RevGridPainter.Constructor<BGS, BCS, SF>>();
+    private cache = new Map<string, RevGridPainter<BGS, BCS, SF>>();
 
     constructor(
-        private readonly _gridSettings: GridSettings,
-        private readonly _canvas: Canvas<BGS>,
-        private readonly _subgridsManager: SubgridsManager<BCS, SF>,
-        private readonly _viewLayout: ViewLayout<BGS, BCS, SF>,
-        private readonly _focus: Focus<BGS, BCS, SF>,
-        private readonly _selection: Selection<BGS, BCS, SF>,
-        private readonly _mouse: Mouse<BGS, BCS, SF>,
-        private readonly _repaintAllRequiredEventer: GridPainter.RepaintAllRequiredEventer,
+        private readonly _gridSettings: RevGridSettings,
+        private readonly _canvas: RevCanvas<BGS>,
+        private readonly _subgridsManager: RevSubgridsManager<BCS, SF>,
+        private readonly _viewLayout: RevViewLayout<BGS, BCS, SF>,
+        private readonly _focus: RevFocus<BGS, BCS, SF>,
+        private readonly _selection: RevSelection<BGS, BCS, SF>,
+        private readonly _mouse: RevMouse<BGS, BCS, SF>,
+        private readonly _repaintAllRequiredEventer: RevGridPainter.RepaintAllRequiredEventer,
     ) {
         // preregister the standard grid painters
-        this.constructorRegistry.register(AsNeededGridPainter.key, AsNeededGridPainter<BGS, BCS, SF>);
-        this.constructorRegistry.register(ByColumnsGridPainter.key, ByColumnsGridPainter<BGS, BCS, SF>);
-        this.constructorRegistry.register(ByColumnsDiscreteGridPainter.key, ByColumnsDiscreteGridPainter<BGS, BCS, SF>);
-        this.constructorRegistry.register(ByColumnsAndRowsGridPainter.key, ByColumnsAndRowsGridPainter<BGS, BCS, SF>);
-        this.constructorRegistry.register(ByRowsGridPainter.key, ByRowsGridPainter<BGS, BCS, SF>);
+        this.constructorRegistry.register(RevAsNeededGridPainter.key, RevAsNeededGridPainter<BGS, BCS, SF>);
+        this.constructorRegistry.register(RevByColumnsGridPainter.key, RevByColumnsGridPainter<BGS, BCS, SF>);
+        this.constructorRegistry.register(RevByColumnsDiscreteGridPainter.key, RevByColumnsDiscreteGridPainter<BGS, BCS, SF>);
+        this.constructorRegistry.register(RevByColumnsAndRowsGridPainter.key, RevByColumnsAndRowsGridPainter<BGS, BCS, SF>);
+        this.constructorRegistry.register(RevByRowsGridPainter.key, RevByRowsGridPainter<BGS, BCS, SF>);
     }
 
     get(key: string) {
@@ -70,7 +70,7 @@ export class GridPainterRepository<BGS extends BehavioredGridSettings, BCS exten
         return this.cache.values();
     }
 
-    register(key: string, constructor: GridPainter.Constructor<BGS, BCS, SF>) {
+    register(key: string, constructor: RevGridPainter.Constructor<BGS, BCS, SF>) {
         this.constructorRegistry.register(key, constructor);
     }
 }

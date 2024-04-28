@@ -1,26 +1,26 @@
-import { ViewCell } from '../../interfaces/data/view-cell';
-import { SchemaField } from '../../interfaces/schema/schema-field';
-import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
-import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
+import { RevViewCell } from '../../interfaces/data/view-cell';
+import { RevSchemaField } from '../../interfaces/schema/schema-field';
+import { RevBehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
+import { RevBehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { RevClientObject } from '../../types-utils/client-object';
-import { Point } from '../../types-utils/point';
-import { Canvas } from '../canvas/canvas';
-import { ViewLayout } from '../view/view-layout';
+import { RevPoint } from '../../types-utils/point';
+import { RevCanvas } from '../canvas/canvas';
+import { RevViewLayout } from '../view/view-layout';
 
 /** @public */
-export class Mouse<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevClientObject {
+export class RevMouse<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {
     /** @internal */
-    cellEnteredEventer: Mouse.CellEnteredExitedEventer<BCS, SF>;
+    cellEnteredEventer: RevMouse.CellEnteredExitedEventer<BCS, SF>;
     /** @internal */
-    cellExitedEventer: Mouse.CellEnteredExitedEventer<BCS, SF>;
+    cellExitedEventer: RevMouse.CellEnteredExitedEventer<BCS, SF>;
     /** @internal */
-    viewCellRenderInvalidatedEventer: Mouse.ViewCellRenderInvalidatedEventer<BCS, SF>;
+    viewCellRenderInvalidatedEventer: RevMouse.ViewCellRenderInvalidatedEventer<BCS, SF>;
     /** @internal */
-    private _activeDragType: Mouse.DragTypeEnum | undefined;
+    private _activeDragType: RevMouse.DragTypeEnum | undefined;
     /** @internal */
-    private _canvasOffsetPoint: Point | undefined;
+    private _canvasOffsetPoint: RevPoint | undefined;
     /** @internal */
-    private _hoverCell: ViewCell<BCS, SF> | undefined;
+    private _hoverCell: RevViewCell<BCS, SF> | undefined;
     /** @internal */
     private _operationCursorName: string | undefined; // gets priority over hover cell and location cursor
     /** @internal */
@@ -35,9 +35,9 @@ export class Mouse<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
         readonly clientId: string,
         readonly internalParent: RevClientObject,
         /** @internal */
-        private readonly _canvas: Canvas<BGS>,
+        private readonly _canvas: RevCanvas<BGS>,
         /** @internal */
-        private readonly _viewLayout: ViewLayout<BGS, BCS, SF>,
+        private readonly _viewLayout: RevViewLayout<BGS, BCS, SF>,
     ) {
         this._viewLayout.cellPoolComputedEventerForMouse = () => { this.processViewLayoutComputed(); };
     }
@@ -56,7 +56,7 @@ export class Mouse<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     }
 
     /** @internal */
-    setMouseCanvasOffset(canvasOffsetPoint: Point | undefined, cell: ViewCell<BCS, SF> | undefined) {
+    setMouseCanvasOffset(canvasOffsetPoint: RevPoint | undefined, cell: RevViewCell<BCS, SF> | undefined) {
         this._canvasOffsetPoint = canvasOffsetPoint;
         this.updateHoverCell(cell, true);
     }
@@ -80,13 +80,13 @@ export class Mouse<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     }
 
     /** @internal */
-    setActiveDragType(value: Mouse.DragTypeEnum | undefined) {
+    setActiveDragType(value: RevMouse.DragTypeEnum | undefined) {
         this._activeDragType = value;
     }
 
     /** @internal */
     private processViewLayoutComputed() {
-        let newHoverCell: ViewCell<BCS, SF> | undefined;
+        let newHoverCell: RevViewCell<BCS, SF> | undefined;
         const canvasOffsetPoint = this._canvasOffsetPoint;
         if (canvasOffsetPoint === undefined) {
             newHoverCell = undefined;
@@ -98,7 +98,7 @@ export class Mouse<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
     }
 
     /** @internal */
-    private updateHoverCell(cell: ViewCell<BCS, SF> | undefined, invalidateViewCellRender: boolean) {
+    private updateHoverCell(cell: RevViewCell<BCS, SF> | undefined, invalidateViewCellRender: boolean) {
         const existingHoverCell = this._hoverCell;
         if (cell === undefined) {
             if (existingHoverCell !== undefined) {
@@ -118,7 +118,7 @@ export class Mouse<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
                     this.viewCellRenderInvalidatedEventer(cell);
                 }
             } else {
-                if (!ViewCell.sameByDataPoint(existingHoverCell, cell)) {
+                if (!RevViewCell.sameByDataPoint(existingHoverCell, cell)) {
                     this._hoverCell = undefined;
                     this.cellExitedEventer(existingHoverCell);
                     if (invalidateViewCellRender) {
@@ -215,7 +215,7 @@ export class Mouse<BGS extends BehavioredGridSettings, BCS extends BehavioredCol
 }
 
 /** @public */
-export namespace Mouse {
+export namespace RevMouse {
     export const enum DragTypeEnum {
         // Make sure values are all lower case so could be used in Drag Drop API
         LastRectangleSelectionAreaExtending = 'revgridlastrectangleselectionareaextending',
@@ -228,8 +228,8 @@ export namespace Mouse {
     export type DragType = keyof typeof DragTypeEnum;
 
     /** @internal */
-    export type CellEnteredExitedEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField> = (this: void, cell: ViewCell<BCS, SF>) => void;
-    export type ViewCellRenderInvalidatedEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField> = (this: void, cell: ViewCell<BCS, SF>) => void;
+    export type CellEnteredExitedEventer<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> = (this: void, cell: RevViewCell<BCS, SF>) => void;
+    export type ViewCellRenderInvalidatedEventer<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> = (this: void, cell: RevViewCell<BCS, SF>) => void;
 
     /** @internal */
     export interface CursorNameAndTitleText {

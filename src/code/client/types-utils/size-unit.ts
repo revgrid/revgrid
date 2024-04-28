@@ -1,7 +1,7 @@
 import { RevUnreachableCaseError } from './revgrid-error';
 
 /** @public */
-export const enum SizeUnitEnum {
+export const enum RevSizeUnitEnum {
     Pixel = 'px',
     Percent = '%',
     Fractional = 'fr',
@@ -9,26 +9,26 @@ export const enum SizeUnitEnum {
 }
 
 /** @public */
-export type SizeUnit = typeof SizeUnitEnum;
+export type RevSizeUnit = typeof RevSizeUnitEnum;
 
 /** @public */
-export namespace SizeUnit {
+export namespace RevSizeUnit {
     export function tryParse(value: string) {
-        switch (value as SizeUnitEnum) {
-            case SizeUnitEnum.Pixel: return SizeUnitEnum.Pixel;
-            case SizeUnitEnum.Percent: return SizeUnitEnum.Percent;
-            case SizeUnitEnum.Fractional: return SizeUnitEnum.Fractional;
-            case SizeUnitEnum.Em: return SizeUnitEnum.Em;
+        switch (value as RevSizeUnitEnum) {
+            case RevSizeUnitEnum.Pixel: return RevSizeUnitEnum.Pixel;
+            case RevSizeUnitEnum.Percent: return RevSizeUnitEnum.Percent;
+            case RevSizeUnitEnum.Fractional: return RevSizeUnitEnum.Fractional;
+            case RevSizeUnitEnum.Em: return RevSizeUnitEnum.Em;
             default: return undefined;
         }
     }
 
-    export function format(value: SizeUnitEnum) {
+    export function format(value: RevSizeUnitEnum) {
         switch (value) {
-            case SizeUnitEnum.Pixel: return SizeUnitEnum.Pixel;
-            case SizeUnitEnum.Percent: return SizeUnitEnum.Percent;
-            case SizeUnitEnum.Fractional: return SizeUnitEnum.Fractional;
-            case SizeUnitEnum.Em: return SizeUnitEnum.Em;
+            case RevSizeUnitEnum.Pixel: return RevSizeUnitEnum.Pixel;
+            case RevSizeUnitEnum.Percent: return RevSizeUnitEnum.Percent;
+            case RevSizeUnitEnum.Fractional: return RevSizeUnitEnum.Fractional;
+            case RevSizeUnitEnum.Em: return RevSizeUnitEnum.Em;
             default:
                 throw new RevUnreachableCaseError('SUEF44998', value);
         }

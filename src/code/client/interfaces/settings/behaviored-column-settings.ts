@@ -1,11 +1,11 @@
-import { BehavioredSettings } from './behaviored-settings';
-import { ColumnSettings } from './column-settings';
-import { GridSettings } from './grid-settings';
+import { RevBehavioredSettings } from './behaviored-settings';
+import { RevColumnSettings } from './column-settings';
+import { RevGridSettings } from './grid-settings';
 
 /** @public */
-export interface BehavioredColumnSettings extends ColumnSettings, BehavioredSettings {
-    readonly gridSettings: GridSettings;
+export interface RevBehavioredColumnSettings extends RevColumnSettings, RevBehavioredSettings {
+    readonly gridSettings: RevGridSettings;
 
-    merge(settings: Partial<ColumnSettings>): boolean;
-    clone(): BehavioredColumnSettings;
+    merge(settings: Partial<RevColumnSettings>): boolean;
+    clone(): RevBehavioredColumnSettings;
 }

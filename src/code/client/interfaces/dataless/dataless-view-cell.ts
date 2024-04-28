@@ -1,17 +1,17 @@
-import { Rectangle } from '../../types-utils/rectangle';
-import { SchemaField } from '../schema/schema-field';
-import { BehavioredColumnSettings } from '../settings/behaviored-column-settings';
-import { DatalessSubgrid } from './dataless-subgrid';
-import { DatalessViewLayoutRow } from './dataless-view-layout-row';
-import { ViewLayoutColumn } from './view-layout-column';
+import { RevRectangle } from '../../types-utils/rectangle';
+import { RevSchemaField } from '../schema/schema-field';
+import { RevBehavioredColumnSettings } from '../settings/behaviored-column-settings';
+import { RevDatalessSubgrid } from './dataless-subgrid';
+import { RevDatalessViewLayoutRow } from './dataless-view-layout-row';
+import { RevViewLayoutColumn } from './view-layout-column';
 
 /** @public */
-export interface DatalessViewCell<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
-    readonly viewLayoutColumn: ViewLayoutColumn<BCS, SF>;
-    readonly subgrid: DatalessSubgrid;
-    readonly viewLayoutRow: DatalessViewLayoutRow;
+export interface RevDatalessViewCell<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> {
+    readonly viewLayoutColumn: RevViewLayoutColumn<BCS, SF>;
+    readonly subgrid: RevDatalessSubgrid;
+    readonly viewLayoutRow: RevDatalessViewLayoutRow;
 
-    readonly bounds: Rectangle;
+    readonly bounds: RevRectangle;
     readonly columnSettings: BCS;
 
     readonly isRowVisible: boolean;
@@ -28,16 +28,16 @@ export interface DatalessViewCell<BCS extends BehavioredColumnSettings, SF exten
     readonly isFilter: boolean;
     readonly isSummary: boolean;
 
-    paintFingerprint: DatalessViewCell.PaintFingerprint | undefined;
+    paintFingerprint: RevDatalessViewCell.PaintFingerprint | undefined;
 
     clearCellOwnProperties(): void;
 }
 
 /** @public */
-export namespace DatalessViewCell {
+export namespace RevDatalessViewCell {
     export type PaintFingerprint = Record<string, unknown>;
 
-    export function sameByDataPoint<BCS extends BehavioredColumnSettings, SF extends SchemaField>(left: DatalessViewCell<BCS, SF>, right: DatalessViewCell<BCS, SF>) {
+    export function sameByDataPoint<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField>(left: RevDatalessViewCell<BCS, SF>, right: RevDatalessViewCell<BCS, SF>) {
         return (
             left.viewLayoutRow.subgridRowIndex === right.viewLayoutRow.subgridRowIndex &&
             left.viewLayoutColumn.column.field.index === right.viewLayoutColumn.column.field.index &&

@@ -1,15 +1,15 @@
 
-import { SchemaField } from '../../../interfaces/schema/schema-field';
-import { BehavioredColumnSettings } from '../../../interfaces/settings/behaviored-column-settings';
-import { BehavioredGridSettings } from '../../../interfaces/settings/behaviored-grid-settings';
-import { GridSettings } from '../../../interfaces/settings/grid-settings';
-import { Canvas } from '../../canvas/canvas';
-import { Focus } from '../../focus/focus';
-import { Mouse } from '../../mouse/mouse';
-import { Selection } from '../../selection/selection';
-import { SubgridsManager } from '../../subgrid/subgrids-manager';
-import { ViewLayout } from '../../view/view-layout';
-import { GridPainter } from './grid-painter';
+import { RevSchemaField } from '../../../interfaces/schema/schema-field';
+import { RevBehavioredColumnSettings } from '../../../interfaces/settings/behaviored-column-settings';
+import { RevBehavioredGridSettings } from '../../../interfaces/settings/behaviored-grid-settings';
+import { RevGridSettings } from '../../../interfaces/settings/grid-settings';
+import { RevCanvas } from '../../canvas/canvas';
+import { RevFocus } from '../../focus/focus';
+import { RevMouse } from '../../mouse/mouse';
+import { RevSelection } from '../../selection/selection';
+import { RevSubgridsManager } from '../../subgrid/subgrids-manager';
+import { RevViewLayout } from '../../view/view-layout';
+import { RevGridPainter } from './grid-painter';
 
 /** Render the grid with consolidated column rects.
  * @remarks Paints all the cells of a grid, one column at a time.
@@ -25,7 +25,7 @@ import { GridPainter } from './grid-painter';
  *
  * **Regading clipping.** The reason for clipping is to prevent text from overflowing into the next column. However there is a serious performance cost.
  *
- * For performance reasons {@link ViewLayout#_paintCell|_paintCell} does not set up a clipping region for each cell. However, iff grid property `columnClip` is truthy, this grid renderer will set up a clipping region to prevent text overflow to right. If `columnClip` is `null`, a clipping region will only be set up on the last column. Otherwise, there will be no clipping region.
+ * For performance reasons {@link RevViewLayout#_paintCell|_paintCell} does not set up a clipping region for each cell. However, iff grid property `columnClip` is truthy, this grid renderer will set up a clipping region to prevent text overflow to right. If `columnClip` is `null`, a clipping region will only be set up on the last column. Otherwise, there will be no clipping region.
  *
  * The idea of clipping just the last column is because in addition to the optional graphics clipping, we also clip ("truncate") text. Text can be truncated conservatively so it will never overflow. The problem with this is that characters vanish as they hit the right cell boundary, which may or may be obvious depending on font size. Alternatively, text can be truncated so that the overflow will be a maximum of 1 character. This allows partial characters to be rendered. But this is where graphics clipping is required.
  *
@@ -34,16 +34,16 @@ import { GridPainter } from './grid-painter';
  * Note that text never overflows to left because text starting point is never < 0. The reason we don't clip to the left is for cell renderers that need to re-render to the left to produce a merged cell effect, such as grouped column header.
  */
 
-export class ByColumnsGridPainter<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends GridPainter<BGS, BCS, SF> {
+export class RevByColumnsGridPainter<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevGridPainter<BGS, BCS, SF> {
     constructor(
-        gridSettings: GridSettings,
-        canvas: Canvas<BGS>,
-        subgridsManager: SubgridsManager<BCS, SF>,
-        viewLayout: ViewLayout<BGS, BCS, SF>,
-        focus: Focus<BGS, BCS, SF>,
-        selection: Selection<BGS, BCS, SF>,
-        mouse: Mouse<BGS, BCS, SF>,
-        repaintAllRequiredEventer: GridPainter.RepaintAllRequiredEventer,
+        gridSettings: RevGridSettings,
+        canvas: RevCanvas<BGS>,
+        subgridsManager: RevSubgridsManager<BCS, SF>,
+        viewLayout: RevViewLayout<BGS, BCS, SF>,
+        focus: RevFocus<BGS, BCS, SF>,
+        selection: RevSelection<BGS, BCS, SF>,
+        mouse: RevMouse<BGS, BCS, SF>,
+        repaintAllRequiredEventer: RevGridPainter.RepaintAllRequiredEventer,
     ) {
         super(
             gridSettings,
@@ -54,9 +54,9 @@ export class ByColumnsGridPainter<BGS extends BehavioredGridSettings, BCS extend
             selection,
             mouse,
             repaintAllRequiredEventer,
-            ByColumnsGridPainter.key,
+            RevByColumnsGridPainter.key,
             false,
-            ByColumnsGridPainter.initialRebundle
+            RevByColumnsGridPainter.initialRebundle
         );
     }
 
@@ -146,7 +146,7 @@ export class ByColumnsGridPainter<BGS extends BehavioredGridSettings, BCS extend
     }
 }
 
-export namespace ByColumnsGridPainter {
+export namespace RevByColumnsGridPainter {
     export const key = 'by-columns';
     export const initialRebundle = true; // see rebundleGridRenderers
 }

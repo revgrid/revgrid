@@ -1,22 +1,22 @@
-import { DatalessViewCell } from '../dataless/dataless-view-cell';
-import { ViewLayoutColumn } from '../dataless/view-layout-column';
-import { SchemaField } from '../schema/schema-field';
-import { BehavioredColumnSettings } from '../settings/behaviored-column-settings';
-import { DataServer } from './data-server';
-import { Subgrid } from './subgrid';
-import { ViewLayoutRow } from './view-layout-row';
+import { RevDatalessViewCell } from '../dataless/dataless-view-cell';
+import { RevViewLayoutColumn } from '../dataless/view-layout-column';
+import { RevSchemaField } from '../schema/schema-field';
+import { RevBehavioredColumnSettings } from '../settings/behaviored-column-settings';
+import { RevDataServer } from './data-server';
+import { RevSubgrid } from './subgrid';
+import { RevViewLayoutRow } from './view-layout-row';
 
 /** @public */
-export interface ViewCell<BCS extends BehavioredColumnSettings, SF extends SchemaField> extends DatalessViewCell<BCS, SF> {
-    readonly subgrid: Subgrid<BCS, SF>;
-    readonly viewLayoutColumn: ViewLayoutColumn<BCS, SF>;
-    readonly viewLayoutRow: ViewLayoutRow<BCS, SF>;
+export interface RevViewCell<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevDatalessViewCell<BCS, SF> {
+    readonly subgrid: RevSubgrid<BCS, SF>;
+    readonly viewLayoutColumn: RevViewLayoutColumn<BCS, SF>;
+    readonly viewLayoutRow: RevViewLayoutRow<BCS, SF>;
 
-    readonly viewValue: DataServer.ViewValue;
+    readonly viewValue: RevDataServer.ViewValue;
 }
 
 /** @public */
-export namespace ViewCell {
+export namespace RevViewCell {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    export import sameByDataPoint = DatalessViewCell.sameByDataPoint;
+    export import sameByDataPoint = RevDatalessViewCell.sameByDataPoint;
 }

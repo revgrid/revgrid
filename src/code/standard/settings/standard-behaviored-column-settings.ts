@@ -1,9 +1,9 @@
-import { BehavioredColumnSettings } from '../../client/internal-api';
-import { StandardColumnSettings } from './standard-column-settings';
+import { RevBehavioredColumnSettings } from '../../client/internal-api';
+import { RevStandardColumnSettings } from './standard-column-settings';
 
 /** @public */
-export interface StandardBehavioredColumnSettings extends StandardColumnSettings, BehavioredColumnSettings {
-    merge(settings: Partial<StandardColumnSettings>): boolean;
-    clone(): StandardBehavioredColumnSettings;
+export interface RevStandardBehavioredColumnSettings extends RevStandardColumnSettings, RevBehavioredColumnSettings {
+    merge(settings: Partial<RevStandardColumnSettings>): boolean;
+    clone(): RevStandardBehavioredColumnSettings;
 }
 

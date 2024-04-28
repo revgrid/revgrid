@@ -1,10 +1,10 @@
-import { RevListChangedEventer, RevListChangedTypeId, SchemaServer } from '../../client/internal-api';
+import { RevListChangedEventer, RevListChangedTypeId, RevSchemaServer } from '../../client/internal-api';
 import { RevRecordSchemaError, RevRecordUnexpectedUndefinedError } from './record-error';
 import { RevRecordField } from './record-field';
 import { RevRecordFieldIndex } from './record-types';
 
 /** @public */
-export class RevRecordSchemaServer<SF extends RevRecordField> implements SchemaServer<SF> {
+export class RevRecordSchemaServer<SF extends RevRecordField> implements RevSchemaServer<SF> {
     /** @internal */
     fieldListChangedEventer: RevListChangedEventer | undefined;
 
@@ -14,13 +14,13 @@ export class RevRecordSchemaServer<SF extends RevRecordField> implements SchemaS
     private readonly _fieldValueDependsOnRecordIndexFieldIndexes: RevRecordFieldIndex[] = [];
     private readonly _fieldValueDependsOnRowIndexFieldIndexes: RevRecordFieldIndex[] = [];
 
-    private _notificationClient: SchemaServer.NotificationsClient<SF>;
+    private _notificationClient: RevSchemaServer.NotificationsClient<SF>;
 
     get schema(): readonly SF[] { return this._fields; }
     get fields(): readonly SF[] { return this._fields; }
     get fieldCount(): number { return this._fields.length; }
 
-    subscribeSchemaNotifications(value: SchemaServer.NotificationsClient<SF>): void {
+    subscribeSchemaNotifications(value: RevSchemaServer.NotificationsClient<SF>): void {
         this._notificationClient = value;
     }
 

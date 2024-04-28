@@ -1,14 +1,14 @@
-import { SchemaField } from '../../../interfaces/schema/schema-field';
-import { BehavioredColumnSettings } from '../../../interfaces/settings/behaviored-column-settings';
-import { BehavioredGridSettings } from '../../../interfaces/settings/behaviored-grid-settings';
-import { GridSettings } from '../../../interfaces/settings/grid-settings';
-import { Canvas } from '../../canvas/canvas';
-import { Focus } from '../../focus/focus';
-import { Mouse } from '../../mouse/mouse';
-import { Selection } from '../../selection/selection';
-import { SubgridsManager } from '../../subgrid/subgrids-manager';
-import { ViewLayout } from '../../view/view-layout';
-import { GridPainter } from './grid-painter';
+import { RevSchemaField } from '../../../interfaces/schema/schema-field';
+import { RevBehavioredColumnSettings } from '../../../interfaces/settings/behaviored-column-settings';
+import { RevBehavioredGridSettings } from '../../../interfaces/settings/behaviored-grid-settings';
+import { RevGridSettings } from '../../../interfaces/settings/grid-settings';
+import { RevCanvas } from '../../canvas/canvas';
+import { RevFocus } from '../../focus/focus';
+import { RevMouse } from '../../mouse/mouse';
+import { RevSelection } from '../../selection/selection';
+import { RevSubgridsManager } from '../../subgrid/subgrids-manager';
+import { RevViewLayout } from '../../view/view-layout';
+import { RevGridPainter } from './grid-painter';
 
 /** Render the grid with discrete column rects.
  * @remarks Paints all the cells of a grid, one column at a time.
@@ -26,19 +26,19 @@ import { GridPainter } from './grid-painter';
  *
  * Each cell to be rendered is described by a {@link CellEvent} object. For performance reasons, to avoid constantly instantiating these objects, we maintain a pool of these. When the grid shape changes, we reset their coordinates by setting {@link CellEvent#reset|reset} on each.
  *
- * See also the discussion of clipping in {@link ViewLayout#paintCellsByColumnsDiscrete|paintCellsByColumnsDiscrete}.
+ * See also the discussion of clipping in {@link RevViewLayout#paintCellsByColumnsDiscrete|paintCellsByColumnsDiscrete}.
  */
 
-export class ByColumnsDiscreteGridPainter<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends GridPainter<BGS, BCS, SF> {
+export class RevByColumnsDiscreteGridPainter<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevGridPainter<BGS, BCS, SF> {
     constructor(
-        gridSettings: GridSettings,
-        canvas: Canvas<BGS>,
-        subgridsManager: SubgridsManager<BCS, SF>,
-        viewLayout: ViewLayout<BGS, BCS, SF>,
-        focus: Focus<BGS, BCS, SF>,
-        selection: Selection<BGS, BCS, SF>,
-        mouse: Mouse<BGS, BCS, SF>,
-        repaintAllRequiredEventer: GridPainter.RepaintAllRequiredEventer,
+        gridSettings: RevGridSettings,
+        canvas: RevCanvas<BGS>,
+        subgridsManager: RevSubgridsManager<BCS, SF>,
+        viewLayout: RevViewLayout<BGS, BCS, SF>,
+        focus: RevFocus<BGS, BCS, SF>,
+        selection: RevSelection<BGS, BCS, SF>,
+        mouse: RevMouse<BGS, BCS, SF>,
+        repaintAllRequiredEventer: RevGridPainter.RepaintAllRequiredEventer,
     ) {
         super(
             gridSettings,
@@ -49,7 +49,7 @@ export class ByColumnsDiscreteGridPainter<BGS extends BehavioredGridSettings, BC
             selection,
             mouse,
             repaintAllRequiredEventer,
-            ByColumnsDiscreteGridPainter.key,
+            RevByColumnsDiscreteGridPainter.key,
             false,
             undefined
         );
@@ -131,6 +131,6 @@ export class ByColumnsDiscreteGridPainter<BGS extends BehavioredGridSettings, BC
     }
 }
 
-export namespace ByColumnsDiscreteGridPainter {
+export namespace RevByColumnsDiscreteGridPainter {
     export const key = 'by-columns-discrete';
 }

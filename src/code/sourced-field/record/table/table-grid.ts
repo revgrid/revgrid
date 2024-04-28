@@ -1,7 +1,7 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
 import { AssertInternalError, CorrectnessState, Integer, LockOpenListItem, MultiEvent, Ok, Result } from '@xilytix/sysutils';
-import { BehavioredColumnSettings, BehavioredGridSettings, RevApiError, RevClientGrid, RevGridDefinition, RevGridOptions } from '../../../client/internal-api';
+import { RevApiError, RevBehavioredColumnSettings, RevBehavioredGridSettings, RevClientGrid, RevGridDefinition, RevGridOptions } from '../../../client/internal-api';
 import { RevColumnLayout, RevColumnLayoutOrReference, RevColumnLayoutOrReferenceDefinition, RevReferenceableColumnLayoutsService } from '../../../column-layout/internal-api';
 import { RevRecordGrid, RevRecordRowOrderDefinition } from '../../../record/internal-api';
 import { RevSourcedFieldCustomHeadingsService } from '../../sourced-field/internal-api';
@@ -28,8 +28,8 @@ export class RevTableGrid<
     TableFieldSourceDefinitionTypeId,
     RenderValueTypeId,
     RenderAttributeTypeId,
-    BGS extends BehavioredGridSettings,
-    BCS extends BehavioredColumnSettings
+    BGS extends RevBehavioredGridSettings,
+    BCS extends RevBehavioredColumnSettings
 > extends RevRecordSourcedFieldGrid<RenderValueTypeId, RenderAttributeTypeId, BGS, BCS, RevRecordSourcedField<RenderValueTypeId, RenderAttributeTypeId>> {
     declare readonly recordStore: RevTableRecordStore<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>;
 

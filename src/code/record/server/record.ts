@@ -1,4 +1,4 @@
-import { DataServer } from '../../client/internal-api';
+import { RevDataServer } from '../../client/internal-api';
 // eslint-disable-next-line import/no-cycle
 import { RevRecordRow } from './record-row';
 
@@ -59,5 +59,5 @@ export namespace RevRecord {
 
 /** @public */
 export interface RevRecordData extends RevRecord {
-    data: DataServer.ViewRow;
+    data: RevDataServer.ViewRow;
 }

@@ -1,7 +1,7 @@
-import { ColumnSettings } from '../../client/internal-api';
-import { StandardOnlyColumnSettings } from './standard-only-column-settings';
+import { RevColumnSettings } from '../../client/internal-api';
+import { RevStandardOnlyColumnSettings } from './standard-only-column-settings';
 
 /** @public */
-export interface StandardColumnSettings extends StandardOnlyColumnSettings, ColumnSettings {
+export interface RevStandardColumnSettings extends RevStandardOnlyColumnSettings, RevColumnSettings {
 
 }

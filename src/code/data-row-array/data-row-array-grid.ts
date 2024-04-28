@@ -1,7 +1,7 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
 import { Integer } from '@xilytix/sysutils';
-import { BehavioredColumnSettings, BehavioredGridSettings, DataServer, RevClientGrid, RevGridDefinition, RevGridOptions } from '../client/internal-api';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevClientGrid, RevDataServer, RevGridDefinition, RevGridOptions } from '../client/internal-api';
 import { RevColumnLayoutGrid } from '../column-layout/internal-api';
 import { RevColumnLayout } from '../column-layout/server/internal-api';
 import {
@@ -12,13 +12,13 @@ import {
 
 /** @public */
 export class RevDataRowArrayGrid<
-    BGS extends BehavioredGridSettings,
-    BCS extends BehavioredColumnSettings,
+    BGS extends RevBehavioredGridSettings,
+    BCS extends RevBehavioredColumnSettings,
     SF extends RevDataRowArrayField
 > extends RevColumnLayoutGrid<BGS, BCS, SF> {
     declare schemaServer: RevDataRowArraySchemaServer<SF>;
     declare mainDataServer: RevDataRowArrayDataServer<SF>;
-    readonly headerDataServer: DataServer<SF> | undefined;
+    readonly headerDataServer: RevDataServer<SF> | undefined;
 
     private _allowedFields: readonly SF[] | undefined;
 
@@ -158,7 +158,7 @@ export class RevDataRowArrayGrid<
     }
 
     // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-    protected convertDataValueToString(value: DataServer.ViewValue | string): string {
+    protected convertDataValueToString(value: RevDataServer.ViewValue | string): string {
         switch (typeof value) {
             case 'string': return value;
             case 'number': return value.toString();
@@ -182,8 +182,8 @@ export namespace RevDataRowArrayGrid {
     }
 
     // eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
-    export interface DataRow extends DataServer.ObjectViewRow {
+    export interface DataRow extends RevDataServer.ObjectViewRow {
         // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-        [fieldName: string]: DataServer.ViewValue | string; // can also have header
+        [fieldName: string]: RevDataServer.ViewValue | string; // can also have header
     }
 }

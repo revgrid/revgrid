@@ -1,46 +1,46 @@
-import { DataServer } from '../interfaces/data/data-server';
-import { Subgrid } from '../interfaces/data/subgrid';
-import { SchemaField } from '../interfaces/schema/schema-field';
-import { SchemaServer } from '../interfaces/schema/schema-server';
-import { BehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
-import { BehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
+import { RevDataServer } from '../interfaces/data/data-server';
+import { RevSubgrid } from '../interfaces/data/subgrid';
+import { RevSchemaField } from '../interfaces/schema/schema-field';
+import { RevSchemaServer } from '../interfaces/schema/schema-server';
+import { RevBehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
+import { RevBehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
 import { RevClientObject } from '../types-utils/client-object';
-import { CssTypes } from '../types-utils/css-types';
+import { RevCssTypes } from '../types-utils/css-types';
 import { RevAssertError } from '../types-utils/revgrid-error';
-import { Canvas } from './canvas/canvas';
-import { ColumnsManager } from './column/columns-manager';
-import { Focus } from './focus/focus';
-import { Mouse } from './mouse/mouse';
-import { Renderer } from './renderer/renderer';
-import { Scroller } from './scroller/scroller';
-import { Selection } from './selection/selection';
-import { SubgridsManager } from './subgrid/subgrids-manager';
-import { ViewLayout } from './view/view-layout';
+import { RevCanvas } from './canvas/canvas';
+import { RevColumnsManager } from './column/columns-manager';
+import { RevFocus } from './focus/focus';
+import { RevMouse } from './mouse/mouse';
+import { RevRenderer } from './renderer/renderer';
+import { RevScroller } from './scroller/scroller';
+import { RevSelection } from './selection/selection';
+import { RevSubgridsManager } from './subgrid/subgrids-manager';
+import { RevViewLayout } from './view/view-layout';
 
 /** @internal */
-export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevClientObject {
-    readonly canvas: Canvas<BGS>;
-    readonly focus: Focus<BGS, BCS, SF>;
-    readonly selection: Selection<BGS, BCS, SF>;
-    readonly columnsManager: ColumnsManager<BCS, SF>;
-    readonly subgridsManager: SubgridsManager<BCS, SF>;
-    readonly viewLayout: ViewLayout<BGS, BCS, SF>;
-    readonly renderer: Renderer<BGS, BCS, SF>;
-    readonly mouse: Mouse<BGS, BCS, SF>;
+export class RevComponentsManager<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {
+    readonly canvas: RevCanvas<BGS>;
+    readonly focus: RevFocus<BGS, BCS, SF>;
+    readonly selection: RevSelection<BGS, BCS, SF>;
+    readonly columnsManager: RevColumnsManager<BCS, SF>;
+    readonly subgridsManager: RevSubgridsManager<BCS, SF>;
+    readonly viewLayout: RevViewLayout<BGS, BCS, SF>;
+    readonly renderer: RevRenderer<BGS, BCS, SF>;
+    readonly mouse: RevMouse<BGS, BCS, SF>;
 
-    readonly horizontalScroller: Scroller<BGS, BCS, SF>;
-    readonly verticalScroller: Scroller<BGS, BCS, SF>;
+    readonly horizontalScroller: RevScroller<BGS, BCS, SF>;
+    readonly verticalScroller: RevScroller<BGS, BCS, SF>;
 
     constructor(
         readonly clientId: string,
         readonly internalParent: RevClientObject,
         gridSettings: BGS,
         hostElement: HTMLElement,
-        schemaServer: SchemaServer<SF>,
-        subgridDefinitions: Subgrid.Definition<BCS, SF>[],
-        canvasOverflowOverride: CssTypes.Overflow | undefined,
+        schemaServer: RevSchemaServer<SF>,
+        subgridDefinitions: RevSubgrid.Definition<BCS, SF>[],
+        canvasOverflowOverride: RevCssTypes.Overflow | undefined,
         canvasRenderingContext2DSettings: CanvasRenderingContext2DSettings | undefined,
-        getSettingsForNewColumnEventer: ColumnsManager.GetSettingsForNewColumnEventer<BCS, SF>,
+        getSettingsForNewColumnEventer: RevColumnsManager.GetSettingsForNewColumnEventer<BCS, SF>,
     ) {
         // this.gridSettings = new AbstractMergableGridSettings();
         // this.gridSettings.loadDefaults();
@@ -48,7 +48,7 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
         //     this.gridSettings.merge(optionedGridSettings);
         // }
 
-        this.canvas = new Canvas(
+        this.canvas = new RevCanvas(
             this.clientId,
             this,
             hostElement,
@@ -57,7 +57,7 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
             gridSettings,
         );
 
-        this.columnsManager = new ColumnsManager<BCS, SF>(
+        this.columnsManager = new RevColumnsManager<BCS, SF>(
             this.clientId,
             this,
             schemaServer,
@@ -68,7 +68,7 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
         if  (subgridDefinitions.length === 0) {
             throw new RevAssertError('CBM43330', 'Adapter set missing Subgrid specs');
         } else {
-            this.subgridsManager = new SubgridsManager(
+            this.subgridsManager = new RevSubgridsManager(
                 this.clientId,
                 this,
                 gridSettings,
@@ -76,7 +76,7 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
                 subgridDefinitions,
             );
 
-            this.viewLayout = new ViewLayout(
+            this.viewLayout = new RevViewLayout(
                 this.clientId,
                 this,
                 gridSettings,
@@ -85,7 +85,7 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
                 this.subgridsManager,
             );
 
-            this.focus = new Focus(
+            this.focus = new RevFocus(
                 this.clientId,
                 this,
                 gridSettings,
@@ -95,7 +95,7 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
                 this.viewLayout,
             );
 
-            this.selection = new Selection(
+            this.selection = new RevSelection(
                 this.clientId,
                 this,
                 gridSettings,
@@ -103,14 +103,14 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
                 this.focus,
             );
 
-            this.mouse = new Mouse(
+            this.mouse = new RevMouse(
                 this.clientId,
                 this,
                 this.canvas,
                 this.viewLayout,
             );
 
-            this.renderer = new Renderer(
+            this.renderer = new RevRenderer(
                 this.clientId,
                 this,
                 gridSettings,
@@ -123,7 +123,7 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
                 this.mouse,
             );
 
-            this.verticalScroller = new Scroller(
+            this.verticalScroller = new RevScroller(
                 this.clientId,
                 this,
                 gridSettings,
@@ -136,7 +136,7 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
                 undefined,
             );
 
-            this.horizontalScroller = new Scroller(
+            this.horizontalScroller = new RevScroller(
                 this.clientId,
                 this,
                 gridSettings,
@@ -191,7 +191,7 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
         this.subgridsManager.destroy();
     }
 
-    getViewValue(x: number, y: number, subgrid: Subgrid<BCS, SF>) {
+    getViewValue(x: number, y: number, subgrid: RevSubgrid<BCS, SF>) {
         const column = this.columnsManager.getActiveColumn(x);
         const field = column.field;
         const dataServer = subgrid.dataServer;
@@ -208,7 +208,7 @@ export class ComponentsManager<BGS extends BehavioredGridSettings, BCS extends B
      * @param value - New cell data.
      * @param subgrid - `x` and `y` are _data cell coordinates_ in the given subgrid data model. If If omitted, `x` and `y` are _grid cell coordinates._
      */
-    setValue(x: number, y: number, value: DataServer.EditValue, subgrid: Subgrid<BCS, SF>) {
+    setValue(x: number, y: number, value: RevDataServer.EditValue, subgrid: RevSubgrid<BCS, SF>) {
         const dataServer = subgrid.dataServer;
         if (dataServer.setEditValue === undefined) {
             throw new RevAssertError('BSV32220');

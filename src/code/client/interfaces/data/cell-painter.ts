@@ -1,28 +1,28 @@
-import { CachedCanvasRenderingContext2D } from '../../types-utils/cached-canvas-rendering-context-2d';
-import { DatalessViewCell } from '../dataless/dataless-view-cell';
-import { SchemaField } from '../schema/schema-field';
-import { BehavioredColumnSettings } from '../settings/behaviored-column-settings';
-import { CellPossiblyPaintable } from './cell-possibly-paintable';
+import { RevCachedCanvasRenderingContext2D } from '../../types-utils/cached-canvas-rendering-context-2d';
+import { RevDatalessViewCell } from '../dataless/dataless-view-cell';
+import { RevSchemaField } from '../schema/schema-field';
+import { RevBehavioredColumnSettings } from '../settings/behaviored-column-settings';
+import { RevCellPossiblyPaintable } from './cell-possibly-paintable';
 
 /**
- * Implementations of `CellPainter` are used to render the 2D graphics context within the bound of a cell.
+ * Implementations of `RevCellPainter` are used to render the 2D graphics context within the bound of a cell.
  *
  * Implement this interface to implement your own cell painter.
  *
  * @public
  */
-export interface CellPainter<BCS extends BehavioredColumnSettings, SF extends SchemaField> extends CellPossiblyPaintable<BCS, SF> {
+export interface RevCellPainter<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevCellPossiblyPaintable<BCS, SF> {
 
     /**
      * An empty implementation of a cell renderer, see [the null object pattern](http://c2.com/cgi/wiki?NullObject).
      * @returns Preferred pixel width of content. The content may or may not be rendered at that width depending on whether or not `config.bounds` was respected and whether or not the grid renderer is using clipping. (Clipping is generally not used due to poor performance.)
      */
-    paint(cell: DatalessViewCell<BCS, SF>, prefillColor: string | undefined): number | undefined;
+    paint(cell: RevDatalessViewCell<BCS, SF>, prefillColor: string | undefined): number | undefined;
 
 }
 
 /** @public */
-export namespace CellPainter {
+export namespace RevCellPainter {
     /**
      * A simple implementation of rounding a cell.
      * @param x - the x grid coordinate of my origin
@@ -30,7 +30,7 @@ export namespace CellPainter {
      * @param width - the width I'm allowed to draw within
      * @param height - the height I'm allowed to draw within
      */
-    export function roundRect(gc: CachedCanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number, fill: boolean, stroke?: number | boolean) {
+    export function roundRect(gc: RevCachedCanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number, fill: boolean, stroke?: number | boolean) {
 
         if (!stroke) {
             stroke = true;

@@ -1,15 +1,15 @@
-import { BehavioredColumnSettings, BehavioredGridSettings, CellEditor, ClickBoxCellPainter, DatalessViewCell, Rectangle, SchemaField } from '../../client/internal-api';
-import { StandardPaintCellEditor } from './standard-paint-cell-editor';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevCellEditor, RevClickBoxCellPainter, RevDatalessViewCell, RevRectangle, RevSchemaField } from '../../client/internal-api';
+import { RevStandardPaintCellEditor } from './standard-paint-cell-editor';
 
 /** @public */
-export class StandardToggleClickBoxCellEditor<
-    BGS extends BehavioredGridSettings,
-    BCS extends BehavioredColumnSettings,
-    SF extends SchemaField
-> extends StandardPaintCellEditor<BGS, BCS, SF> {
-    declare protected _painter: ClickBoxCellPainter<BCS, SF>;
+export class RevStandardToggleClickBoxCellEditor<
+    BGS extends RevBehavioredGridSettings,
+    BCS extends RevBehavioredColumnSettings,
+    SF extends RevSchemaField
+> extends RevStandardPaintCellEditor<BGS, BCS, SF> {
+    declare protected _painter: RevClickBoxCellPainter<BCS, SF>;
 
-    override tryOpenCell(cell: DatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined) {
+    override tryOpenCell(cell: RevDatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined) {
         const dataServer = this._dataServer;
         if (dataServer.getEditValue === undefined || this.readonly) {
             return false;
@@ -42,12 +42,12 @@ export class StandardToggleClickBoxCellEditor<
         }
     }
 
-    processGridClickEvent(event: MouseEvent, viewCell: DatalessViewCell<BCS, SF>) {
+    processGridClickEvent(event: MouseEvent, viewCell: RevDatalessViewCell<BCS, SF>) {
         const boxBounds = this._painter.calculateClickBox(viewCell);
         if (boxBounds === undefined) {
             return false;
         } else {
-            if (!Rectangle.containsXY(boxBounds, event.offsetX, event.offsetY)) {
+            if (!RevRectangle.containsXY(boxBounds, event.offsetX, event.offsetY)) {
                 return false;
             } else {
                 const column = viewCell.viewLayoutColumn.column;
@@ -58,12 +58,12 @@ export class StandardToggleClickBoxCellEditor<
         }
     }
 
-    processGridPointerMoveEvent(event: PointerEvent, viewCell: DatalessViewCell<BCS, SF>): CellEditor.PointerLocationInfo | undefined {
+    processGridPointerMoveEvent(event: PointerEvent, viewCell: RevDatalessViewCell<BCS, SF>): RevCellEditor.PointerLocationInfo | undefined {
         const boxBounds = this._painter.calculateClickBox(viewCell);
         if (boxBounds === undefined) {
             return undefined;
         } else {
-            if (!Rectangle.containsXY(boxBounds, event.offsetX, event.offsetY)) {
+            if (!RevRectangle.containsXY(boxBounds, event.offsetX, event.offsetY)) {
                 return undefined;
             } else {
                 return {

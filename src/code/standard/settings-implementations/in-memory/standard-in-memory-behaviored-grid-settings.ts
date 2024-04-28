@@ -1,31 +1,29 @@
-import {
-    GridSettings
-} from '../../../client/internal-api';
-import { InMemoryBehavioredGridSettings } from '../../../settings-implementations/internal-api';
-import { HorizontalAlign, TextTruncateType } from '../../painters/internal-api';
-import { StandardBehavioredGridSettings, StandardGridSettings, StandardOnlyGridSettings } from '../../settings/internal-api';
+import { RevGridSettings } from '../../../client/internal-api';
+import { RevInMemoryBehavioredGridSettings } from '../../../settings-implementations/internal-api';
+import { RevHorizontalAlign, RevTextTruncateTypeId } from '../../painters/internal-api';
+import { RevStandardBehavioredGridSettings, RevStandardGridSettings, RevStandardOnlyGridSettings } from '../../settings/internal-api';
 
 /** @public */
-export class InMemoryStandardBehavioredGridSettings extends InMemoryBehavioredGridSettings implements StandardBehavioredGridSettings {
+export class RevStandardInMemoryBehavioredGridSettings extends RevInMemoryBehavioredGridSettings implements RevStandardBehavioredGridSettings {
     private _cellPadding: number;
-    private _cellFocusedBorderColor: GridSettings.Color | undefined;
-    private _cellHoverBackgroundColor: GridSettings.Color | undefined;
-    private _columnHoverBackgroundColor: GridSettings.Color | undefined;
+    private _cellFocusedBorderColor: RevGridSettings.Color | undefined;
+    private _cellHoverBackgroundColor: RevGridSettings.Color | undefined;
+    private _columnHoverBackgroundColor: RevGridSettings.Color | undefined;
     private _columnHeaderFont: string | undefined;
-    private _columnHeaderHorizontalAlign: HorizontalAlign | undefined;
-    private _columnHeaderBackgroundColor: GridSettings.Color | undefined;
-    private _columnHeaderForegroundColor: GridSettings.Color | undefined;
+    private _columnHeaderHorizontalAlign: RevHorizontalAlign | undefined;
+    private _columnHeaderBackgroundColor: RevGridSettings.Color | undefined;
+    private _columnHeaderForegroundColor: RevGridSettings.Color | undefined;
     private _columnHeaderSelectionFont: string | undefined;
-    private _columnHeaderSelectionBackgroundColor: GridSettings.Color | undefined;
-    private _columnHeaderSelectionForegroundColor: GridSettings.Color | undefined;
-    private _rowHoverBackgroundColor: GridSettings.Color | undefined;
-    private _selectionFont: GridSettings.Color | undefined;
-    private _selectionBackgroundColor: GridSettings.Color | undefined;
-    private _selectionForegroundColor: GridSettings.Color | undefined;
+    private _columnHeaderSelectionBackgroundColor: RevGridSettings.Color | undefined;
+    private _columnHeaderSelectionForegroundColor: RevGridSettings.Color | undefined;
+    private _rowHoverBackgroundColor: RevGridSettings.Color | undefined;
+    private _selectionFont: RevGridSettings.Color | undefined;
+    private _selectionBackgroundColor: RevGridSettings.Color | undefined;
+    private _selectionForegroundColor: RevGridSettings.Color | undefined;
     private _font: string;
-    private _horizontalAlign: HorizontalAlign;
+    private _horizontalAlign: RevHorizontalAlign;
     private _verticalOffset: number;
-    private _textTruncateType: TextTruncateType | undefined;
+    private _textTruncateType: RevTextTruncateTypeId | undefined;
     private _textStrikeThrough: boolean;
 
     get cellPadding() { return this._cellPadding; }
@@ -38,7 +36,7 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryBehavioredGr
         }
     }
     get cellFocusedBorderColor() { return this._cellFocusedBorderColor; }
-    set cellFocusedBorderColor(value: GridSettings.Color | undefined) {
+    set cellFocusedBorderColor(value: RevGridSettings.Color | undefined) {
         if (value !== this._cellFocusedBorderColor) {
             this.beginChange();
             this._cellFocusedBorderColor = value;
@@ -47,7 +45,7 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryBehavioredGr
         }
     }
     get cellHoverBackgroundColor() { return this._cellHoverBackgroundColor; }
-    set cellHoverBackgroundColor(value: GridSettings.Color | undefined) {
+    set cellHoverBackgroundColor(value: RevGridSettings.Color | undefined) {
         if (value !== this._cellHoverBackgroundColor) {
             this.beginChange();
             this._cellHoverBackgroundColor = value;
@@ -56,7 +54,7 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryBehavioredGr
         }
     }
     get columnHoverBackgroundColor() { return this._columnHoverBackgroundColor; }
-    set columnHoverBackgroundColor(value: GridSettings.Color | undefined) {
+    set columnHoverBackgroundColor(value: RevGridSettings.Color | undefined) {
         if (value !== this._columnHoverBackgroundColor) {
             this.beginChange();
             this._columnHoverBackgroundColor = value;
@@ -74,7 +72,7 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryBehavioredGr
         }
     }
     get columnHeaderHorizontalAlign() { return this._columnHeaderHorizontalAlign; }
-    set columnHeaderHorizontalAlign(value: HorizontalAlign | undefined) {
+    set columnHeaderHorizontalAlign(value: RevHorizontalAlign | undefined) {
         if (value !== this._columnHeaderHorizontalAlign) {
             this.beginChange();
             this._columnHeaderHorizontalAlign = value;
@@ -83,7 +81,7 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryBehavioredGr
         }
     }
     get columnHeaderBackgroundColor() { return this._columnHeaderBackgroundColor; }
-    set columnHeaderBackgroundColor(value: GridSettings.Color | undefined) {
+    set columnHeaderBackgroundColor(value: RevGridSettings.Color | undefined) {
         if (value !== this._columnHeaderBackgroundColor) {
             this.beginChange();
             this._columnHeaderBackgroundColor = value;
@@ -92,7 +90,7 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryBehavioredGr
         }
     }
     get columnHeaderForegroundColor() { return this._columnHeaderForegroundColor; }
-    set columnHeaderForegroundColor(value: GridSettings.Color | undefined) {
+    set columnHeaderForegroundColor(value: RevGridSettings.Color | undefined) {
         if (value !== this._columnHeaderForegroundColor) {
             this.beginChange();
             this._columnHeaderForegroundColor = value;
@@ -110,7 +108,7 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryBehavioredGr
         }
     }
     get columnHeaderSelectionBackgroundColor() { return this._columnHeaderSelectionBackgroundColor; }
-    set columnHeaderSelectionBackgroundColor(value: GridSettings.Color | undefined) {
+    set columnHeaderSelectionBackgroundColor(value: RevGridSettings.Color | undefined) {
         if (value !== this._columnHeaderSelectionBackgroundColor) {
             this.beginChange();
             this._columnHeaderSelectionBackgroundColor = value;
@@ -119,7 +117,7 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryBehavioredGr
         }
     }
     get columnHeaderSelectionForegroundColor() { return this._columnHeaderSelectionForegroundColor; }
-    set columnHeaderSelectionForegroundColor(value: GridSettings.Color | undefined) {
+    set columnHeaderSelectionForegroundColor(value: RevGridSettings.Color | undefined) {
         if (value !== this._columnHeaderSelectionForegroundColor) {
             this.beginChange();
             this._columnHeaderSelectionForegroundColor = value;
@@ -128,7 +126,7 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryBehavioredGr
         }
     }
     get rowHoverBackgroundColor() { return this._rowHoverBackgroundColor; }
-    set rowHoverBackgroundColor(value: GridSettings.Color | undefined) {
+    set rowHoverBackgroundColor(value: RevGridSettings.Color | undefined) {
         if (value !== this._rowHoverBackgroundColor) {
             this.beginChange();
             this._rowHoverBackgroundColor = value;
@@ -137,7 +135,7 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryBehavioredGr
         }
     }
     get selectionFont() { return this._selectionFont; }
-    set selectionFont(value: GridSettings.Color | undefined) {
+    set selectionFont(value: RevGridSettings.Color | undefined) {
         if (value !== this._selectionFont) {
             this.beginChange();
             this._selectionFont = value;
@@ -146,7 +144,7 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryBehavioredGr
         }
     }
     get selectionBackgroundColor() { return this._selectionBackgroundColor; }
-    set selectionBackgroundColor(value: GridSettings.Color | undefined) {
+    set selectionBackgroundColor(value: RevGridSettings.Color | undefined) {
         if (value !== this._selectionBackgroundColor) {
             this.beginChange();
             this._selectionBackgroundColor = value;
@@ -155,7 +153,7 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryBehavioredGr
         }
     }
     get selectionForegroundColor() { return this._selectionForegroundColor; }
-    set selectionForegroundColor(value: GridSettings.Color | undefined) {
+    set selectionForegroundColor(value: RevGridSettings.Color | undefined) {
         if (value !== this._selectionForegroundColor) {
             this.beginChange();
             this._selectionForegroundColor = value;
@@ -173,7 +171,7 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryBehavioredGr
         }
     }
     get horizontalAlign() { return this._horizontalAlign; }
-    set horizontalAlign(value: HorizontalAlign) {
+    set horizontalAlign(value: RevHorizontalAlign) {
         if (value !== this._horizontalAlign) {
             this.beginChange();
             this._horizontalAlign = value;
@@ -191,7 +189,7 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryBehavioredGr
         }
     }
     get textTruncateType() { return this._textTruncateType; }
-    set textTruncateType(value: TextTruncateType | undefined) {
+    set textTruncateType(value: RevTextTruncateTypeId | undefined) {
         if (value !== this._textTruncateType) {
             this.beginChange();
             this._textTruncateType = value;
@@ -209,15 +207,15 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryBehavioredGr
         }
     }
 
-    override merge(settings: Partial<StandardGridSettings>) {
+    override merge(settings: Partial<RevStandardGridSettings>) {
         this.beginChange();
 
         super.merge(settings);
 
-        const requiredSettings = settings as Required<StandardGridSettings>; // since we only iterate over keys that exist we can assume that settings is not partial in the switch loop
+        const requiredSettings = settings as Required<RevStandardGridSettings>; // since we only iterate over keys that exist we can assume that settings is not partial in the switch loop
         for (const key in settings) {
             // Use loop so that compiler will report error if any setting missing
-            const gridSettingsKey = key as keyof StandardOnlyGridSettings;
+            const gridSettingsKey = key as keyof RevStandardOnlyGridSettings;
             switch (gridSettingsKey) {
                 case 'cellPadding':
                     if (this._cellPadding !== requiredSettings.cellPadding) {
@@ -350,7 +348,7 @@ export class InMemoryStandardBehavioredGridSettings extends InMemoryBehavioredGr
     }
 
     override clone() {
-        const copy = new InMemoryStandardBehavioredGridSettings();
+        const copy = new RevStandardInMemoryBehavioredGridSettings();
         copy.merge(this);
         return copy;
     }

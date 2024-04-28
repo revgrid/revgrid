@@ -1,11 +1,11 @@
-import { SchemaField } from '../../interfaces/schema/schema-field';
-import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
-import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
-import { UiController } from './ui-controller';
+import { RevSchemaField } from '../../interfaces/schema/schema-field';
+import { RevBehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
+import { RevBehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
+import { RevUiController } from './ui-controller';
 
 /** @internal */
-export class ClipboardUiController<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends UiController<BGS, BCS, SF> {
-    readonly typeName = ClipboardUiController.typeName;
+export class RevClipboardUiController<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevUiController<BGS, BCS, SF> {
+    readonly typeName = RevClipboardUiController.typeName;
 
     override handleCopy(eventDetail: ClipboardEvent) {
         eventDetail.preventDefault();
@@ -18,6 +18,6 @@ export class ClipboardUiController<BGS extends BehavioredGridSettings, BCS exten
 }
 
 /** @internal */
-export namespace ClipboardUiController {
+export namespace RevClipboardUiController {
     export const typeName = 'clipboard';
 }

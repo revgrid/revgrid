@@ -1,8 +1,8 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
-import { SchemaField } from '../../../client/internal-api';
+import { RevSchemaField } from '../../../client/internal-api';
 
 /** @public */
-export interface RevSingleHeadingSchemaField extends SchemaField {
+export interface RevSingleHeadingSchemaField extends RevSchemaField {
     heading: string;
 }

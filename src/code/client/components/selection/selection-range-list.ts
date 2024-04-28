@@ -1,24 +1,24 @@
-import { ContiguousIndexRangeList } from './contiguous-index-range-list';
-import { SelectionAreaList } from './selection-area-list';
+import { RevContiguousIndexRangeList } from './contiguous-index-range-list';
+import { RevSelectionAreaList } from './selection-area-list';
 
 /**
  * This object models selection of "cells" within an abstract single-dimensional matrix.
  *
  * @remarks
  * Disjoint selections can be built with calls to the following methods:
- * * {@link SelectionRangeList#select|select(start, stop)} - Add a range to the matrix.
- * * {@link SelectionRangeList#deselect|deselect(start, stop)} - Remove a range from the matrix.
+ * * {@link RevSelectionRangeList#select|select(start, stop)} - Add a range to the matrix.
+ * * {@link RevSelectionRangeList#deselect|deselect(start, stop)} - Remove a range from the matrix.
  *
  * Two more methods are available:
- * * Test a cell to see if it {@link SelectionRangeList#isSelected|isSelected(cell)}
- * * {@link SelectionRangeList#clear|clear()} the matrix
+ * * Test a cell to see if it {@link RevSelectionRangeList#isSelected|isSelected(cell)}
+ * * {@link RevSelectionRangeList#clear|clear()} the matrix
  *
  * Internally, the selection is run-length-encoded. It is therefore a "sparse" matrix
  * with undefined bounds. A single data property called `selection` is an array that
  * contains all the "ranges" of selected cells albeit in no particular order.
  * This property should not normally need to be accessed directly.
  */
-export class SelectionRangeList extends ContiguousIndexRangeList implements SelectionAreaList {
+export class RevSelectionRangeList extends RevContiguousIndexRangeList implements RevSelectionAreaList {
     // readonly ranges = new Array<ContiguousIndexRange>(0);
 
     get areaCount() { return this.ranges.length; }
@@ -41,14 +41,14 @@ export class SelectionRangeList extends ContiguousIndexRangeList implements Sele
     //     if (count <= 0) {
     //         return false;
     //     } else {
-    //         let newRange = SelectionRange.make(start, count);
-    //         const newSelection: SelectionRange[] = [];
+    //         let newRange = RevSelectionRange.make(start, count);
+    //         const newSelection: RevSelectionRange[] = [];
     //         for (const range of this.ranges) {
-    //             if (SelectionRange.contains(range, newRange)) {
+    //             if (RevSelectionRange.contains(range, newRange)) {
     //                 return false;
     //             } else {
-    //                 if (SelectionRange.overlaps(range, newRange) || SelectionRange.abuts(range, newRange)) {
-    //                     newRange = SelectionRange.merge(range, newRange);
+    //                 if (RevSelectionRange.overlaps(range, newRange) || RevSelectionRange.abuts(range, newRange)) {
+    //                     newRange = RevSelectionRange.merge(range, newRange);
     //                 } else {
     //                     newSelection.push(range);
     //                 }
@@ -71,12 +71,12 @@ export class SelectionRangeList extends ContiguousIndexRangeList implements Sele
      * @param start - Start of range. May be greater than `stop`.
      */
     // deselect(start: number, count: number) {
-    //     const deselectRange = SelectionRange.make(start, count);
+    //     const deselectRange = RevSelectionRange.make(start, count);
     //     let changed = false;
-    //     let newSelection: SelectionRange[] = [];
+    //     let newSelection: RevSelectionRange[] = [];
     //     this.ranges.forEach((range) => {
-    //         if (SelectionRange.overlaps(range, deselectRange)) {
-    //             const pieces = SelectionRange.subtract(range, deselectRange);
+    //         if (RevSelectionRange.overlaps(range, deselectRange)) {
+    //             const pieces = RevSelectionRange.subtract(range, deselectRange);
     //             newSelection = [...newSelection, ...pieces];
     //             changed = true;
     //         } else {

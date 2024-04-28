@@ -1,5 +1,5 @@
 /** @public */
-export namespace CssTypes {
+export namespace RevCssTypes {
     export const libraryName = 'revgrid';
 
     export const enum Overflow {

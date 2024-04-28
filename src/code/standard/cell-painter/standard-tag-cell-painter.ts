@@ -1,16 +1,16 @@
 
-import { DatalessViewCell, SchemaField } from '../../client/internal-api';
-import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/internal-api';
-import { StandardCellPainter } from './standard-cell-painter';
+import { RevDatalessViewCell, RevSchemaField } from '../../client/internal-api';
+import { RevStandardBehavioredColumnSettings, RevStandardBehavioredGridSettings } from '../settings/internal-api';
+import { RevStandardCellPainter } from './standard-cell-painter';
 
 /** @public */
-export class StandardTagCellPainter<
-    BGS extends StandardBehavioredGridSettings,
-    BCS extends StandardBehavioredColumnSettings,
-    SF extends SchemaField
-> extends StandardCellPainter<BGS, BCS, SF> {
+export class RevStandardTagCellPainter<
+    BGS extends RevStandardBehavioredGridSettings,
+    BCS extends RevStandardBehavioredColumnSettings,
+    SF extends RevSchemaField
+> extends RevStandardCellPainter<BGS, BCS, SF> {
 
-    override paint(_cell: DatalessViewCell<BCS, SF>, _prefillColor: string | undefined): number | undefined {
+    override paint(_cell: RevDatalessViewCell<BCS, SF>, _prefillColor: string | undefined): number | undefined {
         // const gc = this._renderingContext;
         // const tagbands: TagCellPainter.Tagband[] | undefined = undefined; // should be config.tagbands
         // if (tagbands) {
@@ -39,7 +39,7 @@ export class StandardTagCellPainter<
 }
 
 /** @public */
-export namespace StandardTagCellPainter {
+export namespace RevStandardTagCellPainter {
     export const typeName = 'Tag';
 
     // Has not been implemented.  Needs to be declared elsewhere

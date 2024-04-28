@@ -7,11 +7,11 @@
  * from the top of the window. This convention however is not inherent in this object.)
  */
 
-import { Writable } from './types';
-import { calculateAdjustmentForRangeMoved } from './utils';
+import { RevWritable } from './types';
+import { revCalculateAdjustmentForRangeMoved } from './utils';
 
 /** @public */
-export interface Point {
+export interface RevPoint {
     /** This point's horizontal coordinate */
     readonly x: number,
     /** This point's vertical coordinate */
@@ -19,15 +19,15 @@ export interface Point {
 }
 
 /** @public */
-export namespace Point {
-    export function create(x: number, y: number): Point {
+export namespace RevPoint {
+    export function create(x: number, y: number): RevPoint {
         return {
             x,
             y
         };
     }
 
-    export function copy(other: Point) {
+    export function copy(other: RevPoint) {
         return {
             x: other.x,
             y: other.y,
@@ -38,7 +38,7 @@ export namespace Point {
      * @returns A new point which is the reference point's position increased by coordinates of given `offset`.
      * @param offset - Horizontal and vertical values to add to this point's coordinates.
      */
-    export function plus(referencePoint: Point, offset: Point): Point {
+    export function plus(referencePoint: RevPoint, offset: RevPoint): RevPoint {
         return create(
             referencePoint.x + offset.x,
             referencePoint.y + offset.y
@@ -50,7 +50,7 @@ export namespace Point {
      * @param offsetX - Value to add to this point's horizontal coordinate.
      * @param offsetY - Value to add to this point's horizontal coordinate.
      */
-    export function plusXY(referencePoint: Point, offsetX = 0, offsetY = 0): Point {
+    export function plusXY(referencePoint: RevPoint, offsetX = 0, offsetY = 0): RevPoint {
         return create(
             referencePoint.x + offsetX,
             referencePoint.y + offsetY
@@ -61,7 +61,7 @@ export namespace Point {
      * @returns A new point which is this point's position decreased by coordinates of given `offset`.
      * @param offset - Horizontal and vertical values to subtract from this point's coordinates.
      */
-    export function minus(referencePoint: Point, offset: Point): Point {
+    export function minus(referencePoint: RevPoint, offset: RevPoint): RevPoint {
         return create(
             referencePoint.x - offset.x,
             referencePoint.y - offset.y
@@ -72,7 +72,7 @@ export namespace Point {
      * @returns A new `Point` positioned to least x and least y of this point and given `offset`.
      * @param point - A point to compare to this point.
      */
-    export function min(referencePoint: Point, point: Point): Point {
+    export function min(referencePoint: RevPoint, point: RevPoint): RevPoint {
         return create(
             Math.min(referencePoint.x, point.x),
             Math.min(referencePoint.y, point.y)
@@ -83,7 +83,7 @@ export namespace Point {
      * @returns A new `Point` positioned to greatest x and greatest y of this point and given `point`.
      * @param point - A point to compare to this point.
      */
-    export function max(referencePoint: Point, point: Point): Point {
+    export function max(referencePoint: RevPoint, point: RevPoint): RevPoint {
         return create(
             Math.max(referencePoint.x, point.x),
             Math.max(referencePoint.y, point.y)
@@ -94,7 +94,7 @@ export namespace Point {
      * @returns Distance between given `point` and this point using Pythagorean Theorem formula.
      * @param point - A point from which to compute the distance to this point.
      */
-    export function distance(referencePoint: Point, point: Point): number {
+    export function distance(referencePoint: RevPoint, point: RevPoint): number {
         const deltaX = point.x - referencePoint.x;
         const deltaY = point.y - referencePoint.y;
 
@@ -109,7 +109,7 @@ export namespace Point {
      * @returns `true` iff _both_ coordinates of this point are exactly equal to those of given `point`.
      * @param point - A point to compare to this point.
      */
-    export function isEqual(referencePoint: Point, point: Point | undefined): boolean {
+    export function isEqual(referencePoint: RevPoint, point: RevPoint | undefined): boolean {
         if (point) {
             const result =
                 referencePoint.x === point.x &&
@@ -124,7 +124,7 @@ export namespace Point {
      * @returns `true` iff _both_ coordinates of this point are greater than those of given `point`.
      * @param point - A point to compare to this point
      */
-    export function greaterThan(referencePoint: Point, point: Point): boolean {
+    export function greaterThan(referencePoint: RevPoint, point: RevPoint): boolean {
         return (
             referencePoint.x > point.x &&
             referencePoint.y > point.y
@@ -135,7 +135,7 @@ export namespace Point {
      * @returns `true` iff _both_ coordinates of this point are less than those of given `point`.
      * @param point - A point to compare to this point
      */
-    export function lessThan(referencePoint: Point, point: Point): boolean {
+    export function lessThan(referencePoint: RevPoint, point: RevPoint): boolean {
         return (
             referencePoint.x < point.x &&
             referencePoint.y < point.y
@@ -147,7 +147,7 @@ export namespace Point {
      * @returns `true` iff _both_ coordinates of this point are greater than or equal to those of given `point`.
      * @param point - A point to compare to this point
      */
-    export function greaterThanOrEqualTo(referencePoint: Point, point: Point): boolean {
+    export function greaterThanOrEqualTo(referencePoint: RevPoint, point: RevPoint): boolean {
         return (
             referencePoint.x >= point.x &&
             referencePoint.y >= point.y
@@ -159,34 +159,34 @@ export namespace Point {
      * @returns `true` iff _both_ coordinates of this point are less than or equal to those of given `point`.
      * @param point - A point to compare to this point.
      */
-    export function lessThanOrEqualTo(referencePoint: Point, point: Point): boolean {
+    export function lessThanOrEqualTo(referencePoint: RevPoint, point: RevPoint): boolean {
         return (
             referencePoint.x <= point.x &&
             referencePoint.y <= point.y
         );
     }
 
-    export function moveX(point: Point, offset: number) {
-        (point as WritablePoint).x += offset;
+    export function moveX(point: RevPoint, offset: number) {
+        (point as RevWritablePoint).x += offset;
     }
 
-    export function moveY(point: Point, offset: number) {
-        (point as WritablePoint).y += offset;
+    export function moveY(point: RevPoint, offset: number) {
+        (point as RevWritablePoint).y += offset;
     }
 
-    export function adjustForXRangeInserted(point: Point, insertionIndex: number, insertionCount: number) {
+    export function adjustForXRangeInserted(point: RevPoint, insertionIndex: number, insertionCount: number) {
         if (insertionIndex <= point.x) {
             moveX(point, insertionCount);
         }
     }
 
-    export function adjustForYRangeInserted(point: Point, insertionIndex: number, insertionCount: number) {
+    export function adjustForYRangeInserted(point: RevPoint, insertionIndex: number, insertionCount: number) {
         if (insertionIndex <= point.y) {
             moveY(point, insertionCount);
         }
     }
 
-    export function adjustForXRangeDeleted(point: Point, deletionIndex: number, deletionCount: number): number | undefined {
+    export function adjustForXRangeDeleted(point: RevPoint, deletionIndex: number, deletionCount: number): number | undefined {
         const pointX = point.x;
         if (pointX < deletionIndex) {
             return undefined;
@@ -202,7 +202,7 @@ export namespace Point {
         }
     }
 
-    export function adjustForYRangeDeleted(point: Point, deletionIndex: number, deletionCount: number): number | undefined {
+    export function adjustForYRangeDeleted(point: RevPoint, deletionIndex: number, deletionCount: number): number | undefined {
         const pointY = point.y;
         if (pointY < deletionIndex) {
             return undefined;
@@ -218,15 +218,15 @@ export namespace Point {
         }
     }
 
-    export function adjustForXRangeMoved(point: Point, oldIndex: number, newIndex: number, count: number) {
-        const adjustment = calculateAdjustmentForRangeMoved(point.x, oldIndex, newIndex, count);
+    export function adjustForXRangeMoved(point: RevPoint, oldIndex: number, newIndex: number, count: number) {
+        const adjustment = revCalculateAdjustmentForRangeMoved(point.x, oldIndex, newIndex, count);
         if (adjustment !== 0) {
             moveX(point, adjustment);
         }
     }
 
-    export function adjustForYRangeMoved(point: Point, oldIndex: number, newIndex: number, count: number) {
-        const adjustment = calculateAdjustmentForRangeMoved(point.y, oldIndex, newIndex, count);
+    export function adjustForYRangeMoved(point: RevPoint, oldIndex: number, newIndex: number, count: number) {
+        const adjustment = revCalculateAdjustmentForRangeMoved(point.y, oldIndex, newIndex, count);
         if (adjustment !== 0) {
             moveY(point, adjustment);
         }
@@ -234,11 +234,11 @@ export namespace Point {
 }
 
 /** @public */
-export type WritablePoint = Writable<Point>
+export type RevWritablePoint = RevWritable<RevPoint>
 
 /** @public */
-export namespace WritablePoint {
-    export function create(x: number, y: number): WritablePoint {
+export namespace RevWritablePoint {
+    export function create(x: number, y: number): RevWritablePoint {
         return {
             x,
             y
@@ -247,11 +247,11 @@ export namespace WritablePoint {
 }
 
 /** @public */
-export type PartialPoint = Partial<Point>
+export type RevPartialPoint = Partial<RevPoint>
 
 /** @public */
-export namespace PartialPoint {
-    export function create(x: number | undefined, y: number | undefined): PartialPoint {
+export namespace RevPartialPoint {
+    export function create(x: number | undefined, y: number | undefined): RevPartialPoint {
         return {
             x,
             y,

@@ -1,8 +1,8 @@
-import { SchemaField } from '../schema/schema-field';
-import { BehavioredColumnSettings } from '../settings/behaviored-column-settings';
+import { RevSchemaField } from '../schema/schema-field';
+import { RevBehavioredColumnSettings } from '../settings/behaviored-column-settings';
 
 /** @public */
-export interface Column<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+export interface RevColumn<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> {
     readonly field: SF;
     readonly settings: BCS;
 
@@ -19,7 +19,7 @@ export interface Column<BCS extends BehavioredColumnSettings, SF extends SchemaF
 }
 
 /** @public */
-export interface ColumnAutoSizeableWidth<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
-    column: Column<BCS, SF>;
+export interface RevColumnAutoSizeableWidth<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> {
+    column: RevColumn<BCS, SF>;
     width: number | undefined;
 }

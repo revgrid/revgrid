@@ -1,25 +1,25 @@
 import { getErrorMessage } from '@xilytix/sysutils';
-import { ViewCell } from '../../../interfaces/data/view-cell';
-import { ViewLayoutRow } from '../../../interfaces/data/view-layout-row';
-import { ViewLayoutColumn } from '../../../interfaces/dataless/view-layout-column';
-import { SchemaField } from '../../../interfaces/schema/schema-field';
-import { BehavioredColumnSettings } from '../../../interfaces/settings/behaviored-column-settings';
-import { BehavioredGridSettings } from '../../../interfaces/settings/behaviored-grid-settings';
-import { GridSettings } from '../../../interfaces/settings/grid-settings';
-import { OnlyGridSettings } from '../../../interfaces/settings/only-grid-settings';
-import { CachedCanvasRenderingContext2D } from '../../../types-utils/cached-canvas-rendering-context-2d';
-import { Rectangle } from '../../../types-utils/rectangle';
-import { Canvas } from '../../canvas/canvas';
-import { Focus } from '../../focus/focus';
-import { Mouse } from '../../mouse/mouse';
-import { Selection } from '../../selection/selection';
-import { SubgridsManager } from '../../subgrid/subgrids-manager';
-import { ViewLayout } from '../../view/view-layout';
+import { RevViewCell } from '../../../interfaces/data/view-cell';
+import { RevViewLayoutRow } from '../../../interfaces/data/view-layout-row';
+import { RevViewLayoutColumn } from '../../../interfaces/dataless/view-layout-column';
+import { RevSchemaField } from '../../../interfaces/schema/schema-field';
+import { RevBehavioredColumnSettings } from '../../../interfaces/settings/behaviored-column-settings';
+import { RevBehavioredGridSettings } from '../../../interfaces/settings/behaviored-grid-settings';
+import { RevGridSettings } from '../../../interfaces/settings/grid-settings';
+import { RevOnlyGridSettings } from '../../../interfaces/settings/only-grid-settings';
+import { RevCachedCanvasRenderingContext2D } from '../../../types-utils/cached-canvas-rendering-context-2d';
+import { RevRectangle } from '../../../types-utils/rectangle';
+import { RevCanvas } from '../../canvas/canvas';
+import { RevFocus } from '../../focus/focus';
+import { RevMouse } from '../../mouse/mouse';
+import { RevSelection } from '../../selection/selection';
+import { RevSubgridsManager } from '../../subgrid/subgrids-manager';
+import { RevViewLayout } from '../../view/view-layout';
 
-export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
-    protected _renderingContext: CachedCanvasRenderingContext2D;
+export abstract class RevGridPainter<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> {
+    protected _renderingContext: RevCachedCanvasRenderingContext2D;
 
-    private _columnBundles = new Array<GridPainter.ColumnBundle | undefined>();
+    private _columnBundles = new Array<RevGridPainter.ColumnBundle | undefined>();
 
     reset = false;
     rebundle: boolean | undefined;
@@ -28,14 +28,14 @@ export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extend
     private _columnBundlesComputationId = -1;
 
     constructor(
-        protected readonly gridSettings: GridSettings,
-        protected readonly canvas: Canvas<BGS>,
-        protected readonly subgridsManager: SubgridsManager<BCS, SF>,
-        protected readonly viewLayout: ViewLayout<BGS, BCS, SF>,
-        protected readonly focus: Focus<BGS, BCS, SF>,
-        protected readonly selection: Selection<BGS, BCS, SF>,
-        protected readonly mouse: Mouse<BGS, BCS, SF>,
-        protected readonly repaintAllRequiredEventer: GridPainter.RepaintAllRequiredEventer,
+        protected readonly gridSettings: RevGridSettings,
+        protected readonly canvas: RevCanvas<BGS>,
+        protected readonly subgridsManager: RevSubgridsManager<BCS, SF>,
+        protected readonly viewLayout: RevViewLayout<BGS, BCS, SF>,
+        protected readonly focus: RevFocus<BGS, BCS, SF>,
+        protected readonly selection: RevSelection<BGS, BCS, SF>,
+        protected readonly mouse: RevMouse<BGS, BCS, SF>,
+        protected readonly repaintAllRequiredEventer: RevGridPainter.RepaintAllRequiredEventer,
         public readonly key: string,
         public readonly partial: boolean,
         initialRebundle: boolean | undefined,
@@ -50,7 +50,7 @@ export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extend
         this._columnRebundlingRequired = true;
     }
 
-    getColumnBundles(viewLayoutColumns: ViewLayoutColumn<BCS, SF>[]) {
+    getColumnBundles(viewLayoutColumns: RevViewLayoutColumn<BCS, SF>[]) {
         if (this._columnBundlesComputationId !== this.viewLayout.rowsColumnsComputationId || this._columnRebundlingRequired) {
             this._columnBundles = this.calculateColumnBundles(viewLayoutColumns);
 
@@ -63,7 +63,7 @@ export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extend
     abstract paintCells(): void;
 
     protected paintCell(
-        viewCell: ViewCell<BCS, SF>,
+        viewCell: RevViewCell<BCS, SF>,
         prefillColor: string | undefined,
     ): number | undefined {
         const focus = this.focus;
@@ -82,11 +82,11 @@ export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extend
         return cellPainter.paint(viewCell, prefillColor);
     }
 
-    paintErrorCell(err: Error, vc: ViewLayoutColumn<BCS, SF>, vr: ViewLayoutRow<BCS, SF>) {
+    paintErrorCell(err: Error, vc: RevViewLayoutColumn<BCS, SF>, vr: RevViewLayoutRow<BCS, SF>) {
         const gc = this._renderingContext;
         const message = getErrorMessage(err);
 
-        const bounds: Rectangle = { x: vc.left, y: vr.top, width: vc.width, height: vr.height };
+        const bounds: RevRectangle = { x: vc.left, y: vr.top, width: vc.width, height: vr.height };
 
         console.error(message);
 
@@ -256,7 +256,7 @@ export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extend
         }
     }
 
-    calculateLastSelectionBounds(): Rectangle | undefined {
+    calculateLastSelectionBounds(): RevRectangle | undefined {
         const columns = this.viewLayout.columns;
         const rows = this.viewLayout.rows;
         const columnCount = columns.length;
@@ -283,8 +283,8 @@ export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extend
             } else {
                 const preMainRowCount = this.viewLayout.preMainRowCount;
 
-                let vc: ViewLayoutColumn<BCS, SF>;
-                let vr: ViewLayoutRow<BCS, SF>;
+                let vc: RevViewLayoutColumn<BCS, SF>;
+                let vr: RevViewLayoutRow<BCS, SF>;
                 const lastScrollableColumn = columns[columnCount - 1]; // last column in scrollable section
                 const lastScrollableRow = rows[rowCount - 1]; // last row in scrollable data section
                 const firstScrollableColumn = columns[firstScrollableColumnIndex];
@@ -336,7 +336,7 @@ export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extend
                     if (!(vcOrigin && vrOrigin && vcCorner && vrCorner)) {
                         return undefined;
                     } else {
-                        const bounds: Rectangle = {
+                        const bounds: RevRectangle = {
                             x: vcOrigin.left,
                             y: vrOrigin.top,
                             width: vcCorner.rightPlus1 - vcOrigin.left,
@@ -350,7 +350,7 @@ export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extend
         }
     }
 
-    protected stripeRows(stripeColor: OnlyGridSettings.Color, left: number, width: number) {
+    protected stripeRows(stripeColor: RevOnlyGridSettings.Color, left: number, width: number) {
         const gc = this._renderingContext;
         const rows = this.viewLayout.rows;
         const rowCount = rows.length;
@@ -367,18 +367,18 @@ export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extend
         return subgridRowIndex % 2 === 1;
     }
 
-    private calculateColumnBundles(viewLayoutColumns: ViewLayoutColumn<BCS, SF>[]): GridPainter.ColumnBundle[] {
+    private calculateColumnBundles(viewLayoutColumns: RevViewLayoutColumn<BCS, SF>[]): RevGridPainter.ColumnBundle[] {
         const gridSettings = this.gridSettings;
         const columnCount = viewLayoutColumns.length;
 
-        const bundles = new Array<GridPainter.ColumnBundle>(columnCount); // max size
+        const bundles = new Array<RevGridPainter.ColumnBundle>(columnCount); // max size
         const gridPrefillColor = gridSettings.backgroundColor;
 
         let bundleCount = 0;
 
         for (let i = 0; i < columnCount; i++) {
             const vc = viewLayoutColumns[i];
-            let bundle: GridPainter.ColumnBundle | undefined;
+            let bundle: RevGridPainter.ColumnBundle | undefined;
             const backgroundColor = vc.column.settings.backgroundColor;
             if (bundle !== undefined && bundle.backgroundColor === backgroundColor) {
                 bundle.right = vc.rightPlus1;
@@ -401,7 +401,7 @@ export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extend
         return bundles;
     }
 
-    private paintErrorMessage(gc: CachedCanvasRenderingContext2D, bounds: Rectangle, message: string) {
+    private paintErrorMessage(gc: RevCachedCanvasRenderingContext2D, bounds: RevRectangle, message: string) {
         const x = bounds.x;
         const y = bounds.y;
         // const width = config.bounds.width;
@@ -421,19 +421,19 @@ export abstract class GridPainter<BGS extends BehavioredGridSettings, BCS extend
     }
 }
 
-export namespace GridPainter {
+export namespace RevGridPainter {
     export type ResetAllGridPaintersRequiredEventer = (this: void, blackList: string[]) => void;
     export type RepaintAllRequiredEventer = (this: void) => void;
-    export type Constructor<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> = new(
-        gridSettings: GridSettings,
-        canvas: Canvas<BGS>,
-        subgridsManager: SubgridsManager<BCS, SF>,
-        viewLayout: ViewLayout<BGS, BCS, SF>,
-        focus: Focus<BGS, BCS, SF>,
-        selection: Selection<BGS, BCS, SF>,
-        mouse: Mouse<BGS, BCS, SF>,
+    export type Constructor<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> = new(
+        gridSettings: RevGridSettings,
+        canvas: RevCanvas<BGS>,
+        subgridsManager: RevSubgridsManager<BCS, SF>,
+        viewLayout: RevViewLayout<BGS, BCS, SF>,
+        focus: RevFocus<BGS, BCS, SF>,
+        selection: RevSelection<BGS, BCS, SF>,
+        mouse: RevMouse<BGS, BCS, SF>,
         repaintAllRequired: RepaintAllRequiredEventer,
-    ) => GridPainter<BGS, BCS, SF>;
+    ) => RevGridPainter<BGS, BCS, SF>;
 
     export interface ColumnBundle {
         backgroundColor: string;

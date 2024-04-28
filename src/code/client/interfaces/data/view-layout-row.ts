@@ -1,10 +1,10 @@
-import { DatalessViewLayoutRow } from '../dataless/dataless-view-layout-row';
-import { SchemaField } from '../schema/schema-field';
-import { BehavioredColumnSettings } from '../settings/behaviored-column-settings';
-import { Subgrid } from './subgrid';
+import { RevDatalessViewLayoutRow } from '../dataless/dataless-view-layout-row';
+import { RevSchemaField } from '../schema/schema-field';
+import { RevBehavioredColumnSettings } from '../settings/behaviored-column-settings';
+import { RevSubgrid } from './subgrid';
 
 /** @public */
-export interface ViewLayoutRow<BCS extends BehavioredColumnSettings, SF extends SchemaField> extends DatalessViewLayoutRow {
+export interface RevViewLayoutRow<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevDatalessViewLayoutRow {
     /** The subgrid to which the row belongs. */
-    subgrid: Subgrid<BCS, SF>;
+    subgrid: RevSubgrid<BCS, SF>;
 }

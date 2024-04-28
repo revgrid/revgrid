@@ -1,10 +1,10 @@
-import { DataServer, SchemaField } from '../../client/internal-api';
+import { RevDataServer, RevSchemaField } from '../../client/internal-api';
 import { RevRecord } from './record';
 
 /** Provides access to a field
  * @public
  */
-export interface RevRecordField extends SchemaField {
+export interface RevRecordField extends RevSchemaField {
     readonly name: string;
 
     /** Set to true if field value depends on Record Index */
@@ -13,13 +13,13 @@ export interface RevRecordField extends SchemaField {
     valueDependsOnRowIndex?: boolean;
 
     /** Retrieves the value of a field for display purposes */
-    getViewValue(record: RevRecord): DataServer.ViewValue;
+    getViewValue(record: RevRecord): RevDataServer.ViewValue;
 
     /** Retrieves the value of a field for edit purposes */
-    getEditValue(record: RevRecord): DataServer.EditValue;
+    getEditValue(record: RevRecord): RevDataServer.EditValue;
 
     /** Set the value of a field */
-    setEditValue(record: RevRecord, value: DataServer.EditValue): void;
+    setEditValue(record: RevRecord, value: RevDataServer.EditValue): void;
 
     /**
      * Compares two records based on this field for sorting in ascending order

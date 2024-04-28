@@ -1,11 +1,11 @@
 import {
-    DatalessSubgrid,
-    DatalessViewCell,
-    LinedHoverCell,
     MultiHeadingDataRowArrayServerSet,
     MultiHeadingSchemaField,
-    Point,
-    Revgrid,
+    RevClientGrid,
+    RevDatalessSubgrid,
+    RevDatalessViewCell,
+    RevLinedHoverCell,
+    RevPoint,
     StandardAlphaTextCellPainter,
     StandardBehavioredColumnSettings,
     StandardBehavioredGridSettings,
@@ -14,7 +14,7 @@ import {
     readonlyDefaultStandardBehavioredGridSettings
 } from '..';
 
-export class DataRowArrayGrid extends Revgrid<
+export class DataRowArrayGrid extends RevClientGrid<
         StandardBehavioredGridSettings,
         StandardBehavioredColumnSettings,
         MultiHeadingSchemaField
@@ -60,16 +60,16 @@ export class DataRowArrayGrid extends Revgrid<
         const headerDataServer = serverSet.headerDataServer;
         const mainDataServer = serverSet.mainDataServer;
 
-        const definition: Revgrid.Definition<StandardBehavioredColumnSettings, MultiHeadingSchemaField> = {
+        const definition: RevClientGrid.Definition<StandardBehavioredColumnSettings, MultiHeadingSchemaField> = {
             schemaServer,
             subgrids: [
                 {
-                    role: DatalessSubgrid.RoleEnum.header,
+                    role: RevDatalessSubgrid.RoleEnum.header,
                     dataServer: headerDataServer,
                     getCellPainterEventer: (viewCell) => this.getHeaderCellPainter(viewCell),
                 },
                 {
-                    role: DatalessSubgrid.RoleEnum.main,
+                    role: RevDatalessSubgrid.RoleEnum.main,
                     dataServer: mainDataServer,
                     getCellPainterEventer: (viewCell) => this.getMainCellPainter(viewCell),
                 }
@@ -94,7 +94,7 @@ export class DataRowArrayGrid extends Revgrid<
         return this.headerDataServer.getRowCount();
     }
 
-    protected override descendantProcessCellFocusChanged(oldPoint: Point | undefined, newPoint: Point | undefined) {
+    protected override descendantProcessCellFocusChanged(oldPoint: RevPoint | undefined, newPoint: RevPoint | undefined) {
         if (this.cellFocusEventer !== undefined) {
             this.cellFocusEventer(oldPoint, newPoint);
         }
@@ -102,14 +102,14 @@ export class DataRowArrayGrid extends Revgrid<
 
     protected override descendantProcessClick(
         event: MouseEvent,
-        hoverCell: LinedHoverCell<StandardBehavioredColumnSettings, MultiHeadingSchemaField> | null | undefined
+        hoverCell: RevLinedHoverCell<StandardBehavioredColumnSettings, MultiHeadingSchemaField> | null | undefined
     ) {
         if (this.clickEventer !== undefined) {
             if (hoverCell === null) {
                 hoverCell = this.viewLayout.findLinedHoverCellAtCanvasOffset(event.offsetX, event.offsetY);
             }
             if (hoverCell !== undefined) {
-                if (!LinedHoverCell.isMouseOverLine(hoverCell)) {
+                if (!RevLinedHoverCell.isMouseOverLine(hoverCell)) {
                     const viewCell = hoverCell.viewCell;
                     this.clickEventer(viewCell.viewLayoutColumn.activeColumnIndex, viewCell.viewLayoutRow.subgridRowIndex);
                 }
@@ -119,14 +119,14 @@ export class DataRowArrayGrid extends Revgrid<
 
     protected override descendantProcessDblClick(
         event: MouseEvent,
-        hoverCell: LinedHoverCell<StandardBehavioredColumnSettings, MultiHeadingSchemaField> | null | undefined
+        hoverCell: RevLinedHoverCell<StandardBehavioredColumnSettings, MultiHeadingSchemaField> | null | undefined
     ) {
         if (this.dblClickEventer !== undefined) {
             if (hoverCell === null) {
                 hoverCell = this.viewLayout.findLinedHoverCellAtCanvasOffset(event.offsetX, event.offsetY);
             }
             if (hoverCell !== undefined) {
-                if (!LinedHoverCell.isMouseOverLine(hoverCell)) {
+                if (!RevLinedHoverCell.isMouseOverLine(hoverCell)) {
                     const viewCell = hoverCell.viewCell;
                     this.dblClickEventer(viewCell.viewLayoutColumn.activeColumnIndex, viewCell.viewLayoutRow.subgridRowIndex);
                 }
@@ -138,17 +138,17 @@ export class DataRowArrayGrid extends Revgrid<
         this._serverSet.setData(data, headerRowCount)
     }
 
-    private getHeaderCellPainter(_viewCell: DatalessViewCell<StandardBehavioredColumnSettings, MultiHeadingSchemaField>) {
+    private getHeaderCellPainter(_viewCell: RevDatalessViewCell<StandardBehavioredColumnSettings, MultiHeadingSchemaField>) {
         return this._headerCellPainter;
     }
 
-    private getMainCellPainter(_viewCell: DatalessViewCell<StandardBehavioredColumnSettings, MultiHeadingSchemaField>) {
+    private getMainCellPainter(_viewCell: RevDatalessViewCell<StandardBehavioredColumnSettings, MultiHeadingSchemaField>) {
         return this._textCellPainter;
     }
 }
 
 export namespace DataRowArrayGrid {
-    export type CellFocusEventer = (this: void, newPoint: Point | undefined, oldPoint: Point | undefined) => void;
+    export type CellFocusEventer = (this: void, newPoint: RevPoint | undefined, oldPoint: RevPoint | undefined) => void;
     export type RowFocusClickEventer = (this: void, columnIndex: number, rowIndex: number) => void;
     export type RowFocusDblClickEventer = (this: void, columnIndex: number, rowIndex: number) => void;
 }

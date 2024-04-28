@@ -1,17 +1,17 @@
-import { LinedHoverCell } from '../../interfaces/data/hover-cell';
-import { ViewCell } from '../../interfaces/data/view-cell';
-import { SchemaField } from '../../interfaces/schema/schema-field';
-import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
-import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
+import { RevLinedHoverCell } from '../../interfaces/data/lined-hover-cell';
+import { RevViewCell } from '../../interfaces/data/view-cell';
+import { RevSchemaField } from '../../interfaces/schema/schema-field';
+import { RevBehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
+import { RevBehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { RevAssertError } from '../../types-utils/revgrid-error';
-import { UiController } from './ui-controller';
+import { RevUiController } from './ui-controller';
 
 /** @internal */
-export class CellClickUiController<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends UiController<BGS, BCS, SF> {
+export class RevCellClickUiController<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevUiController<BGS, BCS, SF> {
 
-    readonly typeName = CellClickUiController.typeName;
+    readonly typeName = RevCellClickUiController.typeName;
 
-    override handlePointerMove(event: PointerEvent, cell: LinedHoverCell<BCS, SF> | null | undefined) {
+    override handlePointerMove(event: PointerEvent, cell: RevLinedHoverCell<BCS, SF> | null | undefined) {
         const sharedState = this.sharedState;
         if (sharedState.locationCursorName === undefined) {
             if (cell === null) {
@@ -29,7 +29,7 @@ export class CellClickUiController<BGS extends BehavioredGridSettings, BCS exten
         return super.handlePointerMove(event, cell);
     }
 
-    override handleClick(event: MouseEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined) {
+    override handleClick(event: MouseEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined) {
         if (hoverCell === null) {
             hoverCell = this.tryGetHoverCellFromMouseEvent(event);
         }
@@ -66,7 +66,7 @@ export class CellClickUiController<BGS extends BehavioredGridSettings, BCS exten
      * | `null` | `grid.windowOpen` failed to open a window |
      * | _otherwise_ | A `window` reference returned by a successful call to `grid.windowOpen`. |
      */
-    openLink(viewCell: ViewCell<BCS, SF>): boolean | null | undefined | Window {
+    openLink(viewCell: RevViewCell<BCS, SF>): boolean | null | undefined | Window {
         let result: boolean | null | undefined | Window;
         let unknownUrl: unknown;
         const rowIndex = viewCell.viewLayoutRow.subgridRowIndex;
@@ -122,7 +122,7 @@ export class CellClickUiController<BGS extends BehavioredGridSettings, BCS exten
         // STEP 5: Decorate the link as "visited"
         if (result) {
             const column = viewCell.viewLayoutColumn.column;
-            this.cellPropertiesBehavior.setCellProperty(column, rowIndex, 'linkColor', CellClickUiController.linkVisitedColor, subgrid, viewCell);
+            this.cellPropertiesBehavior.setCellProperty(column, rowIndex, 'linkColor', RevCellClickUiController.linkVisitedColor, subgrid, viewCell);
             this.renderer.invalidateViewCell(viewCell);
         }
 
@@ -131,7 +131,7 @@ export class CellClickUiController<BGS extends BehavioredGridSettings, BCS exten
 }
 
 /** @internal */
-export namespace CellClickUiController {
+export namespace RevCellClickUiController {
     export const typeName = 'cellclick';
 
     export const linkVisitedColor = '';

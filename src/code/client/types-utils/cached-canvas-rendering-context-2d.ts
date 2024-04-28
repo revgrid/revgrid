@@ -1,27 +1,27 @@
-import { Rectangle } from './rectangle';
+import { RevRectangle } from './rectangle';
 import { RevAssertError } from './revgrid-error';
 
 /** @public */
-export class CachedCanvasRenderingContext2D {
+export class RevCachedCanvasRenderingContext2D {
     /** @internal */
-    private readonly _conditionalsStack: CachedCanvasRenderingContext2D.ConditionalsStack = [];
+    private readonly _conditionalsStack: RevCachedCanvasRenderingContext2D.ConditionalsStack = [];
     /** @internal */
-    private _fontTextWidthMap: CachedCanvasRenderingContext2D.FontTextWidthMap = new Map<string, CachedCanvasRenderingContext2D.TextWidthMap>;
+    private _fontTextWidthMap: RevCachedCanvasRenderingContext2D.FontTextWidthMap = new Map<string, RevCachedCanvasRenderingContext2D.TextWidthMap>;
     /** @internal */
-    private _fontTextHeightMap: CachedCanvasRenderingContext2D.FontTextHeightMap = new Map<string, CachedCanvasRenderingContext2D.TextHeightMap>;
+    private _fontTextHeightMap: RevCachedCanvasRenderingContext2D.FontTextHeightMap = new Map<string, RevCachedCanvasRenderingContext2D.TextHeightMap>;
 
-    readonly cache: CachedCanvasRenderingContext2D.Cache;
+    readonly cache: RevCachedCanvasRenderingContext2D.Cache;
 
     /** @internal */
     constructor(private readonly canvasRenderingContext2D: CanvasRenderingContext2D) {
-        this.cache = new CachedCanvasRenderingContext2D.Cache(canvasRenderingContext2D);
+        this.cache = new RevCachedCanvasRenderingContext2D.Cache(canvasRenderingContext2D);
     }
 
     clearRect(x: number, y: number, width: number, height: number) {
         this.canvasRenderingContext2D.clearRect(x, y, width, height);
     }
 
-    clearBounds(bounds: Rectangle) {
+    clearBounds(bounds: RevRectangle) {
         this.canvasRenderingContext2D.clearRect(bounds.x, bounds.y, bounds.width, bounds.height);
     }
 
@@ -29,7 +29,7 @@ export class CachedCanvasRenderingContext2D {
         this.canvasRenderingContext2D.fillRect(x, y, width, height);
     }
 
-    fillBounds(bounds: Rectangle) {
+    fillBounds(bounds: RevRectangle) {
         this.canvasRenderingContext2D.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
     }
 
@@ -126,7 +126,7 @@ export class CachedCanvasRenderingContext2D {
         }
     }
 
-    clearFillBounds(bounds: Rectangle, color: string) {
+    clearFillBounds(bounds: RevRectangle, color: string) {
         this.clearFillRect(bounds.x, bounds.y, bounds.width, bounds.height, color)
     }
 
@@ -138,7 +138,7 @@ export class CachedCanvasRenderingContext2D {
         if (cssColorSpec === undefined) {
             // undefined so not visible; treat as transparent
             result = 0;
-        } else if ((matches = cssColorSpec.match(CachedCanvasRenderingContext2D.ALPHA_REGEX)) === null) {
+        } else if ((matches = cssColorSpec.match(RevCachedCanvasRenderingContext2D.ALPHA_REGEX)) === null) {
             // an opaque color (a color spec with no alpha channel)
             result = 1;
         } else if (matches[4] === undefined) {
@@ -213,7 +213,7 @@ export class CachedCanvasRenderingContext2D {
         const font = this.cache.font;
         let textHeightMap = this._fontTextHeightMap.get(font);
         if (textHeightMap === undefined) {
-            textHeightMap = new Map<string, CachedCanvasRenderingContext2D.TextHeight>();
+            textHeightMap = new Map<string, RevCachedCanvasRenderingContext2D.TextHeight>();
             this._fontTextHeightMap.set(font, textHeightMap);
         }
 
@@ -251,7 +251,7 @@ export class CachedCanvasRenderingContext2D {
 }
 
 /** @public */
-export namespace CachedCanvasRenderingContext2D {
+export namespace RevCachedCanvasRenderingContext2D {
     export const ALPHA_REGEX = /^(transparent|((RGB|HSL)A\(.*,\s*([\d.]+)\)))$/i
 
     export type TextWidthMap = Map<string, number>;

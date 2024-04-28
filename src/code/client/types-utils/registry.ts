@@ -1,10 +1,4 @@
-
-
-/**
- * @class
- */
-// rename to Factory
-export class Registry<T> {
+export class RevRegistry<T> {
     private readonly items = new Map<string, T>();
 
     get all() { return Array.from(this.items.values()); }

@@ -1,7 +1,7 @@
-import { StandardOnlyGridSettings } from './standard-only-grid-settings';
+import { RevStandardOnlyGridSettings } from './standard-only-grid-settings';
 
 /** @public */
-export type StandardOnlyColumnSettings = Pick<StandardOnlyGridSettings,
+export type RevStandardOnlyColumnSettings = Pick<RevStandardOnlyGridSettings,
     'cellPadding' |
     'cellFocusedBorderColor' |
     'cellHoverBackgroundColor' |

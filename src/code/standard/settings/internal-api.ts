@@ -1,7 +1,7 @@
-export { StandardBehavioredColumnSettings } from './standard-behaviored-column-settings';
-export { StandardBehavioredGridSettings } from './standard-behaviored-grid-settings';
-export { StandardColumnSettings } from './standard-column-settings';
-export { StandardGridSettings } from './standard-grid-settings';
-export { StandardOnlyColumnSettings } from './standard-only-column-settings';
-export { StandardOnlyGridSettings } from './standard-only-grid-settings';
+export { RevStandardBehavioredColumnSettings } from './standard-behaviored-column-settings';
+export { RevStandardBehavioredGridSettings } from './standard-behaviored-grid-settings';
+export { RevStandardColumnSettings } from './standard-column-settings';
+export { RevStandardGridSettings } from './standard-grid-settings';
+export { RevStandardOnlyColumnSettings } from './standard-only-column-settings';
+export { RevStandardOnlyGridSettings } from './standard-only-grid-settings';
 

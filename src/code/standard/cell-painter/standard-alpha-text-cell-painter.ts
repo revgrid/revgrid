@@ -1,15 +1,15 @@
 
 import { IndexSignatureHack, isArrayEqual } from '@xilytix/sysutils';
 import {
-    DataServer,
-    DatalessViewCell,
-    Rectangle,
     RevClientGrid,
-    SchemaField,
+    RevDataServer,
+    RevDatalessViewCell,
+    RevRectangle,
+    RevSchemaField,
 } from '../../client/internal-api';
-import { StandardTextPainter } from '../painters/internal-api';
-import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/internal-api';
-import { StandardCellPainter } from './standard-cell-painter';
+import { RevStandardTextPainter } from '../painters/internal-api';
+import { RevStandardBehavioredColumnSettings, RevStandardBehavioredGridSettings } from '../settings/internal-api';
+import { RevStandardCellPainter } from './standard-cell-painter';
 
 /**
  * A cell renderer for a text cell.
@@ -20,23 +20,23 @@ import { StandardCellPainter } from './standard-cell-painter';
  * Clipping bounds are not set here as this is also an expensive operation. Instead, we employ a number of strategies to truncate overflowing text and content.
  * @public
  */
-export class StandardAlphaTextCellPainter<
-    BGS extends StandardBehavioredGridSettings,
-    BCS extends StandardBehavioredColumnSettings,
-    SF extends SchemaField
-> extends StandardCellPainter<BGS, BCS, SF> {
-    private readonly _textPainter: StandardTextPainter;
+export class RevStandardAlphaTextCellPainter<
+    BGS extends RevStandardBehavioredGridSettings,
+    BCS extends RevStandardBehavioredColumnSettings,
+    SF extends RevSchemaField
+> extends RevStandardCellPainter<BGS, BCS, SF> {
+    private readonly _textPainter: RevStandardTextPainter;
 
     constructor(
         grid: RevClientGrid<BGS, BCS, SF>,
-        dataServer: DataServer<SF>,
+        dataServer: RevDataServer<SF>,
     ) {
         super(grid, dataServer);
 
-        this._textPainter = new StandardTextPainter(this._renderingContext);
+        this._textPainter = new RevStandardTextPainter(this._renderingContext);
     }
 
-    override paint(cell: DatalessViewCell<BCS, SF>, prefillColor: string | undefined): number | undefined {
+    override paint(cell: RevDatalessViewCell<BCS, SF>, prefillColor: string | undefined): number | undefined {
         const grid = this._grid;
 
         const gridSettings = this._gridSettings;
@@ -74,7 +74,7 @@ export class StandardAlphaTextCellPainter<
         const value = this._dataServer.getViewValue(cell.viewLayoutColumn.column.field, subgridRowIndex);
         const valText = value as string;
 
-        const fingerprint = cell.paintFingerprint as PaintFingerprint | undefined;
+        const fingerprint = cell.paintFingerprint as RevPaintFingerprint | undefined;
         let same: boolean;
         if (fingerprint === undefined) {
             same = false;
@@ -176,7 +176,7 @@ export class StandardAlphaTextCellPainter<
         same &&= fingerprint !== undefined && fingerprint.borderColor === borderColor;
 
         // return a fingerprint to save in View cell for future comparisons by partial renderer
-        const newFingerprint: PaintFingerprint = {
+        const newFingerprint: RevPaintFingerprint = {
             value: valText,
             textColor,
             textFont,
@@ -205,7 +205,7 @@ export class StandardAlphaTextCellPainter<
         }
     }
 
-    private paintLayerColors(bounds: Rectangle, colors: string[], firstColorIsFill: boolean) {
+    private paintLayerColors(bounds: RevRectangle, colors: string[], firstColorIsFill: boolean) {
         const gc = this._renderingContext;
         for (let i = 0; i < colors.length; i++) {
             if (firstColorIsFill && i === 0) {
@@ -218,7 +218,7 @@ export class StandardAlphaTextCellPainter<
     }
 }
 
-export interface PaintFingerprintInterface {
+export interface RevPaintFingerprintInterface {
     readonly value: string;
     readonly textColor: string;
     readonly textFont: string;
@@ -227,4 +227,4 @@ export interface PaintFingerprintInterface {
     readonly layerColors: string[];
 }
 
-export type PaintFingerprint = IndexSignatureHack<PaintFingerprintInterface>;
+export type RevPaintFingerprint = IndexSignatureHack<RevPaintFingerprintInterface>;

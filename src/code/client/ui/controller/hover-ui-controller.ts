@@ -1,20 +1,20 @@
 
-import { LinedHoverCell } from '../../interfaces/data/hover-cell';
-import { ViewCell } from '../../interfaces/data/view-cell';
-import { SchemaField } from '../../interfaces/schema/schema-field';
-import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
-import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
-import { GridSettings } from '../../interfaces/settings/grid-settings';
-import { Point } from '../../types-utils/point';
-import { UiController } from './ui-controller';
+import { RevLinedHoverCell } from '../../interfaces/data/lined-hover-cell';
+import { RevViewCell } from '../../interfaces/data/view-cell';
+import { RevSchemaField } from '../../interfaces/schema/schema-field';
+import { RevBehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
+import { RevBehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
+import { RevGridSettings } from '../../interfaces/settings/grid-settings';
+import { RevPoint } from '../../types-utils/point';
+import { RevUiController } from './ui-controller';
 
 /** @internal */
-export class HoverUiController<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends UiController<BGS, BCS, SF> {
+export class RevHoverUiController<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevUiController<BGS, BCS, SF> {
 
-    readonly typeName = HoverUiController.typeName;
+    readonly typeName = RevHoverUiController.typeName;
 
-    override handlePointerMove(event: PointerEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined) {
-        const canvasOffsetPoint: Point = {
+    override handlePointerMove(event: PointerEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined) {
+        const canvasOffsetPoint: RevPoint = {
             x: event.offsetX,
             y: event.offsetY,
         };
@@ -25,15 +25,15 @@ export class HoverUiController<BGS extends BehavioredGridSettings, BCS extends B
         const viewCell = this.getViewCellFromHoverCell(hoverCell);
         this.mouse.setMouseCanvasOffset(canvasOffsetPoint, viewCell);
 
-        if (GridSettings.isShowScrollerThumbOnMouseMoveModifierKeyDownInEvent(this.gridSettings, event)) {
-            this.horizontalScroller.temporarilyGiveThumbFullVisibility(HoverUiController.temporaryThumbFullVisibilityTimePeriod);
-            this.verticalScroller.temporarilyGiveThumbFullVisibility(HoverUiController.temporaryThumbFullVisibilityTimePeriod);
+        if (RevGridSettings.isShowScrollerThumbOnMouseMoveModifierKeyDownInEvent(this.gridSettings, event)) {
+            this.horizontalScroller.temporarilyGiveThumbFullVisibility(RevHoverUiController.temporaryThumbFullVisibilityTimePeriod);
+            this.verticalScroller.temporarilyGiveThumbFullVisibility(RevHoverUiController.temporaryThumbFullVisibilityTimePeriod);
         }
         return super.handlePointerMove(event, hoverCell);
     }
 
-    override handlePointerEnter(event: PointerEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined) {
-        const canvasOffsetPoint: Point = {
+    override handlePointerEnter(event: PointerEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined) {
+        const canvasOffsetPoint: RevPoint = {
             x: event.offsetX,
             y: event.offsetY,
         };
@@ -46,16 +46,16 @@ export class HoverUiController<BGS extends BehavioredGridSettings, BCS extends B
         return super.handlePointerEnter(event, hoverCell);
     }
 
-    override handlePointerLeaveOut(event: PointerEvent, cell: LinedHoverCell<BCS, SF> | null | undefined) {
+    override handlePointerLeaveOut(event: PointerEvent, cell: RevLinedHoverCell<BCS, SF> | null | undefined) {
         this.mouse.setMouseCanvasOffset(undefined, undefined);
         return super.handlePointerLeaveOut(event, cell);
     }
 
-    private getViewCellFromHoverCell(cell: LinedHoverCell<BCS, SF> | undefined): ViewCell<BCS, SF> | undefined {
+    private getViewCellFromHoverCell(cell: RevLinedHoverCell<BCS, SF> | undefined): RevViewCell<BCS, SF> | undefined {
         if (cell === undefined) {
             return undefined;
         } else {
-            if (LinedHoverCell.isMouseOverLine(cell)) {
+            if (RevLinedHoverCell.isMouseOverLine(cell)) {
                 return undefined;
             } else {
                 return cell.viewCell;
@@ -65,7 +65,7 @@ export class HoverUiController<BGS extends BehavioredGridSettings, BCS extends B
 }
 
 /** @internal */
-export namespace HoverUiController {
+export namespace RevHoverUiController {
     export const typeName = 'hover';
 
     export const temporaryThumbFullVisibilityTimePeriod = 500; // milliseconds

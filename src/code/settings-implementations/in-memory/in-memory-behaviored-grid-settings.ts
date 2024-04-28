@@ -1,22 +1,22 @@
 import { isArrayEqual } from '@xilytix/sysutils';
 import {
-    BehavioredGridSettings,
-    GridSettings,
-    HorizontalWheelScrollingAllowed,
-    ModifierKeyEnum,
-    OnlyGridSettings,
-    RowOrColumnSelectionAreaType,
-    SelectionAreaType,
-    gridSettingChangeInvalidateTypeIds
+    RevBehavioredGridSettings,
+    RevGridSettings,
+    RevHorizontalWheelScrollingAllowed,
+    RevModifierKeyEnum,
+    RevOnlyGridSettings,
+    RevRowOrColumnSelectionAreaType,
+    RevSelectionAreaType,
+    revGridSettingChangeInvalidateTypeIds
 } from '../../client/internal-api';
-import { InMemoryBehavioredSettings } from './in-memory-behaviored-settings';
+import { RevInMemoryBehavioredSettings } from './in-memory-behaviored-settings';
 
 /** @public */
-export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings implements BehavioredGridSettings {
-    private _addToggleSelectionAreaModifierKey: ModifierKeyEnum;
+export class RevInMemoryBehavioredGridSettings extends RevInMemoryBehavioredSettings implements RevBehavioredGridSettings {
+    private _addToggleSelectionAreaModifierKey: RevModifierKeyEnum;
     private _addToggleSelectionAreaModifierKeyDoesToggle: boolean;
-    private _backgroundColor: GridSettings.Color;
-    private _color: GridSettings.Color;
+    private _backgroundColor: RevGridSettings.Color;
+    private _color: RevGridSettings.Color;
     private _defaultColumnAutoSizing: boolean;
     private _columnAutoSizingMax: number | undefined;
     private _columnClip: boolean | undefined;
@@ -32,7 +32,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     private _columnSortPossibleTitleText: string | undefined;
     private _columnsReorderable: boolean;
     private _columnsReorderableHideable: boolean;
-    private _switchNewRectangleSelectionToRowOrColumn: RowOrColumnSelectionAreaType | undefined;
+    private _switchNewRectangleSelectionToRowOrColumn: RevRowOrColumnSelectionAreaType | undefined;
     private _defaultRowHeight: number;
     private _defaultColumnWidth: number;
     private _defaultUiControllerTypeNames: string[];
@@ -43,64 +43,64 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     private _editOnFocusCell: boolean;
     private _editOnKeyDown: boolean;
     private _editorClickableCursorName: string | undefined;
-    private _extendLastSelectionAreaModifierKey: ModifierKeyEnum;
+    private _extendLastSelectionAreaModifierKey: RevModifierKeyEnum;
     private _eventDispatchEnabled: boolean;
     private _filterable: boolean;
-    private _filterBackgroundColor: GridSettings.Color;
-    private _filterBackgroundSelectionColor: GridSettings.Color;
-    private _filterColor: GridSettings.Color;
+    private _filterBackgroundColor: RevGridSettings.Color;
+    private _filterBackgroundSelectionColor: RevGridSettings.Color;
+    private _filterColor: RevGridSettings.Color;
     private _filterEditor: string;
     private _filterFont: string;
-    private _filterForegroundSelectionColor: GridSettings.Color;
+    private _filterForegroundSelectionColor: RevGridSettings.Color;
     private _filterCellPainter: string;
     private _fixedColumnCount: number;
-    private _horizontalFixedLineColor: GridSettings.Color;
+    private _horizontalFixedLineColor: RevGridSettings.Color;
     private _horizontalFixedLineEdgeWidth: number | undefined;
     private _horizontalFixedLineWidth: number | undefined;
-    private _verticalFixedLineColor: GridSettings.Color;
+    private _verticalFixedLineColor: RevGridSettings.Color;
     private _verticalFixedLineEdgeWidth: number | undefined;
     private _verticalFixedLineWidth: number | undefined;
     private _fixedRowCount: number;
     private _gridRightAligned: boolean;
-    private _horizontalGridLinesColor: GridSettings.Color;
+    private _horizontalGridLinesColor: RevGridSettings.Color;
     private _horizontalGridLinesWidth: number;
     private _horizontalGridLinesVisible: boolean;
     private _verticalGridLinesVisible: boolean;
     private _visibleVerticalGridLinesDrawnInFixedAndPreMainOnly: boolean;
-    private _verticalGridLinesColor: GridSettings.Color;
+    private _verticalGridLinesColor: RevGridSettings.Color;
     private _verticalGridLinesWidth: number;
-    private _horizontalWheelScrollingAllowed: HorizontalWheelScrollingAllowed;
+    private _horizontalWheelScrollingAllowed: RevHorizontalWheelScrollingAllowed;
     private _minimumColumnWidth: number;
     private _maximumColumnWidth: number | undefined;
     private _visibleColumnWidthAdjust: boolean;
     private _mouseLastSelectionAreaExtendingDragActiveCursorName: string | undefined;
     private _mouseLastSelectionAreaExtendingDragActiveTitleText: string | undefined;
     private _mouseAddToggleExtendSelectionAreaEnabled: boolean;
-    private _mouseAddToggleExtendSelectionAreaDragModifierKey: ModifierKeyEnum | undefined;
+    private _mouseAddToggleExtendSelectionAreaDragModifierKey: RevModifierKeyEnum | undefined;
     private _mouseColumnSelectionEnabled: boolean;
-    private _mouseColumnSelectionModifierKey: ModifierKeyEnum | undefined;
+    private _mouseColumnSelectionModifierKey: RevModifierKeyEnum | undefined;
     private _mouseRowSelectionEnabled: boolean;
-    private _mouseRowSelectionModifierKey: ModifierKeyEnum | undefined;
+    private _mouseRowSelectionModifierKey: RevModifierKeyEnum | undefined;
     private _multipleSelectionAreas: boolean;
-    private _primarySelectionAreaType: SelectionAreaType;
+    private _primarySelectionAreaType: RevSelectionAreaType;
     private _minimumAnimateTimeInterval: number;
     private _backgroundAnimateTimeInterval: number | undefined;
     private _resizeColumnInPlace: boolean;
     private _resizedEventDebounceExtendedWhenPossible: boolean;
     private _resizedEventDebounceInterval: number;
     private _rowResize: boolean;
-    private _rowStripeBackgroundColor: OnlyGridSettings.Color | undefined;
+    private _rowStripeBackgroundColor: RevOnlyGridSettings.Color | undefined;
     private _scrollHorizontallySmoothly: boolean;
     private _scrollerThickness: string;
     private _scrollerThumbColor: string;
     private _scrollerThumbReducedVisibilityOpacity: number;
     private _scrollingEnabled: boolean;
-    private _secondarySelectionAreaTypeSpecifierModifierKey: ModifierKeyEnum | undefined;
-    private _secondarySelectionAreaType: SelectionAreaType;
-    private _selectionRegionOutlineColor: GridSettings.Color | undefined;
-    private _selectionRegionOverlayColor: GridSettings.Color | undefined;
+    private _secondarySelectionAreaTypeSpecifierModifierKey: RevModifierKeyEnum | undefined;
+    private _secondarySelectionAreaType: RevSelectionAreaType;
+    private _selectionRegionOutlineColor: RevGridSettings.Color | undefined;
+    private _selectionRegionOverlayColor: RevGridSettings.Color | undefined;
     private _showFilterRow: boolean;
-    private _showScrollerThumbOnMouseMoveModifierKey: ModifierKeyEnum | undefined;
+    private _showScrollerThumbOnMouseMoveModifierKey: RevModifierKeyEnum | undefined;
     private _sortOnDoubleClick: boolean;
     private _sortOnClick: boolean;
     private _useHiDPI: boolean;
@@ -108,11 +108,11 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     private _wheelVFactor: number;
 
     get addToggleSelectionAreaModifierKey() { return this._addToggleSelectionAreaModifierKey; }
-    set addToggleSelectionAreaModifierKey(value: ModifierKeyEnum) {
+    set addToggleSelectionAreaModifierKey(value: RevModifierKeyEnum) {
         if (value !== this._addToggleSelectionAreaModifierKey) {
             this.beginChange();
             this._addToggleSelectionAreaModifierKey = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.addToggleSelectionAreaModifierKey;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.addToggleSelectionAreaModifierKey;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -122,27 +122,27 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._addToggleSelectionAreaModifierKeyDoesToggle) {
             this.beginChange();
             this._addToggleSelectionAreaModifierKeyDoesToggle = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.addToggleSelectionAreaModifierKeyDoesToggle;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.addToggleSelectionAreaModifierKeyDoesToggle;
             this.flagChanged(invalidateType);
             this.endChange();
         }
     }
     get backgroundColor() { return this._backgroundColor; }
-    set backgroundColor(value: GridSettings.Color) {
+    set backgroundColor(value: RevGridSettings.Color) {
         if (value !== this._backgroundColor) {
             this.beginChange();
             this._backgroundColor = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.backgroundColor;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.backgroundColor;
             this.flagChanged(invalidateType);
             this.endChange();
         }
     }
     get color() { return this._color; }
-    set color(value: GridSettings.Color) {
+    set color(value: RevGridSettings.Color) {
         if (value !== this._color) {
             this.beginChange();
             this._color = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.color;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.color;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -152,7 +152,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._defaultColumnAutoSizing) {
             this.beginChange();
             this._defaultColumnAutoSizing = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.defaultColumnAutoSizing;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.defaultColumnAutoSizing;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -162,7 +162,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._columnAutoSizingMax) {
             this.beginChange();
             this._columnAutoSizingMax = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.columnAutoSizingMax;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.columnAutoSizingMax;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -172,7 +172,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._columnClip) {
             this.beginChange();
             this._columnClip = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.columnClip;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.columnClip;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -182,7 +182,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._columnMoveDragPossibleCursorName) {
             this.beginChange();
             this._columnMoveDragPossibleCursorName = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.columnMoveDragPossibleCursorName;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.columnMoveDragPossibleCursorName;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -192,7 +192,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._columnMoveDragPossibleTitleText) {
             this.beginChange();
             this._columnMoveDragPossibleTitleText = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.columnMoveDragPossibleTitleText;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.columnMoveDragPossibleTitleText;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -202,7 +202,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._columnMoveDragActiveCursorName) {
             this.beginChange();
             this._columnMoveDragActiveCursorName = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.columnMoveDragActiveCursorName;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.columnMoveDragActiveCursorName;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -212,7 +212,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._columnMoveDragActiveTitleText) {
             this.beginChange();
             this._columnMoveDragActiveTitleText = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.columnMoveDragActiveTitleText;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.columnMoveDragActiveTitleText;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -222,7 +222,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._columnResizeDragPossibleCursorName) {
             this.beginChange();
             this._columnResizeDragPossibleCursorName = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.columnResizeDragPossibleCursorName;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.columnResizeDragPossibleCursorName;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -232,7 +232,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._columnResizeDragPossibleTitleText) {
             this.beginChange();
             this._columnResizeDragPossibleTitleText = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.columnResizeDragPossibleTitleText;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.columnResizeDragPossibleTitleText;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -242,7 +242,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._columnResizeDragActiveCursorName) {
             this.beginChange();
             this._columnResizeDragActiveCursorName = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.columnResizeDragActiveCursorName;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.columnResizeDragActiveCursorName;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -252,7 +252,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._columnResizeDragActiveTitleText) {
             this.beginChange();
             this._columnResizeDragActiveTitleText = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.columnResizeDragActiveTitleText;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.columnResizeDragActiveTitleText;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -262,7 +262,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._columnSortPossibleCursorName) {
             this.beginChange();
             this._columnSortPossibleCursorName = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.columnSortPossibleCursorName;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.columnSortPossibleCursorName;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -272,7 +272,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._columnSortPossibleTitleText) {
             this.beginChange();
             this._columnSortPossibleTitleText = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.columnSortPossibleTitleText;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.columnSortPossibleTitleText;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -282,7 +282,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._columnsReorderable) {
             this.beginChange();
             this._columnsReorderable = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.columnsReorderable;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.columnsReorderable;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -292,17 +292,17 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._columnsReorderableHideable) {
             this.beginChange();
             this._columnsReorderableHideable = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.columnsReorderableHideable;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.columnsReorderableHideable;
             this.flagChanged(invalidateType);
             this.endChange();
         }
     }
     get switchNewRectangleSelectionToRowOrColumn() { return this._switchNewRectangleSelectionToRowOrColumn; }
-    set switchNewRectangleSelectionToRowOrColumn(value: RowOrColumnSelectionAreaType | undefined) {
+    set switchNewRectangleSelectionToRowOrColumn(value: RevRowOrColumnSelectionAreaType | undefined) {
         if (value !== this._switchNewRectangleSelectionToRowOrColumn) {
             this.beginChange();
             this._switchNewRectangleSelectionToRowOrColumn = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.switchNewRectangleSelectionToRowOrColumn;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.switchNewRectangleSelectionToRowOrColumn;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -312,7 +312,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._defaultRowHeight) {
             this.beginChange();
             this._defaultRowHeight = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.defaultRowHeight;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.defaultRowHeight;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -322,7 +322,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._defaultColumnWidth) {
             this.beginChange();
             this._defaultColumnWidth = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.defaultColumnWidth;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.defaultColumnWidth;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -332,7 +332,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (!isArrayEqual(value, this._defaultUiControllerTypeNames)) {
             this.beginChange();
             this._defaultUiControllerTypeNames = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.defaultUiControllerTypeNames;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.defaultUiControllerTypeNames;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -342,7 +342,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._editable) {
             this.beginChange();
             this._editable = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.editable;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.editable;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -352,7 +352,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._editKey) {
             this.beginChange();
             this._editKey = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.editKey;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.editKey;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -362,7 +362,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._editOnClick) {
             this.beginChange();
             this._editOnClick = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.editOnClick;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.editOnClick;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -372,7 +372,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._editOnDoubleClick) {
             this.beginChange();
             this._editOnDoubleClick = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.editOnDoubleClick;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.editOnDoubleClick;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -382,7 +382,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._editOnFocusCell) {
             this.beginChange();
             this._editOnFocusCell = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.editOnFocusCell;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.editOnFocusCell;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -392,7 +392,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._editOnKeyDown) {
             this.beginChange();
             this._editOnKeyDown = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.editOnKeyDown;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.editOnKeyDown;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -402,17 +402,17 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._editorClickableCursorName) {
             this.beginChange();
             this._editorClickableCursorName = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.editorClickableCursorName;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.editorClickableCursorName;
             this.flagChanged(invalidateType);
             this.endChange();
         }
     }
     get extendLastSelectionAreaModifierKey() { return this._extendLastSelectionAreaModifierKey; }
-    set extendLastSelectionAreaModifierKey(value: ModifierKeyEnum) {
+    set extendLastSelectionAreaModifierKey(value: RevModifierKeyEnum) {
         if (value !== this._extendLastSelectionAreaModifierKey) {
             this.beginChange();
             this._extendLastSelectionAreaModifierKey = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.extendLastSelectionAreaModifierKey;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.extendLastSelectionAreaModifierKey;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -422,7 +422,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._eventDispatchEnabled) {
             this.beginChange();
             this._eventDispatchEnabled = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.eventDispatchEnabled;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.eventDispatchEnabled;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -432,37 +432,37 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._filterable) {
             this.beginChange();
             this._filterable = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.filterable;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.filterable;
             this.flagChanged(invalidateType);
             this.endChange();
         }
     }
     get filterBackgroundColor() { return this._filterBackgroundColor; }
-    set filterBackgroundColor(value: GridSettings.Color) {
+    set filterBackgroundColor(value: RevGridSettings.Color) {
         if (value !== this._filterBackgroundColor) {
             this.beginChange();
             this._filterBackgroundColor = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.filterBackgroundColor;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.filterBackgroundColor;
             this.flagChanged(invalidateType);
             this.endChange();
         }
     }
     get filterBackgroundSelectionColor() { return this._filterBackgroundSelectionColor; }
-    set filterBackgroundSelectionColor(value: GridSettings.Color) {
+    set filterBackgroundSelectionColor(value: RevGridSettings.Color) {
         if (value !== this._filterBackgroundSelectionColor) {
             this.beginChange();
             this._filterBackgroundSelectionColor = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.filterBackgroundSelectionColor;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.filterBackgroundSelectionColor;
             this.flagChanged(invalidateType);
             this.endChange();
         }
     }
     get filterColor() { return this._filterColor; }
-    set filterColor(value: GridSettings.Color) {
+    set filterColor(value: RevGridSettings.Color) {
         if (value !== this._filterColor) {
             this.beginChange();
             this._filterColor = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.filterColor;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.filterColor;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -472,7 +472,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._filterEditor) {
             this.beginChange();
             this._filterEditor = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.filterEditor;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.filterEditor;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -482,17 +482,17 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._filterFont) {
             this.beginChange();
             this._filterFont = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.filterFont;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.filterFont;
             this.flagChanged(invalidateType);
             this.endChange();
         }
     }
     get filterForegroundSelectionColor() { return this._filterForegroundSelectionColor; }
-    set filterForegroundSelectionColor(value: GridSettings.Color) {
+    set filterForegroundSelectionColor(value: RevGridSettings.Color) {
         if (value !== this._filterForegroundSelectionColor) {
             this.beginChange();
             this._filterForegroundSelectionColor = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.filterForegroundSelectionColor;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.filterForegroundSelectionColor;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -502,7 +502,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._filterCellPainter) {
             this.beginChange();
             this._filterCellPainter = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.filterCellPainter;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.filterCellPainter;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -512,17 +512,17 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._fixedColumnCount) {
             this.beginChange();
             this._fixedColumnCount = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.fixedColumnCount;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.fixedColumnCount;
             this.flagChanged(invalidateType);
             this.endChange();
         }
     }
     get horizontalFixedLineColor() { return this._horizontalFixedLineColor; }
-    set horizontalFixedLineColor(value: GridSettings.Color) {
+    set horizontalFixedLineColor(value: RevGridSettings.Color) {
         if (value !== this._horizontalFixedLineColor) {
             this.beginChange();
             this._horizontalFixedLineColor = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.horizontalFixedLineColor;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.horizontalFixedLineColor;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -532,7 +532,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._horizontalFixedLineEdgeWidth) {
             this.beginChange();
             this._horizontalFixedLineEdgeWidth = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.horizontalFixedLineEdgeWidth;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.horizontalFixedLineEdgeWidth;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -542,17 +542,17 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._horizontalFixedLineWidth) {
             this.beginChange();
             this._horizontalFixedLineWidth = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.horizontalFixedLineWidth;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.horizontalFixedLineWidth;
             this.flagChanged(invalidateType);
             this.endChange();
         }
     }
     get verticalFixedLineColor() { return this._verticalFixedLineColor; }
-    set verticalFixedLineColor(value: GridSettings.Color) {
+    set verticalFixedLineColor(value: RevGridSettings.Color) {
         if (value !== this._verticalFixedLineColor) {
             this.beginChange();
             this._verticalFixedLineColor = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.verticalFixedLineColor;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.verticalFixedLineColor;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -562,7 +562,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._verticalFixedLineEdgeWidth) {
             this.beginChange();
             this._verticalFixedLineEdgeWidth = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.verticalFixedLineEdgeWidth;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.verticalFixedLineEdgeWidth;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -572,7 +572,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._verticalFixedLineWidth) {
             this.beginChange();
             this._verticalFixedLineWidth = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.verticalFixedLineWidth;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.verticalFixedLineWidth;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -582,7 +582,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._fixedRowCount) {
             this.beginChange();
             this._fixedRowCount = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.fixedRowCount;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.fixedRowCount;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -592,17 +592,17 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._gridRightAligned) {
             this.beginChange();
             this._gridRightAligned = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.gridRightAligned;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.gridRightAligned;
             this.flagChanged(invalidateType);
             this.endChange();
         }
     }
     get horizontalGridLinesColor() { return this._horizontalGridLinesColor; }
-    set horizontalGridLinesColor(value: GridSettings.Color) {
+    set horizontalGridLinesColor(value: RevGridSettings.Color) {
         if (value !== this._horizontalGridLinesColor) {
             this.beginChange();
             this._horizontalGridLinesColor = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.horizontalGridLinesColor;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.horizontalGridLinesColor;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -612,7 +612,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._horizontalGridLinesWidth) {
             this.beginChange();
             this._horizontalGridLinesWidth = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.horizontalGridLinesWidth;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.horizontalGridLinesWidth;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -622,7 +622,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._horizontalGridLinesVisible) {
             this.beginChange();
             this._horizontalGridLinesVisible = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.horizontalGridLinesVisible;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.horizontalGridLinesVisible;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -632,7 +632,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._verticalGridLinesVisible) {
             this.beginChange();
             this._verticalGridLinesVisible = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.verticalGridLinesVisible;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.verticalGridLinesVisible;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -642,17 +642,17 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._visibleVerticalGridLinesDrawnInFixedAndPreMainOnly) {
             this.beginChange();
             this._visibleVerticalGridLinesDrawnInFixedAndPreMainOnly = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.visibleVerticalGridLinesDrawnInFixedAndPreMainOnly;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.visibleVerticalGridLinesDrawnInFixedAndPreMainOnly;
             this.flagChanged(invalidateType);
             this.endChange();
         }
     }
     get verticalGridLinesColor() { return this._verticalGridLinesColor; }
-    set verticalGridLinesColor(value: GridSettings.Color) {
+    set verticalGridLinesColor(value: RevGridSettings.Color) {
         if (value !== this._verticalGridLinesColor) {
             this.beginChange();
             this._verticalGridLinesColor = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.verticalGridLinesColor;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.verticalGridLinesColor;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -662,17 +662,17 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._verticalGridLinesWidth) {
             this.beginChange();
             this._verticalGridLinesWidth = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.verticalGridLinesWidth;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.verticalGridLinesWidth;
             this.flagChanged(invalidateType);
             this.endChange();
         }
     }
     get horizontalWheelScrollingAllowed() { return this._horizontalWheelScrollingAllowed; }
-    set horizontalWheelScrollingAllowed(value: HorizontalWheelScrollingAllowed) {
+    set horizontalWheelScrollingAllowed(value: RevHorizontalWheelScrollingAllowed) {
         if (value !== this._horizontalWheelScrollingAllowed) {
             this.beginChange();
             this._horizontalWheelScrollingAllowed = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.horizontalWheelScrollingAllowed;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.horizontalWheelScrollingAllowed;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -682,7 +682,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._minimumColumnWidth) {
             this.beginChange();
             this._minimumColumnWidth = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.minimumColumnWidth;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.minimumColumnWidth;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -692,7 +692,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._maximumColumnWidth) {
             this.beginChange();
             this._maximumColumnWidth = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.maximumColumnWidth;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.maximumColumnWidth;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -702,7 +702,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._visibleColumnWidthAdjust) {
             this.beginChange();
             this._visibleColumnWidthAdjust = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.visibleColumnWidthAdjust;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.visibleColumnWidthAdjust;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -712,17 +712,17 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._mouseColumnSelectionEnabled) {
             this.beginChange();
             this._mouseColumnSelectionEnabled = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.mouseColumnSelectionEnabled;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.mouseColumnSelectionEnabled;
             this.flagChanged(invalidateType);
             this.endChange();
         }
     }
     get mouseColumnSelectionModifierKey() { return this._mouseColumnSelectionModifierKey; }
-    set mouseColumnSelectionModifierKey(value: ModifierKeyEnum | undefined) {
+    set mouseColumnSelectionModifierKey(value: RevModifierKeyEnum | undefined) {
         if (value !== this._mouseColumnSelectionModifierKey) {
             this.beginChange();
             this._mouseColumnSelectionModifierKey = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.mouseColumnSelectionModifierKey;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.mouseColumnSelectionModifierKey;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -732,7 +732,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._mouseLastSelectionAreaExtendingDragActiveCursorName) {
             this.beginChange();
             this._mouseLastSelectionAreaExtendingDragActiveCursorName = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.mouseLastSelectionAreaExtendingDragActiveCursorName;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.mouseLastSelectionAreaExtendingDragActiveCursorName;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -742,7 +742,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._mouseLastSelectionAreaExtendingDragActiveTitleText) {
             this.beginChange();
             this._mouseLastSelectionAreaExtendingDragActiveTitleText = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.mouseLastSelectionAreaExtendingDragActiveTitleText;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.mouseLastSelectionAreaExtendingDragActiveTitleText;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -752,17 +752,17 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._mouseAddToggleExtendSelectionAreaEnabled) {
             this.beginChange();
             this._mouseAddToggleExtendSelectionAreaEnabled = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.mouseAddToggleExtendSelectionAreaEnabled;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.mouseAddToggleExtendSelectionAreaEnabled;
             this.flagChanged(invalidateType);
             this.endChange();
         }
     }
     get mouseAddToggleExtendSelectionAreaDragModifierKey() { return this._mouseAddToggleExtendSelectionAreaDragModifierKey; }
-    set mouseAddToggleExtendSelectionAreaDragModifierKey(value: ModifierKeyEnum | undefined) {
+    set mouseAddToggleExtendSelectionAreaDragModifierKey(value: RevModifierKeyEnum | undefined) {
         if (value !== this._mouseAddToggleExtendSelectionAreaDragModifierKey) {
             this.beginChange();
             this._mouseAddToggleExtendSelectionAreaDragModifierKey = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.mouseAddToggleExtendSelectionAreaDragModifierKey;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.mouseAddToggleExtendSelectionAreaDragModifierKey;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -772,17 +772,17 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._mouseRowSelectionEnabled) {
             this.beginChange();
             this._mouseRowSelectionEnabled = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.mouseRowSelectionEnabled;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.mouseRowSelectionEnabled;
             this.flagChanged(invalidateType);
             this.endChange();
         }
     }
     get mouseRowSelectionModifierKey() { return this._mouseRowSelectionModifierKey; }
-    set mouseRowSelectionModifierKey(value: ModifierKeyEnum | undefined) {
+    set mouseRowSelectionModifierKey(value: RevModifierKeyEnum | undefined) {
         if (value !== this._mouseRowSelectionModifierKey) {
             this.beginChange();
             this._mouseRowSelectionModifierKey = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.mouseRowSelectionModifierKey;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.mouseRowSelectionModifierKey;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -792,17 +792,17 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._multipleSelectionAreas) {
             this.beginChange();
             this._multipleSelectionAreas = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.multipleSelectionAreas;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.multipleSelectionAreas;
             this.flagChanged(invalidateType);
             this.endChange();
         }
     }
     get primarySelectionAreaType() { return this._primarySelectionAreaType; }
-    set primarySelectionAreaType(value: SelectionAreaType) {
+    set primarySelectionAreaType(value: RevSelectionAreaType) {
         if (value !== this._primarySelectionAreaType) {
             this.beginChange();
             this._primarySelectionAreaType = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.primarySelectionAreaType;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.primarySelectionAreaType;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -812,7 +812,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._minimumAnimateTimeInterval) {
             this.beginChange();
             this._minimumAnimateTimeInterval = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.minimumAnimateTimeInterval;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.minimumAnimateTimeInterval;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -822,7 +822,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._backgroundAnimateTimeInterval) {
             this.beginChange();
             this._backgroundAnimateTimeInterval = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.backgroundAnimateTimeInterval;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.backgroundAnimateTimeInterval;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -832,7 +832,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._resizeColumnInPlace) {
             this.beginChange();
             this._resizeColumnInPlace = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.resizeColumnInPlace;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.resizeColumnInPlace;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -842,7 +842,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._resizedEventDebounceExtendedWhenPossible) {
             this.beginChange();
             this._resizedEventDebounceExtendedWhenPossible = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.resizedEventDebounceExtendedWhenPossible;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.resizedEventDebounceExtendedWhenPossible;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -852,7 +852,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._resizedEventDebounceInterval) {
             this.beginChange();
             this._resizedEventDebounceInterval = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.resizedEventDebounceInterval;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.resizedEventDebounceInterval;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -862,17 +862,17 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._rowResize) {
             this.beginChange();
             this._rowResize = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.rowResize;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.rowResize;
             this.flagChanged(invalidateType);
             this.endChange();
         }
     }
     get rowStripeBackgroundColor() { return this._rowStripeBackgroundColor; }
-    set rowStripeBackgroundColor(value: OnlyGridSettings.Color | undefined) {
+    set rowStripeBackgroundColor(value: RevOnlyGridSettings.Color | undefined) {
         if (value !== this._rowStripeBackgroundColor) {
             this.beginChange();
             this._rowStripeBackgroundColor = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.rowStripeBackgroundColor;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.rowStripeBackgroundColor;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -882,7 +882,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._scrollHorizontallySmoothly) {
             this.beginChange();
             this._scrollHorizontallySmoothly = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.scrollHorizontallySmoothly;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.scrollHorizontallySmoothly;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -892,7 +892,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._scrollerThickness) {
             this.beginChange();
             this._scrollerThickness = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.scrollerThickness;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.scrollerThickness;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -902,7 +902,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._scrollerThumbColor) {
             this.beginChange();
             this._scrollerThumbColor = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.scrollerThumbColor;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.scrollerThumbColor;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -912,7 +912,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._scrollerThumbReducedVisibilityOpacity) {
             this.beginChange();
             this._scrollerThumbReducedVisibilityOpacity = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.scrollerThumbReducedVisibilityOpacity;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.scrollerThumbReducedVisibilityOpacity;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -922,47 +922,47 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._scrollingEnabled) {
             this.beginChange();
             this._scrollingEnabled = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.scrollingEnabled;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.scrollingEnabled;
             this.flagChanged(invalidateType);
             this.endChange();
         }
     }
     get secondarySelectionAreaTypeSpecifierModifierKey() { return this._secondarySelectionAreaTypeSpecifierModifierKey; }
-    set secondarySelectionAreaTypeSpecifierModifierKey(value: ModifierKeyEnum | undefined) {
+    set secondarySelectionAreaTypeSpecifierModifierKey(value: RevModifierKeyEnum | undefined) {
         if (value !== this._secondarySelectionAreaTypeSpecifierModifierKey) {
             this.beginChange();
             this._secondarySelectionAreaTypeSpecifierModifierKey = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.secondarySelectionAreaTypeSpecifierModifierKey;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.secondarySelectionAreaTypeSpecifierModifierKey;
             this.flagChanged(invalidateType);
             this.endChange();
         }
     }
     get secondarySelectionAreaType() { return this._secondarySelectionAreaType; }
-    set secondarySelectionAreaType(value: SelectionAreaType) {
+    set secondarySelectionAreaType(value: RevSelectionAreaType) {
         if (value !== this._secondarySelectionAreaType) {
             this.beginChange();
             this._secondarySelectionAreaType = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.secondarySelectionAreaType;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.secondarySelectionAreaType;
             this.flagChanged(invalidateType);
             this.endChange();
         }
     }
     get selectionRegionOutlineColor() { return this._selectionRegionOutlineColor; }
-    set selectionRegionOutlineColor(value: GridSettings.Color | undefined) {
+    set selectionRegionOutlineColor(value: RevGridSettings.Color | undefined) {
         if (value !== this._selectionRegionOutlineColor) {
             this.beginChange();
             this._selectionRegionOutlineColor = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.selectionRegionOutlineColor;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.selectionRegionOutlineColor;
             this.flagChanged(invalidateType);
             this.endChange();
         }
     }
     get selectionRegionOverlayColor() { return this._selectionRegionOverlayColor; }
-    set selectionRegionOverlayColor(value: GridSettings.Color | undefined) {
+    set selectionRegionOverlayColor(value: RevGridSettings.Color | undefined) {
         if (value !== this._selectionRegionOverlayColor) {
             this.beginChange();
             this._selectionRegionOverlayColor = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.selectionRegionOverlayColor;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.selectionRegionOverlayColor;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -972,17 +972,17 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._showFilterRow) {
             this.beginChange();
             this._showFilterRow = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.showFilterRow;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.showFilterRow;
             this.flagChanged(invalidateType);
             this.endChange();
         }
     }
     get showScrollerThumbOnMouseMoveModifierKey() { return this._showScrollerThumbOnMouseMoveModifierKey; }
-    set showScrollerThumbOnMouseMoveModifierKey(value: ModifierKeyEnum | undefined) {
+    set showScrollerThumbOnMouseMoveModifierKey(value: RevModifierKeyEnum | undefined) {
         if (value !== this.showScrollerThumbOnMouseMoveModifierKey) {
             this.beginChange();
             this.showScrollerThumbOnMouseMoveModifierKey = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.showScrollerThumbOnMouseMoveModifierKey;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.showScrollerThumbOnMouseMoveModifierKey;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -992,7 +992,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._sortOnDoubleClick) {
             this.beginChange();
             this._sortOnDoubleClick = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.sortOnDoubleClick;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.sortOnDoubleClick;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -1002,7 +1002,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._sortOnClick) {
             this.beginChange();
             this._sortOnClick = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.sortOnClick;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.sortOnClick;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -1012,7 +1012,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._useHiDPI) {
             this.beginChange();
             this._useHiDPI = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.useHiDPI;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.useHiDPI;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -1022,7 +1022,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._wheelHFactor) {
             this.beginChange();
             this._wheelHFactor = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.wheelHFactor;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.wheelHFactor;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -1032,576 +1032,576 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
         if (value !== this._wheelVFactor) {
             this.beginChange();
             this._wheelVFactor = value;
-            const invalidateType = gridSettingChangeInvalidateTypeIds.wheelVFactor;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.wheelVFactor;
             this.flagChanged(invalidateType);
             this.endChange();
         }
     }
 
-    merge(settings: Partial<GridSettings>) {
+    merge(settings: Partial<RevGridSettings>) {
         this.beginChange();
 
-        const requiredSettings = settings as Required<GridSettings>; // since we only iterate over keys that exist we can assume that settings is not partial in the switch loop
+        const requiredSettings = settings as Required<RevGridSettings>; // since we only iterate over keys that exist we can assume that settings is not partial in the switch loop
         for (const key in settings) {
             // Use loop so that compiler will report error if any setting missing
-            const gridSettingsKey = key as keyof GridSettings;
+            const gridSettingsKey = key as keyof RevGridSettings;
             switch (gridSettingsKey) {
                 case 'addToggleSelectionAreaModifierKey':
                     if (this._addToggleSelectionAreaModifierKey !== requiredSettings.addToggleSelectionAreaModifierKey) {
                         this._addToggleSelectionAreaModifierKey = requiredSettings.addToggleSelectionAreaModifierKey;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.addToggleSelectionAreaModifierKey);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.addToggleSelectionAreaModifierKey);
                     }
                     break;
                 case 'addToggleSelectionAreaModifierKeyDoesToggle':
                     if (this._addToggleSelectionAreaModifierKeyDoesToggle !== requiredSettings.addToggleSelectionAreaModifierKeyDoesToggle) {
                         this._addToggleSelectionAreaModifierKeyDoesToggle = requiredSettings.addToggleSelectionAreaModifierKeyDoesToggle;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.addToggleSelectionAreaModifierKeyDoesToggle);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.addToggleSelectionAreaModifierKeyDoesToggle);
                     }
                     break;
                 case 'backgroundColor':
                     if (this._backgroundColor !== requiredSettings.backgroundColor) {
                         this._backgroundColor = requiredSettings.backgroundColor;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.backgroundColor);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.backgroundColor);
                     }
                     break;
                 case 'color':
                     if (this._color !== requiredSettings.color) {
                         this._color = requiredSettings.color;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.color);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.color);
                     }
                     break;
                 case 'defaultColumnAutoSizing':
                     if (this._defaultColumnAutoSizing !== requiredSettings.defaultColumnAutoSizing) {
                         this._defaultColumnAutoSizing = requiredSettings.defaultColumnAutoSizing;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.defaultColumnAutoSizing);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.defaultColumnAutoSizing);
                     }
                     break;
                 case 'columnAutoSizingMax':
                     if (this._columnAutoSizingMax !== requiredSettings.columnAutoSizingMax) {
                         this._columnAutoSizingMax = requiredSettings.columnAutoSizingMax;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.columnAutoSizingMax);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.columnAutoSizingMax);
                     }
                     break;
                 case 'columnClip':
                     if (this._columnClip !== requiredSettings.columnClip) {
                         this._columnClip = requiredSettings.columnClip;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.columnClip);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.columnClip);
                     }
                     break;
                 case 'columnMoveDragPossibleCursorName':
                     if (this._columnMoveDragPossibleCursorName !== requiredSettings.columnMoveDragPossibleCursorName) {
                         this._columnMoveDragPossibleCursorName = requiredSettings.columnMoveDragPossibleCursorName;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.columnMoveDragPossibleCursorName);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.columnMoveDragPossibleCursorName);
                     }
                     break;
                 case 'columnMoveDragPossibleTitleText':
                     if (this._columnMoveDragPossibleTitleText !== requiredSettings.columnMoveDragPossibleTitleText) {
                         this._columnMoveDragPossibleTitleText = requiredSettings.columnMoveDragPossibleTitleText;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.columnMoveDragPossibleTitleText);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.columnMoveDragPossibleTitleText);
                     }
                     break;
                 case 'columnMoveDragActiveCursorName':
                     if (this._columnMoveDragActiveCursorName !== requiredSettings.columnMoveDragActiveCursorName) {
                         this._columnMoveDragActiveCursorName = requiredSettings.columnMoveDragActiveCursorName;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.columnMoveDragActiveCursorName);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.columnMoveDragActiveCursorName);
                     }
                     break;
                 case 'columnMoveDragActiveTitleText':
                     if (this._columnMoveDragActiveTitleText !== requiredSettings.columnMoveDragActiveTitleText) {
                         this._columnMoveDragActiveTitleText = requiredSettings.columnMoveDragActiveTitleText;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.columnMoveDragActiveTitleText);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.columnMoveDragActiveTitleText);
                     }
                     break;
                 case 'columnResizeDragPossibleCursorName':
                     if (this._columnResizeDragPossibleCursorName !== requiredSettings.columnResizeDragPossibleCursorName) {
                         this._columnResizeDragPossibleCursorName = requiredSettings.columnResizeDragPossibleCursorName;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.columnResizeDragPossibleCursorName);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.columnResizeDragPossibleCursorName);
                     }
                     break;
                 case 'columnResizeDragPossibleTitleText':
                     if (this._columnResizeDragPossibleTitleText !== requiredSettings.columnResizeDragPossibleTitleText) {
                         this._columnResizeDragPossibleTitleText = requiredSettings.columnResizeDragPossibleTitleText;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.columnResizeDragPossibleTitleText);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.columnResizeDragPossibleTitleText);
                     }
                     break;
                 case 'columnResizeDragActiveCursorName':
                     if (this._columnResizeDragActiveCursorName !== requiredSettings.columnResizeDragActiveCursorName) {
                         this._columnResizeDragActiveCursorName = requiredSettings.columnResizeDragActiveCursorName;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.columnResizeDragActiveCursorName);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.columnResizeDragActiveCursorName);
                     }
                     break;
                 case 'columnResizeDragActiveTitleText':
                     if (this._columnResizeDragActiveTitleText !== requiredSettings.columnResizeDragActiveTitleText) {
                         this._columnResizeDragActiveTitleText = requiredSettings.columnResizeDragActiveTitleText;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.columnResizeDragActiveTitleText);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.columnResizeDragActiveTitleText);
                     }
                     break;
                 case 'columnSortPossibleCursorName':
                     if (this._columnSortPossibleCursorName !== requiredSettings.columnSortPossibleCursorName) {
                         this._columnSortPossibleCursorName = requiredSettings.columnSortPossibleCursorName;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.columnSortPossibleCursorName);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.columnSortPossibleCursorName);
                     }
                     break;
                 case 'columnSortPossibleTitleText':
                     if (this._columnSortPossibleTitleText !== requiredSettings.columnSortPossibleTitleText) {
                         this._columnSortPossibleTitleText = requiredSettings.columnSortPossibleTitleText;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.columnSortPossibleTitleText);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.columnSortPossibleTitleText);
                     }
                     break;
                 case 'columnsReorderable':
                     if (this._columnsReorderable !== requiredSettings.columnsReorderable) {
                         this._columnsReorderable = requiredSettings.columnsReorderable;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.columnsReorderable);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.columnsReorderable);
                     }
                     break;
                 case 'columnsReorderableHideable':
                     if (this._columnsReorderableHideable !== requiredSettings.columnsReorderableHideable) {
                         this._columnsReorderableHideable = requiredSettings.columnsReorderableHideable;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.columnsReorderableHideable);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.columnsReorderableHideable);
                     }
                     break;
                 case 'switchNewRectangleSelectionToRowOrColumn':
                     if (this._switchNewRectangleSelectionToRowOrColumn !== requiredSettings.switchNewRectangleSelectionToRowOrColumn) {
                         this._switchNewRectangleSelectionToRowOrColumn = requiredSettings.switchNewRectangleSelectionToRowOrColumn;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.switchNewRectangleSelectionToRowOrColumn);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.switchNewRectangleSelectionToRowOrColumn);
                     }
                     break;
                 case 'defaultRowHeight':
                     if (this._defaultRowHeight !== requiredSettings.defaultRowHeight) {
                         this._defaultRowHeight = requiredSettings.defaultRowHeight;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.defaultRowHeight);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.defaultRowHeight);
                     }
                     break;
                 case 'defaultColumnWidth':
                     if (this._defaultColumnWidth !== requiredSettings.defaultColumnWidth) {
                         this._defaultColumnWidth = requiredSettings.defaultColumnWidth;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.defaultColumnWidth);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.defaultColumnWidth);
                     }
                     break;
                 case 'defaultUiControllerTypeNames':
                     if (this._defaultUiControllerTypeNames !== requiredSettings.defaultUiControllerTypeNames) {
                         this._defaultUiControllerTypeNames = requiredSettings.defaultUiControllerTypeNames;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.defaultUiControllerTypeNames);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.defaultUiControllerTypeNames);
                     }
                     break;
                 case 'editable':
                     if (this._editable !== requiredSettings.editable) {
                         this._editable = requiredSettings.editable;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.editable);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.editable);
                     }
                     break;
                 case 'editKey':
                     if (this._editKey !== requiredSettings.editKey) {
                         this._editKey = requiredSettings.editKey;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.editKey);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.editKey);
                     }
                     break;
                 case 'editOnClick':
                     if (this._editOnClick !== requiredSettings.editOnClick) {
                         this._editOnClick = requiredSettings.editOnClick;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.editOnClick);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.editOnClick);
                     }
                     break;
                 case 'editOnDoubleClick':
                     if (this._editOnDoubleClick !== requiredSettings.editOnDoubleClick) {
                         this._editOnDoubleClick = requiredSettings.editOnDoubleClick;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.editOnDoubleClick);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.editOnDoubleClick);
                     }
                     break;
                 case 'editOnFocusCell':
                     if (this._editOnFocusCell !== requiredSettings.editOnFocusCell) {
                         this._editOnFocusCell = requiredSettings.editOnFocusCell;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.editOnFocusCell);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.editOnFocusCell);
                     }
                     break;
                 case 'editOnKeyDown':
                     if (this._editOnKeyDown !== requiredSettings.editOnKeyDown) {
                         this._editOnKeyDown = requiredSettings.editOnKeyDown;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.editOnKeyDown);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.editOnKeyDown);
                     }
                     break;
                 case 'editorClickableCursorName':
                     if (this._editorClickableCursorName !== requiredSettings.editorClickableCursorName) {
                         this._editorClickableCursorName = requiredSettings.editorClickableCursorName;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.editorClickableCursorName);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.editorClickableCursorName);
                     }
                     break;
                 case 'extendLastSelectionAreaModifierKey':
                     if (this._extendLastSelectionAreaModifierKey !== requiredSettings.extendLastSelectionAreaModifierKey) {
                         this._extendLastSelectionAreaModifierKey = requiredSettings.extendLastSelectionAreaModifierKey;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.extendLastSelectionAreaModifierKey);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.extendLastSelectionAreaModifierKey);
                     }
                     break;
                 case 'eventDispatchEnabled':
                     if (this._eventDispatchEnabled !== requiredSettings.eventDispatchEnabled) {
                         this._eventDispatchEnabled = requiredSettings.eventDispatchEnabled;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.eventDispatchEnabled);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.eventDispatchEnabled);
                     }
                     break;
                 case 'filterable':
                     if (this._filterable !== requiredSettings.filterable) {
                         this._filterable = requiredSettings.filterable;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.filterable);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.filterable);
                     }
                     break;
                 case 'filterBackgroundColor':
                     if (this._filterBackgroundColor !== requiredSettings.filterBackgroundColor) {
                         this._filterBackgroundColor = requiredSettings.filterBackgroundColor;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.filterBackgroundColor);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.filterBackgroundColor);
                     }
                     break;
                 case 'filterBackgroundSelectionColor':
                     if (this._filterBackgroundSelectionColor !== requiredSettings.filterBackgroundSelectionColor) {
                         this._filterBackgroundSelectionColor = requiredSettings.filterBackgroundSelectionColor;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.filterBackgroundSelectionColor);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.filterBackgroundSelectionColor);
                     }
                     break;
                 case 'filterColor':
                     if (this._filterColor !== requiredSettings.filterColor) {
                         this._filterColor = requiredSettings.filterColor;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.filterColor);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.filterColor);
                     }
                     break;
                 case 'filterEditor':
                     if (this._filterEditor !== requiredSettings.filterEditor) {
                         this._filterEditor = requiredSettings.filterEditor;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.filterEditor);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.filterEditor);
                     }
                     break;
                 case 'filterFont':
                     if (this._filterFont !== requiredSettings.filterFont) {
                         this._filterFont = requiredSettings.filterFont;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.filterFont);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.filterFont);
                     }
                     break;
                 case 'filterForegroundSelectionColor':
                     if (this._filterForegroundSelectionColor !== requiredSettings.filterForegroundSelectionColor) {
                         this._filterForegroundSelectionColor = requiredSettings.filterForegroundSelectionColor;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.filterForegroundSelectionColor);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.filterForegroundSelectionColor);
                     }
                     break;
                 case 'filterCellPainter':
                     if (this._filterCellPainter !== requiredSettings.filterCellPainter) {
                         this._filterCellPainter = requiredSettings.filterCellPainter;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.filterCellPainter);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.filterCellPainter);
                     }
                     break;
                 case 'fixedColumnCount':
                     if (this._fixedColumnCount !== requiredSettings.fixedColumnCount) {
                         this._fixedColumnCount = requiredSettings.fixedColumnCount;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.fixedColumnCount);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.fixedColumnCount);
                     }
                     break;
                 case 'horizontalFixedLineColor':
                     if (this._horizontalFixedLineColor !== requiredSettings.horizontalFixedLineColor) {
                         this._horizontalFixedLineColor = requiredSettings.horizontalFixedLineColor;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.horizontalFixedLineColor);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.horizontalFixedLineColor);
                     }
                     break;
                 case 'horizontalFixedLineEdgeWidth':
                     if (this._horizontalFixedLineEdgeWidth !== requiredSettings.horizontalFixedLineEdgeWidth) {
                         this._horizontalFixedLineEdgeWidth = requiredSettings.horizontalFixedLineEdgeWidth;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.horizontalFixedLineEdgeWidth);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.horizontalFixedLineEdgeWidth);
                     }
                     break;
                 case 'horizontalFixedLineWidth':
                     if (this._horizontalFixedLineWidth !== requiredSettings.horizontalFixedLineWidth) {
                         this._horizontalFixedLineWidth = requiredSettings.horizontalFixedLineWidth;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.horizontalFixedLineWidth);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.horizontalFixedLineWidth);
                     }
                     break;
                 case 'verticalFixedLineColor':
                     if (this._verticalFixedLineColor !== requiredSettings.verticalFixedLineColor) {
                         this._verticalFixedLineColor = requiredSettings.verticalFixedLineColor;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.verticalFixedLineColor);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.verticalFixedLineColor);
                     }
                     break;
                 case 'verticalFixedLineEdgeWidth':
                     if (this._verticalFixedLineEdgeWidth !== requiredSettings.verticalFixedLineEdgeWidth) {
                         this._verticalFixedLineEdgeWidth = requiredSettings.verticalFixedLineEdgeWidth;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.verticalFixedLineEdgeWidth);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.verticalFixedLineEdgeWidth);
                     }
                     break;
                 case 'verticalFixedLineWidth':
                     if (this._verticalFixedLineWidth !== requiredSettings.verticalFixedLineWidth) {
                         this._verticalFixedLineWidth = requiredSettings.verticalFixedLineWidth;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.verticalFixedLineWidth);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.verticalFixedLineWidth);
                     }
                     break;
                 case 'fixedRowCount':
                     if (this._fixedRowCount !== requiredSettings.fixedRowCount) {
                         this._fixedRowCount = requiredSettings.fixedRowCount;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.fixedRowCount);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.fixedRowCount);
                     }
                     break;
                 case 'gridRightAligned':
                     if (this._gridRightAligned !== requiredSettings.gridRightAligned) {
                         this._gridRightAligned = requiredSettings.gridRightAligned;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.gridRightAligned);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.gridRightAligned);
                     }
                     break;
                 case 'horizontalGridLinesColor':
                     if (this._horizontalGridLinesColor !== requiredSettings.horizontalGridLinesColor) {
                         this._horizontalGridLinesColor = requiredSettings.horizontalGridLinesColor;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.horizontalGridLinesColor);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.horizontalGridLinesColor);
                     }
                     break;
                 case 'horizontalGridLinesWidth':
                     if (this._horizontalGridLinesWidth !== requiredSettings.horizontalGridLinesWidth) {
                         this._horizontalGridLinesWidth = requiredSettings.horizontalGridLinesWidth;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.horizontalGridLinesWidth);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.horizontalGridLinesWidth);
                     }
                     break;
                 case 'horizontalGridLinesVisible':
                     if (this._horizontalGridLinesVisible !== requiredSettings.horizontalGridLinesVisible) {
                         this._horizontalGridLinesVisible = requiredSettings.horizontalGridLinesVisible;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.horizontalGridLinesVisible);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.horizontalGridLinesVisible);
                     }
                     break;
                 case 'verticalGridLinesVisible':
                     if (this._verticalGridLinesVisible !== requiredSettings.verticalGridLinesVisible) {
                         this._verticalGridLinesVisible = requiredSettings.verticalGridLinesVisible;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.verticalGridLinesVisible);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.verticalGridLinesVisible);
                     }
                     break;
                 case 'visibleVerticalGridLinesDrawnInFixedAndPreMainOnly':
                     if (this._visibleVerticalGridLinesDrawnInFixedAndPreMainOnly !== requiredSettings.visibleVerticalGridLinesDrawnInFixedAndPreMainOnly) {
                         this._visibleVerticalGridLinesDrawnInFixedAndPreMainOnly = requiredSettings.visibleVerticalGridLinesDrawnInFixedAndPreMainOnly;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.visibleVerticalGridLinesDrawnInFixedAndPreMainOnly);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.visibleVerticalGridLinesDrawnInFixedAndPreMainOnly);
                     }
                     break;
                 case 'verticalGridLinesColor':
                     if (this._verticalGridLinesColor !== requiredSettings.verticalGridLinesColor) {
                         this._verticalGridLinesColor = requiredSettings.verticalGridLinesColor;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.verticalGridLinesColor);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.verticalGridLinesColor);
                     }
                     break;
                 case 'verticalGridLinesWidth':
                     if (this._verticalGridLinesWidth !== requiredSettings.verticalGridLinesWidth) {
                         this._verticalGridLinesWidth = requiredSettings.verticalGridLinesWidth;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.verticalGridLinesWidth);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.verticalGridLinesWidth);
                     }
                     break;
                 case 'horizontalWheelScrollingAllowed':
                     if (this._horizontalWheelScrollingAllowed !== requiredSettings.horizontalWheelScrollingAllowed) {
                         this._horizontalWheelScrollingAllowed = requiredSettings.horizontalWheelScrollingAllowed;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.horizontalWheelScrollingAllowed);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.horizontalWheelScrollingAllowed);
                     }
                     break;
                 case 'minimumColumnWidth':
                     if (this._minimumColumnWidth !== requiredSettings.minimumColumnWidth) {
                         this._minimumColumnWidth = requiredSettings.minimumColumnWidth;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.minimumColumnWidth);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.minimumColumnWidth);
                     }
                     break;
                 case 'maximumColumnWidth':
                     if (this._maximumColumnWidth !== requiredSettings.maximumColumnWidth) {
                         this._maximumColumnWidth = requiredSettings.maximumColumnWidth;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.maximumColumnWidth);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.maximumColumnWidth);
                     }
                     break;
                 case 'visibleColumnWidthAdjust':
                     if (this._visibleColumnWidthAdjust !== requiredSettings.visibleColumnWidthAdjust) {
                         this._visibleColumnWidthAdjust = requiredSettings.visibleColumnWidthAdjust;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.visibleColumnWidthAdjust);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.visibleColumnWidthAdjust);
                     }
                     break;
                 case 'mouseLastSelectionAreaExtendingDragActiveCursorName':
                     if (this._mouseLastSelectionAreaExtendingDragActiveCursorName !== requiredSettings.mouseLastSelectionAreaExtendingDragActiveCursorName) {
                         this._mouseLastSelectionAreaExtendingDragActiveCursorName = requiredSettings.mouseLastSelectionAreaExtendingDragActiveCursorName;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.mouseLastSelectionAreaExtendingDragActiveCursorName);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.mouseLastSelectionAreaExtendingDragActiveCursorName);
                     }
                     break;
                 case 'mouseLastSelectionAreaExtendingDragActiveTitleText':
                     if (this._mouseLastSelectionAreaExtendingDragActiveTitleText !== requiredSettings.mouseLastSelectionAreaExtendingDragActiveTitleText) {
                         this._mouseLastSelectionAreaExtendingDragActiveTitleText = requiredSettings.mouseLastSelectionAreaExtendingDragActiveTitleText;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.mouseLastSelectionAreaExtendingDragActiveTitleText);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.mouseLastSelectionAreaExtendingDragActiveTitleText);
                     }
                     break;
                 case 'mouseAddToggleExtendSelectionAreaEnabled':
                     if (this._mouseAddToggleExtendSelectionAreaEnabled !== requiredSettings.mouseAddToggleExtendSelectionAreaEnabled) {
                         this._mouseAddToggleExtendSelectionAreaEnabled = requiredSettings.mouseAddToggleExtendSelectionAreaEnabled;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.mouseAddToggleExtendSelectionAreaEnabled);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.mouseAddToggleExtendSelectionAreaEnabled);
                     }
                     break;
                 case 'mouseAddToggleExtendSelectionAreaDragModifierKey':
                     if (this._mouseAddToggleExtendSelectionAreaDragModifierKey !== requiredSettings.mouseAddToggleExtendSelectionAreaDragModifierKey) {
                         this._mouseAddToggleExtendSelectionAreaDragModifierKey = requiredSettings.mouseAddToggleExtendSelectionAreaDragModifierKey;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.mouseAddToggleExtendSelectionAreaDragModifierKey);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.mouseAddToggleExtendSelectionAreaDragModifierKey);
                     }
                     break;
                 case 'mouseColumnSelectionEnabled':
                     if (this._mouseColumnSelectionEnabled !== requiredSettings.mouseColumnSelectionEnabled) {
                         this._mouseColumnSelectionEnabled = requiredSettings.mouseColumnSelectionEnabled;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.mouseColumnSelectionEnabled);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.mouseColumnSelectionEnabled);
                     }
                     break;
                 case 'mouseColumnSelectionModifierKey':
                     if (this._mouseColumnSelectionModifierKey !== requiredSettings.mouseColumnSelectionModifierKey) {
                         this._mouseColumnSelectionModifierKey = requiredSettings.mouseColumnSelectionModifierKey;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.mouseColumnSelectionModifierKey);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.mouseColumnSelectionModifierKey);
                     }
                     break;
                 case 'mouseRowSelectionEnabled':
                     if (this._mouseRowSelectionEnabled !== requiredSettings.mouseRowSelectionEnabled) {
                         this._mouseRowSelectionEnabled = requiredSettings.mouseRowSelectionEnabled;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.mouseRowSelectionEnabled);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.mouseRowSelectionEnabled);
                     }
                     break;
                 case 'mouseRowSelectionModifierKey':
                     if (this._mouseRowSelectionModifierKey !== requiredSettings.mouseRowSelectionModifierKey) {
                         this._mouseRowSelectionModifierKey = requiredSettings.mouseRowSelectionModifierKey;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.mouseRowSelectionModifierKey);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.mouseRowSelectionModifierKey);
                     }
                     break;
                 case 'multipleSelectionAreas':
                     if (this._multipleSelectionAreas !== requiredSettings.multipleSelectionAreas) {
                         this._multipleSelectionAreas = requiredSettings.multipleSelectionAreas;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.multipleSelectionAreas);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.multipleSelectionAreas);
                     }
                     break;
                 case 'primarySelectionAreaType':
                     if (this._primarySelectionAreaType !== requiredSettings.primarySelectionAreaType) {
                         this._primarySelectionAreaType = requiredSettings.primarySelectionAreaType;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.primarySelectionAreaType);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.primarySelectionAreaType);
                     }
                     break;
                 case 'minimumAnimateTimeInterval':
                     if (this._minimumAnimateTimeInterval !== requiredSettings.minimumAnimateTimeInterval) {
                         this._minimumAnimateTimeInterval = requiredSettings.minimumAnimateTimeInterval;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.minimumAnimateTimeInterval);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.minimumAnimateTimeInterval);
                     }
                     break;
                 case 'backgroundAnimateTimeInterval':
                     if (this._backgroundAnimateTimeInterval !== requiredSettings.backgroundAnimateTimeInterval) {
                         this._backgroundAnimateTimeInterval = requiredSettings.backgroundAnimateTimeInterval;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.backgroundAnimateTimeInterval);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.backgroundAnimateTimeInterval);
                     }
                     break;
                 case 'resizeColumnInPlace':
                     if (this._resizeColumnInPlace !== requiredSettings.resizeColumnInPlace) {
                         this._resizeColumnInPlace = requiredSettings.resizeColumnInPlace;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.resizeColumnInPlace);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.resizeColumnInPlace);
                     }
                     break;
                 case 'resizedEventDebounceExtendedWhenPossible':
                     if (this._resizedEventDebounceExtendedWhenPossible !== requiredSettings.resizedEventDebounceExtendedWhenPossible) {
                         this._resizedEventDebounceExtendedWhenPossible = requiredSettings.resizedEventDebounceExtendedWhenPossible;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.resizedEventDebounceExtendedWhenPossible);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.resizedEventDebounceExtendedWhenPossible);
                     }
                     break;
                 case 'resizedEventDebounceInterval':
                     if (this._resizedEventDebounceInterval !== requiredSettings.resizedEventDebounceInterval) {
                         this._resizedEventDebounceInterval = requiredSettings.resizedEventDebounceInterval;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.resizedEventDebounceInterval);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.resizedEventDebounceInterval);
                     }
                     break;
                 case 'rowResize':
                     if (this._rowResize !== requiredSettings.rowResize) {
                         this._rowResize = requiredSettings.rowResize;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.rowResize);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.rowResize);
                     }
                     break;
                 case 'rowStripeBackgroundColor':
                     if (this._rowStripeBackgroundColor !== requiredSettings.rowStripeBackgroundColor) {
                         this._rowStripeBackgroundColor = requiredSettings.rowStripeBackgroundColor;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.rowStripeBackgroundColor);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.rowStripeBackgroundColor);
                     }
                     break;
                 case 'scrollerThickness':
                     if (this._scrollerThickness !== requiredSettings.scrollerThickness) {
                         this._scrollerThickness = requiredSettings.scrollerThickness;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.scrollerThickness);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.scrollerThickness);
                     }
                     break;
                 case 'scrollerThumbColor':
                     if (this._scrollerThumbColor !== requiredSettings.scrollerThumbColor) {
                         this._scrollerThumbColor = requiredSettings.scrollerThumbColor;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.scrollerThumbColor);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.scrollerThumbColor);
                     }
                     break;
                 case 'scrollerThumbReducedVisibilityOpacity':
                     if (this._scrollerThumbReducedVisibilityOpacity !== requiredSettings.scrollerThumbReducedVisibilityOpacity) {
                         this._scrollerThumbReducedVisibilityOpacity = requiredSettings.scrollerThumbReducedVisibilityOpacity;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.scrollerThumbReducedVisibilityOpacity);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.scrollerThumbReducedVisibilityOpacity);
                     }
                     break;
                 case 'scrollHorizontallySmoothly':
                     if (this._scrollHorizontallySmoothly !== requiredSettings.scrollHorizontallySmoothly) {
                         this._scrollHorizontallySmoothly = requiredSettings.scrollHorizontallySmoothly;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.scrollHorizontallySmoothly);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.scrollHorizontallySmoothly);
                     }
                     break;
                 case 'scrollingEnabled':
                     if (this._scrollingEnabled !== requiredSettings.scrollingEnabled) {
                         this._scrollingEnabled = requiredSettings.scrollingEnabled;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.scrollingEnabled);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.scrollingEnabled);
                     }
                     break;
                 case 'secondarySelectionAreaTypeSpecifierModifierKey':
                     if (this._secondarySelectionAreaTypeSpecifierModifierKey !== requiredSettings.secondarySelectionAreaTypeSpecifierModifierKey) {
                         this._secondarySelectionAreaTypeSpecifierModifierKey = requiredSettings.secondarySelectionAreaTypeSpecifierModifierKey;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.secondarySelectionAreaTypeSpecifierModifierKey);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.secondarySelectionAreaTypeSpecifierModifierKey);
                     }
                     break;
                 case 'secondarySelectionAreaType':
                     if (this._secondarySelectionAreaType !== requiredSettings.secondarySelectionAreaType) {
                         this._secondarySelectionAreaType = requiredSettings.secondarySelectionAreaType;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.secondarySelectionAreaType);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.secondarySelectionAreaType);
                     }
                     break;
                 case 'selectionRegionOutlineColor':
                     if (this._selectionRegionOutlineColor !== requiredSettings.selectionRegionOutlineColor) {
                         this._selectionRegionOutlineColor = requiredSettings.selectionRegionOutlineColor;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.selectionRegionOutlineColor);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.selectionRegionOutlineColor);
                     }
                     break;
                 case 'selectionRegionOverlayColor':
                     if (this._selectionRegionOverlayColor !== requiredSettings.selectionRegionOverlayColor) {
                         this._selectionRegionOverlayColor = requiredSettings.selectionRegionOverlayColor;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.selectionRegionOverlayColor);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.selectionRegionOverlayColor);
                     }
                     break;
                 case 'showFilterRow':
                     if (this._showFilterRow !== requiredSettings.showFilterRow) {
                         this._showFilterRow = requiredSettings.showFilterRow;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.showFilterRow);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.showFilterRow);
                     }
                     break;
                 case 'sortOnDoubleClick':
                     if (this._sortOnDoubleClick !== requiredSettings.sortOnDoubleClick) {
                         this._sortOnDoubleClick = requiredSettings.sortOnDoubleClick;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.sortOnDoubleClick);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.sortOnDoubleClick);
                     }
                     break;
                 case 'sortOnClick':
                     if (this._sortOnClick !== requiredSettings.sortOnClick) {
                         this._sortOnClick = requiredSettings.sortOnClick;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.sortOnClick);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.sortOnClick);
                     }
                     break;
                 case 'showScrollerThumbOnMouseMoveModifierKey':
                     if (this._showScrollerThumbOnMouseMoveModifierKey !== requiredSettings.showScrollerThumbOnMouseMoveModifierKey) {
                         this._showScrollerThumbOnMouseMoveModifierKey = requiredSettings.showScrollerThumbOnMouseMoveModifierKey;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.showScrollerThumbOnMouseMoveModifierKey);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.showScrollerThumbOnMouseMoveModifierKey);
                     }
                     break;
                 case 'useHiDPI':
                     if (this._useHiDPI !== requiredSettings.useHiDPI) {
                         this._useHiDPI = requiredSettings.useHiDPI;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.useHiDPI);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.useHiDPI);
                     }
                     break;
                 case 'wheelHFactor':
                     if (this._wheelHFactor !== requiredSettings.wheelHFactor) {
                         this._wheelHFactor = requiredSettings.wheelHFactor;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.wheelHFactor);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.wheelHFactor);
                     }
                     break;
                 case 'wheelVFactor':
                     if (this._wheelVFactor !== requiredSettings.wheelVFactor) {
                         this._wheelVFactor = requiredSettings.wheelVFactor;
-                        this.flagChanged(gridSettingChangeInvalidateTypeIds.wheelVFactor);
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.wheelVFactor);
                     }
                     break;
 
@@ -1615,7 +1615,7 @@ export class InMemoryBehavioredGridSettings extends InMemoryBehavioredSettings i
     }
 
     clone() {
-        const copy = new InMemoryBehavioredGridSettings();
+        const copy = new RevInMemoryBehavioredGridSettings();
         copy.merge(this);
         return copy;
     }

@@ -1,24 +1,24 @@
-import { Focus } from '../../components/focus/focus';
-import { Scroller } from '../../components/scroller/scroller';
-import { LinedHoverCell } from '../../interfaces/data/hover-cell';
-import { ViewCell } from '../../interfaces/data/view-cell';
-import { SchemaField } from '../../interfaces/schema/schema-field';
-import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
-import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
-import { GridSettings } from '../../interfaces/settings/grid-settings';
+import { RevFocus } from '../../components/focus/focus';
+import { RevScroller } from '../../components/scroller/scroller';
+import { RevLinedHoverCell } from '../../interfaces/data/lined-hover-cell';
+import { RevViewCell } from '../../interfaces/data/view-cell';
+import { RevSchemaField } from '../../interfaces/schema/schema-field';
+import { RevBehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
+import { RevBehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
+import { RevGridSettings } from '../../interfaces/settings/grid-settings';
 import { RevAssertError, RevUnreachableCaseError } from '../../types-utils/revgrid-error';
-import { HorizontalWheelScrollingAllowed } from '../../types-utils/types';
-import { UiController } from './ui-controller';
+import { RevHorizontalWheelScrollingAllowed } from '../../types-utils/types';
+import { RevUiController } from './ui-controller';
 
 /** @internal */
-export class FocusScrollUiController<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends UiController<BGS, BCS, SF> {
-    readonly typeName = FocusScrollUiController.typeName;
+export class RevFocusScrollUiController<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevUiController<BGS, BCS, SF> {
+    readonly typeName = RevFocusScrollUiController.typeName;
 
-    override handlePointerDown(event: PointerEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined) {
+    override handlePointerDown(event: PointerEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined) {
         if (hoverCell === null) {
             hoverCell = this.tryGetHoverCellFromMouseEvent(event);
         }
-        if (hoverCell !== undefined && !LinedHoverCell.isMouseOverLine(hoverCell)) {
+        if (hoverCell !== undefined && !RevLinedHoverCell.isMouseOverLine(hoverCell)) {
             const viewCell = hoverCell.viewCell;
             if (viewCell.subgrid === this.focus.subgrid) {
                 if (!this.willSelectionBeExtended(event, viewCell)) {
@@ -29,11 +29,11 @@ export class FocusScrollUiController<BGS extends BehavioredGridSettings, BCS ext
         return super.handlePointerDown(event, hoverCell);
     }
 
-    override handlePointerMove(event: PointerEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined) {
+    override handlePointerMove(event: PointerEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined) {
         if (hoverCell === null) {
             hoverCell = this.tryGetHoverCellFromMouseEvent(event);
         }
-        if (hoverCell !== undefined && !LinedHoverCell.isMouseOverLine(hoverCell)) {
+        if (hoverCell !== undefined && !RevLinedHoverCell.isMouseOverLine(hoverCell)) {
             const viewCell = hoverCell.viewCell;
             if (viewCell === this.focus.cell) {
                 const editorPointerLocationInfo = this.focus.checkEditorProcessPointerMoveEvent(event, viewCell);
@@ -56,11 +56,11 @@ export class FocusScrollUiController<BGS extends BehavioredGridSettings, BCS ext
     }
 
 
-    override handleClick(event: MouseEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined) {
+    override handleClick(event: MouseEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined) {
         if (hoverCell === null) {
             hoverCell = this.tryGetHoverCellFromMouseEvent(event);
         }
-        if (hoverCell === undefined || LinedHoverCell.isMouseOverLine(hoverCell)) {
+        if (hoverCell === undefined || RevLinedHoverCell.isMouseOverLine(hoverCell)) {
             return super.handleClick(event, hoverCell);
         } else {
             const viewCell = hoverCell.viewCell;
@@ -76,11 +76,11 @@ export class FocusScrollUiController<BGS extends BehavioredGridSettings, BCS ext
         }
     }
 
-    override handleDblClick(event: MouseEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined) {
+    override handleDblClick(event: MouseEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined) {
         if (hoverCell === null) {
             hoverCell = this.tryGetHoverCellFromMouseEvent(event);
         }
-        if (hoverCell === undefined || LinedHoverCell.isMouseOverLine(hoverCell)) {
+        if (hoverCell === undefined || RevLinedHoverCell.isMouseOverLine(hoverCell)) {
             return super.handleDblClick(event, hoverCell);
         } else {
             const viewCell = hoverCell.viewCell;
@@ -103,21 +103,21 @@ export class FocusScrollUiController<BGS extends BehavioredGridSettings, BCS ext
      */
     override handleKeyDown(event: KeyboardEvent, fromEditor: boolean) {
         if (!this.focus.checkEditorWantsKeyDownEvent(event, fromEditor)) {
-            const key = event.key as Focus.ActionKeyboardKey;
+            const key = event.key as RevFocus.ActionKeyboardKey;
             switch (key) {
-                case Focus.ActionKeyboardKey.ArrowLeft:
+                case RevFocus.ActionKeyboardKey.ArrowLeft:
                     this.focusScrollBehavior.tryMoveFocusLeft();
                     break;
-                case Focus.ActionKeyboardKey.ArrowRight:
+                case RevFocus.ActionKeyboardKey.ArrowRight:
                     this.focusScrollBehavior.tryMoveFocusRight();
                     break;
-                case Focus.ActionKeyboardKey.ArrowUp:
+                case RevFocus.ActionKeyboardKey.ArrowUp:
                     this.focusScrollBehavior.tryMoveFocusUp();
                     break;
-                case Focus.ActionKeyboardKey.ArrowDown:
+                case RevFocus.ActionKeyboardKey.ArrowDown:
                     this.focusScrollBehavior.tryMoveFocusDown();
                     break;
-                case Focus.ActionKeyboardKey.PageUp:
+                case RevFocus.ActionKeyboardKey.PageUp:
                     // If implementing focus driven paging, then use focusBehavior
                     if (event.altKey) {
                         this.focusScrollBehavior.tryPageFocusLeft();
@@ -125,7 +125,7 @@ export class FocusScrollUiController<BGS extends BehavioredGridSettings, BCS ext
                         this.focusScrollBehavior.tryPageFocusUp();
                     }
                     break;
-                case Focus.ActionKeyboardKey.PageDown:
+                case RevFocus.ActionKeyboardKey.PageDown:
                     // If implementing focus driven paging, then use focusBehavior
                     if (event.altKey) {
                         this.focusScrollBehavior.tryPageFocusRight();
@@ -133,25 +133,25 @@ export class FocusScrollUiController<BGS extends BehavioredGridSettings, BCS ext
                         this.focusScrollBehavior.tryPageFocusDown();
                     }
                     break;
-                case Focus.ActionKeyboardKey.Home:
+                case RevFocus.ActionKeyboardKey.Home:
                     if (event.ctrlKey) {
                         this.focusScrollBehavior.tryFocusTop();
                     } else {
                         this.focusScrollBehavior.tryFocusFirstColumn();
                     }
                     break;
-                case Focus.ActionKeyboardKey.End:
+                case RevFocus.ActionKeyboardKey.End:
                     if (event.ctrlKey) {
                         this.focusScrollBehavior.tryFocusBottom();
                     } else {
                         this.focusScrollBehavior.tryFocusLastColumn();
                     }
                     break;
-                case Focus.ActionKeyboardKey.Tab:
+                case RevFocus.ActionKeyboardKey.Tab:
                     this.focusScrollBehavior.tryMoveFocusRight();
                     break;
-                case Focus.ActionKeyboardKey.Enter:
-                case Focus.ActionKeyboardKey.Escape:
+                case RevFocus.ActionKeyboardKey.Enter:
+                case RevFocus.ActionKeyboardKey.Escape:
                     break;
                 default:
                     key satisfies never;
@@ -160,7 +160,7 @@ export class FocusScrollUiController<BGS extends BehavioredGridSettings, BCS ext
         }
     }
 
-    override handleWheelMove(event: WheelEvent, cell: LinedHoverCell<BCS, SF> | null | undefined) {
+    override handleWheelMove(event: WheelEvent, cell: RevLinedHoverCell<BCS, SF> | null | undefined) {
         const gridSettings = this.gridSettings;
         if (gridSettings.scrollingEnabled) {
             const viewLayout = this.viewLayout;
@@ -186,21 +186,21 @@ export class FocusScrollUiController<BGS extends BehavioredGridSettings, BCS ext
         return cell;
     }
 
-    override handleHorizontalScrollerAction(action: Scroller.Action) {
+    override handleHorizontalScrollerAction(action: RevScroller.Action) {
         switch (action.type) {
-            case Scroller.Action.TypeEnum.StepForward:
+            case RevScroller.Action.TypeEnum.StepForward:
                 this.focusScrollBehavior.tryScrollRight();
                 break;
-            case Scroller.Action.TypeEnum.StepBack:
+            case RevScroller.Action.TypeEnum.StepBack:
                 this.focusScrollBehavior.tryScrollLeft();
                 break;
-            case Scroller.Action.TypeEnum.PageForward:
+            case RevScroller.Action.TypeEnum.PageForward:
                 this.focusScrollBehavior.tryScrollPageRight();
                 break;
-            case Scroller.Action.TypeEnum.PageBack:
+            case RevScroller.Action.TypeEnum.PageBack:
                 this.focusScrollBehavior.tryScrollPageLeft();
                 break;
-            case Scroller.Action.TypeEnum.newViewportStart: {
+            case RevScroller.Action.TypeEnum.newViewportStart: {
                 const viewportStart = action.viewportStart;
                 if (viewportStart === undefined) {
                     throw new RevAssertError('FUBPHSAV53009')
@@ -215,21 +215,21 @@ export class FocusScrollUiController<BGS extends BehavioredGridSettings, BCS ext
     }
 
 
-    override handleVerticalScrollerAction(action: Scroller.Action) {
+    override handleVerticalScrollerAction(action: RevScroller.Action) {
         switch (action.type) {
-            case Scroller.Action.TypeEnum.StepForward:
+            case RevScroller.Action.TypeEnum.StepForward:
                 this.focusScrollBehavior.tryScrollDown();
                 break;
-            case Scroller.Action.TypeEnum.StepBack:
+            case RevScroller.Action.TypeEnum.StepBack:
                 this.focusScrollBehavior.tryScrollUp();
                 break;
-            case Scroller.Action.TypeEnum.PageForward:
+            case RevScroller.Action.TypeEnum.PageForward:
                 this.focusScrollBehavior.tryScrollPageDown();
                 break;
-            case Scroller.Action.TypeEnum.PageBack:
+            case RevScroller.Action.TypeEnum.PageBack:
                 this.focusScrollBehavior.tryScrollPageUp();
                 break;
-            case Scroller.Action.TypeEnum.newViewportStart: {
+            case RevScroller.Action.TypeEnum.newViewportStart: {
                 const viewportStart = action.viewportStart;
                 if (viewportStart === undefined) {
                     throw new RevAssertError('FUBPHSAV53009')
@@ -246,21 +246,21 @@ export class FocusScrollUiController<BGS extends BehavioredGridSettings, BCS ext
     private isHorizontalWheelScrollingAllowed(event: WheelEvent) {
         const gridSettings = this.gridSettings;
         switch (gridSettings.horizontalWheelScrollingAllowed) {
-            case HorizontalWheelScrollingAllowed.Never: return false;
-            case HorizontalWheelScrollingAllowed.Always: return true;
-            case HorizontalWheelScrollingAllowed.CtrlKeyDown: return event.ctrlKey;
+            case RevHorizontalWheelScrollingAllowed.Never: return false;
+            case RevHorizontalWheelScrollingAllowed.Always: return true;
+            case RevHorizontalWheelScrollingAllowed.CtrlKeyDown: return event.ctrlKey;
             default: throw new RevUnreachableCaseError('TSIHWCA82007', gridSettings.horizontalWheelScrollingAllowed);
         }
     }
 
-    private willSelectionBeExtended(event: MouseEvent, viewCell: ViewCell<BCS, SF>) {
+    private willSelectionBeExtended(event: MouseEvent, viewCell: RevViewCell<BCS, SF>) {
         if (!this.focusSelectBehavior.isMouseAddToggleExtendSelectionAreaAllowed(event)) {
             return false;
         } else {
             const gridSettings = this.gridSettings;
             if (
-                GridSettings.isAddToggleSelectionAreaModifierKeyDownInEvent(gridSettings, event) ||
-                !GridSettings.isExtendLastSelectionAreaModifierKeyDownInEvent(gridSettings, event)
+                RevGridSettings.isAddToggleSelectionAreaModifierKeyDownInEvent(gridSettings, event) ||
+                !RevGridSettings.isExtendLastSelectionAreaModifierKeyDownInEvent(gridSettings, event)
             ) {
                 return false;
             } else {
@@ -272,6 +272,6 @@ export class FocusScrollUiController<BGS extends BehavioredGridSettings, BCS ext
 }
 
 /** @internal */
-export namespace FocusScrollUiController {
+export namespace RevFocusScrollUiController {
     export const typeName = 'focusscroll';
 }

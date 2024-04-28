@@ -1,17 +1,17 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
-import { DataServer, RevAssertError } from '../../../client/internal-api';
+import { RevAssertError, RevDataServer } from '../../../client/internal-api';
 import { RevSingleHeadingSchemaField } from './single-heading-schema-field';
 
 /** @public */
-export class RevSingleHeadingDataServer<SF extends RevSingleHeadingSchemaField> implements DataServer<SF> {
-    private _callbackListeners: DataServer.NotificationsClient[] = [];
+export class RevSingleHeadingDataServer<SF extends RevSingleHeadingSchemaField> implements RevDataServer<SF> {
+    private _callbackListeners: RevDataServer.NotificationsClient[] = [];
 
-    subscribeDataNotifications(listener: DataServer.NotificationsClient) {
+    subscribeDataNotifications(listener: RevDataServer.NotificationsClient) {
         this._callbackListeners.push(listener)
     }
 
-    unsubscribeDataNotifications(client: DataServer.NotificationsClient) {
+    unsubscribeDataNotifications(client: RevDataServer.NotificationsClient) {
         const idx = this._callbackListeners.findIndex((element) => element === client);
         if (idx < 0) {
             throw new RevAssertError('SHDRAHSSUDN65539');

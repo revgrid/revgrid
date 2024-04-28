@@ -1,8 +1,8 @@
 
-import { HorizontalWheelScrollingAllowed, ModifierKeyEnum, OnlyGridSettings } from '../../client/internal-api';
+import { RevHorizontalWheelScrollingAllowed, RevModifierKeyEnum, RevOnlyGridSettings } from '../../client/internal-api';
 
 /** @public */
-export const defaultOnlyGridSettings: OnlyGridSettings = {
+export const revDefaultOnlyGridSettings: RevOnlyGridSettings = {
 
     eventDispatchEnabled: false,
 
@@ -83,10 +83,10 @@ export const defaultOnlyGridSettings: OnlyGridSettings = {
     scrollerThickness: '0.7em',
     scrollerThumbColor: '#d3d3d3',
     scrollerThumbReducedVisibilityOpacity: 0.4,
-    showScrollerThumbOnMouseMoveModifierKey: ModifierKeyEnum.Control,
+    showScrollerThumbOnMouseMoveModifierKey: RevModifierKeyEnum.Control,
     scrollHorizontallySmoothly: true,
     scrollingEnabled: true,
-    horizontalWheelScrollingAllowed: HorizontalWheelScrollingAllowed.CtrlKeyDown,
+    horizontalWheelScrollingAllowed: RevHorizontalWheelScrollingAllowed.CtrlKeyDown,
 
     horizontalGridLinesWidth: 1,
     horizontalGridLinesColor: 'rgb(199, 199, 199)',
@@ -179,14 +179,14 @@ export const defaultOnlyGridSettings: OnlyGridSettings = {
     mouseAddToggleExtendSelectionAreaEnabled: true,
     mouseAddToggleExtendSelectionAreaDragModifierKey: undefined,
     mouseColumnSelectionEnabled: true,
-    mouseColumnSelectionModifierKey: ModifierKeyEnum.Alt,
+    mouseColumnSelectionModifierKey: RevModifierKeyEnum.Alt,
     mouseRowSelectionEnabled: true,
     mouseRowSelectionModifierKey: undefined,
     primarySelectionAreaType: 'rectangle',
     secondarySelectionAreaType: 'row',
-    secondarySelectionAreaTypeSpecifierModifierKey: ModifierKeyEnum.Control,
-    extendLastSelectionAreaModifierKey: ModifierKeyEnum.Shift,
-    addToggleSelectionAreaModifierKey: ModifierKeyEnum.Control,
+    secondarySelectionAreaTypeSpecifierModifierKey: RevModifierKeyEnum.Control,
+    extendLastSelectionAreaModifierKey: RevModifierKeyEnum.Shift,
+    addToggleSelectionAreaModifierKey: RevModifierKeyEnum.Control,
     addToggleSelectionAreaModifierKeyDoesToggle: true,
     switchNewRectangleSelectionToRowOrColumn: undefined,
 
@@ -332,9 +332,6 @@ export const defaultOnlyGridSettings: OnlyGridSettings = {
      * @default
      */
     rowStripeBackgroundColor: undefined,
-
-    // for Renderer.prototype.assignProps
-    // propClassLayers: propClassLayersMap.DEFAULT,
 
     /**
      * Default UiController automatically used by program.  Note that order of these in array is important as it

@@ -1,7 +1,7 @@
-import { ColumnSettings } from '../../client/internal-api';
-import { defaultOnlyColumnSettings } from './default-only-column-settings';
+import { RevColumnSettings } from '../../client/internal-api';
+import { revDefaultOnlyColumnSettings } from './default-only-column-settings';
 
 /** @public */
-export const defaultColumnSettings: ColumnSettings = {
-    ...defaultOnlyColumnSettings,
+export const revDefaultColumnSettings: RevColumnSettings = {
+    ...revDefaultOnlyColumnSettings,
 } as const;

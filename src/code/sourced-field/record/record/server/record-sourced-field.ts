@@ -5,7 +5,7 @@ import {
     IndexedRecord,
     Integer
 } from '@xilytix/sysutils';
-import { DataServer } from '../../../../client/internal-api';
+import { RevDataServer } from '../../../../client/internal-api';
 import { RevRecordField } from '../../../../record/server/internal-api';
 import { RevRenderValue } from '../../../../render-value/internal-api';
 import { RevSourcedField } from '../../../sourced-field/server/internal-api';
@@ -25,7 +25,7 @@ export abstract class RevRecordSourcedField<RenderValueTypeId, RenderAttributeTy
         this.heading = heading ?? definition.defaultHeading;
     }
 
-    getEditValue(record: IndexedRecord): DataServer.EditValue {
+    getEditValue(record: IndexedRecord): RevDataServer.EditValue {
         if (this.getEditValueEventer === undefined) {
             throw new AssertInternalError('GFGEV20814');
         } else {
@@ -33,7 +33,7 @@ export abstract class RevRecordSourcedField<RenderValueTypeId, RenderAttributeTy
         }
     }
 
-    setEditValue(record: IndexedRecord, value: DataServer.EditValue) {
+    setEditValue(record: IndexedRecord, value: RevDataServer.EditValue) {
         if (this.setEditValueEventer === undefined) {
             throw new AssertInternalError('GFSEV20814');
         } else {
@@ -46,6 +46,6 @@ export abstract class RevRecordSourcedField<RenderValueTypeId, RenderAttributeTy
 
 /** @public */
 export namespace RevSourcedRecordField {
-    export type GetEditValueEventer = (this: void, record: IndexedRecord) => DataServer.EditValue;
-    export type SetEditValueEventer = (this: void, record: IndexedRecord, value: DataServer.EditValue) => void;
+    export type GetEditValueEventer = (this: void, record: IndexedRecord) => RevDataServer.EditValue;
+    export type SetEditValueEventer = (this: void, record: IndexedRecord, value: RevDataServer.EditValue) => void;
 }

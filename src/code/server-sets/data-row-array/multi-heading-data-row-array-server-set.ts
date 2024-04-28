@@ -1,4 +1,4 @@
-import { DataServer, RevAssertError } from '../../grid/grid-public-api';
+import { RevAssertError, RevDataServer } from '../../grid/grid-public-api';
 import { MultiHeadingDataServer } from '../multi-heading/multi-heading-data-server';
 import { MultiHeadingSchemaField } from '../multi-heading/multi-heading-schema-field';
 import { DataRowArrayDataServer } from './data-row-array-data-server';
@@ -107,7 +107,7 @@ export class MultiHeadingDataRowArrayServerSet<SF extends MultiHeadingSchemaFiel
     }
 
     // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-    private convertDataValueToString(value: DataServer.ViewValue | string): string {
+    private convertDataValueToString(value: RevDataServer.ViewValue | string): string {
         switch (typeof value) {
             case 'string': return value;
             case 'number': return value.toString();
@@ -176,9 +176,9 @@ export class MultiHeadingDataRowArrayServerSet<SF extends MultiHeadingSchemaFiel
 export namespace MultiHeadingDataRowArrayServerSet {
     export type CreateFieldEventer<SF extends MultiHeadingSchemaField> = (this: void, index: number, key: string, headings: string[]) => SF;
     // eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
-    export interface DataRow extends DataServer.ObjectViewRow {
+    export interface DataRow extends RevDataServer.ObjectViewRow {
         // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-        [fieldName: string]: DataServer.ViewValue | string; // can also have header
+        [fieldName: string]: RevDataServer.ViewValue | string; // can also have header
     }
 }
 

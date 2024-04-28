@@ -1,76 +1,76 @@
-import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
-import { CachedCanvasRenderingContext2D } from '../../types-utils/cached-canvas-rendering-context-2d';
+import { RevBehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
+import { RevCachedCanvasRenderingContext2D } from '../../types-utils/cached-canvas-rendering-context-2d';
 import { RevClientObject } from '../../types-utils/client-object';
-import { CssTypes } from '../../types-utils/css-types';
-import { Point } from '../../types-utils/point';
-import { Rectangle } from '../../types-utils/rectangle';
+import { RevCssTypes } from '../../types-utils/css-types';
+import { RevPoint } from '../../types-utils/point';
+import { RevRectangle } from '../../types-utils/rectangle';
 import { RevAssertError, RevUnreachableCaseError } from '../../types-utils/revgrid-error';
 
 /** @public */
-export class Canvas<BGS extends BehavioredGridSettings> implements RevClientObject {
+export class RevCanvas<BGS extends RevBehavioredGridSettings> implements RevClientObject {
     readonly element: HTMLCanvasElement;
-    readonly gc: CachedCanvasRenderingContext2D;
+    readonly gc: RevCachedCanvasRenderingContext2D;
 
     /** @internal */
-    resizedEventerForViewLayout: Canvas.ResizedEventer;
+    resizedEventerForViewLayout: RevCanvas.ResizedEventer;
     /** @internal */
-    resizedEventerForEventBehavior: Canvas.ResizedEventer;
+    resizedEventerForEventBehavior: RevCanvas.ResizedEventer;
 
     /** @internal */
-    repaintEventer: Canvas.RepaintEventer;
+    repaintEventer: RevCanvas.RepaintEventer;
 
     /** @internal */
-    focusEventer: Canvas.FocusEventer;
+    focusEventer: RevCanvas.FocusEventer;
     /** @internal */
-    blurEventer: Canvas.FocusEventer;
+    blurEventer: RevCanvas.FocusEventer;
 
     /** @internal */
-    keyDownEventer: Canvas.KeyEventer;
+    keyDownEventer: RevCanvas.KeyEventer;
     /** @internal */
-    keyUpEventer: Canvas.KeyEventer;
+    keyUpEventer: RevCanvas.KeyEventer;
 
     /** @internal */
-    pointerEnterEventer: Canvas.PointerEventer;
+    pointerEnterEventer: RevCanvas.PointerEventer;
     /** @internal */
-    pointerDownEventer: Canvas.PointerEventer;
+    pointerDownEventer: RevCanvas.PointerEventer;
     /** @internal */
-    pointerMoveEventer: Canvas.PointerEventer;
+    pointerMoveEventer: RevCanvas.PointerEventer;
     /** @internal */
-    pointerUpCancelEventer: Canvas.PointerEventer;
+    pointerUpCancelEventer: RevCanvas.PointerEventer;
     /** @internal */
-    pointerLeaveOutEventer: Canvas.PointerEventer;
+    pointerLeaveOutEventer: RevCanvas.PointerEventer;
     /** @internal */
-    pointerDragStartEventer: Canvas.PointerDragStartEventer;
+    pointerDragStartEventer: RevCanvas.PointerDragStartEventer;
     /** @internal */
-    pointerDragEventer: Canvas.PointerDragEventer;
+    pointerDragEventer: RevCanvas.PointerDragEventer;
     /** @internal */
-    pointerDragEndEventer: Canvas.PointerDragEventer;
+    pointerDragEndEventer: RevCanvas.PointerDragEventer;
     /** @internal */
-    wheelMoveEventer: Canvas.WheelEventer;
+    wheelMoveEventer: RevCanvas.WheelEventer;
     /** @internal */
-    clickEventer: Canvas.MouseEventer;
+    clickEventer: RevCanvas.MouseEventer;
     /** @internal */
-    dblClickEventer: Canvas.MouseEventer;
+    dblClickEventer: RevCanvas.MouseEventer;
     /** @internal */
-    contextMenuEventer: Canvas.MouseEventer;
+    contextMenuEventer: RevCanvas.MouseEventer;
 
     /** @internal */
-    touchStartEventer: Canvas.TouchEventer;
+    touchStartEventer: RevCanvas.TouchEventer;
     /** @internal */
-    touchMoveEventer: Canvas.TouchEventer;
+    touchMoveEventer: RevCanvas.TouchEventer;
     /** @internal */
-    touchEndEventer: Canvas.TouchEventer;
+    touchEndEventer: RevCanvas.TouchEventer;
 
     /** @internal */
-    copyEventer: Canvas.ClipboardEventer;
+    copyEventer: RevCanvas.ClipboardEventer;
 
     /** @internal */
-    dragStartEventer: Canvas.DragEventer;
+    dragStartEventer: RevCanvas.DragEventer;
 
     /** @internal */
     private _pointerEntered = false;
     /** @internal */
-    private _pointerDownState: Canvas.PointerDownState = Canvas.PointerDownState.NotDown;
+    private _pointerDownState: RevCanvas.PointerDownState = RevCanvas.PointerDownState.NotDown;
     /** @internal */
     private _pointerDragInternal: boolean;
 
@@ -82,7 +82,7 @@ export class Canvas<BGS extends BehavioredGridSettings> implements RevClientObje
     private _flooredHeight: number;
     // bodyZoomFactor: number;
     /** @internal */
-    private _flooredBounds: Rectangle = {
+    private _flooredBounds: RevRectangle = {
         x: 0,
         y: 0,
         width: 0,
@@ -116,22 +116,22 @@ export class Canvas<BGS extends BehavioredGridSettings> implements RevClientObje
         // event.preventDefault(); // no mouse event
 
         switch (this._pointerDownState) {
-            case Canvas.PointerDownState.NotDown:
+            case RevCanvas.PointerDownState.NotDown:
                 break;
-            case Canvas.PointerDownState.NotDragging:
-                this.setPointerDownState(Canvas.PointerDownState.NotDown, event);
+            case RevCanvas.PointerDownState.NotDragging:
+                this.setPointerDownState(RevCanvas.PointerDownState.NotDown, event);
                 break;
-            case Canvas.PointerDownState.DragStarting:
+            case RevCanvas.PointerDownState.DragStarting:
                 this.pointerUpCancelEventer(event);
-                this.setPointerDownState(Canvas.PointerDownState.NotDown, event);
+                this.setPointerDownState(RevCanvas.PointerDownState.NotDown, event);
                 break;
-            case Canvas.PointerDownState.Dragging:
+            case RevCanvas.PointerDownState.Dragging:
                 this.pointerDragEndEventer(event, this._pointerDragInternal);
                 this.pointerUpCancelEventer(event);
-                this.setPointerDownState(Canvas.PointerDownState.IgnoreClickAfterDrag, event);
+                this.setPointerDownState(RevCanvas.PointerDownState.IgnoreClickAfterDrag, event);
                 break;
-            case Canvas.PointerDownState.IgnoreClickAfterDrag:
-                this.setPointerDownState(Canvas.PointerDownState.NotDown, event);
+            case RevCanvas.PointerDownState.IgnoreClickAfterDrag:
+                this.setPointerDownState(RevCanvas.PointerDownState.NotDown, event);
                 break;
             default:
                 throw new RevUnreachableCaseError('CMPUCEL34440', this._pointerDownState);
@@ -199,8 +199,8 @@ export class Canvas<BGS extends BehavioredGridSettings> implements RevClientObje
 
     /** @internal */
     private clickEventListener = (e: MouseEvent) => {
-        if (this._pointerDownState === Canvas.PointerDownState.IgnoreClickAfterDrag) {
-            this.setPointerDownState(Canvas.PointerDownState.NotDown, undefined);
+        if (this._pointerDownState === RevCanvas.PointerDownState.IgnoreClickAfterDrag) {
+            this.setPointerDownState(RevCanvas.PointerDownState.NotDown, undefined);
         } else {
             this.clickEventer(e);
         }
@@ -239,22 +239,22 @@ export class Canvas<BGS extends BehavioredGridSettings> implements RevClientObje
         readonly clientId: string,
         readonly internalParent: RevClientObject,
         readonly hostElement: HTMLElement,
-        canvasOverflowOverride: CssTypes.Overflow | undefined,
+        canvasOverflowOverride: RevCssTypes.Overflow | undefined,
         canvasRenderingContext2DSettings: CanvasRenderingContext2DSettings | undefined,
         /** @internal */
         private readonly _gridSettings: BGS,
     ) {
         // create and append the canvas
         this.element = document.createElement('canvas');
-        this.element.id = `${clientId}-${Canvas.canvasCssSuffix}`;
+        this.element.id = `${clientId}-${RevCanvas.canvasCssSuffix}`;
         this.element.draggable = true;
         this.element.tabIndex = 0;
-        this.element.style.display = CssTypes.Display.block;
+        this.element.style.display = RevCssTypes.Display.block;
         this.element.style.outline = 'none';
         this.element.style.margin = '0';
         this.element.style.padding = '0';
-        this.element.style.overflow = canvasOverflowOverride === undefined ? CssTypes.Overflow.clip : canvasOverflowOverride;
-        this.element.classList.add(`${CssTypes.libraryName}-${Canvas.canvasCssSuffix}`);
+        this.element.style.overflow = canvasOverflowOverride === undefined ? RevCssTypes.Overflow.clip : canvasOverflowOverride;
+        this.element.classList.add(`${RevCssTypes.libraryName}-${RevCanvas.canvasCssSuffix}`);
 
         this.gc = this.createCachedContext(this.element, canvasRenderingContext2DSettings);
 
@@ -267,20 +267,20 @@ export class Canvas<BGS extends BehavioredGridSettings> implements RevClientObje
             // event.preventDefault(); // no mouse event
 
             switch (this._pointerDownState) {
-                case Canvas.PointerDownState.NotDown:
-                    this.setPointerDownState(Canvas.PointerDownState.NotDragging, event);
+                case RevCanvas.PointerDownState.NotDown:
+                    this.setPointerDownState(RevCanvas.PointerDownState.NotDragging, event);
                     this.pointerDownEventer(event);
                     break;
-                case Canvas.PointerDownState.NotDragging:
+                case RevCanvas.PointerDownState.NotDragging:
                     // must have lost a pointer up event
                     this.pointerDownEventer(event);
                     break;
-                case Canvas.PointerDownState.IgnoreClickAfterDrag:
+                case RevCanvas.PointerDownState.IgnoreClickAfterDrag:
                     // must have lost a click event
                     this.pointerDownEventer(event);
                     break;
-                case Canvas.PointerDownState.DragStarting:
-                case Canvas.PointerDownState.Dragging:
+                case RevCanvas.PointerDownState.DragStarting:
+                case RevCanvas.PointerDownState.Dragging:
                     // Should normally never occur but debugger can trigger this transition
                     this.pointerUpCancelEventListener(event); // pretend pointer went up
                     this.pointerDownEventer(event);
@@ -294,18 +294,18 @@ export class Canvas<BGS extends BehavioredGridSettings> implements RevClientObje
             // event.preventDefault(); // no mouse event
 
             switch (this._pointerDownState) {
-                case Canvas.PointerDownState.NotDown:
-                case Canvas.PointerDownState.NotDragging:
-                case Canvas.PointerDownState.IgnoreClickAfterDrag:
+                case RevCanvas.PointerDownState.NotDown:
+                case RevCanvas.PointerDownState.NotDragging:
+                case RevCanvas.PointerDownState.IgnoreClickAfterDrag:
                     this.pointerMoveEventer(event);
                     break;
-                case Canvas.PointerDownState.DragStarting: {
+                case RevCanvas.PointerDownState.DragStarting: {
                     this.pointerMoveEventer(event);
-                    this.setPointerDownState(Canvas.PointerDownState.Dragging, event);
+                    this.setPointerDownState(RevCanvas.PointerDownState.Dragging, event);
                     this.pointerDragEventer(event, this._pointerDragInternal);
                     break;
                 }
-                case Canvas.PointerDownState.Dragging:
+                case RevCanvas.PointerDownState.Dragging:
                     this.pointerMoveEventer(event);
                     this.pointerDragEventer(event, this._pointerDragInternal);
                     break;
@@ -336,7 +336,7 @@ export class Canvas<BGS extends BehavioredGridSettings> implements RevClientObje
         this.element.addEventListener('pointercancel', this.pointerUpCancelEventListener);
         this.element.addEventListener('wheel', (event) => {
             const pointerDownState = this._pointerDownState;
-            if (pointerDownState !== Canvas.PointerDownState.Dragging) {
+            if (pointerDownState !== RevCanvas.PointerDownState.Dragging) {
                 this.wheelMoveEventer(event);
             }
         });
@@ -359,16 +359,16 @@ export class Canvas<BGS extends BehavioredGridSettings> implements RevClientObje
                 event.preventDefault();
 
                 if (
-                    this._pointerDownState !== Canvas.PointerDownState.NotDragging &&
-                    this._pointerDownState !== Canvas.PointerDownState.NotDown && // Debugger can cause this unexpected state
-                    this._pointerDownState !== Canvas.PointerDownState.IgnoreClickAfterDrag // Debugger can cause this unexpected state
+                    this._pointerDownState !== RevCanvas.PointerDownState.NotDragging &&
+                    this._pointerDownState !== RevCanvas.PointerDownState.NotDown && // Debugger can cause this unexpected state
+                    this._pointerDownState !== RevCanvas.PointerDownState.IgnoreClickAfterDrag // Debugger can cause this unexpected state
                 ) {
                     throw new RevAssertError('CMCAELDS1220');
                 } else {
                     const pointerDragInternal = this.pointerDragStartEventer(event);
                     if (pointerDragInternal !== undefined) {
                         this._pointerDragInternal = pointerDragInternal;
-                        this.setPointerDownState(Canvas.PointerDownState.DragStarting, undefined);
+                        this.setPointerDownState(RevCanvas.PointerDownState.DragStarting, undefined);
                     }
                 }
             }
@@ -497,7 +497,7 @@ export class Canvas<BGS extends BehavioredGridSettings> implements RevClientObje
     getOffsetPoint<T extends MouseEvent|Touch>(mouseEventOrTouch: T) {
         const rect = this.getCanvasBoundingClientRect();
 
-        const offsetPoint = Point.create(
+        const offsetPoint = RevPoint.create(
             mouseEventOrTouch.clientX /* / this.bodyZoomFactor*/ - rect.left,
             mouseEventOrTouch.clientY /* / this.bodyZoomFactor*/ - rect.top
         );
@@ -548,7 +548,7 @@ export class Canvas<BGS extends BehavioredGridSettings> implements RevClientObje
         if (canvasRenderingContext2D === null) {
             throw new RevAssertError('CGCC74443');
         } else {
-            const gc = new CachedCanvasRenderingContext2D(canvasRenderingContext2D);
+            const gc = new RevCachedCanvasRenderingContext2D(canvasRenderingContext2D);
             return gc;
         }
     }
@@ -590,24 +590,24 @@ export class Canvas<BGS extends BehavioredGridSettings> implements RevClientObje
     }
 
     /** @internal */
-    private setPointerDownState(state: Canvas.PointerDownState, event: PointerEvent | undefined) {
+    private setPointerDownState(state: RevCanvas.PointerDownState, event: PointerEvent | undefined) {
         switch (state) {
-            case Canvas.PointerDownState.NotDown:
-            case Canvas.PointerDownState.NotDragging:
-            case Canvas.PointerDownState.IgnoreClickAfterDrag:
+            case RevCanvas.PointerDownState.NotDown:
+            case RevCanvas.PointerDownState.NotDragging:
+            case RevCanvas.PointerDownState.IgnoreClickAfterDrag:
                 document.body.style.userSelect = '';
                 if (event !== undefined) {
                     this.element.releasePointerCapture(event.pointerId);
                 } else {
-                    if (this._pointerDownState !== Canvas.PointerDownState.IgnoreClickAfterDrag) {
+                    if (this._pointerDownState !== RevCanvas.PointerDownState.IgnoreClickAfterDrag) {
                         throw new RevAssertError('CMSPDSN68201');
                     }
                 }
                 break;
-            case Canvas.PointerDownState.DragStarting:
+            case RevCanvas.PointerDownState.DragStarting:
                 document.body.style.userSelect = 'none';
                 break;
-            case Canvas.PointerDownState.Dragging:
+            case RevCanvas.PointerDownState.Dragging:
                 document.body.style.userSelect = 'none';
                 if (event === undefined) {
                     throw new RevAssertError('CMSPDSR68201');
@@ -645,7 +645,7 @@ export class Canvas<BGS extends BehavioredGridSettings> implements RevClientObje
 }
 
 /** @public */
-export namespace Canvas {
+export namespace RevCanvas {
     /** @internal */
     export type ResizedEventer = (this: void) => void;
     /** @internal */

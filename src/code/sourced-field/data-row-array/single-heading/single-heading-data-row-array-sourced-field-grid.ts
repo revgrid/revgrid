@@ -1,6 +1,6 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
-import { BehavioredColumnSettings, BehavioredGridSettings, DatalessSubgrid, RevApiError, RevAssertError, RevClientGrid, RevGridDefinition, RevGridOptions, Subgrid } from '../../../client/internal-api';
+import { RevApiError, RevAssertError, RevBehavioredColumnSettings, RevBehavioredGridSettings, RevClientGrid, RevDatalessSubgrid, RevGridDefinition, RevGridOptions, RevSubgrid } from '../../../client/internal-api';
 import { RevDataRowArrayDataServer, RevDataRowArrayGrid, RevDataRowArraySchemaServer } from '../../../data-row-array/internal-api';
 import { RevSingleHeadingDataServer } from '../../../header/internal-api';
 import { RevSourcedFieldGrid } from '../../sourced-field/internal-api';
@@ -8,16 +8,16 @@ import { RevAllowedSingleHeadingDataRowArraySourcedFieldsColumnLayoutDefinition,
 
 /** @public */
 export class RevSingleHeadingDataRowArraySourcedFieldGrid<
-    BGS extends BehavioredGridSettings,
-    BCS extends BehavioredColumnSettings,
+    BGS extends RevBehavioredGridSettings,
+    BCS extends RevBehavioredColumnSettings,
     SF extends RevSingleHeadingDataRowArraySourcedField
 > extends RevDataRowArrayGrid<BGS, BCS, SF> implements RevSourcedFieldGrid<BGS, BCS, SF> {
     declare headerDataServer: RevSingleHeadingDataServer<SF>;
 
     constructor(
         gridHostElement: HTMLElement,
-        getHeaderCellPainterEventer: Subgrid.GetCellPainterEventer<BCS, SF>,
-        getMainCellPainterEventer: Subgrid.GetCellPainterEventer<BCS, SF>,
+        getHeaderCellPainterEventer: RevSubgrid.GetCellPainterEventer<BCS, SF>,
+        getMainCellPainterEventer: RevSubgrid.GetCellPainterEventer<BCS, SF>,
         settings: BGS,
         customiseSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, SF>,
         /** @internal */
@@ -32,12 +32,12 @@ export class RevSingleHeadingDataRowArraySourcedFieldGrid<
             schemaServer,
             subgrids: [
                 {
-                    role: DatalessSubgrid.RoleEnum.header,
+                    role: RevDatalessSubgrid.RoleEnum.header,
                     dataServer: headerDataServer,
                     getCellPainterEventer: getHeaderCellPainterEventer,
                 },
                 {
-                    role: DatalessSubgrid.RoleEnum.main,
+                    role: RevDatalessSubgrid.RoleEnum.main,
                     dataServer: mainDataServer,
                     getCellPainterEventer: getMainCellPainterEventer,
                 },

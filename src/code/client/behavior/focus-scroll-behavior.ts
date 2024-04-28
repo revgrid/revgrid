@@ -1,31 +1,31 @@
-import { ColumnsManager } from '../components/column/columns-manager';
-import { Focus } from '../components/focus/focus';
-import { SubgridsManager } from '../components/subgrid/subgrids-manager';
-import { ViewLayout } from '../components/view/view-layout';
-import { MainSubgrid } from '../interfaces/data/main-subgrid';
-import { ViewCell } from '../interfaces/data/view-cell';
-import { SchemaField } from '../interfaces/schema/schema-field';
-import { BehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
-import { BehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
-import { GridSettings } from '../interfaces/settings/grid-settings';
+import { RevColumnsManager } from '../components/column/columns-manager';
+import { RevFocus } from '../components/focus/focus';
+import { RevSubgridsManager } from '../components/subgrid/subgrids-manager';
+import { RevViewLayout } from '../components/view/view-layout';
+import { RevMainSubgrid } from '../interfaces/data/main-subgrid';
+import { RevViewCell } from '../interfaces/data/view-cell';
+import { RevSchemaField } from '../interfaces/schema/schema-field';
+import { RevBehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
+import { RevBehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
+import { RevGridSettings } from '../interfaces/settings/grid-settings';
 import { RevClientObject } from '../types-utils/client-object';
 
-export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevClientObject {
-    private readonly _mainSubgrid: MainSubgrid<BCS, SF>;
+export class RevFocusScrollBehavior<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {
+    private readonly _mainSubgrid: RevMainSubgrid<BCS, SF>;
 
     constructor(
         readonly clientId: string,
         readonly internalParent: RevClientObject,
-        private readonly _gridSettings: GridSettings,
-        private readonly _columnsManager: ColumnsManager<BCS, SF>,
-        private readonly _subgridsManager: SubgridsManager<BCS, SF>,
-        private readonly _viewLayout: ViewLayout<BGS, BCS, SF>,
-        private readonly _focus: Focus<BGS, BCS, SF>,
+        private readonly _gridSettings: RevGridSettings,
+        private readonly _columnsManager: RevColumnsManager<BCS, SF>,
+        private readonly _subgridsManager: RevSubgridsManager<BCS, SF>,
+        private readonly _viewLayout: RevViewLayout<BGS, BCS, SF>,
+        private readonly _focus: RevFocus<BGS, BCS, SF>,
     ) {
         this._mainSubgrid = this._subgridsManager.mainSubgrid;
     }
 
-    tryFocusXYAndEnsureInView(x: number, y: number, cell: ViewCell<BCS, SF> | undefined) {
+    tryFocusXYAndEnsureInView(x: number, y: number, cell: RevViewCell<BCS, SF> | undefined) {
         const xScrollable = this.isXScrollable(x);
         const yScrollable = this.isYScrollable(y);
         if (xScrollable) {
@@ -475,7 +475,7 @@ export class FocusScrollBehavior<BGS extends BehavioredGridSettings, BCS extends
     }
 }
 
-export namespace FocusScrollBehavior {
+export namespace RevFocusScrollBehavior {
     export type ScrollXToMakeVisibleEventer = (this: void, x: number) => void;
     export type ScrollYToMakeVisibleEventer = (this: void, y: number) => void;
     export type ScrollXYToMakeVisibleEventer = (this: void, x: number, y: number) => void;

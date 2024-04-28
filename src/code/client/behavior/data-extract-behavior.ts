@@ -1,24 +1,24 @@
-import { ColumnsManager } from '../components/column/columns-manager';
-import { Selection } from '../components/selection/selection';
-import { DataServer } from '../interfaces/data/data-server';
-import { Column } from '../interfaces/dataless/column';
-import { SchemaField } from '../interfaces/schema/schema-field';
-import { BehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
-import { BehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
+import { RevColumnsManager } from '../components/column/columns-manager';
+import { RevSelection } from '../components/selection/selection';
+import { RevDataServer } from '../interfaces/data/data-server';
+import { RevColumn } from '../interfaces/dataless/column';
+import { RevSchemaField } from '../interfaces/schema/schema-field';
+import { RevBehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
+import { RevBehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
 import { RevClientObject } from '../types-utils/client-object';
 import { RevAssertError, RevUnreachableCaseError } from '../types-utils/revgrid-error';
-import { SelectionAreaTypeId } from '../types-utils/selection-area-type';
+import { RevSelectionAreaTypeId } from '../types-utils/selection-area-type';
 
 /** @public */
-export class DataExtractBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevClientObject {
+export class RevDataExtractBehavior<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {
     /** @internal */
     constructor(
         readonly clientId: string,
         readonly internalParent: RevClientObject,
         /** @internal */
-        private readonly _selection: Selection<BGS, BCS, SF>,
+        private readonly _selection: RevSelection<BGS, BCS, SF>,
         /** @internal */
-        private readonly _columnsManager: ColumnsManager<BCS, SF>,
+        private readonly _columnsManager: RevColumnsManager<BCS, SF>,
     ) {
 
     }
@@ -33,18 +33,18 @@ export class DataExtractBehavior<BGS extends BehavioredGridSettings, BCS extends
             return '';
         } else {
             switch (selectionArea.areaTypeId) {
-                case SelectionAreaTypeId.all: {
+                case RevSelectionAreaTypeId.all: {
                     return this.convertDataValueArraysToTsv(this.getAllSelectionMatrix());
                 }
-                case SelectionAreaTypeId.rectangle: {
+                case RevSelectionAreaTypeId.rectangle: {
                     const selectionMatrix = this.getSelectedValuesByRectangleColumnRowMatrix();
                     const selections = selectionMatrix[selectionMatrix.length - 1];
                     return this.convertDataValueArraysToTsv(selections);
                 }
-                case SelectionAreaTypeId.row: {
+                case RevSelectionAreaTypeId.row: {
                     return this.convertDataValueArraysToTsv(this.getRowSelectionMatrix());
                 }
-                case SelectionAreaTypeId.column: {
+                case RevSelectionAreaTypeId.column: {
                     return this.convertDataValueArraysToTsv(this.getColumnSelectionMatrix());
                 }
                 case undefined: {
@@ -56,7 +56,7 @@ export class DataExtractBehavior<BGS extends BehavioredGridSettings, BCS extends
         }
     }
 
-    convertDataValueArraysToTsv(dataValueArrays: DataServer.ViewValue[][]) {
+    convertDataValueArraysToTsv(dataValueArrays: RevDataServer.ViewValue[][]) {
         let result = '';
 
         //only use the data from the last selection
@@ -107,11 +107,11 @@ export class DataExtractBehavior<BGS extends BehavioredGridSettings, BCS extends
         }
     }
 
-    getRowSelectionData(hiddenColumns: boolean | number[] | string[]): DataServer.ViewRow {
+    getRowSelectionData(hiddenColumns: boolean | number[] | string[]): RevDataServer.ViewRow {
         const selectedRowIndexes = this._selection.getRowIndices(true);
         const selectedRowIndexesCount = selectedRowIndexes.length;
         const columns = this.getActiveFieldOrSpecifiedColumns(hiddenColumns);
-        const result: DataServer.ViewRow = {};
+        const result: RevDataServer.ViewRow = {};
 
         if (selectedRowIndexesCount >= 0) {
             const subgrid = this.getDefinedSubgrid();
@@ -133,7 +133,7 @@ export class DataExtractBehavior<BGS extends BehavioredGridSettings, BCS extends
         return this.getRowIndicesMatrix(rowIndices);
     }
 
-    getRowSelectionMatrix(hiddenColumns?: boolean | number[] | string[]): DataServer.ViewValue[][] {
+    getRowSelectionMatrix(hiddenColumns?: boolean | number[] | string[]): RevDataServer.ViewValue[][] {
         const selectedRowIndexes = this._selection.getRowIndices(true);
         return this.getRowIndicesMatrix(selectedRowIndexes, hiddenColumns);
     }
@@ -142,7 +142,7 @@ export class DataExtractBehavior<BGS extends BehavioredGridSettings, BCS extends
         const selectedRowIndexesCount = rowIndices.length;
         const columns = this.getActiveFieldOrSpecifiedColumns(hiddenColumns);
         const columnCount = columns.length;
-        const result = new Array<DataServer.ViewValue[]>(columnCount);
+        const result = new Array<RevDataServer.ViewValue[]>(columnCount);
 
         if (selectedRowIndexesCount === 0) {
             for (let c = 0; c < columnCount; c++) {
@@ -152,7 +152,7 @@ export class DataExtractBehavior<BGS extends BehavioredGridSettings, BCS extends
             const subgrid = this.getDefinedSubgrid();
             for (let rowIndex = 0; rowIndex < selectedRowIndexesCount; rowIndex++) {
                 const dataRow = subgrid.getSingletonViewDataRow(rowIndex);
-                result[rowIndex] = new Array<DataServer.ViewValue>(rowIndices.length);
+                result[rowIndex] = new Array<RevDataServer.ViewValue>(rowIndices.length);
                 for (let columnIndex = 0; columnIndex < columnCount; columnIndex++) {
                     const column = columns[columnIndex];
                     result[rowIndex][columnIndex] = subgrid.getViewValueFromDataRowAtColumn(dataRow, column);
@@ -163,7 +163,7 @@ export class DataExtractBehavior<BGS extends BehavioredGridSettings, BCS extends
         return result;
     }
 
-    getColumnSelectionMatrix(): DataServer.ViewValue[][] {
+    getColumnSelectionMatrix(): RevDataServer.ViewValue[][] {
         const columnsManager = this._columnsManager;
         const selectedColumnIndexes = this._selection.getColumnIndices(true);
         const selectedColumnIndexesCount = selectedColumnIndexes.length;
@@ -171,12 +171,12 @@ export class DataExtractBehavior<BGS extends BehavioredGridSettings, BCS extends
         if (selectedColumnIndexesCount === 0) {
             return [];
         } else {
-            const result = new Array<DataServer.ViewValue[]>(selectedColumnIndexesCount);
+            const result = new Array<RevDataServer.ViewValue[]>(selectedColumnIndexesCount);
             const subgrid = this.getDefinedSubgrid();
             const numRows = subgrid.getRowCount();
             selectedColumnIndexes.forEach((selectedColumnIndex, c) => {
                 const column = columnsManager.getActiveColumn(selectedColumnIndex);
-                const values = result[c] = new Array<DataServer.ViewValue>(numRows);
+                const values = result[c] = new Array<RevDataServer.ViewValue>(numRows);
 
                 for (let r = 0; r < numRows; r++) {
                     const dataRow = subgrid.getSingletonViewDataRow(r); // should always exist;
@@ -191,14 +191,14 @@ export class DataExtractBehavior<BGS extends BehavioredGridSettings, BCS extends
     getSelectedColumnsValues() {
         const columnsManager = this._columnsManager;
         const selectedColumnIndexes = this._selection.getColumnIndices(true);
-        const result: DataServer.ObjectViewRow = {};
+        const result: RevDataServer.ObjectViewRow = {};
         if (selectedColumnIndexes.length > 0) {
             const subgrid = this.getDefinedSubgrid();
             const rowCount = subgrid.getRowCount();
 
             selectedColumnIndexes.forEach((selectedColumnIndex) => {
                 const column = columnsManager.getActiveColumn(selectedColumnIndex);
-                const values = result[column.field.name] = new Array<DataServer.ViewValue>(rowCount);
+                const values = result[column.field.name] = new Array<RevDataServer.ViewValue>(rowCount);
 
                 for (let r = 0; r < rowCount; r++) {
                     const dataRow = subgrid.getSingletonViewDataRow(r); // should always exist;
@@ -210,11 +210,11 @@ export class DataExtractBehavior<BGS extends BehavioredGridSettings, BCS extends
         return result;
     }
 
-    getSelectedValuesByRectangleAndColumn(): DataServer.ObjectViewRow[] {
+    getSelectedValuesByRectangleAndColumn(): RevDataServer.ObjectViewRow[] {
         const columnsManager = this._columnsManager;
         const selectionRectangles = this._selection.rectangles;
         const selectionRectangleCount = selectionRectangles.length;
-        const rects = new Array<DataServer.ObjectViewRow>(selectionRectangleCount);
+        const rects = new Array<RevDataServer.ObjectViewRow>(selectionRectangleCount);
 
         if (selectionRectangleCount > 0) {
             const subgrid = this.getDefinedSubgrid();
@@ -222,11 +222,11 @@ export class DataExtractBehavior<BGS extends BehavioredGridSettings, BCS extends
                 (selectionRect, i) => {
                     const colCount = selectionRect.width;
                     const rowCount = selectionRect.height;
-                    const columns: DataServer.ObjectViewRow = {};
+                    const columns: RevDataServer.ObjectViewRow = {};
 
                     for (let c = 0, x = selectionRect.topLeft.x; c < colCount; c++, x++) {
                         const column = columnsManager.getActiveColumn(x);
-                        const values = columns[column.field.name] = new Array<DataServer.ViewValue>(rowCount);
+                        const values = columns[column.field.name] = new Array<RevDataServer.ViewValue>(rowCount);
 
                         for (let r = 0, y = selectionRect.topLeft.y; r < rowCount; r++, y++) {
                             const dataRow = subgrid.getSingletonViewDataRow(y); // should always exist;
@@ -242,11 +242,11 @@ export class DataExtractBehavior<BGS extends BehavioredGridSettings, BCS extends
         return rects;
     }
 
-    getSelectedValuesByRectangleColumnRowMatrix(): DataServer.ViewValue[][][] {
+    getSelectedValuesByRectangleColumnRowMatrix(): RevDataServer.ViewValue[][][] {
         const columnsManager = this._columnsManager;
         const rectangles = this._selection.rectangles;
         const rectangleCount = rectangles.length;
-        const rects = new Array<DataServer.ViewValue[][]>(rectangleCount);
+        const rects = new Array<RevDataServer.ViewValue[][]>(rectangleCount);
 
         if (rectangleCount > 0) {
             const subgrid = this.getDefinedSubgrid();
@@ -255,13 +255,13 @@ export class DataExtractBehavior<BGS extends BehavioredGridSettings, BCS extends
                 (rect, i) => {
                     const colCount = rect.width;
                     const rowCount = rect.height;
-                    const columnArray = new Array<DataServer.ViewValue[]>(colCount);
+                    const columnArray = new Array<RevDataServer.ViewValue[]>(colCount);
 
                     let x = rect.topLeft.x
                     for (let c = 0; c < colCount; c++) {
                         const column = columnsManager.getActiveColumn(x);
 
-                        const rowValues = new Array<DataServer.ViewValue>(rowCount);
+                        const rowValues = new Array<RevDataServer.ViewValue>(rowCount);
                         for (let r = 0, y = rect.topLeft.y; r < rowCount; r++, y++) {
                             const dataRow = subgrid.getSingletonViewDataRow(y); // should always exist;
                             rowValues[r] = subgrid.getViewValueFromDataRowAtColumn(dataRow, column);
@@ -298,7 +298,7 @@ export class DataExtractBehavior<BGS extends BehavioredGridSettings, BCS extends
      * * `string` - field name
      * @internal
      */
-    private getActiveFieldOrSpecifiedColumns(hiddenColumns: boolean | number[] | string[] | undefined): readonly Column<BCS, SF>[] {
+    private getActiveFieldOrSpecifiedColumns(hiddenColumns: boolean | number[] | string[] | undefined): readonly RevColumn<BCS, SF>[] {
         const fieldColumns = this._columnsManager.fieldColumns;
         const activeColumns = this._columnsManager.activeColumns;
 
@@ -306,7 +306,7 @@ export class DataExtractBehavior<BGS extends BehavioredGridSettings, BCS extends
             return activeColumns;
         } else {
             if (Array.isArray(hiddenColumns)) {
-                let columns: Column<BCS, SF>[] = [];
+                let columns: RevColumn<BCS, SF>[] = [];
                 hiddenColumns.forEach((fieldIndexOrName) => {
                     let activeColumnIndex: number;
                     if (typeof fieldIndexOrName === 'number') {

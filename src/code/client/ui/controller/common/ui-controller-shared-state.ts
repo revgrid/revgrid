@@ -1,12 +1,12 @@
-import { CellEditor } from '../../../interfaces/data/cell-editor';
+import { RevCellEditor } from '../../../interfaces/data/cell-editor';
 
-export interface UiControllerSharedState extends CellEditor.PointerLocationInfo {
+export interface RevUiControllerSharedState extends RevCellEditor.PointerLocationInfo {
     locationCursorName: string | undefined;
     locationTitleText: string | undefined;
 }
 
-export namespace UiControllerSharedState {
-    export function initialise(state: UiControllerSharedState) {
+export namespace RevUiControllerSharedState {
+    export function initialise(state: RevUiControllerSharedState) {
         state.locationCursorName = undefined;
         state.locationTitleText = undefined;
     }

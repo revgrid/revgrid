@@ -1,3 +1,3 @@
-export { InMemoryStandardBehavioredColumnSettings } from './in-memory-standard-behaviored-column-settings';
-export { InMemoryStandardBehavioredGridSettings } from './in-memory-standard-behaviored-grid-settings';
+export { RevStandardInMemoryBehavioredColumnSettings } from './standard-in-memory-behaviored-column-settings';
+export { RevStandardInMemoryBehavioredGridSettings } from './standard-in-memory-behaviored-grid-settings';
 

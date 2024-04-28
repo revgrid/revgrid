@@ -1,23 +1,23 @@
 import { numberToPixels } from '@xilytix/sysutils';
-import { BehavioredColumnSettings, BehavioredGridSettings, DataServer, DatalessViewCell, Rectangle, RevClientGrid, SchemaField } from '../../client/internal-api';
-import { StandardCellEditor } from './standard-cell-editor';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevClientGrid, RevDataServer, RevDatalessViewCell, RevRectangle, RevSchemaField } from '../../client/internal-api';
+import { RevStandardCellEditor } from './standard-cell-editor';
 
 /** @public */
-export abstract class StandardElementCellEditor<
-    BGS extends BehavioredGridSettings,
-    BCS extends BehavioredColumnSettings,
-    SF extends SchemaField
-> extends StandardCellEditor<BGS, BCS, SF> {
+export abstract class RevStandardElementCellEditor<
+    BGS extends RevBehavioredGridSettings,
+    BCS extends RevBehavioredColumnSettings,
+    SF extends RevSchemaField
+> extends RevStandardCellEditor<BGS, BCS, SF> {
     protected readonly element: HTMLElement;
 
-    constructor(grid: RevClientGrid<BGS, BCS, SF>, dataServer: DataServer<SF>, element: HTMLElement) {
+    constructor(grid: RevClientGrid<BGS, BCS, SF>, dataServer: RevDataServer<SF>, element: HTMLElement) {
         super(grid, dataServer);
         this.element = element;
         element.style.position = 'absolute';
         element.style.visibility = 'hidden';
     }
 
-    override tryOpenCell(_viewCell: DatalessViewCell<BCS, SF>, _openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined) {
+    override tryOpenCell(_viewCell: RevDatalessViewCell<BCS, SF>, _openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined) {
         this._grid.canvas.hostElement.appendChild(this.element);
         return true;
     }
@@ -30,7 +30,7 @@ export abstract class StandardElementCellEditor<
         this.element.focus({ preventScroll: true });
     }
 
-    setBounds(bounds: Rectangle | undefined) {
+    setBounds(bounds: RevRectangle | undefined) {
         if (bounds === undefined) {
             this.element.style.visibility = 'hidden';
         } else {

@@ -1,11 +1,11 @@
-import { Mouse } from '../../components/mouse/mouse';
-import { LinedHoverCell } from '../../interfaces/data/hover-cell';
-import { ViewLayoutColumn } from '../../interfaces/dataless/view-layout-column';
-import { SchemaField } from '../../interfaces/schema/schema-field';
-import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
-import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
+import { RevMouse } from '../../components/mouse/mouse';
+import { RevLinedHoverCell } from '../../interfaces/data/lined-hover-cell';
+import { RevViewLayoutColumn } from '../../interfaces/dataless/view-layout-column';
+import { RevSchemaField } from '../../interfaces/schema/schema-field';
+import { RevBehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
+import { RevBehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { RevAssertError, RevUnreachableCaseError } from '../../types-utils/revgrid-error';
-import { UiController } from './ui-controller';
+import { RevUiController } from './ui-controller';
 
 /** @internal */
 const enum MoveLocation { Before, After }
@@ -18,19 +18,19 @@ interface Action {
 }
 
 /** @internal */
-interface MoveAction<BCS extends BehavioredColumnSettings, SF extends SchemaField> extends Action {
+interface MoveAction<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends Action {
     type: DragActionType.Move;
     location: MoveLocation;
-    source: ViewLayoutColumn<BCS, SF>;
-    target: ViewLayoutColumn<BCS, SF>;
+    source: RevViewLayoutColumn<BCS, SF>;
+    target: RevViewLayoutColumn<BCS, SF>;
 }
 
 /** @internal */
-interface ScrollAction<BCS extends BehavioredColumnSettings, SF extends SchemaField> extends Action {
+interface ScrollAction<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends Action {
     type: DragActionType.Scroll;
     toRight: boolean;
     mouseOffGrid: boolean; // only considers left and right off grid
-    source: ViewLayoutColumn<BCS, SF>;
+    source: RevViewLayoutColumn<BCS, SF>;
 }
 
 /** @internal */
@@ -39,18 +39,18 @@ interface NoAction extends Action {
 }
 
 /** @internal */
-type ColumnDragAction<BCS extends BehavioredColumnSettings, SF extends SchemaField> = MoveAction<BCS, SF> | ScrollAction<BCS, SF> | NoAction
+type ColumnDragAction<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> = MoveAction<BCS, SF> | ScrollAction<BCS, SF> | NoAction
 
 /** @internal */
-export class ColumnMovingUiController<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends UiController<BGS, BCS, SF> {
-    readonly typeName = ColumnMovingUiController.typeName;
+export class RevColumnMovingUiController<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevUiController<BGS, BCS, SF> {
+    readonly typeName = RevColumnMovingUiController.typeName;
 
     private _dragOverlay: HTMLCanvasElement | undefined;
-    private _dragColumn: ViewLayoutColumn<BCS, SF> | undefined;
+    private _dragColumn: RevViewLayoutColumn<BCS, SF> | undefined;
     private _scrolling = false;
     private _scrollVelocity = 0;
 
-    override handlePointerDragStart(event: DragEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined) {
+    override handlePointerDragStart(event: DragEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined) {
         if (!this.gridSettings.columnsReorderable) {
             return super.handlePointerDragStart(event, hoverCell);
         } else {
@@ -58,7 +58,7 @@ export class ColumnMovingUiController<BGS extends BehavioredGridSettings, BCS ex
                 hoverCell = this.tryGetHoverCellFromMouseEvent(event);
             }
 
-            if (hoverCell === undefined || LinedHoverCell.isMouseOverLine(hoverCell)) {
+            if (hoverCell === undefined || RevLinedHoverCell.isMouseOverLine(hoverCell)) {
                 return super.handlePointerDragStart(event, hoverCell);
             } else {
                 const viewCell = hoverCell.viewCell;
@@ -91,7 +91,7 @@ export class ColumnMovingUiController<BGS extends BehavioredGridSettings, BCS ex
         }
     }
 
-    override handlePointerDragEnd(event: PointerEvent, cell: LinedHoverCell<BCS, SF> | null | undefined) {
+    override handlePointerDragEnd(event: PointerEvent, cell: RevLinedHoverCell<BCS, SF> | null | undefined) {
         const dragColumn = this._dragColumn;
         if (dragColumn === undefined) {
             return super.handlePointerDragEnd(event, cell);
@@ -113,14 +113,14 @@ export class ColumnMovingUiController<BGS extends BehavioredGridSettings, BCS ex
         }
     }
 
-    override handlePointerMove(event: PointerEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined) {
+    override handlePointerMove(event: PointerEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined) {
         const sharedState = this.sharedState;
         if (sharedState.locationCursorName === undefined) {
             if (this.gridSettings.columnsReorderable) {
                 if (hoverCell === null) {
                     hoverCell = this.tryGetHoverCellFromMouseEvent(event);
                 }
-                if (hoverCell !== undefined && !LinedHoverCell.isMouseOverLine(hoverCell)) {
+                if (hoverCell !== undefined && !RevLinedHoverCell.isMouseOverLine(hoverCell)) {
                     const viewCell = hoverCell.viewCell;
                     if (!viewCell.isColumnFixed && viewCell.isHeaderOrRowFixed) {
                         sharedState.locationCursorName = this.gridSettings.columnMoveDragPossibleCursorName;
@@ -133,7 +133,7 @@ export class ColumnMovingUiController<BGS extends BehavioredGridSettings, BCS ex
         return super.handlePointerMove(event, hoverCell);
     }
 
-    override handlePointerDrag(event: PointerEvent, cell: LinedHoverCell<BCS, SF> | null | undefined) {
+    override handlePointerDrag(event: PointerEvent, cell: RevLinedHoverCell<BCS, SF> | null | undefined) {
 
         // if (event.isColumnFixed) {
         //     super.handleMouseDrag(grid, event);
@@ -253,7 +253,7 @@ export class ColumnMovingUiController<BGS extends BehavioredGridSettings, BCS ex
         }
     }
 
-    private getDragAction(event: MouseEvent, dragColumn: ViewLayoutColumn<BCS, SF>): ColumnDragAction<BCS, SF> {
+    private getDragAction(event: MouseEvent, dragColumn: RevViewLayoutColumn<BCS, SF>): ColumnDragAction<BCS, SF> {
         const viewLayout = this.viewLayout;
         const columns = viewLayout.columns;
         const columnCount = columns.length;
@@ -349,7 +349,7 @@ export class ColumnMovingUiController<BGS extends BehavioredGridSettings, BCS ex
 
     private setMouseDragging(active: boolean) {
         if (active) {
-            this.mouse.setActiveDragType(Mouse.DragTypeEnum.ColumnMoving);
+            this.mouse.setActiveDragType(RevMouse.DragTypeEnum.ColumnMoving);
             this.mouse.setOperation(this.gridSettings.columnMoveDragActiveCursorName, this.gridSettings.columnMoveDragActiveTitleText);
         } else {
             this.mouse.setActiveDragType(undefined);
@@ -359,6 +359,6 @@ export class ColumnMovingUiController<BGS extends BehavioredGridSettings, BCS ex
 }
 
 /** @internal */
-export namespace ColumnMovingUiController {
+export namespace RevColumnMovingUiController {
     export const typeName = 'columnmoving';
 }

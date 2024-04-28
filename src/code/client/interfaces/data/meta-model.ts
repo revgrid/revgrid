@@ -1,5 +1,5 @@
 /** @public */
-export interface MetaModel {
+export interface RevMetaModel {
     /**
      * _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
      *
@@ -13,7 +13,7 @@ export interface MetaModel {
      *
      * @returns Metadata store object.
      */
-    getMetadataStore?(): MetaModel.RowMetadata[];
+    getMetadataStore?(): RevMetaModel.RowMetadata[];
 
 
     /**
@@ -29,7 +29,7 @@ export interface MetaModel {
      * * `undefined` - row found but no existing metadata; else
      * * `null`  - no such row
      */
-    getRowMetadata?(rowIndex: number): null | undefined | MetaModel.RowMetadata;
+    getRowMetadata?(rowIndex: number): null | undefined | RevMetaModel.RowMetadata;
 
     /**
      * _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
@@ -45,7 +45,7 @@ export interface MetaModel {
      * Hypergrid never calls `getMetadataStore`.
      * @param [newMetadataStore] - New metadata store object. Omitted on data model reset.
      */
-    setMetadataStore?(metadataStore?: MetaModel.RowMetadata[]): void;
+    setMetadataStore?(metadataStore?: RevMetaModel.RowMetadata[]): void;
 
     /**
      * _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
@@ -57,12 +57,12 @@ export interface MetaModel {
      * @param rowIndex - Row index.
      * @param newMetadata - When omitted, delete the row's metadata.
      */
-    setRowMetadata?(rowIndex: number, newMetadata?: MetaModel.RowMetadata): void;
+    setRowMetadata?(rowIndex: number, newMetadata?: RevMetaModel.RowMetadata): void;
 }
 
 /** @public */
-export namespace MetaModel {
-    export type Constructor = new () => MetaModel;
+export namespace RevMetaModel {
+    export type Constructor = new () => RevMetaModel;
 
     export interface HeightRowProperties {
         height?: number; // will use default height if undefined
@@ -91,7 +91,7 @@ export namespace MetaModel {
 
     export type RowMetadataPrototype = null;
 
-    export class DefaultRowProperties implements MetaModel.RowPropertiesPrototype {
+    export class DefaultRowProperties implements RevMetaModel.RowPropertiesPrototype {
         [key: string]: unknown;
 
         private _height: number | undefined;

@@ -1,41 +1,41 @@
-import { MetaModel } from '../../interfaces/data/meta-model';
-import { Subgrid } from '../../interfaces/data/subgrid';
-import { ViewCell } from '../../interfaces/data/view-cell';
-import { ViewLayoutRow } from '../../interfaces/data/view-layout-row';
-import { DatalessViewCell } from '../../interfaces/dataless/dataless-view-cell';
-import { ViewLayoutColumn } from '../../interfaces/dataless/view-layout-column';
-import { SchemaField } from '../../interfaces/schema/schema-field';
-import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
-import { Rectangle } from '../../types-utils/rectangle';
-import { ColumnsManager } from '../column/columns-manager';
+import { RevMetaModel } from '../../interfaces/data/meta-model';
+import { RevSubgrid } from '../../interfaces/data/subgrid';
+import { RevViewCell } from '../../interfaces/data/view-cell';
+import { RevViewLayoutRow } from '../../interfaces/data/view-layout-row';
+import { RevDatalessViewCell } from '../../interfaces/dataless/dataless-view-cell';
+import { RevViewLayoutColumn } from '../../interfaces/dataless/view-layout-column';
+import { RevSchemaField } from '../../interfaces/schema/schema-field';
+import { RevBehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
+import { RevRectangle } from '../../types-utils/rectangle';
+import { RevColumnsManager } from '../column/columns-manager';
 
 /** @internal */
-export class ViewCellImplementation<BCS extends BehavioredColumnSettings, SF extends SchemaField> implements ViewCell<BCS, SF> {
+export class RevViewCellImplementation<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevViewCell<BCS, SF> {
     /** Set by some Grid Painters to record out cell was painted. If fingerprint is same on successive repaints of cell, then
      * cell does not need to be repainted
      * @internal
      */
-    paintFingerprint: DatalessViewCell.PaintFingerprint | undefined;
+    paintFingerprint: RevDatalessViewCell.PaintFingerprint | undefined;
     // own properties cache
-    cellOwnProperties: MetaModel.CellOwnProperties | undefined; // only get via CellPropertiesBehavior
+    cellOwnProperties: RevMetaModel.CellOwnProperties | undefined; // only get via RevCellPropertiesBehavior
 
     /** @internal */
-    private _subgrid: Subgrid<BCS, SF>;
+    private _subgrid: RevSubgrid<BCS, SF>;
     /** @internal */
-    private _viewLayoutColumn: ViewLayoutColumn<BCS, SF>;
+    private _viewLayoutColumn: RevViewLayoutColumn<BCS, SF>;
     /** @internal */
-    private _viewLayoutRow: ViewLayoutRow<BCS, SF>;
+    private _viewLayoutRow: RevViewLayoutRow<BCS, SF>;
 
     // caches
     /** @internal */
-    private _bounds: Rectangle | undefined;
+    private _bounds: RevRectangle | undefined;
     /** @internal */
     private _columnSettings: BCS | undefined;
 
     /** @internal */
     constructor(
         /** @internal */
-        private readonly _columnsManager: ColumnsManager<BCS, SF>) {
+        private readonly _columnsManager: RevColumnsManager<BCS, SF>) {
     }
 
     get subgrid() { return this._subgrid; }
@@ -52,7 +52,7 @@ export class ViewCellImplementation<BCS extends BehavioredColumnSettings, SF ext
     /**
      * The bounds of the cell.
      */
-    get bounds(): Rectangle {
+    get bounds(): RevRectangle {
         if (this._bounds === undefined) {
             this._bounds = {
                 x: this._viewLayoutColumn.left,
@@ -211,13 +211,13 @@ export class ViewCellImplementation<BCS extends BehavioredColumnSettings, SF ext
         // creates new object as needed
         const rowProperties = this.getRowProperties();
         if (rowProperties !== undefined) {
-            rowProperties[key as keyof MetaModel.RowProperties] = value; // todo: call `stateChanged()` after refac-as-flags
+            rowProperties[key as keyof RevMetaModel.RowProperties] = value; // todo: call `stateChanged()` after refac-as-flags
         }
     }
 
     /** special method for use by renderer which reuses cellEvent object for performance reasons
      * @internal */
-    reset(viewLayoutColumn: ViewLayoutColumn<BCS, SF>, viewLayoutRow: ViewLayoutRow<BCS, SF>) {
+    reset(viewLayoutColumn: RevViewLayoutColumn<BCS, SF>, viewLayoutRow: RevViewLayoutRow<BCS, SF>) {
         // getter caches
         this._columnSettings = undefined;
         this.cellOwnProperties = undefined;
@@ -241,7 +241,7 @@ export class ViewCellImplementation<BCS extends BehavioredColumnSettings, SF ext
      * @returns Visibility.
      * @internal
      */
-    resetGridXY(vc: ViewLayoutColumn<BCS, SF> | undefined, vr: ViewLayoutRow<BCS, SF> | undefined) {
+    resetGridXY(vc: RevViewLayoutColumn<BCS, SF> | undefined, vr: RevViewLayoutRow<BCS, SF> | undefined) {
         if (vc === undefined) {
             return false;
         } else {

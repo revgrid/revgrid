@@ -1,14 +1,14 @@
 import { RevAssertError } from '../../types-utils/revgrid-error';
-import { ViewLayout } from '../view/view-layout';
+import { RevViewLayout } from '../view/view-layout';
 import { RenderAction, RepaintViewAction } from './render-action';
 
 /** @internal */
-export class RenderActionQueue {
+export class RevRenderActionQueue {
     private _queuedActions: RenderAction[] = [];
     private _actionsQueuedEvented = false;
     private _beginChangeCount = 0;
 
-    constructor(private readonly _actionsQueuedEventer: RenderActioner.ActionsQueuedEventer) {
+    constructor(private readonly _actionsQueuedEventer: RevRenderActioner.ActionsQueuedEventer) {
 
     }
 
@@ -27,7 +27,7 @@ export class RenderActionQueue {
             }
         } else {
             if (this._beginChangeCount < 0) {
-                throw new RevAssertError('RAEC91004', 'Mismatched RenderActioner begin/endChange callback');
+                throw new RevAssertError('RAEC91004', 'Mismatched RevRenderActioner begin/endChange callback');
             }
         }
     }
@@ -39,7 +39,7 @@ export class RenderActionQueue {
         return actions;
     }
 
-    processViewLayoutInvalidateAction(_invalidateAction: ViewLayout.InvalidateAction) {
+    processViewLayoutInvalidateAction(_invalidateAction: RevViewLayout.InvalidateAction) {
         this.beginChange();
         try {
         // currently only support PaintAll
@@ -108,6 +108,6 @@ export class RenderActionQueue {
 }
 
 /** @internal */
-export namespace RenderActioner {
+export namespace RevRenderActioner {
     export type ActionsQueuedEventer = (this: void) => void;
 }

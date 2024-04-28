@@ -1,17 +1,17 @@
-import { DataServer, RevAssertError, SchemaField } from '../../client/internal-api';
+import { RevAssertError, RevDataServer, RevSchemaField } from '../../client/internal-api';
 
 /** @public */
-export class RevDataRowArrayDataServer<SF extends SchemaField> implements DataServer<SF> {
-    private _data: DataServer.ObjectViewRow[] = [];
-    private _callbackListeners: DataServer.NotificationsClient[] = [];
+export class RevDataRowArrayDataServer<SF extends RevSchemaField> implements RevDataServer<SF> {
+    private _data: RevDataServer.ObjectViewRow[] = [];
+    private _callbackListeners: RevDataServer.NotificationsClient[] = [];
 
     get data() { return this._data; }
 
-    subscribeDataNotifications(listener: DataServer.NotificationsClient) {
+    subscribeDataNotifications(listener: RevDataServer.NotificationsClient) {
         this._callbackListeners.push(listener)
     }
 
-    unsubscribeDataNotifications(listener: DataServer.NotificationsClient) {
+    unsubscribeDataNotifications(listener: RevDataServer.NotificationsClient) {
         const idx = this._callbackListeners.findIndex((element) => element === listener);
         if (idx < 0) {
             throw new RevAssertError('MSARDCL65539', 'MainStaticAdapter: CallbackListener not found');
@@ -28,7 +28,7 @@ export class RevDataRowArrayDataServer<SF extends SchemaField> implements DataSe
         this._callbackListeners.forEach((listener) => { listener.endChange(); });
     }
 
-    reset(data?: DataServer.ObjectViewRow[]) {
+    reset(data?: RevDataServer.ObjectViewRow[]) {
         if (data === undefined) {
             this.invalidateAll();
         } else {
@@ -53,18 +53,18 @@ export class RevDataRowArrayDataServer<SF extends SchemaField> implements DataSe
      * _Note parameter order is the reverse of `addRow`._
      * @param dataRow - if omitted or otherwise falsy, row renders as blank
      */
-    setViewRow(index: number, dataRow: DataServer.ObjectViewRow) {
+    setViewRow(index: number, dataRow: RevDataServer.ObjectViewRow) {
         this._data[index] = dataRow || undefined;
         this._callbackListeners.forEach((listener) => { listener.invalidateRow(index); });
     }
 
-    addRow(dataRow: DataServer.ObjectViewRow) {
+    addRow(dataRow: RevDataServer.ObjectViewRow) {
         const index = this.getRowCount();
         this.insertRow(index, dataRow);
         return index;
     }
 
-    insertRow(index: number, dataRow: DataServer.ObjectViewRow) {
+    insertRow(index: number, dataRow: RevDataServer.ObjectViewRow) {
         this._data.splice(index, 0, dataRow);
         this._callbackListeners.forEach((listener) => { listener.rowsInserted(index, 1); });
     }

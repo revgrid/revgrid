@@ -1,20 +1,20 @@
 
-import { SchemaField } from '../interfaces/schema/schema-field';
-import { BehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
-import { BehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
-import { Registry } from '../types-utils/registry';
-import { UiControllerServices } from './controller/common/ui-controller-services';
-import { UiController } from './controller/ui-controller';
+import { RevSchemaField } from '../interfaces/schema/schema-field';
+import { RevBehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
+import { RevBehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
+import { RevRegistry } from '../types-utils/registry';
+import { RevUiControllerServices } from './controller/common/ui-controller-services';
+import { RevUiController } from './controller/ui-controller';
 
 /** @internal */
-export class UiControllerFactory<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
-    private readonly _registry = new Registry<UiController.Constructor<BGS, BCS, SF>>;
+export class RevUiControllerFactory<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> {
+    private readonly _registry = new RevRegistry<RevUiController.Constructor<BGS, BCS, SF>>;
 
-    registerDefinition(typeName: string, constructor: UiController.Constructor<BGS, BCS, SF>) {
+    registerDefinition(typeName: string, constructor: RevUiController.Constructor<BGS, BCS, SF>) {
         this._registry.register(typeName, constructor);
     }
 
-    create(name: string, services: UiControllerServices<BGS, BCS, SF>) {
+    create(name: string, services: RevUiControllerServices<BGS, BCS, SF>) {
         const constructor = this._registry.get(name);
         if (constructor === undefined) {
             return undefined;

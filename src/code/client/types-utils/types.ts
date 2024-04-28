@@ -1,12 +1,12 @@
 /** @public */
-export const enum HorizontalWheelScrollingAllowed {
+export const enum RevHorizontalWheelScrollingAllowed {
     Never,
     Always,
     CtrlKeyDown,
 }
 
 /** @public */
-export type Writable<T> = {
+export type RevWritable<T> = {
     -readonly [P in keyof T]: T[P];
 };
 
@@ -29,7 +29,7 @@ export type RevListChangedEventer = (
 ) => void;
 
 /** @public */
-export const enum SelectionAreaTypeSpecifier {
+export const enum RevSelectionAreaTypeSpecifier {
     Primary,
     Secondary,
     Rectangle,

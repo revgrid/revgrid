@@ -1,23 +1,23 @@
-import { Focus } from '../components/focus/focus';
-import { Selection } from '../components/selection/selection';
-import { SchemaField } from '../interfaces/schema/schema-field';
-import { BehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
-import { BehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
+import { RevFocus } from '../components/focus/focus';
+import { RevSelection } from '../components/selection/selection';
+import { RevSchemaField } from '../interfaces/schema/schema-field';
+import { RevBehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
+import { RevBehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
 import { RevClientObject } from '../types-utils/client-object';
 import { RevAssertError } from '../types-utils/revgrid-error';
 
-export class ReindexBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevClientObject {
+export class RevReindexBehavior<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {
     private _requestNestCount = 0;
-    private _focusStash: Focus.Stash | undefined;
-    private _selectionStash: Selection.Stash<BCS, SF> | undefined;
+    private _focusStash: RevFocus.Stash | undefined;
+    private _selectionStash: RevSelection.Stash<BCS, SF> | undefined;
 
     constructor(
         readonly clientId: string,
         readonly internalParent: RevClientObject,
         /** @internal */
-        private readonly _focus: Focus<BGS, BCS, SF>,
+        private readonly _focus: RevFocus<BGS, BCS, SF>,
         /** @internal */
-        private readonly _selection: Selection<BGS, BCS, SF>,
+        private readonly _selection: RevSelection<BGS, BCS, SF>,
     ) {
 
     }

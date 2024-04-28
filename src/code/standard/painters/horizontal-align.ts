@@ -1,5 +1,5 @@
 /** @public */
-export const enum HorizontalAlignEnum {
+export const enum RevHorizontalAlignEnum {
     left = 'left',
     right = 'right',
     center = 'center',
@@ -8,4 +8,4 @@ export const enum HorizontalAlignEnum {
 }
 
 /** @public */
-export type HorizontalAlign = keyof typeof HorizontalAlignEnum;
+export type RevHorizontalAlign = keyof typeof RevHorizontalAlignEnum;

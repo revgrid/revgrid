@@ -1,16 +1,16 @@
 import { RevUnreachableCaseError } from '../../types-utils/revgrid-error';
-import { SelectionAreaTypeId } from '../../types-utils/selection-area-type';
-import { FirstCornerArea } from './first-corner-area';
+import { RevSelectionAreaTypeId } from '../../types-utils/selection-area-type';
+import { RevFirstCornerArea } from './first-corner-area';
 
 /** @public */
-export interface SelectionArea extends FirstCornerArea {
-    readonly areaTypeId: SelectionAreaTypeId;
+export interface RevSelectionArea extends RevFirstCornerArea {
+    readonly areaTypeId: RevSelectionAreaTypeId;
     readonly size: number;
 }
 
 /** @public */
-export namespace SelectionArea {
-    export function isEqual(left: SelectionArea, right: SelectionArea) {
+export namespace RevSelectionArea {
+    export function isEqual(left: RevSelectionArea, right: RevSelectionArea) {
         const leftTopLeft = left.topLeft;
         const rightTopLeft = right.topLeft;
         return (
@@ -21,7 +21,7 @@ export namespace SelectionArea {
         );
     }
 
-    export function getTogglePriorityCellCoveringSelectionArea(areas: SelectionArea[]) {
+    export function getTogglePriorityCellCoveringSelectionArea(areas: RevSelectionArea[]) {
         const areaCount = areas.length;
         switch (areaCount) {
             case 0: return undefined;
@@ -39,7 +39,7 @@ export namespace SelectionArea {
         }
     }
 
-    export function isCellCoveringSelectionAreaHigherTogglePriority(area: SelectionArea, referenceArea: SelectionArea) {
+    export function isCellCoveringSelectionAreaHigherTogglePriority(area: RevSelectionArea, referenceArea: RevSelectionArea) {
         // Order of priority is:
         // 1 Row
         // 2 Column
@@ -48,13 +48,13 @@ export namespace SelectionArea {
         // 5 All
         const typeId = area.areaTypeId;
         switch (typeId) {
-            case SelectionAreaTypeId.all: return referenceArea.areaTypeId === SelectionAreaTypeId.all;
-            case SelectionAreaTypeId.rectangle: return (
-                ((referenceArea.areaTypeId === SelectionAreaTypeId.rectangle) && (referenceArea.size !== 1)) ||
-                referenceArea.areaTypeId === SelectionAreaTypeId.all
+            case RevSelectionAreaTypeId.all: return referenceArea.areaTypeId === RevSelectionAreaTypeId.all;
+            case RevSelectionAreaTypeId.rectangle: return (
+                ((referenceArea.areaTypeId === RevSelectionAreaTypeId.rectangle) && (referenceArea.size !== 1)) ||
+                referenceArea.areaTypeId === RevSelectionAreaTypeId.all
             );
-            case SelectionAreaTypeId.column: return referenceArea.areaTypeId !== SelectionAreaTypeId.row;
-            case SelectionAreaTypeId.row: return true;
+            case RevSelectionAreaTypeId.column: return referenceArea.areaTypeId !== RevSelectionAreaTypeId.row;
+            case RevSelectionAreaTypeId.row: return true;
             default:
                 throw new RevUnreachableCaseError('SFICCSAHP35500', typeId);
         }

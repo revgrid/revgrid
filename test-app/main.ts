@@ -1,12 +1,15 @@
 import {
-    CellEditor,
-    DatalessSubgrid,
-    DatalessViewCell,
-    DispatchableEvent,
     HorizontalAlignEnum,
     InMemoryStandardBehavioredColumnSettings,
     InMemoryStandardBehavioredGridSettings,
-    Revgrid,
+    RevCellEditor,
+    RevClientGrid,
+    RevDatalessSubgrid,
+    RevDatalessViewCell,
+    RevDispatchableEvent,
+    RevGridDefinition,
+    RevSubgrid,
+    RevViewCell,
     StandardAlphaTextCellPainter,
     StandardBehavioredColumnSettings,
     StandardBehavioredGridSettings,
@@ -15,8 +18,6 @@ import {
     StandardHeaderTextCellPainter,
     StandardTextInputCellEditor,
     StandardToggleClickBoxCellEditor,
-    Subgrid,
-    ViewCell,
     defaultGridSettings,
     defaultStandardColumnSettings,
     defaultStandardGridSettings
@@ -52,7 +53,7 @@ export class Main {
     private _textInputEditor: StandardTextInputCellEditor<StandardBehavioredGridSettings, StandardBehavioredColumnSettings, AppSchemaField>;
     private _checkboxEditor: StandardToggleClickBoxCellEditor<StandardBehavioredGridSettings, StandardBehavioredColumnSettings, AppSchemaField>;
 
-    private _grid: Revgrid<StandardBehavioredGridSettings, StandardBehavioredColumnSettings, AppSchemaField>;
+    private _grid: RevClientGrid<StandardBehavioredGridSettings, StandardBehavioredColumnSettings, AppSchemaField>;
 
     constructor() {
         const gridHostElement = document.querySelector('#gridHost');
@@ -213,23 +214,23 @@ export class Main {
         this._mainDataServer = new MainDataServer();
         this._headerDataServer = new HeaderDataServer();
 
-        const definition: Revgrid.Definition<StandardBehavioredColumnSettings, AppSchemaField> = {
+        const definition: RevGridDefinition<StandardBehavioredColumnSettings, AppSchemaField> = {
             schemaServer: this._schemaServer,
             subgrids: [
                 {
-                    role: DatalessSubgrid.RoleEnum.header,
+                    role: RevDatalessSubgrid.RoleEnum.header,
                     dataServer: this._headerDataServer,
                     getCellPainterEventer: (viewCell) => this.getHeaderCellPainter(viewCell),
                 },
                 {
-                    role: DatalessSubgrid.RoleEnum.main,
+                    role: RevDatalessSubgrid.RoleEnum.main,
                     dataServer: this._mainDataServer,
                     getCellPainterEventer: (viewCell) => this.getMainCellPainter(viewCell),
                 }
             ],
         };
 
-        this._grid = new Revgrid(this._gridHostElement, definition, this._gridSettings, this._getSettingsForNewColumnListener, { externalParent: this });
+        this._grid = new RevClientGrid(this._gridHostElement, definition, this._gridSettings, this._getSettingsForNewColumnListener, { externalParent: this });
 
         this._headerCellPainter = new StandardHeaderTextCellPainter(this._grid, this._headerDataServer);
         this._textCellPainter = new StandardAlphaTextCellPainter(this._grid, this._mainDataServer);
@@ -248,7 +249,7 @@ export class Main {
         this._deleteRowIndexTextboxElement.value = '0';
 
         this._grid.addEventListener('rev-column-sort', (event) => {
-                const hoverCell = (event as CustomEvent<DispatchableEvent.Detail.ColumnSort<StandardBehavioredColumnSettings, AppSchemaField>>).detail.revgridHoverCell;
+                const hoverCell = (event as CustomEvent<RevDispatchableEvent.Detail.ColumnSort<StandardBehavioredColumnSettings, AppSchemaField>>).detail.revgridHoverCell;
                 if (hoverCell !== undefined) {
                     this._mainDataServer.sort(hoverCell.viewCell.viewLayoutColumn.column);
                 }
@@ -299,7 +300,7 @@ export class Main {
         return columnSettings;
     }
 
-    private getMainCellPainter(viewCell: DatalessViewCell<StandardBehavioredColumnSettings, AppSchemaField>) {
+    private getMainCellPainter(viewCell: RevDatalessViewCell<StandardBehavioredColumnSettings, AppSchemaField>) {
         let cellPainter: StandardCellPainter<
             StandardBehavioredGridSettings,
             StandardBehavioredColumnSettings,
@@ -314,17 +315,17 @@ export class Main {
         return cellPainter;
     }
 
-    private getHeaderCellPainter(viewCell: DatalessViewCell<StandardBehavioredColumnSettings, AppSchemaField>) {
+    private getHeaderCellPainter(viewCell: RevDatalessViewCell<StandardBehavioredColumnSettings, AppSchemaField>) {
         return this._headerCellPainter;
     }
 
     private getCellEditor(
         field: AppSchemaField,
         _subgridRowIndex: number,
-        _subgrid: Subgrid<StandardBehavioredColumnSettings, AppSchemaField>,
+        _subgrid: RevSubgrid<StandardBehavioredColumnSettings, AppSchemaField>,
         readonly: boolean,
-        _viewCell: ViewCell<StandardBehavioredColumnSettings, AppSchemaField> | undefined
-    ): CellEditor<StandardBehavioredColumnSettings, AppSchemaField> | undefined {
+        _viewCell: RevViewCell<StandardBehavioredColumnSettings, AppSchemaField> | undefined
+    ): RevCellEditor<StandardBehavioredColumnSettings, AppSchemaField> | undefined {
         return this.tryGetCellEditor(field.name, readonly);
     }
 

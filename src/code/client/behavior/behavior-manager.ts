@@ -1,54 +1,54 @@
-import { Canvas } from '../components/canvas/canvas';
-import { ColumnsManager } from '../components/column/columns-manager';
-import { Focus } from '../components/focus/focus';
-import { Mouse } from '../components/mouse/mouse';
-import { Renderer } from '../components/renderer/renderer';
-import { Scroller } from '../components/scroller/scroller';
-import { Selection } from '../components/selection/selection';
-import { SubgridsManager } from '../components/subgrid/subgrids-manager';
-import { ViewLayout } from '../components/view/view-layout';
-import { SchemaField } from '../interfaces/schema/schema-field';
-import { BehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
-import { BehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
+import { RevCanvas } from '../components/canvas/canvas';
+import { RevColumnsManager } from '../components/column/columns-manager';
+import { RevFocus } from '../components/focus/focus';
+import { RevMouse } from '../components/mouse/mouse';
+import { RevRenderer } from '../components/renderer/renderer';
+import { RevScroller } from '../components/scroller/scroller';
+import { RevSelection } from '../components/selection/selection';
+import { RevSubgridsManager } from '../components/subgrid/subgrids-manager';
+import { RevViewLayout } from '../components/view/view-layout';
+import { RevSchemaField } from '../interfaces/schema/schema-field';
+import { RevBehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
+import { RevBehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
 import { RevClientObject } from '../types-utils/client-object';
-import { CellPropertiesBehavior } from './cell-properties-behavior';
-import { DataExtractBehavior } from './data-extract-behavior';
-import { EventBehavior } from './event-behavior';
-import { FocusScrollBehavior } from './focus-scroll-behavior';
-import { FocusSelectBehavior } from './focus-select-behavior';
-import { ReindexBehavior } from './reindex-behavior';
-import { RowPropertiesBehavior } from './row-properties-behavior';
-import { ServerNotificationBehavior } from './server-notification-behavior';
+import { RevCellPropertiesBehavior } from './cell-properties-behavior';
+import { RevDataExtractBehavior } from './data-extract-behavior';
+import { RevEventBehavior } from './event-behavior';
+import { RevFocusScrollBehavior } from './focus-scroll-behavior';
+import { RevFocusSelectBehavior } from './focus-select-behavior';
+import { RevReindexBehavior } from './reindex-behavior';
+import { RevRowPropertiesBehavior } from './row-properties-behavior';
+import { RevServerNotificationBehavior } from './server-notification-behavior';
 
 /** @internal */
-export class BehaviorManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevClientObject {
-    readonly focusScrollBehavior: FocusScrollBehavior<BGS, BCS, SF>;
-    readonly focusSelectBehavior: FocusSelectBehavior<BGS, BCS, SF>;
-    readonly eventBehavior: EventBehavior<BGS, BCS, SF>;
-    readonly reindexBehavior: ReindexBehavior<BGS, BCS, SF>;
-    readonly rowPropertiesBehavior: RowPropertiesBehavior<BGS, BCS, SF>;
-    readonly cellPropertiesBehavior: CellPropertiesBehavior<BGS, BCS, SF>;
-    readonly dataExtractBehavior: DataExtractBehavior<BGS, BCS, SF>;
+export class RevBehaviorManager<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {
+    readonly focusScrollBehavior: RevFocusScrollBehavior<BGS, BCS, SF>;
+    readonly focusSelectBehavior: RevFocusSelectBehavior<BGS, BCS, SF>;
+    readonly eventBehavior: RevEventBehavior<BGS, BCS, SF>;
+    readonly reindexBehavior: RevReindexBehavior<BGS, BCS, SF>;
+    readonly rowPropertiesBehavior: RevRowPropertiesBehavior<BGS, BCS, SF>;
+    readonly cellPropertiesBehavior: RevCellPropertiesBehavior<BGS, BCS, SF>;
+    readonly dataExtractBehavior: RevDataExtractBehavior<BGS, BCS, SF>;
 
-    private readonly _serverNotificationBehavior: ServerNotificationBehavior<BGS, BCS, SF>;
+    private readonly _serverNotificationBehavior: RevServerNotificationBehavior<BGS, BCS, SF>;
 
     constructor(
         readonly clientId: string,
         readonly internalParent: RevClientObject,
         gridSettings: BGS,
-        canvas: Canvas<BGS>,
-        columnsManager: ColumnsManager<BCS, SF>,
-        subgridsManager: SubgridsManager<BCS, SF>,
-        viewLayout: ViewLayout<BGS, BCS, SF>,
-        focus: Focus<BGS, BCS, SF>,
-        selection: Selection<BGS, BCS, SF>,
-        mouse: Mouse<BGS, BCS, SF>,
-        renderer: Renderer<BGS, BCS, SF>,
-        horizontalScroller: Scroller<BGS, BCS, SF>,
-        verticalScroller: Scroller<BGS, BCS, SF>,
-        descendantEventer: EventBehavior.DescendantEventer<BCS, SF>,
+        canvas: RevCanvas<BGS>,
+        columnsManager: RevColumnsManager<BCS, SF>,
+        subgridsManager: RevSubgridsManager<BCS, SF>,
+        viewLayout: RevViewLayout<BGS, BCS, SF>,
+        focus: RevFocus<BGS, BCS, SF>,
+        selection: RevSelection<BGS, BCS, SF>,
+        mouse: RevMouse<BGS, BCS, SF>,
+        renderer: RevRenderer<BGS, BCS, SF>,
+        horizontalScroller: RevScroller<BGS, BCS, SF>,
+        verticalScroller: RevScroller<BGS, BCS, SF>,
+        descendantEventer: RevEventBehavior.DescendantEventer<BCS, SF>,
     ) {
-        this.eventBehavior = new EventBehavior(
+        this.eventBehavior = new RevEventBehavior(
             this.clientId,
             this,
             gridSettings.eventDispatchEnabled,
@@ -65,14 +65,14 @@ export class BehaviorManager<BGS extends BehavioredGridSettings, BCS extends Beh
             (event) => canvas.dispatchEvent(event),
         );
 
-        this.reindexBehavior = new ReindexBehavior(
+        this.reindexBehavior = new RevReindexBehavior(
             this.clientId,
             this,
             focus,
             selection
         );
 
-        this._serverNotificationBehavior = new ServerNotificationBehavior(
+        this._serverNotificationBehavior = new RevServerNotificationBehavior(
             this.clientId,
             this,
             columnsManager,
@@ -85,7 +85,7 @@ export class BehaviorManager<BGS extends BehavioredGridSettings, BCS extends Beh
             this.reindexBehavior,
         );
 
-        this.focusScrollBehavior = new FocusScrollBehavior(
+        this.focusScrollBehavior = new RevFocusScrollBehavior(
             this.clientId,
             this,
             gridSettings,
@@ -95,7 +95,7 @@ export class BehaviorManager<BGS extends BehavioredGridSettings, BCS extends Beh
             focus,
         );
 
-        this.focusSelectBehavior = new FocusSelectBehavior(
+        this.focusSelectBehavior = new RevFocusSelectBehavior(
             this.clientId,
             this,
             gridSettings,
@@ -104,13 +104,13 @@ export class BehaviorManager<BGS extends BehavioredGridSettings, BCS extends Beh
             viewLayout,
         );
 
-        this.rowPropertiesBehavior = new RowPropertiesBehavior(
+        this.rowPropertiesBehavior = new RevRowPropertiesBehavior(
             this.clientId,
             this,
             viewLayout,
         );
 
-        this.cellPropertiesBehavior = new CellPropertiesBehavior(
+        this.cellPropertiesBehavior = new RevCellPropertiesBehavior(
             this.clientId,
             this,
             columnsManager,
@@ -118,7 +118,7 @@ export class BehaviorManager<BGS extends BehavioredGridSettings, BCS extends Beh
             viewLayout,
         );
 
-        this.dataExtractBehavior = new DataExtractBehavior(
+        this.dataExtractBehavior = new RevDataExtractBehavior(
             this.clientId,
             this,
             selection,

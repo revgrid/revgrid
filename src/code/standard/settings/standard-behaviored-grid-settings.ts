@@ -1,8 +1,8 @@
-import { BehavioredGridSettings } from '../../client/internal-api';
-import { StandardGridSettings } from './standard-grid-settings';
+import { RevBehavioredGridSettings } from '../../client/internal-api';
+import { RevStandardGridSettings } from './standard-grid-settings';
 
 /** @public */
-export interface StandardBehavioredGridSettings extends StandardGridSettings, BehavioredGridSettings {
-    merge(settings: Partial<StandardGridSettings>): boolean;
-    clone(): StandardBehavioredGridSettings;
+export interface RevStandardBehavioredGridSettings extends RevStandardGridSettings, RevBehavioredGridSettings {
+    merge(settings: Partial<RevStandardGridSettings>): boolean;
+    clone(): RevStandardBehavioredGridSettings;
 }

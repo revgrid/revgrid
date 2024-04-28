@@ -1,18 +1,18 @@
 
-import { ViewCellImplementation } from '../../components/view/view-cell-implementation';
-import { LinedHoverCell } from '../../interfaces/data/hover-cell';
-import { ViewCell } from '../../interfaces/data/view-cell';
-import { SchemaField } from '../../interfaces/schema/schema-field';
-import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
-import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
-import { UiController } from './ui-controller';
+import { RevViewCellImplementation } from '../../components/view/view-cell-implementation';
+import { RevLinedHoverCell } from '../../interfaces/data/lined-hover-cell';
+import { RevViewCell } from '../../interfaces/data/view-cell';
+import { RevSchemaField } from '../../interfaces/schema/schema-field';
+import { RevBehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
+import { RevBehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
+import { RevUiController } from './ui-controller';
 
 // Currently not used - kept in case this feature is re-instated in future
 
 /** @internal */
-export class FiltersUiController<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends UiController<BGS, BCS, SF> {
+export class RevFiltersUiController<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevUiController<BGS, BCS, SF> {
 
-    readonly typeName = FiltersUiController.typeName;
+    readonly typeName = RevFiltersUiController.typeName;
 
     /**
      * Navigate away from the filter cell when:
@@ -45,22 +45,22 @@ export class FiltersUiController<BGS extends BehavioredGridSettings, BCS extends
         }
     }
 
-    handleLEFT(cellEvent: ViewCell<BCS, SF>) {
+    handleLEFT(cellEvent: RevViewCell<BCS, SF>) {
         this.moveLaterally(cellEvent, -1);
     }
 
-    handleRIGHT(cellEvent: ViewCell<BCS, SF>) {
+    handleRIGHT(cellEvent: RevViewCell<BCS, SF>) {
         this.moveLaterally(cellEvent, +1);
     }
 
-    handleUP(cellEvent: ViewCell<BCS, SF>) {
+    handleUP(cellEvent: RevViewCell<BCS, SF>) {
         this.moveDown(cellEvent);
     }
-    handleDOWN(cellEvent: ViewCell<BCS, SF>) {
+    handleDOWN(cellEvent: RevViewCell<BCS, SF>) {
         this.moveDown(cellEvent);
     }
 
-    override handleDblClick(event: MouseEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined) {
+    override handleDblClick(event: MouseEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined) {
         if (hoverCell === null) {
             hoverCell = this.tryGetHoverCellFromMouseEvent(event);
         }
@@ -73,7 +73,7 @@ export class FiltersUiController<BGS extends BehavioredGridSettings, BCS extends
         }
     }
 
-    override handleClick(event: MouseEvent, cell: LinedHoverCell<BCS, SF> | null | undefined) {
+    override handleClick(event: MouseEvent, cell: RevLinedHoverCell<BCS, SF> | null | undefined) {
         if (cell === null) {
             cell = this.tryGetHoverCellFromMouseEvent(event);
         }
@@ -86,14 +86,14 @@ export class FiltersUiController<BGS extends BehavioredGridSettings, BCS extends
         }
     }
 
-    private moveLaterally(/*detail: Canvas.SyntheticEventDetail.Keyboard,*/ cellEvent: ViewCell<BCS, SF>, deltaX: number) {
+    private moveLaterally(/*detail: Canvas.SyntheticEventDetail.Keyboard,*/ cellEvent: RevViewCell<BCS, SF>, deltaX: number) {
         // const cellEvent = detail.editor.event; // previously detail was passed in
         let gridX = cellEvent.viewLayoutColumn.index;
         const gridY = cellEvent.viewLayoutRow.index;
         const originX = gridX;
         const C = this.viewLayout.columns.length;
 
-        const moveDownCellEvent = new ViewCellImplementation(this.columnsManager); // redefine so we don't reset the original below
+        const moveDownCellEvent = new RevViewCellImplementation(this.columnsManager); // redefine so we don't reset the original below
 
         while (
             (gridX = (gridX + deltaX + C) % C) !== originX &&
@@ -109,7 +109,7 @@ export class FiltersUiController<BGS extends BehavioredGridSettings, BCS extends
         this.moveDown(moveDownCellEvent);
     }
 
-    private moveDown(/*detail: Canvas.SyntheticEventDetail.Keyboard,*/ cellEvent: ViewCell<BCS, SF>) {
+    private moveDown(/*detail: Canvas.SyntheticEventDetail.Keyboard,*/ cellEvent: RevViewCell<BCS, SF>) {
         // const cellEvent = detail.editor.event; // previously detail was passed in
         const gridX = cellEvent.viewLayoutColumn.index;
 
@@ -121,6 +121,6 @@ export class FiltersUiController<BGS extends BehavioredGridSettings, BCS extends
 }
 
 /** @internal */
-export namespace FiltersUiController {
+export namespace RevFiltersUiController {
     export const typeName = 'filters';
 }

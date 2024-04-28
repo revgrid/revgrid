@@ -1,5 +1,5 @@
 /** @public */
-export const enum TextTruncateType {
+export const enum RevTextTruncateTypeId {
     WithEllipsis,
     BeforeLastPartiallyVisibleCharacter,
     AfterLastPartiallyVisibleCharacter,

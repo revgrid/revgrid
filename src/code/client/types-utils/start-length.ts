@@ -1,10 +1,10 @@
-export interface StartLength {
+export interface RevStartLength {
     readonly start: number;
     readonly length: number;
 }
 
-export namespace StartLength {
-    export function createExclusiveFromFirstLast(first: number, last: number): StartLength {
+export namespace RevStartLength {
+    export function createExclusiveFromFirstLast(first: number, last: number): RevStartLength {
         if (last >= first) {
             return {
                 start: first,
@@ -18,7 +18,7 @@ export namespace StartLength {
         }
     }
 
-    export function createFromExclusive(exclusive: StartLength): StartLength {
+    export function createFromExclusive(exclusive: RevStartLength): RevStartLength {
         const length = exclusive.length;
         if (length >= 0) {
             return {

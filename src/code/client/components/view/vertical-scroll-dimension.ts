@@ -1,26 +1,26 @@
-import { SchemaField } from '../../interfaces/schema/schema-field';
-import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
-import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
-import { GridSettings } from '../../interfaces/settings/grid-settings';
+import { RevSchemaField } from '../../interfaces/schema/schema-field';
+import { RevBehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
+import { RevBehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
+import { RevGridSettings } from '../../interfaces/settings/grid-settings';
 import { RevAssertError } from '../../types-utils/revgrid-error';
-import { Canvas } from '../canvas/canvas';
-import { SubgridsManager } from '../subgrid/subgrids-manager';
-import { ScrollDimension } from './scroll-dimension';
+import { RevCanvas } from '../canvas/canvas';
+import { RevSubgridsManager } from '../subgrid/subgrids-manager';
+import { RevScrollDimension } from './scroll-dimension';
 
-export class VerticalScrollDimension<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends ScrollDimension<BGS> {
+export class RevVerticalScrollDimension<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevScrollDimension<BGS> {
     constructor(
-        gridSettings: GridSettings,
-        canvas: Canvas<BGS>,
-        private readonly _subgridsManager: SubgridsManager<BCS, SF>,
+        gridSettings: RevGridSettings,
+        canvas: RevCanvas<BGS>,
+        private readonly _subgridsManager: RevSubgridsManager<BCS, SF>,
     ) {
         super(
-            ScrollDimension.AxisEnum.vertical,
+            RevScrollDimension.AxisEnum.vertical,
             gridSettings,
             canvas,
         );
     }
 
-    override calculateLimitedScrollAnchor(index: number, _offset: number): ScrollDimension.Anchor {
+    override calculateLimitedScrollAnchor(index: number, _offset: number): RevScrollDimension.Anchor {
         const startScrollAnchorLimitIndex = this.startScrollAnchorLimitIndex;
         if (index < startScrollAnchorLimitIndex) {
             return {
@@ -60,16 +60,16 @@ export class VerticalScrollDimension<BGS extends BehavioredGridSettings, BCS ext
 
         let viewportSize: number;
         let viewportSizeExactMultiple: boolean;
-        let viewportCoverageExtent: ScrollDimension.ViewportCoverageExtent;
+        let viewportCoverageExtent: RevScrollDimension.ViewportCoverageExtent;
 
-        let startAnchorLimit: ScrollDimension.Anchor;
-        let finishAnchorLimit: ScrollDimension.Anchor;
+        let startAnchorLimit: RevScrollDimension.Anchor;
+        let finishAnchorLimit: RevScrollDimension.Anchor;
         if (scrollSize <= 0) {
-            startAnchorLimit = ScrollDimension.invalidAnchor;
-            finishAnchorLimit = ScrollDimension.invalidAnchor;
+            startAnchorLimit = RevScrollDimension.invalidAnchor;
+            finishAnchorLimit = RevScrollDimension.invalidAnchor;
             viewportSize = 0;
             viewportSizeExactMultiple = false;
-            viewportCoverageExtent = ScrollDimension.ViewportCoverageExtent.None;
+            viewportCoverageExtent = RevScrollDimension.ViewportCoverageExtent.None;
         } else {
             let possibleFractionalViewportSize: number;
 
@@ -104,14 +104,14 @@ export class VerticalScrollDimension<BGS extends BehavioredGridSettings, BCS ext
 
             let finishAnchorLimitIndex: number;
             if (possibleFractionalViewportSize <= 0) {
-                viewportCoverageExtent = ScrollDimension.ViewportCoverageExtent.None;
+                viewportCoverageExtent = RevScrollDimension.ViewportCoverageExtent.None;
                 finishAnchorLimitIndex = fixedRowCount + scrollSize;
             } else {
                 if (viewportSize < scrollSize) {
-                    viewportCoverageExtent = ScrollDimension.ViewportCoverageExtent.Partial;
+                    viewportCoverageExtent = RevScrollDimension.ViewportCoverageExtent.Partial;
                     finishAnchorLimitIndex = fixedRowCount + scrollSize - viewportSize;
                 } else {
-                    viewportCoverageExtent = ScrollDimension.ViewportCoverageExtent.Full;
+                    viewportCoverageExtent = RevScrollDimension.ViewportCoverageExtent.Full;
                     finishAnchorLimitIndex = fixedRowCount;
                 }
             }

@@ -1,67 +1,67 @@
 
-import { CellPropertiesBehavior } from '../../behavior/cell-properties-behavior';
-import { DataExtractBehavior } from '../../behavior/data-extract-behavior';
-import { EventBehavior } from '../../behavior/event-behavior';
-import { FocusScrollBehavior } from '../../behavior/focus-scroll-behavior';
-import { FocusSelectBehavior } from '../../behavior/focus-select-behavior';
-import { ReindexBehavior } from '../../behavior/reindex-behavior';
-import { RowPropertiesBehavior } from '../../behavior/row-properties-behavior';
-import { Canvas } from '../../components/canvas/canvas';
-import { ColumnsManager } from '../../components/column/columns-manager';
-import { Focus } from '../../components/focus/focus';
-import { Mouse } from '../../components/mouse/mouse';
-import { Renderer } from '../../components/renderer/renderer';
-import { Scroller } from '../../components/scroller/scroller';
-import { Selection } from '../../components/selection/selection';
-import { SubgridsManager } from '../../components/subgrid/subgrids-manager';
-import { ViewLayout } from '../../components/view/view-layout';
-import { LinedHoverCell } from '../../interfaces/data/hover-cell';
-import { MainSubgrid } from '../../interfaces/data/main-subgrid';
-import { SchemaField } from '../../interfaces/schema/schema-field';
-import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
-import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
-import { GridSettings } from '../../interfaces/settings/grid-settings';
+import { RevCellPropertiesBehavior } from '../../behavior/cell-properties-behavior';
+import { RevDataExtractBehavior } from '../../behavior/data-extract-behavior';
+import { RevEventBehavior } from '../../behavior/event-behavior';
+import { RevFocusScrollBehavior } from '../../behavior/focus-scroll-behavior';
+import { RevFocusSelectBehavior } from '../../behavior/focus-select-behavior';
+import { RevReindexBehavior } from '../../behavior/reindex-behavior';
+import { RevRowPropertiesBehavior } from '../../behavior/row-properties-behavior';
+import { RevCanvas } from '../../components/canvas/canvas';
+import { RevColumnsManager } from '../../components/column/columns-manager';
+import { RevFocus } from '../../components/focus/focus';
+import { RevMouse } from '../../components/mouse/mouse';
+import { RevRenderer } from '../../components/renderer/renderer';
+import { RevScroller } from '../../components/scroller/scroller';
+import { RevSelection } from '../../components/selection/selection';
+import { RevSubgridsManager } from '../../components/subgrid/subgrids-manager';
+import { RevViewLayout } from '../../components/view/view-layout';
+import { RevLinedHoverCell } from '../../interfaces/data/lined-hover-cell';
+import { RevMainSubgrid } from '../../interfaces/data/main-subgrid';
+import { RevSchemaField } from '../../interfaces/schema/schema-field';
+import { RevBehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
+import { RevBehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
+import { RevGridSettings } from '../../interfaces/settings/grid-settings';
 import { RevClientObject } from '../../types-utils/client-object';
-import { UiControllerServices } from './common/ui-controller-services';
-import { UiControllerSharedState } from './common/ui-controller-shared-state';
+import { RevUiControllerServices } from './common/ui-controller-services';
+import { RevUiControllerSharedState } from './common/ui-controller-shared-state';
 
 /**
  * Instances of features are connected to one another to make a chain of responsibility for handling all the input to the hypergrid.
  * @public
  */
-export abstract class UiController<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevClientObject {
+export abstract class RevUiController<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {
     readonly clientId: string;
     readonly internalParent: RevClientObject;
 
     abstract readonly typeName: string;
 
-    protected readonly sharedState: UiControllerSharedState;
+    protected readonly sharedState: RevUiControllerSharedState;
     protected readonly hostElement: HTMLElement;
 
-    protected readonly gridSettings: GridSettings;
-    protected readonly canvas: Canvas<BGS>;
-    protected readonly selection: Selection<BGS, BCS, SF>;
-    protected readonly focus: Focus<BGS, BCS, SF>;
-    protected readonly columnsManager: ColumnsManager<BCS, SF>;
-    protected readonly subgridsManager: SubgridsManager<BCS, SF>;
-    protected readonly viewLayout: ViewLayout<BGS, BCS, SF>;
-    protected readonly renderer: Renderer<BGS, BCS, SF>;
-    protected readonly reindexBehavior: ReindexBehavior<BGS, BCS, SF>;
+    protected readonly gridSettings: RevGridSettings;
+    protected readonly canvas: RevCanvas<BGS>;
+    protected readonly selection: RevSelection<BGS, BCS, SF>;
+    protected readonly focus: RevFocus<BGS, BCS, SF>;
+    protected readonly columnsManager: RevColumnsManager<BCS, SF>;
+    protected readonly subgridsManager: RevSubgridsManager<BCS, SF>;
+    protected readonly viewLayout: RevViewLayout<BGS, BCS, SF>;
+    protected readonly renderer: RevRenderer<BGS, BCS, SF>;
+    protected readonly reindexBehavior: RevReindexBehavior<BGS, BCS, SF>;
 
-    protected readonly mouse: Mouse<BGS, BCS, SF>;
-    protected readonly horizontalScroller: Scroller<BGS, BCS, SF>;
-    protected readonly verticalScroller: Scroller<BGS, BCS, SF>;
+    protected readonly mouse: RevMouse<BGS, BCS, SF>;
+    protected readonly horizontalScroller: RevScroller<BGS, BCS, SF>;
+    protected readonly verticalScroller: RevScroller<BGS, BCS, SF>;
 
-    protected readonly focusScrollBehavior: FocusScrollBehavior<BGS, BCS, SF>;
-    protected readonly focusSelectBehavior: FocusSelectBehavior<BGS, BCS, SF>;
-    protected readonly rowPropertiesBehavior: RowPropertiesBehavior<BGS, BCS, SF>;
-    protected readonly cellPropertiesBehavior: CellPropertiesBehavior<BGS, BCS, SF>;
-    protected readonly dataExtractBehavior: DataExtractBehavior<BGS, BCS, SF>;
-    protected readonly eventBehavior: EventBehavior<BGS, BCS, SF>;
+    protected readonly focusScrollBehavior: RevFocusScrollBehavior<BGS, BCS, SF>;
+    protected readonly focusSelectBehavior: RevFocusSelectBehavior<BGS, BCS, SF>;
+    protected readonly rowPropertiesBehavior: RevRowPropertiesBehavior<BGS, BCS, SF>;
+    protected readonly cellPropertiesBehavior: RevCellPropertiesBehavior<BGS, BCS, SF>;
+    protected readonly dataExtractBehavior: RevDataExtractBehavior<BGS, BCS, SF>;
+    protected readonly eventBehavior: RevEventBehavior<BGS, BCS, SF>;
 
-    protected readonly mainSubgrid: MainSubgrid<BCS, SF>;
+    protected readonly mainSubgrid: RevMainSubgrid<BCS, SF>;
 
-    constructor(services: UiControllerServices<BGS, BCS, SF>) {
+    constructor(services: RevUiControllerServices<BGS, BCS, SF>) {
         this.clientId = services.clientId;
         this.internalParent = services.internalParent;
 
@@ -95,18 +95,18 @@ export abstract class UiController<BGS extends BehavioredGridSettings, BCS exten
     /**
      * the next feature to be given a chance to handle incoming events
      */
-    next: UiController<BGS, BCS, SF> | undefined;
+    next: RevUiController<BGS, BCS, SF> | undefined;
 
     /**
      * a temporary holding field for my next feature when I'm in a disconnected state
      */
-    detached: UiController<BGS, BCS, SF> | undefined;
+    detached: RevUiController<BGS, BCS, SF> | undefined;
 
     /**
      * set my next field, or if it's populated delegate to the feature in my next field
      * @param nextFeature - this is how we build the chain of responsibility
      */
-    setNext(nextFeature: UiController<BGS, BCS, SF>) {
+    setNext(nextFeature: RevUiController<BGS, BCS, SF>) {
         if (this.next !== undefined) {
             this.next.setNext(nextFeature);
         } else {
@@ -146,7 +146,7 @@ export abstract class UiController<BGS extends BehavioredGridSettings, BCS exten
     }
 
     /** @internal */
-    handlePointerMove(event: PointerEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined): LinedHoverCell<BCS, SF> | null | undefined {
+    handlePointerMove(event: PointerEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined): RevLinedHoverCell<BCS, SF> | null | undefined {
         if (this.next) {
             return this.next.handlePointerMove(event, hoverCell);
         } else {
@@ -155,7 +155,7 @@ export abstract class UiController<BGS extends BehavioredGridSettings, BCS exten
     }
 
     /** @internal */
-    handlePointerLeaveOut(event: PointerEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined): LinedHoverCell<BCS, SF> | null | undefined {
+    handlePointerLeaveOut(event: PointerEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined): RevLinedHoverCell<BCS, SF> | null | undefined {
         if (this.next) {
             return this.next.handlePointerLeaveOut(event, hoverCell);
         } else {
@@ -164,7 +164,7 @@ export abstract class UiController<BGS extends BehavioredGridSettings, BCS exten
     }
 
     /** @internal */
-    handlePointerEnter(event: PointerEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined): LinedHoverCell<BCS, SF> | null | undefined {
+    handlePointerEnter(event: PointerEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined): RevLinedHoverCell<BCS, SF> | null | undefined {
         if (this.next) {
             return this.next.handlePointerEnter(event, hoverCell);
         } else {
@@ -173,7 +173,7 @@ export abstract class UiController<BGS extends BehavioredGridSettings, BCS exten
     }
 
     /** @internal */
-    handlePointerDown(event: PointerEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined): LinedHoverCell<BCS, SF> | null | undefined {
+    handlePointerDown(event: PointerEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined): RevLinedHoverCell<BCS, SF> | null | undefined {
         if (this.next) {
             return this.next.handlePointerDown(event, hoverCell);
         } else {
@@ -182,7 +182,7 @@ export abstract class UiController<BGS extends BehavioredGridSettings, BCS exten
     }
 
     /** @internal */
-    handlePointerUpCancel(event: PointerEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined): LinedHoverCell<BCS, SF> | null | undefined {
+    handlePointerUpCancel(event: PointerEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined): RevLinedHoverCell<BCS, SF> | null | undefined {
         if (this.next) {
             return this.next.handlePointerUpCancel(event, hoverCell);
         } else {
@@ -191,7 +191,7 @@ export abstract class UiController<BGS extends BehavioredGridSettings, BCS exten
     }
 
     /** @internal */
-    handleWheelMove(event: WheelEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined): LinedHoverCell<BCS, SF> | null | undefined {
+    handleWheelMove(event: WheelEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined): RevLinedHoverCell<BCS, SF> | null | undefined {
         if (this.next) {
             return this.next.handleWheelMove(event, hoverCell);
         } else {
@@ -200,7 +200,7 @@ export abstract class UiController<BGS extends BehavioredGridSettings, BCS exten
     }
 
     /** @internal */
-    handleDblClick(event: MouseEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined): LinedHoverCell<BCS, SF> | null | undefined {
+    handleDblClick(event: MouseEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined): RevLinedHoverCell<BCS, SF> | null | undefined {
         if (this.next) {
             return this.next.handleDblClick(event, hoverCell);
         } else {
@@ -209,7 +209,7 @@ export abstract class UiController<BGS extends BehavioredGridSettings, BCS exten
     }
 
     /** @internal */
-    handleClick(event: MouseEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined): LinedHoverCell<BCS, SF> | null | undefined {
+    handleClick(event: MouseEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined): RevLinedHoverCell<BCS, SF> | null | undefined {
         if (this.next) {
             return this.next.handleClick(event, hoverCell);
         } else {
@@ -218,7 +218,7 @@ export abstract class UiController<BGS extends BehavioredGridSettings, BCS exten
     }
 
     /** @internal */
-    handlePointerDragStart(event: DragEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined): EventBehavior.UiPointerDragStartResult<BCS, SF> {
+    handlePointerDragStart(event: DragEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined): RevEventBehavior.UiPointerDragStartResult<BCS, SF> {
         if (this.next) {
             return this.next.handlePointerDragStart(event, hoverCell);
         } else {
@@ -230,7 +230,7 @@ export abstract class UiController<BGS extends BehavioredGridSettings, BCS exten
     }
 
     /** @internal */
-    handlePointerDrag(event: PointerEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined): LinedHoverCell<BCS, SF> | null | undefined {
+    handlePointerDrag(event: PointerEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined): RevLinedHoverCell<BCS, SF> | null | undefined {
         if (this.next) {
             return this.next.handlePointerDrag(event, hoverCell);
         } else {
@@ -239,7 +239,7 @@ export abstract class UiController<BGS extends BehavioredGridSettings, BCS exten
     }
 
     /** @internal */
-    handlePointerDragEnd(event: PointerEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined): LinedHoverCell<BCS, SF> | null | undefined {
+    handlePointerDragEnd(event: PointerEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined): RevLinedHoverCell<BCS, SF> | null | undefined {
         if (this.next) {
             return this.next.handlePointerDragEnd(event, hoverCell);
         } else {
@@ -248,7 +248,7 @@ export abstract class UiController<BGS extends BehavioredGridSettings, BCS exten
     }
 
     /** @internal */
-    handleContextMenu(event: MouseEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined): LinedHoverCell<BCS, SF> | null | undefined {
+    handleContextMenu(event: MouseEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined): RevLinedHoverCell<BCS, SF> | null | undefined {
         if (this.next) {
             return this.next.handleContextMenu(event, hoverCell);
         } else {
@@ -285,14 +285,14 @@ export abstract class UiController<BGS extends BehavioredGridSettings, BCS exten
     }
 
     /** @internal */
-    handleHorizontalScrollerAction(action: Scroller.Action) {
+    handleHorizontalScrollerAction(action: RevScroller.Action) {
         if (this.next) {
             this.next.handleHorizontalScrollerAction(action);
         }
     }
 
     /** @internal */
-    handleVerticalScrollerAction(action: Scroller.Action) {
+    handleVerticalScrollerAction(action: RevScroller.Action) {
         if (this.next) {
             this.next.handleVerticalScrollerAction(action);
         }
@@ -306,20 +306,20 @@ export abstract class UiController<BGS extends BehavioredGridSettings, BCS exten
     }
 
     /** @internal */
-    protected tryGetHoverCellFromMouseEvent(event: MouseEvent): LinedHoverCell<BCS, SF> | undefined {
+    protected tryGetHoverCellFromMouseEvent(event: MouseEvent): RevLinedHoverCell<BCS, SF> | undefined {
         return this.viewLayout.findLinedHoverCellAtCanvasOffset(event.offsetX, event.offsetY);
     }
 }
 
 /** @public */
-export namespace UiController {
+export namespace RevUiController {
     export type Constructor<
-        BGS extends BehavioredGridSettings,
-        BCS extends BehavioredColumnSettings,
-        SF extends SchemaField
-    > = new (services: UiControllerServices<BGS, BCS, SF>) => UiController<BGS, BCS, SF>;
+        BGS extends RevBehavioredGridSettings,
+        BCS extends RevBehavioredColumnSettings,
+        SF extends RevSchemaField
+    > = new (services: RevUiControllerServices<BGS, BCS, SF>) => RevUiController<BGS, BCS, SF>;
 
-    export interface Definition<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+    export interface Definition<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> {
         typeName: string;
         constructor: Constructor<BGS, BCS, SF>;
     }

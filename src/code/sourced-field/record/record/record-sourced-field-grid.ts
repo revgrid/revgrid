@@ -1,6 +1,6 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
-import { BehavioredColumnSettings, BehavioredGridSettings } from '../../../client/internal-api';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../../../client/internal-api';
 import { RevRecordGrid } from '../../../record/internal-api';
 import { RevSourcedFieldGrid } from '../../sourced-field/internal-api';
 import { RevAllowedRecordSourcedField, RevAllowedRecordSourcedFieldsColumnLayoutDefinition, RevRecordSourcedField } from './server/internal-api';
@@ -9,8 +9,8 @@ import { RevAllowedRecordSourcedField, RevAllowedRecordSourcedFieldsColumnLayout
 export class RevRecordSourcedFieldGrid<
     RenderValueTypeId,
     RenderAttributeTypeId,
-    BGS extends BehavioredGridSettings,
-    BCS extends BehavioredColumnSettings,
+    BGS extends RevBehavioredGridSettings,
+    BCS extends RevBehavioredColumnSettings,
     SF extends RevRecordSourcedField<RenderValueTypeId, RenderAttributeTypeId>
 > extends RevRecordGrid<BGS, BCS, SF> implements RevSourcedFieldGrid<BGS, BCS, SF> {
     createAllowedSourcedFieldsColumnLayoutDefinition(allowedFields: readonly RevAllowedRecordSourcedField<RenderValueTypeId, RenderAttributeTypeId>[]) {

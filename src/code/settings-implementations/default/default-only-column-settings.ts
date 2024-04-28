@@ -1,24 +1,24 @@
-import { OnlyColumnSettings } from '../../client/internal-api';
-import { defaultOnlyGridSettings } from './default-only-grid-settings';
+import { RevOnlyColumnSettings } from '../../client/internal-api';
+import { revDefaultOnlyGridSettings } from './default-only-grid-settings';
 
 /** @public */
-export const defaultOnlyColumnSettings: OnlyColumnSettings = {
-    color: defaultOnlyGridSettings.color,
-    backgroundColor: defaultOnlyGridSettings.backgroundColor,
-    defaultColumnAutoSizing: defaultOnlyGridSettings.defaultColumnAutoSizing,
-    columnAutoSizingMax: defaultOnlyGridSettings.columnAutoSizingMax,
-    columnClip: defaultOnlyGridSettings.columnClip,
-    defaultColumnWidth: defaultOnlyGridSettings.defaultColumnWidth,
-    editable: defaultOnlyGridSettings.editable,
-    editOnDoubleClick: defaultOnlyGridSettings.editOnDoubleClick,
-    editOnFocusCell: defaultOnlyGridSettings.editOnFocusCell,
-    editOnKeyDown: defaultOnlyGridSettings.editOnKeyDown,
-    editOnClick: defaultOnlyGridSettings.editOnClick,
-    editorClickableCursorName: defaultOnlyGridSettings.editorClickableCursorName,
-    filterable: defaultOnlyGridSettings.filterable,
-    minimumColumnWidth: defaultOnlyGridSettings.minimumColumnWidth,
-    maximumColumnWidth: defaultOnlyGridSettings.maximumColumnWidth,
-    resizeColumnInPlace: defaultOnlyGridSettings.resizeColumnInPlace,
-    sortOnClick: defaultOnlyGridSettings.sortOnClick,
-    sortOnDoubleClick: defaultOnlyGridSettings.sortOnDoubleClick,
+export const revDefaultOnlyColumnSettings: RevOnlyColumnSettings = {
+    color: revDefaultOnlyGridSettings.color,
+    backgroundColor: revDefaultOnlyGridSettings.backgroundColor,
+    defaultColumnAutoSizing: revDefaultOnlyGridSettings.defaultColumnAutoSizing,
+    columnAutoSizingMax: revDefaultOnlyGridSettings.columnAutoSizingMax,
+    columnClip: revDefaultOnlyGridSettings.columnClip,
+    defaultColumnWidth: revDefaultOnlyGridSettings.defaultColumnWidth,
+    editable: revDefaultOnlyGridSettings.editable,
+    editOnDoubleClick: revDefaultOnlyGridSettings.editOnDoubleClick,
+    editOnFocusCell: revDefaultOnlyGridSettings.editOnFocusCell,
+    editOnKeyDown: revDefaultOnlyGridSettings.editOnKeyDown,
+    editOnClick: revDefaultOnlyGridSettings.editOnClick,
+    editorClickableCursorName: revDefaultOnlyGridSettings.editorClickableCursorName,
+    filterable: revDefaultOnlyGridSettings.filterable,
+    minimumColumnWidth: revDefaultOnlyGridSettings.minimumColumnWidth,
+    maximumColumnWidth: revDefaultOnlyGridSettings.maximumColumnWidth,
+    resizeColumnInPlace: revDefaultOnlyGridSettings.resizeColumnInPlace,
+    sortOnClick: revDefaultOnlyGridSettings.sortOnClick,
+    sortOnDoubleClick: revDefaultOnlyGridSettings.sortOnDoubleClick,
 } as const;

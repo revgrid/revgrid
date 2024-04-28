@@ -1,7 +1,7 @@
-import { GridSettings } from '../../client/internal-api';
-import { defaultOnlyGridSettings } from './default-only-grid-settings';
+import { RevGridSettings } from '../../client/internal-api';
+import { revDefaultOnlyGridSettings } from './default-only-grid-settings';
 
 /** @public */
-export const defaultGridSettings: GridSettings = {
-    ...defaultOnlyGridSettings,
+export const revDefaultGridSettings: RevGridSettings = {
+    ...revDefaultOnlyGridSettings,
 } as const;

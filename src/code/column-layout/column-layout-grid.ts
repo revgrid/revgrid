@@ -1,11 +1,11 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
 import { AssertInternalError, MultiEvent, UnreachableCaseError } from '@xilytix/sysutils';
-import { BehavioredColumnSettings, BehavioredGridSettings, Column, ColumnsManager, RevClientGrid, RevListChangedTypeId, SchemaField } from '../client/internal-api';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevClientGrid, RevColumn, RevColumnsManager, RevListChangedTypeId, RevSchemaField } from '../client/internal-api';
 import { RevColumnLayout, RevColumnLayoutDefinition } from './server/internal-api';
 
 /** @public */
-export class RevColumnLayoutGrid<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends RevClientGrid<BGS, BCS, SF> {
+export class RevColumnLayoutGrid<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevClientGrid<BGS, BCS, SF> {
     private _columnLayout: RevColumnLayout | undefined;
     private _columnLayoutChangedSubscriptionId: MultiEvent.SubscriptionId;
     private _columnLayoutWidthsChangedSubscriptionId: MultiEvent.SubscriptionId;
@@ -83,7 +83,7 @@ export class RevColumnLayoutGrid<BGS extends BehavioredGridSettings, BCS extends
         if (columnLayout !== undefined) {
             const layoutColumnCount = columnLayout.columnCount;
             const layoutColumns = columnLayout.columns;
-            const nameAndWidths = new Array<ColumnsManager.FieldNameAndAutoSizableWidth>(layoutColumnCount);
+            const nameAndWidths = new Array<RevColumnsManager.FieldNameAndAutoSizableWidth>(layoutColumnCount);
             let count = 0;
             for (let i = 0; i < layoutColumnCount; i++) {
                 const column = layoutColumns[i];
@@ -147,7 +147,7 @@ export class RevColumnLayoutGrid<BGS extends BehavioredGridSettings, BCS extends
         }
     }
 
-    protected override descendantProcessColumnsWidthChanged(columns: Column<BCS, SF>[], ui: boolean) {
+    protected override descendantProcessColumnsWidthChanged(columns: RevColumn<BCS, SF>[], ui: boolean) {
         if (ui) {
             if (this._columnLayout === undefined) {
                 throw new AssertInternalError('RGPCWC56678');
@@ -184,13 +184,13 @@ export class RevColumnLayoutGrid<BGS extends BehavioredGridSettings, BCS extends
             const schemaFieldNames = fields.map((field) => field.name);
             const columns = this._columnLayout.columns;
             const maxCount = columns.length;
-            const columnNameWidths = new Array<ColumnsManager.FieldNameAndAutoSizableWidth>(maxCount);
+            const columnNameWidths = new Array<RevColumnsManager.FieldNameAndAutoSizableWidth>(maxCount);
             let count = 0;
             for (let i = 0; i < maxCount; i++) {
                 const column = columns[i];
                 const fieldName = column.fieldName;
                 if (schemaFieldNames.includes(fieldName)) {
-                    const columnNameWidth: ColumnsManager.FieldNameAndAutoSizableWidth = {
+                    const columnNameWidth: RevColumnsManager.FieldNameAndAutoSizableWidth = {
                         name: fieldName,
                         autoSizableWidth: column.autoSizableWidth,
                     };

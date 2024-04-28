@@ -1,16 +1,16 @@
-import { DataServer } from '../../interfaces/data/data-server';
-import { MetaModel } from '../../interfaces/data/meta-model';
-import { Subgrid } from '../../interfaces/data/subgrid';
-import { Column } from '../../interfaces/dataless/column';
-import { SchemaField } from '../../interfaces/schema/schema-field';
-import { SchemaServer } from '../../interfaces/schema/schema-server';
-import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
-import { GridSettings } from '../../interfaces/settings/grid-settings';
+import { RevDataServer } from '../../interfaces/data/data-server';
+import { RevMetaModel } from '../../interfaces/data/meta-model';
+import { RevSubgrid } from '../../interfaces/data/subgrid';
+import { RevColumn } from '../../interfaces/dataless/column';
+import { RevSchemaField } from '../../interfaces/schema/schema-field';
+import { RevSchemaServer } from '../../interfaces/schema/schema-server';
+import { RevBehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
+import { RevGridSettings } from '../../interfaces/settings/grid-settings';
 import { RevAssertError } from '../../types-utils/revgrid-error';
-import { ColumnsManager } from '../column/columns-manager';
+import { RevColumnsManager } from '../column/columns-manager';
 
 /** @internal */
-export class SubgridImplementation<BCS extends BehavioredColumnSettings, SF extends SchemaField> implements Subgrid<BCS, SF> {
+export class RevSubgridImplementation<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevSubgrid<BCS, SF> {
     readonly isMain: boolean = false;
     readonly isHeader: boolean = false;
     readonly isFilter: boolean = false;
@@ -26,11 +26,11 @@ export class SubgridImplementation<BCS extends BehavioredColumnSettings, SF exte
 
     /** @internal */
     /** @internal */
-    private _viewDataRowProxy: SubgridImplementation.ViewDataRowProxy<SF>; // used if DataServer.getRowProperties not implemented
+    private _viewDataRowProxy: RevSubgridImplementation.ViewDataRowProxy<SF>; // used if RevDataServer.getRowProperties not implemented
     /** @internal */
-    private readonly _rowPropertiesPrototype: MetaModel.RowPropertiesPrototype | null;
+    private readonly _rowPropertiesPrototype: RevMetaModel.RowPropertiesPrototype | null;
 
-    private _dataNotificationsClient: DataServer.NotificationsClient;
+    private _dataNotificationsClient: RevDataServer.NotificationsClient;
 
     /** @internal */
     private _columnsManagerBeforeCreateColumnsListener = () => { this._viewDataRowProxy.updateSchema(); };
@@ -38,20 +38,20 @@ export class SubgridImplementation<BCS extends BehavioredColumnSettings, SF exte
     /** @internal */
     constructor(
         /** @internal */
-        protected readonly _gridSettings: GridSettings,
+        protected readonly _gridSettings: RevGridSettings,
         /** @internal */
-        protected readonly _columnsManager: ColumnsManager<BCS, SF>,
+        protected readonly _columnsManager: RevColumnsManager<BCS, SF>,
         /** @internal */
-        readonly handle: SubgridImplementation.Handle,
-        readonly role: Subgrid.Role,
-        readonly schemaServer: SchemaServer<SF>,
-        readonly dataServer: DataServer<SF>,
-        readonly metaModel: MetaModel | undefined,
+        readonly handle: RevSubgridImplementation.Handle,
+        readonly role: RevSubgrid.Role,
+        readonly schemaServer: RevSchemaServer<SF>,
+        readonly dataServer: RevDataServer<SF>,
+        readonly metaModel: RevMetaModel | undefined,
         readonly selectable: boolean,
         readonly definitionDefaultRowHeight: number | undefined,
         readonly rowHeightsCanDiffer: boolean,
-        rowPropertiesPrototype: MetaModel.RowPropertiesPrototype | undefined,
-        public getCellPainterEventer: Subgrid.GetCellPainterEventer<BCS, SF>,
+        rowPropertiesPrototype: RevMetaModel.RowPropertiesPrototype | undefined,
+        public getCellPainterEventer: RevSubgrid.GetCellPainterEventer<BCS, SF>,
     ) {
         switch (role) {
             case 'main':
@@ -75,7 +75,7 @@ export class SubgridImplementation<BCS extends BehavioredColumnSettings, SF exte
             }
         }
 
-        this._viewDataRowProxy = new SubgridImplementation.ViewDataRowProxy<SF>(this.schemaServer, this.dataServer);
+        this._viewDataRowProxy = new RevSubgridImplementation.ViewDataRowProxy<SF>(this.schemaServer, this.dataServer);
 
         if (rowPropertiesPrototype === undefined) {
             this._rowPropertiesPrototype = null;
@@ -96,7 +96,7 @@ export class SubgridImplementation<BCS extends BehavioredColumnSettings, SF exte
     }
 
     /** @internal */
-    setDataNotificationsClient(client: DataServer.NotificationsClient) {
+    setDataNotificationsClient(client: RevDataServer.NotificationsClient) {
         this._dataNotificationsClient = client;
     }
 
@@ -116,7 +116,7 @@ export class SubgridImplementation<BCS extends BehavioredColumnSettings, SF exte
         return false;
     }
 
-    getViewValue(column: Column<BCS, SF>, rowIndex: number): DataServer.ViewValue {
+    getViewValue(column: RevColumn<BCS, SF>, rowIndex: number): RevDataServer.ViewValue {
         return this.dataServer.getViewValue(column.field, rowIndex);
     }
 
@@ -132,7 +132,7 @@ export class SubgridImplementation<BCS extends BehavioredColumnSettings, SF exte
         }
     }
 
-    getViewValueFromDataRowAtColumn(dataRow: DataServer.ViewRow, column: Column<BCS, SF>) {
+    getViewValueFromDataRowAtColumn(dataRow: RevDataServer.ViewRow, column: RevColumn<BCS, SF>) {
         if (Array.isArray(dataRow)) {
             return dataRow[column.field.index];
         } else {
@@ -165,7 +165,7 @@ export class SubgridImplementation<BCS extends BehavioredColumnSettings, SF exte
         }
     }
 
-    setRowMetadata(rowIndex: number, newMetadata: MetaModel.RowMetadata | undefined) {
+    setRowMetadata(rowIndex: number, newMetadata: RevMetaModel.RowMetadata | undefined) {
         // eslint-disable-next-line @typescript-eslint/prefer-optional-chain
         if (this.metaModel !== undefined && this.metaModel.setRowMetadata !== undefined) {
             this.metaModel.setRowMetadata(rowIndex, newMetadata);
@@ -179,11 +179,11 @@ export class SubgridImplementation<BCS extends BehavioredColumnSettings, SF exte
      * _(Required when 3rd param provided.)_
      * @returns The row properties object which will be one of:
      * * object - existing row properties object or new row properties object created from `prototype`; else
-     * * `false` - MetaModel get function not set up; else
+     * * `false` - RevMetaModel get function not set up; else
      * * `null` - row does not exist
      * * `undefined` - row exists but does not have any properties
      */
-    getRowProperties(rowIndex: number): MetaModel.RowProperties | undefined {
+    getRowProperties(rowIndex: number): RevMetaModel.RowProperties | undefined {
         const metadata = this.getRowMetadata(rowIndex);
         if (metadata === undefined) {
             return undefined;
@@ -192,7 +192,7 @@ export class SubgridImplementation<BCS extends BehavioredColumnSettings, SF exte
         }
     }
 
-    setRowProperties(rowIndex: number, properties: MetaModel.RowProperties | undefined) {
+    setRowProperties(rowIndex: number, properties: RevMetaModel.RowProperties | undefined) {
         const metadata = this.getRowMetadata(rowIndex);
         return this.setRowMetadataRowProperties(rowIndex, metadata, properties);
         // if (metadata) {
@@ -206,7 +206,7 @@ export class SubgridImplementation<BCS extends BehavioredColumnSettings, SF exte
         if (rowProps === undefined) {
             return undefined;
         } else {
-            return rowProps[key as keyof MetaModel.RowProperties];
+            return rowProps[key as keyof RevMetaModel.RowProperties];
         }
     }
 
@@ -258,7 +258,7 @@ export class SubgridImplementation<BCS extends BehavioredColumnSettings, SF exte
         }
     }
 
-    calculateRowCountAndHeight(): SubgridImplementation.CountAndHeight {
+    calculateRowCountAndHeight(): RevSubgridImplementation.CountAndHeight {
         let height: number;
         const count = this.getRowCount();
         if (count === 0) {
@@ -287,31 +287,31 @@ export class SubgridImplementation<BCS extends BehavioredColumnSettings, SF exte
     setRowProperty(y: number, key: string, isHeight: boolean, value: unknown) {
         let metadata = this.getRowMetadata(y);
         if (metadata === undefined) {
-            metadata = Object.create(this._rowPropertiesPrototype) as MetaModel.RowMetadata;
+            metadata = Object.create(this._rowPropertiesPrototype) as RevMetaModel.RowMetadata;
         }
-        let properties: MetaModel.RowProperties | undefined = metadata.__ROW;
+        let properties: RevMetaModel.RowProperties | undefined = metadata.__ROW;
 
         if (value !== undefined) {
             if (properties === undefined) {
-                const createdProperties = Object.create(this._rowPropertiesPrototype) as MetaModel.RowProperties | null;
+                const createdProperties = Object.create(this._rowPropertiesPrototype) as RevMetaModel.RowProperties | null;
                 if (createdProperties === null) {
                     throw new RevAssertError('RPBSRP99441');
                 } else {
                     properties = createdProperties;
                 }
             }
-            properties[key as keyof MetaModel.RowProperties] = value;
+            properties[key as keyof RevMetaModel.RowProperties] = value;
         } else {
             if (properties !== undefined) {
                 // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-                delete properties[(isHeight ? '_height' : key) as keyof MetaModel.RowProperties]; // If we keep this code, should not use dynamic delete
+                delete properties[(isHeight ? '_height' : key) as keyof RevMetaModel.RowProperties]; // If we keep this code, should not use dynamic delete
             }
         }
 
         return this.setRowMetadataRowProperties(y, metadata, properties);
     }
 
-    private setRowMetadataRowProperties(y: number, existingMetadata: MetaModel.RowMetadata | undefined, properties: MetaModel.RowProperties | undefined) {
+    private setRowMetadataRowProperties(y: number, existingMetadata: RevMetaModel.RowMetadata | undefined, properties: RevMetaModel.RowProperties | undefined) {
         if (existingMetadata === undefined) {
             // Row exists but does not yet have any Metadata
             if (properties !== undefined) {
@@ -332,8 +332,8 @@ export class SubgridImplementation<BCS extends BehavioredColumnSettings, SF exte
     }
 
     /** @internal */
-    // getCellEditorAt(columnIndex: number, rowIndex: number, editorName: string, cellEvent: CellEvent): CellEditor {
-    //     let editor: CellEditor | undefined;
+    // getCellEditorAt(columnIndex: number, rowIndex: number, editorName: string, cellEvent: CellEvent): RevCellEditor {
+    //     let editor: RevCellEditor | undefined;
 
     //     const cellModel = this.cellModel;
     //     if (cellModel !== undefined) {
@@ -350,12 +350,12 @@ export class SubgridImplementation<BCS extends BehavioredColumnSettings, SF exte
     // }
 
     /** @internal */
-    // private handleDataModelEvent(nameOrEvent: DataServer.EventName | DataServer.Event) {
-    //     let type: DataServer.EventName;
-    //     let dataModelEvent: DataServer.Event;
+    // private handleDataModelEvent(nameOrEvent: RevDataServer.EventName | RevDataServer.Event) {
+    //     let type: RevDataServer.EventName;
+    //     let dataModelEvent: RevDataServer.Event;
     //     switch (typeof nameOrEvent) {
     //         case 'string':
-    //             type = nameOrEvent as DataServer.EventName;
+    //             type = nameOrEvent as RevDataServer.EventName;
     //             dataModelEvent = { type };
     //             break;
     //         case 'object':
@@ -369,8 +369,8 @@ export class SubgridImplementation<BCS extends BehavioredColumnSettings, SF exte
     //             throw new HypergridError('Expected data model event to be: (string | {type:string})');
     //     }
 
-    //     if (!DataServer.REGEX_DATA_EVENT_STRING.test(type)) {
-    //         throw new HypergridError('Expected data model event type "' + type + '" to match ' + DataServer.REGEX_DATA_EVENT_STRING + '.');
+    //     if (!RevDataServer.REGEX_DATA_EVENT_STRING.test(type)) {
+    //         throw new HypergridError('Expected data model event type "' + type + '" to match ' + RevDataServer.REGEX_DATA_EVENT_STRING + '.');
     //     }
 
     //     const nativeHandler = this.dataModelEventMap[type];
@@ -541,7 +541,7 @@ export class SubgridImplementation<BCS extends BehavioredColumnSettings, SF exte
 }
 
 /** @internal */
-export namespace SubgridImplementation {
+export namespace RevSubgridImplementation {
     export interface CountAndHeight {
         count: number; // number of rows
         height: number; // height of all rows in pixels
@@ -550,13 +550,13 @@ export namespace SubgridImplementation {
     export type Handle = number;
 
     /** @internal */
-    export class ViewDataRowProxy<SF extends SchemaField> {
-        [fieldName: string]: DataServer.ViewValue;
+    export class ViewDataRowProxy<SF extends RevSchemaField> {
+        [fieldName: string]: RevDataServer.ViewValue;
 
         ____rowIndex: number;
         ____fieldNames: string[] = [];
 
-        constructor(readonly schemaServer: SchemaServer<SF>, readonly dataServer: DataServer<SF>) {
+        constructor(readonly schemaServer: RevSchemaServer<SF>, readonly dataServer: RevDataServer<SF>) {
             this.updateSchema(); // is this necessary? If we do not always get the "rev-schema-loaded" event then it is necessary
         }
 

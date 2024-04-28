@@ -1,4 +1,4 @@
-export interface SelectionAreaList {
+export interface RevSelectionAreaList {
     readonly areaCount: number;
 
     clear(): void;

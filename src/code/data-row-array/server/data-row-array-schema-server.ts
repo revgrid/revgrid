@@ -1,18 +1,18 @@
 import { Integer } from '@xilytix/sysutils';
-import { RevApiError, RevAssertError, SchemaField, SchemaServer } from '../../client/internal-api';
+import { RevApiError, RevAssertError, RevSchemaField, RevSchemaServer } from '../../client/internal-api';
 
 /** @public */
-export class RevDataRowArraySchemaServer<SF extends SchemaField> implements SchemaServer<SF> {
-    private _schemaCallbackListeners: SchemaServer.NotificationsClient<SF>[] = [];
+export class RevDataRowArraySchemaServer<SF extends RevSchemaField> implements RevSchemaServer<SF> {
+    private _schemaCallbackListeners: RevSchemaServer.NotificationsClient<SF>[] = [];
     private _fields = new Array<SF>();
 
     get fieldCount() { return this._fields.length; }
 
-    subscribeSchemaNotifications(listener: SchemaServer.NotificationsClient<SF>) {
+    subscribeSchemaNotifications(listener: RevSchemaServer.NotificationsClient<SF>) {
         this._schemaCallbackListeners.push(listener)
     }
 
-    unsubscribeSchemaNotifications(listener: SchemaServer.NotificationsClient<SF>) {
+    unsubscribeSchemaNotifications(listener: RevSchemaServer.NotificationsClient<SF>) {
         const idx = this._schemaCallbackListeners.findIndex((element) => element === listener);
         if (idx < 0) {
             throw new RevAssertError('LMDMRSCL91364', 'LocalMainSchemaModel: SchemaCallbackListener not found');

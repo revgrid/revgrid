@@ -1,17 +1,17 @@
-import { LinedHoverCell } from '../../interfaces/data/hover-cell';
-import { ViewCell } from '../../interfaces/data/view-cell';
-import { SchemaField } from '../../interfaces/schema/schema-field';
-import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
-import { Point } from '../../types-utils/point';
-import { Scroller } from '../scroller/scroller';
-import { ViewLayout } from '../view/view-layout';
+import { RevLinedHoverCell } from '../../interfaces/data/lined-hover-cell';
+import { RevViewCell } from '../../interfaces/data/view-cell';
+import { RevSchemaField } from '../../interfaces/schema/schema-field';
+import { RevBehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
+import { RevPoint } from '../../types-utils/point';
+import { RevScroller } from '../scroller/scroller';
+import { RevViewLayout } from '../view/view-layout';
 
 /** @public */
-export namespace DispatchableEvent {
-    export type Name<BCS extends BehavioredColumnSettings, SF extends SchemaField> = keyof Name.DetailMap<BCS, SF>;
+export namespace RevDispatchableEvent {
+    export type Name<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> = keyof Name.DetailMap<BCS, SF>;
 
     export namespace Name {
-        export interface DetailMap<BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+        export interface DetailMap<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> {
             'rev-column-sort': Detail.ColumnSort<BCS, SF>;
             'rev-cell-focus-changed': Detail.CellFocusChanged;
             'rev-row-focus-changed': Detail.RowFocusChanged;
@@ -26,11 +26,11 @@ export namespace DispatchableEvent {
             'rev-key-down': KeyboardEvent;
             'rev-key-up': KeyboardEvent;
             'rev-filter-applied': undefined;
-            'rev-cell-enter': ViewCell<BCS, SF>;
-            'rev-cell-exit': ViewCell<BCS, SF>;
+            'rev-cell-enter': RevViewCell<BCS, SF>;
+            'rev-cell-exit': RevViewCell<BCS, SF>;
             'rev-click': Detail.Pointer<BCS, SF>;
             'rev-dbl-click': Detail.Pointer<BCS, SF>;
-            'rev-columns-view-widths-changed': ViewLayout.ColumnsViewWidthChangeds;
+            'rev-columns-view-widths-changed': RevViewLayout.ColumnsViewWidthChangeds;
             'rev-grid-rendered': undefined;
             'rev-grid-resized': undefined;
             'rev-touch-start': TouchEvent;
@@ -38,8 +38,8 @@ export namespace DispatchableEvent {
             'rev-touch-end': TouchEvent;
             'rev-horizontal-scroll-viewport-changed': undefined;
             'rev-vertical-scroll-viewport-changed': undefined;
-            'rev-horizontal-scroller-action': Scroller.Action;
-            'rev-vertical-scroller-action': Scroller.Action;
+            'rev-horizontal-scroller-action': RevScroller.Action;
+            'rev-vertical-scroller-action': RevScroller.Action;
             'rev-field-column-list-changed': undefined;
         }
 
@@ -58,8 +58,8 @@ export namespace DispatchableEvent {
 
     export namespace Detail {
         export interface CellFocusChanged {
-            readonly oldPoint: Point | undefined;
-            readonly newPoint: Point | undefined;
+            readonly oldPoint: RevPoint | undefined;
+            readonly newPoint: RevPoint | undefined;
         }
 
         export interface RowFocusChanged {
@@ -67,20 +67,20 @@ export namespace DispatchableEvent {
             readonly newSubgridRowIndex: number | undefined;
         }
 
-        export interface Mouse<BCS extends BehavioredColumnSettings, SF extends SchemaField> extends MouseEvent {
-            revgridHoverCell?: LinedHoverCell<BCS, SF>;
+        export interface Mouse<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends MouseEvent {
+            revgridHoverCell?: RevLinedHoverCell<BCS, SF>;
         }
 
-        export interface Pointer<BCS extends BehavioredColumnSettings, SF extends SchemaField> extends PointerEvent, Mouse<BCS, SF> {
-            revgridHoverCell?: LinedHoverCell<BCS, SF>;
+        export interface Pointer<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends PointerEvent, Mouse<BCS, SF> {
+            revgridHoverCell?: RevLinedHoverCell<BCS, SF>;
         }
 
-        export interface Wheel<BCS extends BehavioredColumnSettings, SF extends SchemaField> extends WheelEvent {
-            revgridHoverCell?: LinedHoverCell<BCS, SF>;
+        export interface Wheel<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends WheelEvent {
+            revgridHoverCell?: RevLinedHoverCell<BCS, SF>;
         }
 
-        export interface ColumnSort<BCS extends BehavioredColumnSettings, SF extends SchemaField> extends MouseEvent {
-            revgridHoverCell?: LinedHoverCell<BCS, SF>;
+        export interface ColumnSort<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends MouseEvent {
+            revgridHoverCell?: RevLinedHoverCell<BCS, SF>;
         }
     }
 }

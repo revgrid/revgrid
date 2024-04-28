@@ -1,15 +1,15 @@
-import { LinedHoverCell } from '../../interfaces/data/hover-cell';
-import { SchemaField } from '../../interfaces/schema/schema-field';
-import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
-import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
-import { UiController } from './ui-controller';
+import { RevLinedHoverCell } from '../../interfaces/data/lined-hover-cell';
+import { RevSchemaField } from '../../interfaces/schema/schema-field';
+import { RevBehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
+import { RevBehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
+import { RevUiController } from './ui-controller';
 
 /** @internal */
-export class ColumnSortingUiController<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends UiController<BGS, BCS, SF> {
+export class RevColumnSortingUiController<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevUiController<BGS, BCS, SF> {
 
-    readonly typeName = ColumnSortingUiController.typeName;
+    readonly typeName = RevColumnSortingUiController.typeName;
 
-    override handleClick(event: MouseEvent, cell: LinedHoverCell<BCS, SF> | null | undefined) {
+    override handleClick(event: MouseEvent, cell: RevLinedHoverCell<BCS, SF> | null | undefined) {
         if (cell === null) {
             cell = this.tryGetHoverCellFromMouseEvent(event);
         }
@@ -24,7 +24,7 @@ export class ColumnSortingUiController<BGS extends BehavioredGridSettings, BCS e
         }
     }
 
-    override handleDblClick(event: MouseEvent, cell: LinedHoverCell<BCS, SF> | null | undefined) {
+    override handleDblClick(event: MouseEvent, cell: RevLinedHoverCell<BCS, SF> | null | undefined) {
         if (cell === null) {
             cell = this.tryGetHoverCellFromMouseEvent(event);
         }
@@ -39,13 +39,13 @@ export class ColumnSortingUiController<BGS extends BehavioredGridSettings, BCS e
         }
     }
 
-    override handlePointerMove(event: PointerEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined) {
+    override handlePointerMove(event: PointerEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined) {
         const sharedState = this.sharedState;
         if (sharedState.locationCursorName === undefined) {
             if (hoverCell === null) {
                 hoverCell = this.tryGetHoverCellFromMouseEvent(event);
             }
-            if (hoverCell !== undefined && LinedHoverCell.isMouseOverLine(hoverCell)) {
+            if (hoverCell !== undefined && RevLinedHoverCell.isMouseOverLine(hoverCell)) {
                 const viewCell = hoverCell.viewCell;
                 if (viewCell.isHeaderOrRowFixed) {
                     const columnSettings = viewCell.columnSettings;
@@ -60,8 +60,8 @@ export class ColumnSortingUiController<BGS extends BehavioredGridSettings, BCS e
         return super.handlePointerMove(event, hoverCell);
     }
 
-    private checkSort(event: MouseEvent, hoverCell: LinedHoverCell<BCS, SF>, dblClick: boolean) {
-        if (LinedHoverCell.isMouseOverLine(hoverCell)) {
+    private checkSort(event: MouseEvent, hoverCell: RevLinedHoverCell<BCS, SF>, dblClick: boolean) {
+        if (RevLinedHoverCell.isMouseOverLine(hoverCell)) {
             return false;
         } else {
             const viewCell = hoverCell.viewCell;
@@ -80,6 +80,6 @@ export class ColumnSortingUiController<BGS extends BehavioredGridSettings, BCS e
 }
 
 /** @internal */
-export namespace ColumnSortingUiController {
+export namespace RevColumnSortingUiController {
     export const typeName = 'columnsorting';
 }

@@ -3,13 +3,13 @@
 import {
     EnumInfoOutOfOrderError
 } from '@xilytix/sysutils';
-import { SchemaField } from '../../../client/internal-api';
-import { HorizontalAlignEnum } from '../../../standard/internal-api';
+import { RevSchemaField } from '../../../client/internal-api';
+import { RevHorizontalAlignEnum } from '../../../standard/internal-api';
 import { RevSourcedFieldDefinition } from './definition/internal-api';
 import { RevSourcedFieldCustomHeadingsService } from './sourced-field-custom-headings-service';
 
 /** @public */
-export interface RevSourcedField extends SchemaField {
+export interface RevSourcedField extends RevSchemaField {
     readonly definition: RevSourcedFieldDefinition;
     readonly name: string;
     heading: string;
@@ -32,7 +32,7 @@ export namespace RevSourcedField {
         interface Info {
             readonly id: Id;
             readonly name: string;
-            readonly horizontalAlign: HorizontalAlignEnum;
+            readonly horizontalAlign: RevHorizontalAlignEnum;
         }
 
         type InfosObject = { [id in keyof typeof FieldId]: Info };
@@ -41,32 +41,32 @@ export namespace RevSourcedField {
             Name: {
                 id: FieldId.Name,
                 name: 'Name',
-                horizontalAlign: HorizontalAlignEnum.left,
+                horizontalAlign: RevHorizontalAlignEnum.left,
             },
             Heading: {
                 id: FieldId.Heading,
                 name: 'Heading',
-                horizontalAlign: HorizontalAlignEnum.left,
+                horizontalAlign: RevHorizontalAlignEnum.left,
             },
             SourceName: {
                 id: FieldId.SourceName,
                 name: 'SourceName',
-                horizontalAlign: HorizontalAlignEnum.left,
+                horizontalAlign: RevHorizontalAlignEnum.left,
             },
             DefaultHeading: {
                 id: FieldId.DefaultHeading,
                 name: 'DefaultHeading',
-                horizontalAlign: HorizontalAlignEnum.left,
+                horizontalAlign: RevHorizontalAlignEnum.left,
             },
             DefaultTextAlign: {
                 id: FieldId.DefaultTextAlign,
                 name: 'DefaultTextAlign',
-                horizontalAlign: HorizontalAlignEnum.left,
+                horizontalAlign: RevHorizontalAlignEnum.left,
             },
             DefaultWidth: {
                 id: FieldId.DefaultWidth,
                 name: 'DefaultWidth',
-                horizontalAlign: HorizontalAlignEnum.right,
+                horizontalAlign: RevHorizontalAlignEnum.right,
             },
         } as const;
 

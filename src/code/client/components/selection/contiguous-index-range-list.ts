@@ -1,10 +1,10 @@
-import { ContiguousIndexRange } from './contiguous-index-range';
+import { RevContiguousIndexRange } from './contiguous-index-range';
 
-export class ContiguousIndexRangeList {
+export class RevContiguousIndexRangeList {
     // Ranges do not overlap, do not abut, and are ordered by start
-    readonly ranges = new Array<ContiguousIndexRange>(0);
+    readonly ranges = new Array<RevContiguousIndexRange>(0);
 
-    assign(other: ContiguousIndexRangeList) {
+    assign(other: RevContiguousIndexRangeList) {
         this.clear();
         const otherRanges = other.ranges;
         const count = otherRanges.length;
@@ -84,7 +84,7 @@ export class ContiguousIndexRangeList {
 
                         } else {
                             // existing range is after added range (with no overlap)
-                            const newRange = new ContiguousIndexRange(start, length);
+                            const newRange = new RevContiguousIndexRange(start, length);
                             ranges.splice(i, 0, newRange); // insert added range before this existing one
                         }
                         return true;
@@ -95,7 +95,7 @@ export class ContiguousIndexRangeList {
 
         if (firstAffectedExistingRangeIndex === undefined) {
             // No existing range affected.  Must be beyond all of them.  Add at end
-            const range = new ContiguousIndexRange(start, length);
+            const range = new RevContiguousIndexRange(start, length);
             ranges.push(range);
         } else {
             // Overlap between added range and existing ranges.
@@ -188,7 +188,7 @@ export class ContiguousIndexRangeList {
                         if (rangeAfter > after) {
                             if (firstAffectedExistingRangeKept) {
                                 // range was split.  Add after part of split
-                                const afterRange = new ContiguousIndexRange(after, rangeAfter - after);
+                                const afterRange = new RevContiguousIndexRange(after, rangeAfter - after);
                                 ranges.splice(i + 1, 0, afterRange);
                             } else {
                                 // range changed to represent range after deletion
@@ -309,13 +309,13 @@ export class ContiguousIndexRangeList {
                 const rangeStart = range.start;
                 if (rangeAfter < after) {
                     if (rangeStart >= start) {
-                        return new ContiguousIndexRange(rangeStart, rangeAfter - rangeStart);
+                        return new RevContiguousIndexRange(rangeStart, rangeAfter - rangeStart);
                     } else {
-                        return new ContiguousIndexRange(start, rangeAfter - start);
+                        return new RevContiguousIndexRange(start, rangeAfter - start);
                     }
                 } else {
                     if (rangeStart < after) {
-                        return new ContiguousIndexRange(rangeStart, after - rangeStart);
+                        return new RevContiguousIndexRange(rangeStart, after - rangeStart);
                     } else {
                         return undefined;
                     }
@@ -343,13 +343,13 @@ export class ContiguousIndexRangeList {
                 const rangeAfter = range.after;
                 if (rangeStart >= start) {
                     if (rangeAfter < after) {
-                        return new ContiguousIndexRange(rangeStart, rangeAfter - rangeStart);
+                        return new RevContiguousIndexRange(rangeStart, rangeAfter - rangeStart);
                     } else {
-                        return new ContiguousIndexRange(rangeStart, after - rangeStart);
+                        return new RevContiguousIndexRange(rangeStart, after - rangeStart);
                     }
                 } else {
                     if (rangeAfter > start) {
-                        return new ContiguousIndexRange(start, rangeAfter - start);
+                        return new RevContiguousIndexRange(start, rangeAfter - start);
                     } else {
                         return undefined;
                     }
@@ -392,7 +392,7 @@ export class ContiguousIndexRangeList {
             const after = start + count;
             let beforeDeletionFirstStartingRangeIndex: number | undefined
             let lastRangeFullyEnclosedinDeletionIndex: number | undefined;
-            let afterDeletionFirstEndingRange: ContiguousIndexRange | undefined;
+            let afterDeletionFirstEndingRange: RevContiguousIndexRange | undefined;
             for (let i = rangeCount - 1; i >= 0; i--) {
                 const range = ranges[i];
                 const rangeStart = range.start;

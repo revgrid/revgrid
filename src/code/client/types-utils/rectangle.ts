@@ -1,5 +1,5 @@
 /** @public */
-export interface Rectangle {
+export interface RevRectangle {
     x: number;
     y: number;
     width: number;
@@ -7,8 +7,8 @@ export interface Rectangle {
 }
 
 /** @public */
-export namespace Rectangle {
-    export function isEqual(left: Rectangle, right: Rectangle) {
+export namespace RevRectangle {
+    export function isEqual(left: RevRectangle, right: RevRectangle) {
         return (
             left.x === right.x &&
             left.y === right.y &&
@@ -17,7 +17,7 @@ export namespace Rectangle {
         );
     }
 
-    export function containsXY(rectangle: Rectangle, x: number, y: number) {
+    export function containsXY(rectangle: RevRectangle, x: number, y: number) {
         const rectangleX = rectangle.x;
         const rectangleY = rectangle.y;
         return (

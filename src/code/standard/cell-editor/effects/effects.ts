@@ -9,17 +9,17 @@ import { RevApiError } from '../../../client/internal-api';
  * @param {object} [options.styles=defaultGlowerStyles] - Hash of CSS styles and values to transition. (For {@link effects~glower|glower} only.
  */
 
-export abstract class Effect {
-    protected readonly _callback: Effect.Options.Callback | undefined;
+export abstract class RevStandardCellEffect {
+    protected readonly _callback: RevStandardCellEffect.Options.Callback | undefined;
 
-    constructor(public readonly el: HTMLElement, public readonly options?: Effect.Options) {
+    constructor(public readonly el: HTMLElement, public readonly options?: RevStandardCellEffect.Options) {
         this._callback = options?.callback;
     }
 
     abstract start(): void;
 }
 
-export namespace Effect {
+export namespace RevStandardCellEffect {
     export interface Options {
         callback?: Options.Callback;
     }
@@ -28,26 +28,26 @@ export namespace Effect {
         export type Callback = (this: void) => void;
     }
 
-    export type Constructor = new(el: HTMLElement, options?: Options) => Effect;
+    export type Constructor = new(el: HTMLElement, options?: Options) => RevStandardCellEffect;
 }
 
-export class EffectFactory {
-    create(name: string, el: HTMLElement, options?: Effect.Options) {
+export class RevStandardCellEffectFactory {
+    create(name: string, el: HTMLElement, options?: RevStandardCellEffect.Options) {
         switch (name) {
-            case ShakerEffect.typeName: return new ShakerEffect(el, options as ShakerEffect.Options);
-            case GlowerEffect.typeName: return new GlowerEffect(el, options as GlowerEffect.Options);
+            case RevStandardShakerCellEffect.typeName: return new RevStandardShakerCellEffect(el, options as RevStandardShakerCellEffect.Options);
+            case RevStandardGlowerCellEffect.typeName: return new RevStandardGlowerCellEffect(el, options as RevStandardGlowerCellEffect.Options);
             default:
                 throw new RevApiError('EFC777454', `Unsupport effect: ${name}`);
         }
     }
 }
 
-export const effectFactory = new EffectFactory();
+export const effectFactory = new RevStandardCellEffectFactory();
 
 /**
  * Shake element back and fourth a few times as if to say, "Nope!"
  */
-export class ShakerEffect extends Effect {
+export class RevStandardShakerCellEffect extends RevStandardCellEffect {
     private duration: string;
     private transitions: string[];
     private position: string;
@@ -57,9 +57,9 @@ export class ShakerEffect extends Effect {
 
     private _transitionendListener = (ev: TransitionEvent) => { this.shake(ev); };
 
-    constructor(el: HTMLElement, options?: ShakerEffect.Options) {
+    constructor(el: HTMLElement, options?: RevStandardShakerCellEffect.Options) {
         super(el, options);
-        this.duration = options?.duration ?? ShakerEffect.duration;
+        this.duration = options?.duration ?? RevStandardShakerCellEffect.duration;
     }
 
     start() {
@@ -99,11 +99,11 @@ export class ShakerEffect extends Effect {
     }
 }
 
-export namespace ShakerEffect {
+export namespace RevStandardShakerCellEffect {
     export const typeName = 'shaker';
     export const duration = '0.065s';
 
-    export interface Options extends Effect.Options {
+    export interface Options extends RevStandardCellEffect.Options {
         duration: string;
     }
 }
@@ -111,19 +111,19 @@ export namespace ShakerEffect {
 /**
  * Transition styles on element for a moment and revert as if to say, "Whoa!."
  */
-export class GlowerEffect extends Effect {
+export class RevStandardGlowerCellEffect extends RevStandardCellEffect {
     private _duration: string;
-    private _glowerStyles: GlowerEffect.Styles;
+    private _glowerStyles: RevStandardGlowerCellEffect.Styles;
     private _transitionendListener = (ev: TransitionEvent) => { this.glower(ev); };
     private _originalTransitionStyle: string;
-    private _styleWasMap = new Map<string, GlowerEffect.StyleWas>();
+    private _styleWasMap = new Map<string, RevStandardGlowerCellEffect.StyleWas>();
     private _activeCount: number;
 
-    constructor(el: HTMLElement, options?: GlowerEffect.Options) {
+    constructor(el: HTMLElement, options?: RevStandardGlowerCellEffect.Options) {
         super(el, options);
 
-        this._duration = options?.duration ?? GlowerEffect.duration;
-        this._glowerStyles = (options?.styles) ?? GlowerEffect.defaultStyles;
+        this._duration = options?.duration ?? RevStandardGlowerCellEffect.duration;
+        this._glowerStyles = (options?.styles) ?? RevStandardGlowerCellEffect.defaultStyles;
     }
 
     start() {
@@ -174,11 +174,11 @@ export class GlowerEffect extends Effect {
     }
 }
 
-export namespace GlowerEffect {
+export namespace RevStandardGlowerCellEffect {
     export const typeName = 'glower';
     export const duration = '0.25s';
 
-    export interface Options extends Effect.Options {
+    export interface Options extends RevStandardCellEffect.Options {
         duration: string;
         styles: Styles;
     }

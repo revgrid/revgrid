@@ -1,18 +1,18 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
-import { DataServer, RevAssertError } from '../../../client/internal-api';
+import { RevAssertError, RevDataServer } from '../../../client/internal-api';
 import { RevMultiHeadingSchemaField } from './multi-heading-schema-field';
 
 /** @public */
-export class RevMultiHeadingDataServer<SF extends RevMultiHeadingSchemaField> implements DataServer<SF> {
+export class RevMultiHeadingDataServer<SF extends RevMultiHeadingSchemaField> implements RevDataServer<SF> {
     private _rowCount = 0;
-    private _callbackListeners: DataServer.NotificationsClient[] = [];
+    private _callbackListeners: RevDataServer.NotificationsClient[] = [];
 
-    subscribeDataNotifications(listener: DataServer.NotificationsClient) {
+    subscribeDataNotifications(listener: RevDataServer.NotificationsClient) {
         this._callbackListeners.push(listener)
     }
 
-    unsubscribeDataNotifications(client: DataServer.NotificationsClient) {
+    unsubscribeDataNotifications(client: RevDataServer.NotificationsClient) {
         const idx = this._callbackListeners.findIndex((element) => element === client);
         if (idx < 0) {
             throw new RevAssertError('HSARDCL65539');

@@ -1,17 +1,17 @@
-import { ViewLayout } from '../components/view/view-layout';
-import { MetaModel } from '../interfaces/data/meta-model';
-import { Subgrid } from '../interfaces/data/subgrid';
-import { ViewCell } from '../interfaces/data/view-cell';
-import { SchemaField } from '../interfaces/schema/schema-field';
-import { BehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
-import { BehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
+import { RevViewLayout } from '../components/view/view-layout';
+import { RevMetaModel } from '../interfaces/data/meta-model';
+import { RevSubgrid } from '../interfaces/data/subgrid';
+import { RevViewCell } from '../interfaces/data/view-cell';
+import { RevSchemaField } from '../interfaces/schema/schema-field';
+import { RevBehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
+import { RevBehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
 import { RevClientObject } from '../types-utils/client-object';
 
-export class RowPropertiesBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevClientObject {
+export class RevRowPropertiesBehavior<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {
     constructor(
         readonly clientId: string,
         readonly internalParent: RevClientObject,
-        private readonly _viewLayout: ViewLayout<BGS, BCS, SF>
+        private readonly _viewLayout: RevViewLayout<BGS, BCS, SF>
     ) {
     }
 
@@ -20,7 +20,7 @@ export class RowPropertiesBehavior<BGS extends BehavioredGridSettings, BCS exten
      * @param rowIndex - Data row index local to dataModel.
      * @param height - pixel height
      */
-    setRowHeight(rowIndex: number, height: number, subgrid: Subgrid<BCS, SF>) {
+    setRowHeight(rowIndex: number, height: number, subgrid: RevSubgrid<BCS, SF>) {
         const setSucceeded = subgrid.setRowProperty(rowIndex, 'height', true, height);
         if (setSucceeded) {
             this._viewLayout.invalidateHorizontalAll(true);
@@ -33,11 +33,11 @@ export class RowPropertiesBehavior<BGS extends BehavioredGridSettings, BCS exten
      * @param properties - The new row properties object. If `undefined`, this call is a no-op.
      * @param subgrid - This is the subgrid. You only need to provide the subgrid when it is not the data subgrid _and_ you did not give a `CellEvent` object in the first param (which already knows what subgrid it's in).
      */
-    setRowPropertiesUsingCell(cell: ViewCell<BCS, SF>, properties: MetaModel.RowProperties | undefined) {
+    setRowPropertiesUsingCell(cell: RevViewCell<BCS, SF>, properties: RevMetaModel.RowProperties | undefined) {
         this.setRowProperties(cell.viewLayoutRow.subgridRowIndex, properties, cell.subgrid)
     }
 
-    setRowProperties(rowIndex: number, properties: MetaModel.RowProperties | undefined, subgrid: Subgrid<BCS, SF>): void {
+    setRowProperties(rowIndex: number, properties: RevMetaModel.RowProperties | undefined, subgrid: RevSubgrid<BCS, SF>): void {
         const setSucceeded = subgrid.setRowProperties(rowIndex, properties);
         if (setSucceeded) {
             this._viewLayout.invalidateHorizontalAll(false);
@@ -52,11 +52,11 @@ export class RowPropertiesBehavior<BGS extends BehavioredGridSettings, BCS exten
      * @param dataModel - This is the subgrid. You only need to provide the subgrid when it is not the data subgrid _and_ you did not give a `CellEvent` object in the first param (which already knows what subgrid it's in).
      */
 
-    setRowPropertyUsingCell(cell: ViewCell<BCS, SF>, key: string, value: unknown) {
+    setRowPropertyUsingCell(cell: RevViewCell<BCS, SF>, key: string, value: unknown) {
         this.setRowProperty(cell.viewLayoutRow.subgridRowIndex, key, value, cell.subgrid);
     }
 
-    setRowProperty(y: number, key: string, value: unknown, subgrid: Subgrid<BCS, SF>) {
+    setRowProperty(y: number, key: string, value: unknown, subgrid: RevSubgrid<BCS, SF>) {
         const isHeight = (key === 'height');
         const setSucceeded = subgrid.setRowProperty(y, key, isHeight, value);
         if (setSucceeded) {
@@ -64,7 +64,7 @@ export class RowPropertiesBehavior<BGS extends BehavioredGridSettings, BCS exten
         }
     }
 
-    // addRowPropertiesUsingCellEvent(cellEvent: CellEvent, properties: MetaModel.RowProperties | undefined, rowProps?: MetaModel.RowProperties) {
+    // addRowPropertiesUsingCellEvent(cellEvent: CellEvent, properties: RevMetaModel.RowProperties | undefined, rowProps?: RevMetaModel.RowProperties) {
     //     this.addRowProperties(cellEvent.dataCell.y, properties, cellEvent.subgrid, rowProps);
     // }
 
@@ -75,12 +75,12 @@ export class RowPropertiesBehavior<BGS extends BehavioredGridSettings, BCS exten
     //  * @param subgrid - This is the subgrid. You only need to provide the subgrid when it is not the data subgrid _and_ you did not give a `CellEvent` object in the first param (which already knows what subgrid it's in).
     //  */
 
-    // addRowProperties(y: number, properties: MetaModel.RowProperties | undefined, subgrid: Subgrid, rowProps?: MetaModel.RowProperties | false) {
+    // addRowProperties(y: number, properties: RevMetaModel.RowProperties | undefined, subgrid: Subgrid, rowProps?: RevMetaModel.RowProperties | false) {
 
     //     let isHeight: boolean;
     //     let hasHeight = false;
 
-    //     let resolvedRowProps: MetaModel.RowProperties | false | undefined;
+    //     let resolvedRowProps: RevMetaModel.RowProperties | false | undefined;
     //     if (rowProps) {
     //         resolvedRowProps = rowProps;
     //     } else {
@@ -89,13 +89,13 @@ export class RowPropertiesBehavior<BGS extends BehavioredGridSettings, BCS exten
 
     //     if (resolvedRowProps) {
     //         for (const key in properties) {
-    //             const typedKey = key as (keyof MetaModel.RowProperties)
+    //             const typedKey = key as (keyof RevMetaModel.RowProperties)
     //             const value = properties[typedKey];
     //             if (value !== undefined) {
     //                 resolvedRowProps[typedKey] = value;
     //             } else {
     //                 isHeight = key === 'height';
-    //                 const fixedKey = (isHeight ? '_height' : typedKey) as (keyof MetaModel.RowProperties);
+    //                 const fixedKey = (isHeight ? '_height' : typedKey) as (keyof RevMetaModel.RowProperties);
     //                 delete resolvedRowProps[fixedKey];
     //                 hasHeight ||= isHeight;
     //             }
@@ -110,6 +110,6 @@ export class RowPropertiesBehavior<BGS extends BehavioredGridSettings, BCS exten
     // }
 }
 
-export namespace RowPropertiesBehavior {
+export namespace RevRowPropertiesBehavior {
     export type InvalidateViewEventer = (this: void, scrollablePlaneDimensionAsWell: boolean) => void;
 }

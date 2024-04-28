@@ -1,25 +1,25 @@
-import { CachedCanvasRenderingContext2D, Rectangle, RevUnreachableCaseError } from '../../client/internal-api';
-import { HorizontalAlign } from './horizontal-align';
-import { TextTruncateType } from './text-truncate-type';
+import { RevCachedCanvasRenderingContext2D, RevRectangle, RevUnreachableCaseError } from '../../client/internal-api';
+import { RevHorizontalAlign } from './horizontal-align';
+import { RevTextTruncateTypeId } from './text-truncate-type';
 
 /** @public */
-export class StandardTextPainter {
-    protected _columnSettings: StandardTextPainter.ColumnSettings;
+export class RevStandardTextPainter {
+    protected _columnSettings: RevStandardTextPainter.ColumnSettings;
 
-    constructor(private readonly _renderingContext: CachedCanvasRenderingContext2D) {
+    constructor(private readonly _renderingContext: RevCachedCanvasRenderingContext2D) {
 
     }
 
-    setColumnSettings(value: StandardTextPainter.ColumnSettings) {
+    setColumnSettings(value: RevStandardTextPainter.ColumnSettings) {
         this._columnSettings = value;
     }
 
     renderMultiLineText(
-        bounds: Rectangle,
+        bounds: RevRectangle,
         text: string,
         leftPadding: number,
         rightPadding: number,
-        horizontalAlign: HorizontalAlign,
+        horizontalAlign: RevHorizontalAlign,
         font: string,
     ) {
         const columnSettings = this._columnSettings;
@@ -28,7 +28,7 @@ export class StandardTextPainter {
         const y = bounds.y;
         const width = bounds.width;
         const height = bounds.height;
-        const cleanText = text.trim().replace(StandardTextPainter.Whitespace, ' '); // trim and squeeze whitespace
+        const cleanText = text.trim().replace(RevStandardTextPainter.Whitespace, ' '); // trim and squeeze whitespace
         const lines = this.findLines(cleanText.split(' '), width);
 
         if (lines.length === 1) {
@@ -78,11 +78,11 @@ export class StandardTextPainter {
      * @param text - The text to render in the cell.
      */
     renderSingleLineText(
-        bounds: Rectangle,
+        bounds: RevRectangle,
         text: string,
         leftPadding: number,
         rightPadding: number,
-        horizontalAlign: HorizontalAlign,
+        horizontalAlign: RevHorizontalAlign,
     ) {
         if (text === '') {
             return leftPadding + rightPadding
@@ -259,23 +259,23 @@ export class StandardTextPainter {
      * @param truncateFromStart - by default it will truncate the string from the position 0
      */
     private measureAndTruncateText(
-        gc: CachedCanvasRenderingContext2D,
+        gc: RevCachedCanvasRenderingContext2D,
         text: string,
         width: number,
-        truncateType: TextTruncateType | undefined,
+        truncateType: RevTextTruncateTypeId | undefined,
         abort: boolean,
         truncateFromEnd: boolean
-    ): StandardTextPainter.TruncatedTextWidth {
+    ): RevStandardTextPainter.TruncatedTextWidth {
         const truncating = truncateType !== undefined;
         let truncString: string | undefined; //, truncWidth, truncAt;
 
         const font = gc.cache.font;
         const textWidthMap = gc.getTextWidthMap(font);
         let ellipsisWidth: number | undefined;
-        ellipsisWidth = textWidthMap.get(StandardTextPainter.Ellipsis);
+        ellipsisWidth = textWidthMap.get(RevStandardTextPainter.Ellipsis);
         if (ellipsisWidth === undefined) {
-            ellipsisWidth = gc.measureText(StandardTextPainter.Ellipsis).width;
-            textWidthMap.set(StandardTextPainter.Ellipsis, ellipsisWidth);
+            ellipsisWidth = gc.measureText(RevStandardTextPainter.Ellipsis).width;
+            textWidthMap.set(RevStandardTextPainter.Ellipsis, ellipsisWidth);
         }
 
         text += ''; // convert to string
@@ -295,7 +295,7 @@ export class StandardTextPainter {
                 sum += charWidth;
                 if (truncating && sum > width && truncString === undefined) {
                     switch (truncateType) {
-                        case TextTruncateType.WithEllipsis: { // truncate sufficient characters to fit ellipsis if possible
+                        case RevTextTruncateTypeId.WithEllipsis: { // truncate sufficient characters to fit ellipsis if possible
                             let truncWidth = sum - charWidth + ellipsisWidth;
                             let truncAt = i + 1;
                             while (truncAt < textLength && truncWidth > width) {
@@ -303,14 +303,14 @@ export class StandardTextPainter {
                             }
                             truncString = truncWidth > width
                                 ? '' // not enough room even for ellipsis
-                                : truncString = StandardTextPainter.Ellipsis + text.substr(truncAt);
+                                : truncString = RevStandardTextPainter.Ellipsis + text.substr(truncAt);
                             break;
                         }
-                        case TextTruncateType.BeforeLastPartiallyVisibleCharacter: { // truncate *before* last partially visible character
+                        case RevTextTruncateTypeId.BeforeLastPartiallyVisibleCharacter: { // truncate *before* last partially visible character
                             truncString = text.substr(i + 1);
                             break;
                         }
-                        case TextTruncateType.AfterLastPartiallyVisibleCharacter: { // truncate *after* partially visible character
+                        case RevTextTruncateTypeId.AfterLastPartiallyVisibleCharacter: { // truncate *after* partially visible character
                             truncString = text.substr(i);
                             break;
                         }
@@ -334,7 +334,7 @@ export class StandardTextPainter {
                 sum += charWidth;
                 if (truncating && sum > width && truncString === undefined) {
                     switch (truncateType) {
-                        case TextTruncateType.WithEllipsis: { // truncate sufficient characters to fit ellipsis if possible
+                        case RevTextTruncateTypeId.WithEllipsis: { // truncate sufficient characters to fit ellipsis if possible
                             let truncWidth = sum - charWidth + ellipsisWidth;
                             let truncAt = i;
                             while (truncAt && truncWidth > width) {
@@ -342,14 +342,14 @@ export class StandardTextPainter {
                             }
                             truncString = truncWidth > width
                                 ? '' // not enough room even for ellipsis
-                                : truncString = text.substr(0, truncAt) + StandardTextPainter.Ellipsis;
+                                : truncString = text.substr(0, truncAt) + RevStandardTextPainter.Ellipsis;
                             break;
                         }
-                        case TextTruncateType.BeforeLastPartiallyVisibleCharacter: { // truncate *before* last partially visible character
+                        case RevTextTruncateTypeId.BeforeLastPartiallyVisibleCharacter: { // truncate *before* last partially visible character
                             truncString = text.substr(0, i);
                             break;
                         }
-                        case TextTruncateType.AfterLastPartiallyVisibleCharacter: { // truncate *after* partially visible character
+                        case RevTextTruncateTypeId.AfterLastPartiallyVisibleCharacter: { // truncate *after* partially visible character
                             const truncAt = i + 1;
                             if (truncAt < text.length) {
                                 truncString = text.substr(0, truncAt);
@@ -378,7 +378,7 @@ export class StandardTextPainter {
 }
 
 /** @public */
-export namespace StandardTextPainter {
+export namespace RevStandardTextPainter {
     export const Whitespace = /\s\s+/g;
     export const Ellipsis = '\u2026' // The "…" (dot-dot-dot) character
 
@@ -393,7 +393,7 @@ export namespace StandardTextPainter {
         // Properties below must match properties in Grid ColumnSettings interface
         defaultColumnAutoSizing: boolean;
         verticalOffset: number;
-        textTruncateType: TextTruncateType | undefined;
+        textTruncateType: RevTextTruncateTypeId | undefined;
         textStrikeThrough: boolean;
     }
 }

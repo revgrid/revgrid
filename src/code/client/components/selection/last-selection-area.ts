@@ -1,11 +1,11 @@
-import { SelectionAreaTypeId } from '../../types-utils/selection-area-type';
-import { FirstCornerRectangle } from './first-corner-rectangle';
-import { SelectionArea } from './selection-area';
+import { RevSelectionAreaTypeId } from '../../types-utils/selection-area-type';
+import { RevFirstCornerRectangle } from './first-corner-rectangle';
+import { RevSelectionArea } from './selection-area';
 
 /** @public */
-export class LastSelectionArea extends FirstCornerRectangle implements SelectionArea {
+export class RevLastSelectionArea extends RevFirstCornerRectangle implements RevSelectionArea {
     constructor(
-        readonly areaTypeId: SelectionAreaTypeId,
+        readonly areaTypeId: RevSelectionAreaTypeId,
         firstInexclusiveX: number, firstInexclusiveY: number, width: number, height: number,
     ) {
         super(firstInexclusiveX, firstInexclusiveY, width, height);

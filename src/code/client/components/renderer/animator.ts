@@ -1,4 +1,4 @@
-export class Animator {
+export class RevAnimator {
     private _animateRequired = false;
     private _nextAnimateAllowedTime = performance.now();
     private _animating = false;
@@ -6,10 +6,10 @@ export class Animator {
     constructor(
         private _minimumAnimateTimeInterval: number,
         private _backgroundAnimateTimeInterval: number | undefined,
-        private readonly _animateEventer: Animator.AnimateEventer,
-        private readonly _animateRequiredNowEventer: Animator.AnimateRequiredNowEventer,
-        private readonly _animateRequiredAtEventer: Animator.AnimateRequiredAtEventer,
-        private readonly _backgroundAnimateTimeIntervalChangedEventer: Animator.BackgroundAnimateTimeIntervalChangedEventer,
+        private readonly _animateEventer: RevAnimator.AnimateEventer,
+        private readonly _animateRequiredNowEventer: RevAnimator.AnimateRequiredNowEventer,
+        private readonly _animateRequiredAtEventer: RevAnimator.AnimateRequiredAtEventer,
+        private readonly _backgroundAnimateTimeIntervalChangedEventer: RevAnimator.BackgroundAnimateTimeIntervalChangedEventer,
     ) {
     }
 
@@ -67,9 +67,9 @@ export class Animator {
     }
 }
 
-export namespace Animator {
+export namespace RevAnimator {
     export type AnimateEventer = (this: void) => void;
     export type AnimateRequiredNowEventer = (this: void, now: DOMHighResTimeStamp) => void;
     export type AnimateRequiredAtEventer = (this: void, atTime: DOMHighResTimeStamp, nowTime: DOMHighResTimeStamp) => void;
-    export type BackgroundAnimateTimeIntervalChangedEventer = (this: void, animator: Animator, oldBackgroundAnimateTimeInterval: number | undefined) => void;
+    export type BackgroundAnimateTimeIntervalChangedEventer = (this: void, animator: RevAnimator, oldBackgroundAnimateTimeInterval: number | undefined) => void;
 }

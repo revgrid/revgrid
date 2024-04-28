@@ -1,27 +1,27 @@
-import { Focus } from '../components/focus/focus';
-import { Selection } from '../components/selection/selection';
-import { ViewLayout } from '../components/view/view-layout';
-import { Subgrid } from '../interfaces/data/subgrid';
-import { ViewCell } from '../interfaces/data/view-cell';
-import { SchemaField } from '../interfaces/schema/schema-field';
-import { BehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
-import { BehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
-import { GridSettings } from '../interfaces/settings/grid-settings';
+import { RevFocus } from '../components/focus/focus';
+import { RevSelection } from '../components/selection/selection';
+import { RevViewLayout } from '../components/view/view-layout';
+import { RevSubgrid } from '../interfaces/data/subgrid';
+import { RevViewCell } from '../interfaces/data/view-cell';
+import { RevSchemaField } from '../interfaces/schema/schema-field';
+import { RevBehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
+import { RevBehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
+import { RevGridSettings } from '../interfaces/settings/grid-settings';
 import { RevClientObject } from '../types-utils/client-object';
-import { EnsureFullyInView, EnsureFullyInViewEnum } from '../types-utils/ensure-fully-in-view';
+import { RevEnsureFullyInView, RevEnsureFullyInViewEnum } from '../types-utils/ensure-fully-in-view';
 import { RevAssertError } from '../types-utils/revgrid-error';
-import { SelectionAreaTypeId } from '../types-utils/selection-area-type';
-import { StartLength } from '../types-utils/start-length';
-import { EventBehavior } from './event-behavior';
+import { RevSelectionAreaTypeId } from '../types-utils/selection-area-type';
+import { RevStartLength } from '../types-utils/start-length';
+import { RevEventBehavior } from './event-behavior';
 
-export class FocusSelectBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevClientObject {
+export class RevFocusSelectBehavior<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {
     constructor(
         readonly clientId: string,
         readonly internalParent: RevClientObject,
-        private readonly _gridSettings: GridSettings,
-        private readonly _selection: Selection<BGS, BCS, SF>,
-        private readonly _focus: Focus<BGS, BCS, SF>,
-        private readonly _viewLayout: ViewLayout<BGS, BCS, SF>,
+        private readonly _gridSettings: RevGridSettings,
+        private readonly _selection: RevSelection<BGS, BCS, SF>,
+        private readonly _focus: RevFocus<BGS, BCS, SF>,
+        private readonly _viewLayout: RevViewLayout<BGS, BCS, SF>,
     ) {
     }
 
@@ -55,25 +55,25 @@ export class FocusSelectBehavior<BGS extends BehavioredGridSettings, BCS extends
         this._selection.toggleSelectColumn(activeColumnIndex, rowIndex, this._focus.subgrid);
     }
 
-    selectRow(subgridRowIndex: number, subgrid: Subgrid<BCS, SF>) {
+    selectRow(subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>) {
         this.selectRows(subgridRowIndex, 1, subgrid)
     }
 
-    selectRows(subgridRowIndex: number, count: number, subgrid: Subgrid<BCS, SF>) {
+    selectRows(subgridRowIndex: number, count: number, subgrid: RevSubgrid<BCS, SF>) {
         const columnIndex = this._focus.currentX ?? this._gridSettings.fixedColumnCount;
         this._selection.selectRows(columnIndex, subgridRowIndex, 1, count, subgrid);
     }
 
-    selectAllRows(subgrid: Subgrid<BCS, SF>) {
+    selectAllRows(subgrid: RevSubgrid<BCS, SF>) {
         const columnIndex = this._focus.currentX ?? this._gridSettings.fixedColumnCount;
         this._selection.selectAllRows(columnIndex, 1, subgrid);
     }
 
-    onlySelectRow(subgridRowIndex: number, subgrid: Subgrid<BCS, SF>) {
+    onlySelectRow(subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>) {
         this.onlySelectRows(subgridRowIndex, 1, subgrid)
     }
 
-    onlySelectRows(subgridRowIndex: number, count: number, subgrid: Subgrid<BCS, SF>) {
+    onlySelectRows(subgridRowIndex: number, count: number, subgrid: RevSubgrid<BCS, SF>) {
         const selection = this._selection;
         const columnIndex = this._focus.currentX ?? this._gridSettings.fixedColumnCount;
         selection.beginChange();
@@ -85,7 +85,7 @@ export class FocusSelectBehavior<BGS extends BehavioredGridSettings, BCS extends
         }
     }
 
-    toggleSelectRow(subgridRowIndex: number, subgrid: Subgrid<BCS, SF>) {
+    toggleSelectRow(subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>) {
         const columnIndex = this._focus.currentX ?? this._gridSettings.fixedColumnCount;
         this._selection.toggleSelectRow(columnIndex, subgridRowIndex, subgrid);
     }
@@ -95,16 +95,16 @@ export class FocusSelectBehavior<BGS extends BehavioredGridSettings, BCS extends
         inexclusiveY: number,
         width: number,
         height: number,
-        subgrid: Subgrid<BCS, SF>,
-        ensureFullyInView: EnsureFullyInView,
+        subgrid: RevSubgrid<BCS, SF>,
+        ensureFullyInView: RevEnsureFullyInView,
     ) {
         this._selection.beginChange();
         const area = this._selection.selectRectangle(inexclusiveX, inexclusiveY, width, height, subgrid);
         const focusPoint = area.inclusiveFirst;
         const focused = this._focus.trySet(focusPoint, subgrid, undefined, undefined);
         if (focused) {
-            if (ensureFullyInView !== EnsureFullyInViewEnum.Never) {
-                this._viewLayout.ensureColumnRowAreInView(focusPoint.x, focusPoint.y, ensureFullyInView === EnsureFullyInViewEnum.Always);
+            if (ensureFullyInView !== RevEnsureFullyInViewEnum.Never) {
+                this._viewLayout.ensureColumnRowAreInView(focusPoint.x, focusPoint.y, ensureFullyInView === RevEnsureFullyInViewEnum.Always);
             }
 
             this._selection.flagFocusLinked();
@@ -115,15 +115,15 @@ export class FocusSelectBehavior<BGS extends BehavioredGridSettings, BCS extends
     focusOnlySelectCell(
         activeColumnIndex: number,
         subgridRowIndex: number,
-        subgrid: Subgrid<BCS, SF>,
-        ensureFullyInView: EnsureFullyInView,
+        subgrid: RevSubgrid<BCS, SF>,
+        ensureFullyInView: RevEnsureFullyInView,
     ) {
         this._selection.beginChange();
         const focused = this._focus.trySetXY(activeColumnIndex, subgridRowIndex, subgrid, undefined, undefined, undefined);
         this._selection.onlySelectCell(activeColumnIndex, subgridRowIndex, subgrid);
         if (focused) {
-            if (ensureFullyInView !== EnsureFullyInViewEnum.Never) {
-                this._viewLayout.ensureColumnRowAreInView(activeColumnIndex, subgridRowIndex, ensureFullyInView === EnsureFullyInViewEnum.Always);
+            if (ensureFullyInView !== RevEnsureFullyInViewEnum.Never) {
+                this._viewLayout.ensureColumnRowAreInView(activeColumnIndex, subgridRowIndex, ensureFullyInView === RevEnsureFullyInViewEnum.Always);
             }
 
             this._selection.flagFocusLinked();
@@ -138,18 +138,18 @@ export class FocusSelectBehavior<BGS extends BehavioredGridSettings, BCS extends
             const viewLayoutRows = this._viewLayout.rows;
             if (viewLayoutRowIndex < viewLayoutRows.length) {
                 const vr = this._viewLayout.rows[viewLayoutRowIndex];
-                this.focusOnlySelectCell(vc.activeColumnIndex, vr.subgridRowIndex, vr.subgrid, EnsureFullyInViewEnum.Never);
+                this.focusOnlySelectCell(vc.activeColumnIndex, vr.subgridRowIndex, vr.subgrid, RevEnsureFullyInViewEnum.Never);
             }
         }
     }
 
-    focusSelectCell(x: number, y: number, subgrid: Subgrid<BCS, SF>, ensureFullyInView: EnsureFullyInView) {
+    focusSelectCell(x: number, y: number, subgrid: RevSubgrid<BCS, SF>, ensureFullyInView: RevEnsureFullyInView) {
         this._selection.beginChange();
         const focused = this._focus.trySetXY(x, y, subgrid, undefined, undefined, undefined);
         this._selection.selectCell(x, y, subgrid);
         if (focused) {
-            if (ensureFullyInView !== EnsureFullyInViewEnum.Never) {
-                this._viewLayout.ensureColumnRowAreInView(x, y, ensureFullyInView === EnsureFullyInViewEnum.Always);
+            if (ensureFullyInView !== RevEnsureFullyInViewEnum.Never) {
+                this._viewLayout.ensureColumnRowAreInView(x, y, ensureFullyInView === RevEnsureFullyInViewEnum.Always);
             }
 
             this._selection.flagFocusLinked();
@@ -157,14 +157,14 @@ export class FocusSelectBehavior<BGS extends BehavioredGridSettings, BCS extends
         this._selection.endChange();
     }
 
-    focusToggleSelectCell(originX: number, originY: number, subgrid: Subgrid<BCS, SF>, ensureFullyInView: EnsureFullyInView): boolean {
+    focusToggleSelectCell(originX: number, originY: number, subgrid: RevSubgrid<BCS, SF>, ensureFullyInView: RevEnsureFullyInView): boolean {
         this._selection.beginChange();
         const selected = this._selection.toggleSelectCell(originX, originY, subgrid);
         if (selected) {
             const focused = this._focus.trySetXY(originX, originY, subgrid, undefined, undefined, undefined);
             if (focused) {
-                if (ensureFullyInView !== EnsureFullyInViewEnum.Never) {
-                    this._viewLayout.ensureColumnRowAreInView(originX, originY, ensureFullyInView === EnsureFullyInViewEnum.Always);
+                if (ensureFullyInView !== RevEnsureFullyInViewEnum.Never) {
+                    this._viewLayout.ensureColumnRowAreInView(originX, originY, ensureFullyInView === RevEnsureFullyInViewEnum.Always);
                 }
 
                 this._selection.flagFocusLinked();
@@ -190,13 +190,13 @@ export class FocusSelectBehavior<BGS extends BehavioredGridSettings, BCS extends
     }
 
     focusReplaceLastArea(
-        areaTypeId: SelectionAreaTypeId,
+        areaTypeId: RevSelectionAreaTypeId,
         inexclusiveX: number,
         inexclusiveY: number,
         width: number,
         height: number,
-        subgrid: Subgrid<BCS, SF>,
-        ensureFullyInView: EnsureFullyInView,
+        subgrid: RevSubgrid<BCS, SF>,
+        ensureFullyInView: RevEnsureFullyInView,
     ) {
         this._selection.beginChange();
         const area = this._selection.replaceLastArea(areaTypeId, inexclusiveX, inexclusiveY, width, height, subgrid);
@@ -204,8 +204,8 @@ export class FocusSelectBehavior<BGS extends BehavioredGridSettings, BCS extends
             const focusPoint = area.inclusiveFirst;
             const focused = this._focus.trySet(focusPoint, subgrid, undefined, undefined);
             if (focused) {
-                if (ensureFullyInView !== EnsureFullyInViewEnum.Never) {
-                    this._viewLayout.ensureColumnRowAreInView(focusPoint.x, focusPoint.y, ensureFullyInView === EnsureFullyInViewEnum.Always);
+                if (ensureFullyInView !== RevEnsureFullyInViewEnum.Never) {
+                    this._viewLayout.ensureColumnRowAreInView(focusPoint.x, focusPoint.y, ensureFullyInView === RevEnsureFullyInViewEnum.Always);
                 }
 
                 this._selection.flagFocusLinked();
@@ -214,14 +214,14 @@ export class FocusSelectBehavior<BGS extends BehavioredGridSettings, BCS extends
         this._selection.endChange();
     }
 
-    focusReplaceLastAreaWithRectangle(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid: Subgrid<BCS, SF>, ensureFullyInView: EnsureFullyInView) {
+    focusReplaceLastAreaWithRectangle(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid: RevSubgrid<BCS, SF>, ensureFullyInView: RevEnsureFullyInView) {
         this._selection.beginChange();
         const area = this._selection.replaceLastAreaWithRectangle(inexclusiveX, inexclusiveY, width, height, subgrid);
         const focusPoint = area.inclusiveFirst;
         const focused = this._focus.trySet(focusPoint, subgrid, undefined, undefined);
         if (focused) {
-            if (ensureFullyInView !== EnsureFullyInViewEnum.Never) {
-                this._viewLayout.ensureColumnRowAreInView(focusPoint.x, focusPoint.y, ensureFullyInView === EnsureFullyInViewEnum.Always);
+            if (ensureFullyInView !== RevEnsureFullyInViewEnum.Never) {
+                this._viewLayout.ensureColumnRowAreInView(focusPoint.x, focusPoint.y, ensureFullyInView === RevEnsureFullyInViewEnum.Always);
             }
 
             this._selection.flagFocusLinked();
@@ -253,8 +253,8 @@ export class FocusSelectBehavior<BGS extends BehavioredGridSettings, BCS extends
                 }
 
                 const firstPoint = lastArea.inclusiveFirst;
-                const xExclusiveStartLength = StartLength.createExclusiveFromFirstLast(firstPoint.x, newLastX);
-                const yExclusiveStartLength = StartLength.createExclusiveFromFirstLast(firstPoint.y, newLastY);
+                const xExclusiveStartLength = RevStartLength.createExclusiveFromFirstLast(firstPoint.x, newLastX);
+                const yExclusiveStartLength = RevStartLength.createExclusiveFromFirstLast(firstPoint.y, newLastY);
                 this._selection.replaceLastAreaWithRectangle(
                     xExclusiveStartLength.start,
                     yExclusiveStartLength.start,
@@ -270,13 +270,13 @@ export class FocusSelectBehavior<BGS extends BehavioredGridSettings, BCS extends
     }
 
     isMouseAddToggleExtendSelectionAreaAllowed(event: MouseEvent) {
-        return !EventBehavior.isSecondaryMouseButton(event) && this._gridSettings.mouseAddToggleExtendSelectionAreaEnabled;
+        return !RevEventBehavior.isSecondaryMouseButton(event) && this._gridSettings.mouseAddToggleExtendSelectionAreaEnabled;
     }
 }
 
-export namespace FocusSelectBehavior {
+export namespace RevFocusSelectBehavior {
     export type FocusAndEnsureInViewEventer<
-        BCS extends BehavioredColumnSettings,
-        SF extends SchemaField
-    > = (this: void, activeColumnIndex: number, subgridRowIndex: number, cell: ViewCell<BCS, SF> | undefined) => void;
+        BCS extends RevBehavioredColumnSettings,
+        SF extends RevSchemaField
+    > = (this: void, activeColumnIndex: number, subgridRowIndex: number, cell: RevViewCell<BCS, SF> | undefined) => void;
 }

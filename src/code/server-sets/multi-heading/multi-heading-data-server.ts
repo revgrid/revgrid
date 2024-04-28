@@ -1,17 +1,17 @@
 
-import { DataServer, RevAssertError } from '../../grid/grid-public-api';
+import { DataServer, RevAssertError, RevDataServer } from '../../grid/grid-public-api';
 import { MultiHeadingSchemaField } from './multi-heading-schema-field';
 
 /** @public */
 export class MultiHeadingDataServer<SF extends MultiHeadingSchemaField> implements DataServer<SF> {
     private _rowCount = 0;
-    private _callbackListeners: DataServer.NotificationsClient[] = [];
+    private _callbackListeners: RevDataServer.NotificationsClient[] = [];
 
-    subscribeDataNotifications(listener: DataServer.NotificationsClient) {
+    subscribeDataNotifications(listener: RevDataServer.NotificationsClient) {
         this._callbackListeners.push(listener)
     }
 
-    unsubscribeDataNotifications(client: DataServer.NotificationsClient) {
+    unsubscribeDataNotifications(client: RevDataServer.NotificationsClient) {
         const idx = this._callbackListeners.findIndex((element) => element === client);
         if (idx < 0) {
             throw new RevAssertError('HSARDCL65539');

@@ -1,20 +1,20 @@
 import { RevAssertError } from '../../types-utils/revgrid-error';
-import { Animator } from './animator';
+import { RevAnimator } from './animator';
 
-export class Animation {
+export class RevAnimation {
     private _animationFrameHandle: ReturnType<typeof requestAnimationFrame> | undefined;
     private _nextAnimateTimeoutHandle: ReturnType<typeof setTimeout> | undefined;
     private _nextAnimateTime: DOMHighResTimeStamp | undefined;
 
-    private _animators: Animator[] = [];
-    private _backgroundIntervaliserMap = new Map<number, Animation.BackgroundIntervaliser>();
+    private _animators: RevAnimator[] = [];
+    private _backgroundIntervaliserMap = new Map<number, RevAnimation.BackgroundIntervaliser>();
 
     createAnimator(
         minimumAnimateTimeInterval: number,
         backgroundAnimateTimeInterval: number | undefined,
-        animateEventer: Animator.AnimateEventer,
+        animateEventer: RevAnimator.AnimateEventer,
     ) {
-        const animator = new Animator(
+        const animator = new RevAnimator(
             minimumAnimateTimeInterval,
             backgroundAnimateTimeInterval,
             animateEventer,
@@ -31,7 +31,7 @@ export class Animation {
         return animator;
     }
 
-    destroyAnimator(animator: Animator) {
+    destroyAnimator(animator: RevAnimator) {
         const animators = this._animators;
         const index = animators.indexOf(animator);
         if (index === -1) {
@@ -93,7 +93,7 @@ export class Animation {
 
         const animators = this._animators;
         const animatorCount =  animators.length;
-        const nowAnimators = new Array<Animator>(animatorCount);
+        const nowAnimators = new Array<RevAnimator>(animatorCount);
         let nowAnimatorCount = 0;
 
         let nextAnimateTime: DOMHighResTimeStamp | undefined;
@@ -131,7 +131,7 @@ export class Animation {
         }
     }
 
-    private processAnimatorBackgroundAnimateTimeIntervalChanged(animator: Animator, oldInterval: number | undefined) {
+    private processAnimatorBackgroundAnimateTimeIntervalChanged(animator: RevAnimator, oldInterval: number | undefined) {
         if (oldInterval !== undefined) {
             this.decrementBackgroundIntervaliserCount(oldInterval);
         }
@@ -171,12 +171,12 @@ export class Animation {
 }
 
 /** Controls initiation of painting of all grids with one animation frame */
-export namespace Animation {
+export namespace RevAnimation {
     export interface BackgroundIntervaliser {
         readonly interval: number;
         readonly handle: ReturnType<typeof setInterval>;
         count: number;
     }
 
-    export const animation = new Animation();
+    export const animation = new RevAnimation();
 }

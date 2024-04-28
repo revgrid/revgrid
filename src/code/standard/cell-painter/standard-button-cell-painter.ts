@@ -1,20 +1,20 @@
 
-import { CellPainter, DatalessViewCell, Rectangle, SchemaField } from '../../client/internal-api';
-import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/internal-api';
-import { StandardCellPainter } from './standard-cell-painter';
+import { RevCellPainter, RevDatalessViewCell, RevRectangle, RevSchemaField } from '../../client/internal-api';
+import { RevStandardBehavioredColumnSettings, RevStandardBehavioredGridSettings } from '../settings/internal-api';
+import { RevStandardCellPainter } from './standard-cell-painter';
 
 /**
  * The default cell rendering function for a button cell.
  * @public
  */
-export class StandardButtonCellPainter<
-    BGS extends StandardBehavioredGridSettings,
-    BCS extends StandardBehavioredColumnSettings,
-    SF extends SchemaField
-> extends StandardCellPainter<BGS, BCS, SF> {
-    config: StandardButtonCellPainter.Config;
+export class RevStandardButtonCellPainter<
+    BGS extends RevStandardBehavioredGridSettings,
+    BCS extends RevStandardBehavioredColumnSettings,
+    SF extends RevSchemaField
+> extends RevStandardCellPainter<BGS, BCS, SF> {
+    config: RevStandardButtonCellPainter.Config;
 
-    override paint(cell: DatalessViewCell<BCS, SF>, _prefillColor: string | undefined): number | undefined {
+    override paint(cell: RevDatalessViewCell<BCS, SF>, _prefillColor: string | undefined): number | undefined {
         const gc = this._renderingContext;
         const config = this.config;
 
@@ -42,7 +42,7 @@ export class StandardButtonCellPainter<
         // draw the capsule
         gc.cache.fillStyle = arcGradient;
         gc.cache.strokeStyle = '#000000';
-        CellPainter.roundRect(gc, x, y, width, height, radius, arcGradient !== undefined, true);
+        RevCellPainter.roundRect(gc, x, y, width, height, radius, arcGradient !== undefined, true);
 
         const ox = (width - gc.getTextWidth(val)) / 2;
         const oy = (height - gc.getTextHeight(gc.cache.font).descent) / 2;
@@ -58,12 +58,12 @@ export class StandardButtonCellPainter<
 }
 
 /** @public */
-export namespace StandardButtonCellPainter {
+export namespace RevStandardButtonCellPainter {
     export const typeName = 'Button';
 
     export interface Config {
         value: string;
-        bounds: Rectangle;
+        bounds: RevRectangle;
         backgroundColor: string;
     }
 }

@@ -5,7 +5,7 @@ import {
     compareValue
 } from '@xilytix/sysutils';
 import { RevRenderValue } from '../../../../../render-value/internal-api';
-import { HorizontalAlign } from '../../../../../standard/internal-api';
+import { RevHorizontalAlign } from '../../../../../standard/internal-api';
 import { RevSourcedFieldSourceDefinition } from '../../../../sourced-field/server/internal-api';
 import { RevRecordSourcedField, RevRecordSourcedFieldDefinition } from '../../../record/server/internal-api';
 import { RevGenericTableValue, RevTableValue, RevTableValuesRecord } from '../value/internal-api';
@@ -92,7 +92,7 @@ export namespace RevTableField {
             sourceDefinition: RevSourcedFieldSourceDefinition,
             sourcelessName: string,
             defaultHeading: string,
-            defaultTextAlign: HorizontalAlign,
+            defaultTextAlign: RevHorizontalAlign,
             readonly gridFieldConstructor: RevTableField.Constructor<RenderValueTypeId, RenderAttributeTypeId>,
             readonly gridValueConstructor: RevTableValue.Constructor<RenderValueTypeId, RenderAttributeTypeId>,
 

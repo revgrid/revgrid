@@ -1,15 +1,15 @@
-import { ModifierKeyEnum } from '../../types-utils/modifier-key';
-import { RowOrColumnSelectionAreaType, SelectionAreaType } from '../../types-utils/selection-area-type';
-import { HorizontalWheelScrollingAllowed } from '../../types-utils/types';
+import { RevModifierKeyEnum } from '../../types-utils/modifier-key';
+import { RevRowOrColumnSelectionAreaType, RevSelectionAreaType } from '../../types-utils/selection-area-type';
+import { RevHorizontalWheelScrollingAllowed } from '../../types-utils/types';
 
 /** @public */
-export interface OnlyGridSettings {
+export interface RevOnlyGridSettings {
     /** Modifier key that indicates a UI action should add a selection area to selection or toggle a selection area within a selection */
-    addToggleSelectionAreaModifierKey: ModifierKeyEnum;
+    addToggleSelectionAreaModifierKey: RevModifierKeyEnum;
     /** Specifies whether the addToggleSelectionAreaModifierKey toggles.  If if does not toggle, then it adds */
     addToggleSelectionAreaModifierKeyDoesToggle: boolean;
-    backgroundColor: OnlyGridSettings.Color;
-    color: OnlyGridSettings.Color;
+    backgroundColor: RevOnlyGridSettings.Color;
+    color: RevOnlyGridSettings.Color;
     /** The widest the column will be auto-sized to. */
     columnAutoSizingMax: number | undefined;
     /** Set up a clipping region around each column before painting cells. */
@@ -28,7 +28,7 @@ export interface OnlyGridSettings {
     columnsReorderable: boolean;
     /** Columns can be hidden when being reordered. */
     columnsReorderableHideable: boolean;
-    switchNewRectangleSelectionToRowOrColumn: RowOrColumnSelectionAreaType | undefined;
+    switchNewRectangleSelectionToRowOrColumn: RevRowOrColumnSelectionAreaType | undefined;
     defaultRowHeight: number;
     /** Whether to automatically expand column width to accommodate widest rendered value. */
     defaultColumnAutoSizing: boolean;
@@ -48,24 +48,24 @@ export interface OnlyGridSettings {
     /** Cursor to display when cell editor can be clicked */
     editorClickableCursorName: string | undefined;
     /** Modifier key that indicates a UI action should extend the selection area */
-    extendLastSelectionAreaModifierKey: ModifierKeyEnum;
+    extendLastSelectionAreaModifierKey: RevModifierKeyEnum;
     /** Whether grid events are dispatched as DOM events */
     eventDispatchEnabled: boolean;
     /** Validation failure feedback. */
     filterable: boolean;
-    filterBackgroundColor: OnlyGridSettings.Color;
-    filterBackgroundSelectionColor: OnlyGridSettings.Color;
-    filterColor: OnlyGridSettings.Color;
+    filterBackgroundColor: RevOnlyGridSettings.Color;
+    filterBackgroundSelectionColor: RevOnlyGridSettings.Color;
+    filterColor: RevOnlyGridSettings.Color;
     filterEditor: string;
     filterFont: string;
-    filterForegroundSelectionColor: OnlyGridSettings.Color;
+    filterForegroundSelectionColor: RevOnlyGridSettings.Color;
     filterCellPainter: string;
 
     fixedColumnCount: number;
     /**
      * Define this property to style rule lines between fixed & scolling rows differently from {@link module:defaults.gridLinesHColor}.
      */
-    horizontalFixedLineColor: OnlyGridSettings.Color;
+    horizontalFixedLineColor: RevOnlyGridSettings.Color;
     /**
      * Define this property to render just the edges of the lines between non-scrollable rows & scrollable rows, creating a double-line effect.
      * The value is the thickness of the edges.
@@ -81,7 +81,7 @@ export interface OnlyGridSettings {
     /**
      * Define this property to style rule lines between fixed & scolling columns differently from {@link module:defaults.gridLinesVColor}.
      */
-    verticalFixedLineColor: OnlyGridSettings.Color;
+    verticalFixedLineColor: RevOnlyGridSettings.Color;
     /**
      * Define this property to render just the edges of the lines between fixed & scrolling columns, creating a double-line effect.
      * The value is the thickness of the edges.
@@ -102,11 +102,11 @@ export interface OnlyGridSettings {
      */
     gridRightAligned: boolean;
     /** Color of horizontal grid lines. */
-    horizontalGridLinesColor: OnlyGridSettings.Color;
+    horizontalGridLinesColor: RevOnlyGridSettings.Color;
     /** Thickness of horizontal grid lines (pixels). */
     horizontalGridLinesWidth: number;
     horizontalGridLinesVisible: boolean;
-    horizontalWheelScrollingAllowed: HorizontalWheelScrollingAllowed;
+    horizontalWheelScrollingAllowed: RevHorizontalWheelScrollingAllowed;
     minimumColumnWidth: number;
     maximumColumnWidth: number | undefined;
     /** Cursor to appear when extending a selection with a mouse drag */
@@ -114,17 +114,17 @@ export interface OnlyGridSettings {
     mouseLastSelectionAreaExtendingDragActiveTitleText: string | undefined;
     /** Allows rectangle selections with more than one cell and/or multiple rectangle selections.  If false, then only focused cell is selected */
     mouseAddToggleExtendSelectionAreaEnabled: boolean;
-    mouseAddToggleExtendSelectionAreaDragModifierKey: ModifierKeyEnum | undefined;
+    mouseAddToggleExtendSelectionAreaDragModifierKey: RevModifierKeyEnum | undefined;
     /** Enables column selections with mouse */
     mouseColumnSelectionEnabled: boolean;
-    mouseColumnSelectionModifierKey: ModifierKeyEnum | undefined;
+    mouseColumnSelectionModifierKey: RevModifierKeyEnum | undefined;
     /** Enables row selections with mouse */
     mouseRowSelectionEnabled: boolean;
-    mouseRowSelectionModifierKey: ModifierKeyEnum | undefined;
+    mouseRowSelectionModifierKey: RevModifierKeyEnum | undefined;
     /** Allow multiple cell region selections. */
     multipleSelectionAreas: boolean;
-    /** The area type that is added to a selection by default in a UI operation. Can also be specified in API calls which add an area to a Selection. */
-    primarySelectionAreaType: SelectionAreaType;
+    /** The area type that is added to a selection by default in a UI operation. Can also be specified in API calls which add an area to a RevSelection. */
+    primarySelectionAreaType: RevSelectionAreaType;
     /** The minimum time interval (in milliseconds) between call requestAnimationFrame to paint grid. Set low value for minimum latency. Set high value to reduce resource usage.*/
     minimumAnimateTimeInterval: number;
     /** Specifies the interval (in milliseconds) between regular calls of requestAnimationFrame to paint grid. Set to undefined for no regular calls of requestAnimationFrame.
@@ -140,7 +140,7 @@ export interface OnlyGridSettings {
     /** On mouse hover, whether to repaint the row background and how. */
     rowResize: boolean;
     /** Repeating pattern of property overrides for grid rows. */
-    rowStripeBackgroundColor: OnlyGridSettings.Color | undefined;
+    rowStripeBackgroundColor: RevOnlyGridSettings.Color | undefined;
     /** Height or width (depending on orientation) in either pixels (px) or Em (em) */
     scrollerThickness: string; // size with units
     scrollerThumbColor: string;
@@ -148,22 +148,22 @@ export interface OnlyGridSettings {
     /** Anchor column does not need to align with edge of grid */
     scrollHorizontallySmoothly: boolean;
     scrollingEnabled: boolean;
-    /** The alternative area type that can be added to a selection in a UI operation. Can also be specified in API calls which add an area to a Selection. */
-    secondarySelectionAreaTypeSpecifierModifierKey: ModifierKeyEnum | undefined;
-    secondarySelectionAreaType: SelectionAreaType;
+    /** The alternative area type that can be added to a selection in a UI operation. Can also be specified in API calls which add an area to a RevSelection. */
+    secondarySelectionAreaTypeSpecifierModifierKey: RevModifierKeyEnum | undefined;
+    secondarySelectionAreaType: RevSelectionAreaType;
     /** Stroke color for last selection overlay. */
-    selectionRegionOutlineColor: OnlyGridSettings.Color | undefined;
+    selectionRegionOutlineColor: RevOnlyGridSettings.Color | undefined;
     /** Fill color for last selection overlay. */
-    selectionRegionOverlayColor: OnlyGridSettings.Color | undefined;
+    selectionRegionOverlayColor: RevOnlyGridSettings.Color | undefined;
     showFilterRow: boolean;
-    showScrollerThumbOnMouseMoveModifierKey: ModifierKeyEnum | undefined;
+    showScrollerThumbOnMouseMoveModifierKey: RevModifierKeyEnum | undefined;
     /** Sort column on double-click rather than single-click. */
     sortOnDoubleClick: boolean;
     /** Column can be sorted with mouse click on column header */
     sortOnClick: boolean;
     useHiDPI: boolean;
     /** Color of vertical grid lines. */
-    verticalGridLinesColor: OnlyGridSettings.Color;
+    verticalGridLinesColor: RevOnlyGridSettings.Color;
     verticalGridLinesVisible: boolean;
     /** Thickness of vertical grid lines (pixels). */
     verticalGridLinesWidth: number;
@@ -174,6 +174,6 @@ export interface OnlyGridSettings {
 }
 
 /** @public */
-export namespace OnlyGridSettings {
+export namespace RevOnlyGridSettings {
     export type Color = string;
 }

@@ -1,32 +1,41 @@
-import { BehavioredColumnSettings, BehavioredGridSettings, CachedCanvasRenderingContext2D, DataServer, DatalessViewCell, Rectangle, RevClientGrid, SchemaField } from '../../client/internal-api';
+import {
+    RevBehavioredColumnSettings,
+    RevBehavioredGridSettings,
+    RevCachedCanvasRenderingContext2D,
+    RevClientGrid,
+    RevDataServer,
+    RevDatalessViewCell,
+    RevRectangle,
+    RevSchemaField
+} from '../../client/internal-api';
 
 /** @public */
-export abstract class StandardCellPainter<
-    BGS extends BehavioredGridSettings,
-    BCS extends BehavioredColumnSettings,
-    SF extends SchemaField
+export abstract class RevStandardCellPainter<
+    BGS extends RevBehavioredGridSettings,
+    BCS extends RevBehavioredColumnSettings,
+    SF extends RevSchemaField
 > {
     protected readonly _gridSettings: BGS;
-    protected readonly _renderingContext: CachedCanvasRenderingContext2D;
+    protected readonly _renderingContext: RevCachedCanvasRenderingContext2D;
 
     constructor(
         protected readonly _grid: RevClientGrid<BGS, BCS, SF>,
-        protected readonly _dataServer: DataServer<SF>,
+        protected readonly _dataServer: RevDataServer<SF>,
     ) {
         const grid = this._grid;
         this._gridSettings = grid.settings;
         this._renderingContext = grid.canvas.gc;
     }
 
-    abstract paint(cell: DatalessViewCell<BCS, SF>, prefillColor: string | undefined): number | undefined;
+    abstract paint(cell: RevDatalessViewCell<BCS, SF>, prefillColor: string | undefined): number | undefined;
 
-    protected paintBackground(bounds: Rectangle, backgroundColor: string) {
+    protected paintBackground(bounds: RevRectangle, backgroundColor: string) {
         const gc = this._renderingContext;
         gc.cache.fillStyle = backgroundColor;
         gc.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
     }
 
-    protected paintBorder(bounds: Rectangle, borderColor: string, focus: boolean) {
+    protected paintBorder(bounds: RevRectangle, borderColor: string, focus: boolean) {
         const gc = this._renderingContext;
         gc.beginPath();
         gc.cache.strokeStyle = borderColor;

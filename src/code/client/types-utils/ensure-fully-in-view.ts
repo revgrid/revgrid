@@ -1,9 +1,9 @@
 /** @public */
-export const enum EnsureFullyInViewEnum {
+export const enum RevEnsureFullyInViewEnum {
     Never = 'Never',
     IfNotVisible = 'IfNotVisible',
     Always = 'Always',
 }
 
 /** @public */
-export type EnsureFullyInView = keyof typeof EnsureFullyInViewEnum;
+export type RevEnsureFullyInView = keyof typeof RevEnsureFullyInViewEnum;

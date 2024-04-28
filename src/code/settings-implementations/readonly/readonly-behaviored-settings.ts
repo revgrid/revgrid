@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 
-import { BehavioredSettings } from '../../client/internal-api';
+import { RevBehavioredSettings } from '../../client/internal-api';
 
 /** @public */
-export const readonlyBehavioredSettings: Readonly<BehavioredSettings> = {
+export const revReadonlyBehavioredSettings: Readonly<RevBehavioredSettings> = {
     resizeEventer: () => {},
     viewRenderInvalidatedEventer: () => {},
     viewLayoutInvalidatedEventer: () => {},

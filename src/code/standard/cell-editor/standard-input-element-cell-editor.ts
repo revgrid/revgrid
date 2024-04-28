@@ -1,17 +1,17 @@
-import { BehavioredColumnSettings, BehavioredGridSettings, CellEditor, DataServer, DatalessViewCell, Focus, RevClientGrid, SchemaField } from '../../client/internal-api';
-import { StandardElementCellEditor } from './standard-element-cell-editor';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevCellEditor, RevClientGrid, RevDataServer, RevDatalessViewCell, RevFocus, RevSchemaField } from '../../client/internal-api';
+import { RevStandardElementCellEditor } from './standard-element-cell-editor';
 
 /** @public */
-export abstract class StandardInputElementCellEditor<
-    BGS extends BehavioredGridSettings,
-    BCS extends BehavioredColumnSettings,
-    SF extends SchemaField
-> extends StandardElementCellEditor<BGS, BCS, SF> {
-    keyDownEventer: CellEditor.KeyDownEventer;
+export abstract class RevStandardInputElementCellEditor<
+    BGS extends RevBehavioredGridSettings,
+    BCS extends RevBehavioredColumnSettings,
+    SF extends RevSchemaField
+> extends RevStandardElementCellEditor<BGS, BCS, SF> {
+    keyDownEventer: RevCellEditor.KeyDownEventer;
 
     declare protected readonly element: HTMLInputElement;
 
-    constructor(grid: RevClientGrid<BGS, BCS, SF>, dataServer: DataServer<SF>, inputType: string) {
+    constructor(grid: RevClientGrid<BGS, BCS, SF>, dataServer: RevDataServer<SF>, inputType: string) {
         const element = document.createElement('input');
         super(grid, dataServer, element);
 
@@ -26,7 +26,7 @@ export abstract class StandardInputElementCellEditor<
         this.element.readOnly = value;
     }
 
-    override tryOpenCell(viewCell: DatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined) {
+    override tryOpenCell(viewCell: RevDatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined) {
         const result = super.tryOpenCell(viewCell, openingKeyDownEvent, openingClickEvent);
         if (result) {
             this.element.addEventListener('keydown', this.keyDownEventer);
@@ -54,14 +54,14 @@ export abstract class StandardInputElementCellEditor<
     }
 
     private canConsumeKey(key: string) {
-        switch (key as Focus.ActionKeyboardKey) {
-            case Focus.ActionKeyboardKey.ArrowUp:
-            case Focus.ActionKeyboardKey.ArrowDown:
-            case Focus.ActionKeyboardKey.PageUp:
-            case Focus.ActionKeyboardKey.PageDown:
-            case Focus.ActionKeyboardKey.Tab:
-            case Focus.ActionKeyboardKey.Enter:
-            case Focus.ActionKeyboardKey.Escape:
+        switch (key as RevFocus.ActionKeyboardKey) {
+            case RevFocus.ActionKeyboardKey.ArrowUp:
+            case RevFocus.ActionKeyboardKey.ArrowDown:
+            case RevFocus.ActionKeyboardKey.PageUp:
+            case RevFocus.ActionKeyboardKey.PageDown:
+            case RevFocus.ActionKeyboardKey.Tab:
+            case RevFocus.ActionKeyboardKey.Enter:
+            case RevFocus.ActionKeyboardKey.Escape:
                 return false;
             default:
                 return true;

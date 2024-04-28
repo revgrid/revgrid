@@ -1,5 +1,5 @@
 import { UnreachableCaseError } from '@xilytix/sysutils';
-import { DataServer, RevApiError, RevListChangedTypeId } from '../../client/internal-api';
+import { RevApiError, RevDataServer, RevListChangedTypeId } from '../../client/internal-api';
 import { RevRecord } from './record';
 import { RevRecordArrayUtil } from './record-array-utils';
 import { RevRecordAssertError } from './record-error';
@@ -12,7 +12,7 @@ import { RevRecordStore } from './record-store';
 import { RevRecordFieldIndex, RevRecordIndex, RevRecordInvalidatedValue, RevRecordRecentChangeTypeId, RevRecordValueRecentChangeTypeId } from './record-types';
 
 /** @public */
-export class RevRecordDataServer<SF extends RevRecordField> implements DataServer<SF>, RevRecordStore.RecordsEventers {
+export class RevRecordDataServer<SF extends RevRecordField> implements RevDataServer<SF>, RevRecordStore.RecordsEventers {
     private readonly _recordRowBindingKey = Symbol();
 
     private readonly _rows: RevRecordRow[]; // Rows in grid - used for comparison and holding recent change info
@@ -32,7 +32,7 @@ export class RevRecordDataServer<SF extends RevRecordField> implements DataServe
 
     private readonly _recentChanges: RevRecordRecentChanges;
 
-    private _callbackListener: DataServer.NotificationsClient;
+    private _callbackListener: RevDataServer.NotificationsClient;
     private _recordStoreEventersSet = false;
 
     constructor(
@@ -96,7 +96,7 @@ export class RevRecordDataServer<SF extends RevRecordField> implements DataServe
         this._recentChanges.destroy();
     }
 
-    subscribeDataNotifications(value: DataServer.NotificationsClient): void {
+    subscribeDataNotifications(value: RevDataServer.NotificationsClient): void {
         this._callbackListener = value;
         if (!this._recordStoreEventersSet) {
             this._recordStore.setRecordEventers(this);
@@ -142,7 +142,7 @@ export class RevRecordDataServer<SF extends RevRecordField> implements DataServe
         }
     }
 
-    getViewValue(field: SF, rowIndex: number): DataServer.ViewValue {
+    getViewValue(field: SF, rowIndex: number): RevDataServer.ViewValue {
         if (this._rowOrderReversed) {
             rowIndex = this.reverseRowIndex(rowIndex);
         }
@@ -152,7 +152,7 @@ export class RevRecordDataServer<SF extends RevRecordField> implements DataServe
         return field.getViewValue(record);
     }
 
-    getEditValue(field: SF, rowIndex: number): DataServer.EditValue {
+    getEditValue(field: SF, rowIndex: number): RevDataServer.EditValue {
         if (this._rowOrderReversed) {
             rowIndex = this.reverseRowIndex(rowIndex);
         }
@@ -162,7 +162,7 @@ export class RevRecordDataServer<SF extends RevRecordField> implements DataServe
         return field.getEditValue(record);
     }
 
-    setEditValue(field: SF, rowIndex: number, value: DataServer.EditValue) {
+    setEditValue(field: SF, rowIndex: number, value: RevDataServer.EditValue) {
         if (this._rowOrderReversed) {
             rowIndex = this.reverseRowIndex(rowIndex);
         }
@@ -253,7 +253,7 @@ export class RevRecordDataServer<SF extends RevRecordField> implements DataServe
     }
 
     // Should be ok to uncomment getViewRow() below.  Test.
-    // getViewRow(rowIndex: number): DataServer.ViewRow {
+    // getViewRow(rowIndex: number): RevDataServer.ViewRow {
     //     if (this._rowOrderReversed) {
     //         rowIndex = this.reverseRowIndex(rowIndex);
     //     }

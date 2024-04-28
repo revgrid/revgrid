@@ -1,11 +1,11 @@
-import { SchemaField } from './interfaces/schema/schema-field';
-import { BehavioredColumnSettings } from './interfaces/settings/behaviored-column-settings';
-import { BehavioredGridSettings } from './interfaces/settings/behaviored-grid-settings';
-import { CssTypes } from './types-utils/css-types';
-import { UiController } from './ui/controller/ui-controller';
+import { RevSchemaField } from './interfaces/schema/schema-field';
+import { RevBehavioredColumnSettings } from './interfaces/settings/behaviored-column-settings';
+import { RevBehavioredGridSettings } from './interfaces/settings/behaviored-grid-settings';
+import { RevCssTypes } from './types-utils/css-types';
+import { RevUiController } from './ui/controller/ui-controller';
 
 /** @public */
-export interface RevGridOptions<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> {
+export interface RevGridOptions<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> {
     /** Used to distinguish between Revgrid instances in an application.  If undefined, will generate an id from host element */
     id?: string;
     /** Internally generated ids are numbered using the host HTML element's id as a base and suffixing it with a number. Normally the first id generated from a host element
@@ -21,6 +21,6 @@ export interface RevGridOptions<BGS extends BehavioredGridSettings, BCS extends 
     /** Normally the canvas HTML element created by Revgrid on which to draw the grid has its `overflow` property set to `clip`.  However it may be helpful to set its overflow property
      * to `visible` when debugging painters. The {@link RevClientGrid:namespace.Options.interface.canvasOverflowOverride} can be used to override the default value of this property.
      */
-    canvasOverflowOverride?: CssTypes.Overflow;
-    customUiControllerDefinitions?: UiController.Definition<BGS, BCS, SF>[];
+    canvasOverflowOverride?: RevCssTypes.Overflow;
+    customUiControllerDefinitions?: RevUiController.Definition<BGS, BCS, SF>[];
 }

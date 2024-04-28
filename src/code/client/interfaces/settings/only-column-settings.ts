@@ -1,7 +1,7 @@
-import { OnlyGridSettings } from './only-grid-settings';
+import { RevOnlyGridSettings } from './only-grid-settings';
 
 /** @public */
-export type OnlyColumnSettings = Pick<OnlyGridSettings,
+export type RevOnlyColumnSettings = Pick<RevOnlyGridSettings,
     'backgroundColor' |
     'color' |
     'columnAutoSizingMax' |

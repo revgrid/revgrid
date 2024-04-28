@@ -1,24 +1,24 @@
-import { ColumnsManager } from '../components/column/columns-manager';
-import { Focus } from '../components/focus/focus';
-import { Renderer } from '../components/renderer/renderer';
-import { Selection } from '../components/selection/selection';
-import { SubgridImplementation } from '../components/subgrid/subgrid-implementation';
-import { SubgridsManager } from '../components/subgrid/subgrids-manager';
-import { ViewLayout } from '../components/view/view-layout';
-import { DataServer } from '../interfaces/data/data-server';
-import { SchemaField } from '../interfaces/schema/schema-field';
-import { SchemaServer } from '../interfaces/schema/schema-server';
-import { BehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
-import { BehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
+import { RevColumnsManager } from '../components/column/columns-manager';
+import { RevFocus } from '../components/focus/focus';
+import { RevRenderer } from '../components/renderer/renderer';
+import { RevSelection } from '../components/selection/selection';
+import { RevSubgridImplementation } from '../components/subgrid/subgrid-implementation';
+import { RevSubgridsManager } from '../components/subgrid/subgrids-manager';
+import { RevViewLayout } from '../components/view/view-layout';
+import { RevDataServer } from '../interfaces/data/data-server';
+import { RevSchemaField } from '../interfaces/schema/schema-field';
+import { RevSchemaServer } from '../interfaces/schema/schema-server';
+import { RevBehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
+import { RevBehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
 import { RevClientObject } from '../types-utils/client-object';
-import { EventBehavior } from './event-behavior';
-import { ReindexBehavior } from './reindex-behavior';
+import { RevEventBehavior } from './event-behavior';
+import { RevReindexBehavior } from './reindex-behavior';
 
-export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevClientObject {
-    private readonly _schemaServer: SchemaServer<SF>;
-    private readonly _subgrids: SubgridImplementation<BCS, SF>[];
-    private readonly _mainDataServer: DataServer<SF>;
-    private readonly _rowListChangedDataServers: DataServer<SF>[];
+export class RevServerNotificationBehavior<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {
+    private readonly _schemaServer: RevSchemaServer<SF>;
+    private readonly _subgrids: RevSubgridImplementation<BCS, SF>[];
+    private readonly _mainDataServer: RevDataServer<SF>;
+    private readonly _rowListChangedDataServers: RevDataServer<SF>[];
 
     private _destroyed = false;
     private _notificationsEnabled = false;
@@ -28,7 +28,7 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
     private _rowListChangedDataServerCount = 0;
 
     /** @internal */
-    private readonly schemaServerNotificationsClient: SchemaServer.NotificationsClient<SF> = {
+    private readonly schemaServerNotificationsClient: RevSchemaServer.NotificationsClient<SF> = {
         beginChange: () => { this.handleBeginSchemaChange(); },
         endChange: () => { this.handleEndSchemaChange(); },
         fieldsInserted: (fieldIndex, fieldCount) => { this.handleFieldsInserted(fieldIndex, fieldCount); },
@@ -41,26 +41,26 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
     constructor(
         readonly clientId: string,
         readonly internalParent: RevClientObject,
-        private readonly _columnsManager: ColumnsManager<BCS, SF>,
-        private readonly _subgridsManager: SubgridsManager<BCS, SF>,
-        private readonly _viewLayout: ViewLayout<BGS, BCS, SF>,
-        private readonly _focus: Focus<BGS, BCS, SF>,
-        private readonly _selection: Selection<BGS, BCS, SF>,
-        private readonly _renderer: Renderer<BGS, BCS, SF>,
-        private readonly _eventBehavior: EventBehavior<BGS, BCS, SF>,
-        private readonly _reindexStashManager: ReindexBehavior<BGS, BCS, SF>,
+        private readonly _columnsManager: RevColumnsManager<BCS, SF>,
+        private readonly _subgridsManager: RevSubgridsManager<BCS, SF>,
+        private readonly _viewLayout: RevViewLayout<BGS, BCS, SF>,
+        private readonly _focus: RevFocus<BGS, BCS, SF>,
+        private readonly _selection: RevSelection<BGS, BCS, SF>,
+        private readonly _renderer: RevRenderer<BGS, BCS, SF>,
+        private readonly _eventBehavior: RevEventBehavior<BGS, BCS, SF>,
+        private readonly _reindexStashManager: RevReindexBehavior<BGS, BCS, SF>,
     ) {
         this._schemaServer = this._columnsManager.schemaServer;
         this._subgrids = this._subgridsManager.subgridImplementations;
         const subgrids = this._subgrids;
         const subgridCount = subgrids.length;
-        this._rowListChangedDataServers = new Array<DataServer<SF>>(subgridCount);
+        this._rowListChangedDataServers = new Array<RevDataServer<SF>>(subgridCount);
         this._mainDataServer = this._subgridsManager.mainSubgrid.dataServer;
 
         for (let i = 0; i < subgridCount; i++) {
             const subgrid = subgrids[i];
             const dataServer = subgrid.dataServer;
-            const notificationsClient: DataServer.NotificationsClient = {
+            const notificationsClient: RevDataServer.NotificationsClient = {
                 beginChange: () => { this.handleBeginDataChange(); },
                 endChange: () => { this.handleEndDataChange(); },
                 rowsInserted: (subgridRowIndex, rowCount) => { this.handleRowsInserted(dataServer, subgridRowIndex, rowCount); },
@@ -174,7 +174,7 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
                 this._renderer.serverNotified();
                 this._columnsManager.schemaFieldsInserted(index, count);
                 // Currently cannot calculate active Column Index of added columns so cannot advise SelectionModel of change
-                // or advise Renderer of column index
+                // or advise RevRenderer of column index
                 this._viewLayout.invalidateFieldsInserted(index, count);
             } finally {
                 this.endSchemaChange();
@@ -261,7 +261,7 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
     }
 
     /** @internal */
-    private handleInvalidateAll(dataServer: DataServer<SF>) {
+    private handleInvalidateAll(dataServer: RevDataServer<SF>) {
         if (!this._destroyed) {
             this._renderer.serverNotified();
             const subgrid = this._subgridsManager.getSubgridWithDataServer(dataServer);
@@ -271,7 +271,7 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
     }
 
     /** @internal */
-    private handleInvalidateRows(dataServer: DataServer<SF>, subgridRowIndex: number, count: number) {
+    private handleInvalidateRows(dataServer: RevDataServer<SF>, subgridRowIndex: number, count: number) {
         if (!this._destroyed) {
             this._renderer.serverNotified();
             const subgrid = this._subgridsManager.getSubgridWithDataServer(dataServer);
@@ -281,7 +281,7 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
     }
 
     /** @internal */
-    private handleInvalidateRow(dataServer: DataServer<SF>, subgridRowIndex: number) {
+    private handleInvalidateRow(dataServer: RevDataServer<SF>, subgridRowIndex: number) {
         if (!this._destroyed) {
             this._renderer.serverNotified();
             const subgrid = this._subgridsManager.getSubgridImplementationWithDataServer(dataServer);
@@ -291,7 +291,7 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
     }
 
     /** @internal */
-    private handleInvalidateRowColumns(dataServer: DataServer<SF>, subgridRowIndex: number, schemaColumnIndex: number, columnCount: number) {
+    private handleInvalidateRowColumns(dataServer: RevDataServer<SF>, subgridRowIndex: number, schemaColumnIndex: number, columnCount: number) {
         if (!this._destroyed) {
             this._renderer.serverNotified();
             const subgrid = this._subgridsManager.getSubgridImplementationWithDataServer(dataServer);
@@ -306,7 +306,7 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
     }
 
     /** @internal */
-    private handleInvalidateRowCells(dataServer: DataServer<SF>, subgridRowIndex: number, schemaColumnIndexes: number[]) {
+    private handleInvalidateRowCells(dataServer: RevDataServer<SF>, subgridRowIndex: number, schemaColumnIndexes: number[]) {
         if (!this._destroyed) {
             this._renderer.serverNotified();
             const subgrid = this._subgridsManager.getSubgridImplementationWithDataServer(dataServer);
@@ -321,7 +321,7 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
     }
 
     /** @internal */
-    private handleInvalidateCell(dataServer: DataServer<SF>, schemaColumnIndex: number, subgridRowIndex: number) {
+    private handleInvalidateCell(dataServer: RevDataServer<SF>, schemaColumnIndex: number, subgridRowIndex: number) {
         if (!this._destroyed) {
             this._renderer.serverNotified();
             const subgrid = this._subgridsManager.getSubgridImplementationWithDataServer(dataServer);
@@ -332,7 +332,7 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
     }
 
     /** @internal */
-    private handleRowsInserted(dataServer: DataServer<SF>, subgridRowIndex: number, count: number) {
+    private handleRowsInserted(dataServer: RevDataServer<SF>, subgridRowIndex: number, count: number) {
         if (!this._destroyed) {
             this.beginDataChange();
             try {
@@ -348,7 +348,7 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
     }
 
     /** @internal */
-    private handleRowsDeleted(dataServer: DataServer<SF>, subgridRowIndex: number, count: number) {
+    private handleRowsDeleted(dataServer: RevDataServer<SF>, subgridRowIndex: number, count: number) {
         if (!this._destroyed) {
             this.beginDataChange();
             try {
@@ -364,7 +364,7 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
     }
 
     /** @internal */
-    private handleAllRowsDeleted(dataServer: DataServer<SF>) {
+    private handleAllRowsDeleted(dataServer: RevDataServer<SF>) {
         if (!this._destroyed) {
             this.beginDataChange();
             try {
@@ -382,7 +382,7 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
     }
 
     /** @internal */
-    private handleRowsMoved(dataServer: DataServer<SF>, oldSubgridRowIndex: number, newSubgridRowIndex: number, rowCount: number) {
+    private handleRowsMoved(dataServer: RevDataServer<SF>, oldSubgridRowIndex: number, newSubgridRowIndex: number, rowCount: number) {
         if (!this._destroyed) {
             this.beginDataChange();
             try {
@@ -398,7 +398,7 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
     }
 
     /** @internal */
-    private handleRowsLoaded(dataServer: DataServer<SF>) {
+    private handleRowsLoaded(dataServer: RevDataServer<SF>) {
         if (!this._destroyed) {
             this.beginDataChange();
             try {
@@ -424,7 +424,7 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
     }
 
     /** @internal */
-    private handleDataPostReindex(dataServer: DataServer<SF>, allRowsKept: boolean) {
+    private handleDataPostReindex(dataServer: RevDataServer<SF>, allRowsKept: boolean) {
         if (!this._destroyed) {
             this._reindexStashManager.unstash(allRowsKept);
             this._viewLayout.invalidateVerticalAll(false);
@@ -463,7 +463,7 @@ export class ServerNotificationBehavior<BGS extends BehavioredGridSettings, BCS 
         }
     }
 
-    private includeDataServerInRowListChanged(dataServer: DataServer<SF>) {
+    private includeDataServerInRowListChanged(dataServer: RevDataServer<SF>) {
         const rowListChangedDataServers = this._rowListChangedDataServers;
         const rowListChangedDataServerCount = this._rowListChangedDataServerCount;
         for (let i = 0; i < rowListChangedDataServerCount; i++) {

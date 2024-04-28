@@ -1,8 +1,8 @@
-import { SchemaServer } from '..';
+import { RevSchemaServer } from '..';
 import { AppSchemaField } from './app-schema-field';
 import { MainRecord } from './main-record';
 
-export class AppSchemaServer implements SchemaServer<AppSchemaField> {
+export class AppSchemaServer implements RevSchemaServer<AppSchemaField> {
     private readonly _schema: AppSchemaField[];
 
     readonly nameSchemaSchemaField: AppSchemaField;
@@ -13,7 +13,7 @@ export class AppSchemaServer implements SchemaServer<AppSchemaField> {
     readonly favoriteFoodSchemaField: AppSchemaField;
     readonly restrictMovementSchemaField: AppSchemaField;
 
-    private notificationsClient: SchemaServer.NotificationsClient<AppSchemaField>;
+    private notificationsClient: RevSchemaServer.NotificationsClient<AppSchemaField>;
 
     constructor() {
         const nameHeaders = AppSchemaServer.columnNameHeaders;
@@ -66,7 +66,7 @@ export class AppSchemaServer implements SchemaServer<AppSchemaField> {
         return this._schema;
     }
 
-    subscribeSchemaNotifications(client: SchemaServer.NotificationsClient<AppSchemaField>) {
+    subscribeSchemaNotifications(client: RevSchemaServer.NotificationsClient<AppSchemaField>) {
         this.notificationsClient = client;
 
         this.notificationsClient.schemaChanged();

@@ -1,10 +1,10 @@
-import { SchemaField } from './schema-field';
+import { RevSchemaField } from './schema-field';
 
 
 /** @public */
-export interface SchemaServer<SF extends SchemaField> {
-    subscribeSchemaNotifications(client: SchemaServer.NotificationsClient<SF>): void;
-    unsubscribeSchemaNotifications?(client: SchemaServer.NotificationsClient<SF>): void;
+export interface RevSchemaServer<SF extends RevSchemaField> {
+    subscribeSchemaNotifications(client: RevSchemaServer.NotificationsClient<SF>): void;
+    unsubscribeSchemaNotifications?(client: RevSchemaServer.NotificationsClient<SF>): void;
 
     /**
      * Get list of columns. The order of the columns in the list defines the column indexes.
@@ -15,8 +15,8 @@ export interface SchemaServer<SF extends SchemaField> {
 }
 
 /** @public */
-export namespace SchemaServer {
-    export interface NotificationsClient<SF extends SchemaField> {
+export namespace RevSchemaServer {
+    export interface NotificationsClient<SF extends RevSchemaField> {
         beginChange: (this: void) => void;
         endChange: (this: void) => void;
         /**
@@ -34,7 +34,7 @@ export namespace SchemaServer {
         getActiveSchemaFields: (this: void) => readonly SF[];
     }
 
-    export type Constructor<SF extends SchemaField> = new() => SchemaServer<SF>;
+    export type Constructor<SF extends RevSchemaField> = new() => RevSchemaServer<SF>;
 
     // /**
     //  * Generates an array of columns (proper schema) from an array of Column and string.
@@ -100,8 +100,8 @@ export namespace SchemaServer {
 }
 
 /** @public */
-export type ServerNotificationId = number; // also applies to DataModel
+export type RevServerNotificationId = number; // also applies to DataModel
 /** @public */
-export const lowestValidServerNotificationId = 0;
+export const revLowestValidServerNotificationId = 0;
 /** @public */
-export const invalidServerNotificationId = -1;
+export const revInvalidServerNotificationId = -1;

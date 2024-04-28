@@ -1,39 +1,39 @@
-import { GridSettings } from '../../client/internal-api';
-import { HorizontalAlign, TextTruncateType } from '../painters/internal-api';
+import { RevGridSettings } from '../../client/internal-api';
+import { RevHorizontalAlign, RevTextTruncateTypeId } from '../painters/internal-api';
 
 /** @public */
-export interface StandardOnlyGridSettings {
+export interface RevStandardOnlyGridSettings {
     /** Padding to left and right of cell content */
     cellPadding: number;
-    cellFocusedBorderColor: GridSettings.Color | undefined;
-    cellHoverBackgroundColor: GridSettings.Color | undefined;
+    cellFocusedBorderColor: RevGridSettings.Color | undefined;
+    cellHoverBackgroundColor: RevGridSettings.Color | undefined;
 
-    columnHoverBackgroundColor: GridSettings.Color | undefined;
+    columnHoverBackgroundColor: RevGridSettings.Color | undefined;
 
     columnHeaderFont: string | undefined;
-    columnHeaderHorizontalAlign: HorizontalAlign | undefined;
-    columnHeaderBackgroundColor: GridSettings.Color | undefined;
-    columnHeaderForegroundColor: GridSettings.Color | undefined;
+    columnHeaderHorizontalAlign: RevHorizontalAlign | undefined;
+    columnHeaderBackgroundColor: RevGridSettings.Color | undefined;
+    columnHeaderForegroundColor: RevGridSettings.Color | undefined;
     /** Font style for selected columns' headers. */
     columnHeaderSelectionFont: string | undefined;
-    columnHeaderSelectionBackgroundColor: GridSettings.Color | undefined;
-    columnHeaderSelectionForegroundColor: GridSettings.Color | undefined;
+    columnHeaderSelectionBackgroundColor: RevGridSettings.Color | undefined;
+    columnHeaderSelectionForegroundColor: RevGridSettings.Color | undefined;
 
-    rowHoverBackgroundColor: GridSettings.Color | undefined;
+    rowHoverBackgroundColor: RevGridSettings.Color | undefined;
 
     /** Font style for selected cell(s). */
-    selectionFont: GridSettings.Color | undefined;
+    selectionFont: RevGridSettings.Color | undefined;
     /** Background color for selected cell(s). */
-    selectionBackgroundColor: GridSettings.Color | undefined;
+    selectionBackgroundColor: RevGridSettings.Color | undefined;
     /** Font color for selected cell(s). */
-    selectionForegroundColor: GridSettings.Color | undefined;
+    selectionForegroundColor: RevGridSettings.Color | undefined;
 
     font: string;
     /** Horizontal alignment of content of each cell. */
-    horizontalAlign: HorizontalAlign;
+    horizontalAlign: RevHorizontalAlign;
     /** Vertical offset from top of cell of content of each cell. */
     verticalOffset: number;
-    textTruncateType: TextTruncateType | undefined;
+    textTruncateType: RevTextTruncateTypeId | undefined;
     /** Display cell font with strike-through line drawn over it. */
     textStrikeThrough: boolean;
 }

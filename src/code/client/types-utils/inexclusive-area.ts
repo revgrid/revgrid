@@ -1,10 +1,10 @@
-import { Point } from './point';
-import { Rectangle } from './rectangle';
+import { RevPoint } from './point';
+import { RevRectangle } from './rectangle';
 
 /** @public */
-export interface InexclusiveArea extends Rectangle {
-    readonly topLeft: Point;
-    readonly exclusiveBottomRight: Point;
+export interface RevInexclusiveArea extends RevRectangle {
+    readonly topLeft: RevPoint;
+    readonly exclusiveBottomRight: RevPoint;
 
     readonly width: number;
     readonly height: number;

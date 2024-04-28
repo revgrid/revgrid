@@ -1,13 +1,13 @@
-import { TextTruncateType } from '../../painters/internal-api';
-import { StandardOnlyGridSettings } from '../../settings/internal-api';
+import { RevTextTruncateTypeId } from '../../painters/internal-api';
+import { RevStandardOnlyGridSettings } from '../../settings/internal-api';
 
 /** @public */
-export const defaultStandardOnlyGridSettings: StandardOnlyGridSettings = {
+export const revStandardDefaultOnlyGridSettings: RevStandardOnlyGridSettings = {
     cellPadding: 5,
     font: '13px Tahoma, Geneva, sans-serif',
     horizontalAlign: 'center',
     verticalOffset: 0,
-    textTruncateType: TextTruncateType.WithEllipsis,
+    textTruncateType: RevTextTruncateTypeId.WithEllipsis,
     textStrikeThrough: false,
 
     // When the following settings are undefined, typically a cell painter will fallback to another setting (if it supports that setting)

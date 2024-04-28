@@ -1,4 +1,4 @@
-export { readonlyBehavioredSettings } from './readonly-behaviored-settings';
-export { readonlyDefaultBehavioredColumnSettings } from './readonly-default-behaviored-column-settings';
-export { readonlyDefaultBehavioredGridSettings } from './readonly-default-behaviored-grid-settings';
+export { revReadonlyBehavioredSettings } from './readonly-behaviored-settings';
+export { revReadonlyDefaultBehavioredColumnSettings } from './readonly-default-behaviored-column-settings';
+export { revReadonlyDefaultBehavioredGridSettings } from './readonly-default-behaviored-grid-settings';
 

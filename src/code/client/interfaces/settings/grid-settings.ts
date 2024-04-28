@@ -1,17 +1,17 @@
-import { ModifierKey } from '../../types-utils/modifier-key';
-import { SelectionAreaTypeSpecifier } from '../../types-utils/types';
 import { deepExtendValue } from '@xilytix/sysutils';
-import { OnlyGridSettings } from './only-grid-settings';
+import { RevModifierKey } from '../../types-utils/modifier-key';
+import { RevSelectionAreaTypeSpecifier } from '../../types-utils/types';
+import { RevOnlyGridSettings } from './only-grid-settings';
 
 /** @public */
-export type GridSettings = OnlyGridSettings;
+export type RevGridSettings = RevOnlyGridSettings;
 
 /** @public */
-export namespace GridSettings {
-    export type Color = OnlyGridSettings.Color;
+export namespace RevGridSettings {
+    export type Color = RevOnlyGridSettings.Color;
 
-    export function assign(source: Partial<GridSettings>, target: GridSettings): boolean {
-        const sourceKeys = Object.keys(source) as (keyof GridSettings)[];
+    export function assign(source: Partial<RevGridSettings>, target: RevGridSettings): boolean {
+        const sourceKeys = Object.keys(source) as (keyof RevGridSettings)[];
         if (sourceKeys.length === 0) {
             return false;
         } else {
@@ -26,35 +26,35 @@ export namespace GridSettings {
         }
     }
 
-    export function isAddToggleSelectionAreaModifierKeyDownInEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: GridSettings, event: T) {
-        return ModifierKey.isDownInEvent(gridSettings.addToggleSelectionAreaModifierKey, event);
+    export function isAddToggleSelectionAreaModifierKeyDownInEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: RevGridSettings, event: T) {
+        return RevModifierKey.isDownInEvent(gridSettings.addToggleSelectionAreaModifierKey, event);
     }
 
-    export function isExtendLastSelectionAreaModifierKeyDownInEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: GridSettings, event: T) {
-        return ModifierKey.isDownInEvent(gridSettings.extendLastSelectionAreaModifierKey, event);
+    export function isExtendLastSelectionAreaModifierKeyDownInEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: RevGridSettings, event: T) {
+        return RevModifierKey.isDownInEvent(gridSettings.extendLastSelectionAreaModifierKey, event);
     }
 
-    export function isSecondarySelectionAreaTypeSpecifierModifierKeyDownInEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: GridSettings, event: T) {
-        return ModifierKey.isDownInEvent(gridSettings.secondarySelectionAreaTypeSpecifierModifierKey, event);
+    export function isSecondarySelectionAreaTypeSpecifierModifierKeyDownInEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: RevGridSettings, event: T) {
+        return RevModifierKey.isDownInEvent(gridSettings.secondarySelectionAreaTypeSpecifierModifierKey, event);
     }
 
-    export function isShowScrollerThumbOnMouseMoveModifierKeyDownInEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: GridSettings, event: T) {
-        return ModifierKey.isDownInEvent(gridSettings.showScrollerThumbOnMouseMoveModifierKey, event);
+    export function isShowScrollerThumbOnMouseMoveModifierKeyDownInEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: RevGridSettings, event: T) {
+        return RevModifierKey.isDownInEvent(gridSettings.showScrollerThumbOnMouseMoveModifierKey, event);
     }
 
-    export function getSelectionAreaTypeFromEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: GridSettings, event: T) {
-        if (ModifierKey.isDownInEvent(gridSettings.secondarySelectionAreaTypeSpecifierModifierKey, event)) {
+    export function getSelectionAreaTypeFromEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: RevGridSettings, event: T) {
+        if (RevModifierKey.isDownInEvent(gridSettings.secondarySelectionAreaTypeSpecifierModifierKey, event)) {
             return gridSettings.secondarySelectionAreaType;
         } else {
             return gridSettings.primarySelectionAreaType;
         }
     }
 
-    export function getSelectionAreaTypeSpecifierFromEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: GridSettings, event: T) {
-        if (GridSettings.isSecondarySelectionAreaTypeSpecifierModifierKeyDownInEvent(gridSettings, event)) {
-            return SelectionAreaTypeSpecifier.Secondary;
+    export function getSelectionAreaTypeSpecifierFromEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: RevGridSettings, event: T) {
+        if (RevGridSettings.isSecondarySelectionAreaTypeSpecifierModifierKeyDownInEvent(gridSettings, event)) {
+            return RevSelectionAreaTypeSpecifier.Secondary;
         } else {
-            return SelectionAreaTypeSpecifier.Primary;
+            return RevSelectionAreaTypeSpecifier.Primary;
         }
     }
 }

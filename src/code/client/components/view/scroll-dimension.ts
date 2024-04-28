@@ -1,34 +1,34 @@
-import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
-import { GridSettings } from '../../interfaces/settings/grid-settings';
+import { RevBehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
+import { RevGridSettings } from '../../interfaces/settings/grid-settings';
 import { RevAssertError } from '../../types-utils/revgrid-error';
-import { Canvas } from '../canvas/canvas';
+import { RevCanvas } from '../canvas/canvas';
 
-export abstract class ScrollDimension<BGS extends BehavioredGridSettings> {
-    changedEventer: ScrollDimension.ChangedEventer;
-    computedEventer: ScrollDimension.ComputedEventer;
-    scrollerTargettedViewportStartChangedEventer: ScrollDimension.ViewportStartChangedEventer;
-    eventBehaviorTargettedViewportStartChangedEventer: ScrollDimension.ViewportStartChangedEventer;
+export abstract class RevScrollDimension<BGS extends RevBehavioredGridSettings> {
+    changedEventer: RevScrollDimension.ChangedEventer;
+    computedEventer: RevScrollDimension.ComputedEventer;
+    scrollerTargettedViewportStartChangedEventer: RevScrollDimension.ViewportStartChangedEventer;
+    eventBehaviorTargettedViewportStartChangedEventer: RevScrollDimension.ViewportStartChangedEventer;
 
-    private _start = ScrollDimension.resetStart;
-    private _size = ScrollDimension.resetSize;
-    private _viewportSize = ScrollDimension.resetViewportSize;
-    private _viewportSizeExactMultiple = ScrollDimension.resetViewportSizeExactMultiple;
-    private _viewportCoverageExtent = ScrollDimension.resetViewportCoverageExtent;
-    private _startScrollAnchorLimitIndex = ScrollDimension.invalidScrollAnchorIndex;
-    private _startScrollAnchorLimitOffset = ScrollDimension.invalidScrollAnchorOffset;
-    private _finishScrollAnchorLimitIndex = ScrollDimension.invalidScrollAnchorIndex;
-    private _finishScrollAnchorLimitOffset = ScrollDimension.invalidScrollAnchorOffset;
+    private _start = RevScrollDimension.resetStart;
+    private _size = RevScrollDimension.resetSize;
+    private _viewportSize = RevScrollDimension.resetViewportSize;
+    private _viewportSizeExactMultiple = RevScrollDimension.resetViewportSizeExactMultiple;
+    private _viewportCoverageExtent = RevScrollDimension.resetViewportCoverageExtent;
+    private _startScrollAnchorLimitIndex = RevScrollDimension.invalidScrollAnchorIndex;
+    private _startScrollAnchorLimitOffset = RevScrollDimension.invalidScrollAnchorOffset;
+    private _finishScrollAnchorLimitIndex = RevScrollDimension.invalidScrollAnchorIndex;
+    private _finishScrollAnchorLimitOffset = RevScrollDimension.invalidScrollAnchorOffset;
 
-    private _viewportStart: number | undefined = ScrollDimension.resetViewportStart;
+    private _viewportStart: number | undefined = RevScrollDimension.resetViewportStart;
 
-    private _computed = ScrollDimension.resetComputed;
+    private _computed = RevScrollDimension.resetComputed;
 
     private _scrollable: boolean;
 
     constructor(
-        public readonly horizontalVertical: ScrollDimension.AxisEnum,
-        protected readonly _gridSettings: GridSettings,
-        protected readonly _canvas: Canvas<BGS>,
+        public readonly horizontalVertical: RevScrollDimension.AxisEnum,
+        protected readonly _gridSettings: RevGridSettings,
+        protected readonly _canvas: RevCanvas<BGS>,
     ) {
         this.updateScrollable();
     }
@@ -102,17 +102,17 @@ export abstract class ScrollDimension<BGS extends BehavioredGridSettings> {
     }
 
     reset() {
-        this._start = ScrollDimension.resetStart;
-        this._size = ScrollDimension.resetSize;
-        this._viewportSize = ScrollDimension.resetViewportSize;
-        this._viewportSizeExactMultiple = ScrollDimension.resetViewportSizeExactMultiple;
-        this._viewportCoverageExtent = ScrollDimension.resetViewportCoverageExtent;
-        this._startScrollAnchorLimitIndex = ScrollDimension.invalidScrollAnchorIndex;
-        this._startScrollAnchorLimitOffset = ScrollDimension.invalidScrollAnchorOffset;
-        this._finishScrollAnchorLimitIndex = ScrollDimension.invalidScrollAnchorIndex;
-        this._finishScrollAnchorLimitOffset = ScrollDimension.invalidScrollAnchorOffset;
-        this._viewportStart = ScrollDimension.resetViewportStart;
-        this._computed = ScrollDimension.resetComputed;
+        this._start = RevScrollDimension.resetStart;
+        this._size = RevScrollDimension.resetSize;
+        this._viewportSize = RevScrollDimension.resetViewportSize;
+        this._viewportSizeExactMultiple = RevScrollDimension.resetViewportSizeExactMultiple;
+        this._viewportCoverageExtent = RevScrollDimension.resetViewportCoverageExtent;
+        this._startScrollAnchorLimitIndex = RevScrollDimension.invalidScrollAnchorIndex;
+        this._startScrollAnchorLimitOffset = RevScrollDimension.invalidScrollAnchorOffset;
+        this._finishScrollAnchorLimitIndex = RevScrollDimension.invalidScrollAnchorIndex;
+        this._finishScrollAnchorLimitOffset = RevScrollDimension.invalidScrollAnchorOffset;
+        this._viewportStart = RevScrollDimension.resetViewportStart;
+        this._computed = RevScrollDimension.resetComputed;
 
         this.updateScrollable();
     }
@@ -140,16 +140,16 @@ export abstract class ScrollDimension<BGS extends BehavioredGridSettings> {
         }
     }
 
-    calculateLimitedScrollAnchorIfRequired(index: number, offset: number, gridRightAlignedPossible: boolean): ScrollDimension.Anchor | undefined {
+    calculateLimitedScrollAnchorIfRequired(index: number, offset: number, gridRightAlignedPossible: boolean): RevScrollDimension.Anchor | undefined {
         // only called directly after scroll dimension computed so will not trigger another compute
-        if (this._startScrollAnchorLimitIndex === ScrollDimension.invalidScrollAnchorIndex) {
-            if (index === ScrollDimension.invalidScrollAnchorIndex) {
+        if (this._startScrollAnchorLimitIndex === RevScrollDimension.invalidScrollAnchorIndex) {
+            if (index === RevScrollDimension.invalidScrollAnchorIndex) {
                 return undefined;
             } else {
-                return ScrollDimension.invalidAnchor;
+                return RevScrollDimension.invalidAnchor;
             }
         } else {
-            if (this.viewportCoverageExtent !== ScrollDimension.ViewportCoverageExtent.Full) {
+            if (this.viewportCoverageExtent !== RevScrollDimension.ViewportCoverageExtent.Full) {
                 if (!this.isScrollAnchorWithinStartLimit(index, offset)) {
                     return {
                         index: this._startScrollAnchorLimitIndex,
@@ -195,7 +195,7 @@ export abstract class ScrollDimension<BGS extends BehavioredGridSettings> {
 
     isScrollAnchorWithinStartLimit(index: number, offset: number) {
         const startScrollAnchorLimitIndex = this.startScrollAnchorLimitIndex;
-        if (startScrollAnchorLimitIndex === ScrollDimension.invalidScrollAnchorIndex) {
+        if (startScrollAnchorLimitIndex === RevScrollDimension.invalidScrollAnchorIndex) {
             throw new RevAssertError('SDISAWSL50215', index.toString());
         } else {
             if (index > startScrollAnchorLimitIndex) {
@@ -216,7 +216,7 @@ export abstract class ScrollDimension<BGS extends BehavioredGridSettings> {
 
     isScrollAnchorWithinFinishLimit(index: number, offset: number) {
         const finishScrollAnchorLimitIndex = this.finishScrollAnchorLimitIndex;
-        if (finishScrollAnchorLimitIndex === ScrollDimension.invalidScrollAnchorIndex) {
+        if (finishScrollAnchorLimitIndex === RevScrollDimension.invalidScrollAnchorIndex) {
             throw new RevAssertError('SDISAWFL50215', index.toString());
         } else {
             if (index < finishScrollAnchorLimitIndex) {
@@ -235,7 +235,7 @@ export abstract class ScrollDimension<BGS extends BehavioredGridSettings> {
         }
     }
 
-    calculateLimitedScrollAnchor(index: number, offset: number): ScrollDimension.Anchor {
+    calculateLimitedScrollAnchor(index: number, offset: number): RevScrollDimension.Anchor {
         if (!this.isScrollAnchorWithinStartLimit(index, offset)) {
             index = this.startScrollAnchorLimitIndex;
             offset = this.startScrollAnchorLimitOffset;
@@ -257,9 +257,9 @@ export abstract class ScrollDimension<BGS extends BehavioredGridSettings> {
         size: number,
         viewportSize: number,
         viewportSizeExactMultiple: boolean,
-        viewportCoverageExtent: ScrollDimension.ViewportCoverageExtent,
-        startAnchorLimit: ScrollDimension.Anchor,
-        finishAnchorLimit: ScrollDimension.Anchor,
+        viewportCoverageExtent: RevScrollDimension.ViewportCoverageExtent,
+        startAnchorLimit: RevScrollDimension.Anchor,
+        finishAnchorLimit: RevScrollDimension.Anchor,
     ) {
         // set within animation frame
         this._start = start;
@@ -297,7 +297,7 @@ export abstract class ScrollDimension<BGS extends BehavioredGridSettings> {
     }
 
     private updateScrollable() {
-        this._scrollable = this._viewportCoverageExtent === ScrollDimension.ViewportCoverageExtent.Partial && this._startScrollAnchorLimitIndex >= 0;
+        this._scrollable = this._viewportCoverageExtent === RevScrollDimension.ViewportCoverageExtent.Partial && this._startScrollAnchorLimitIndex >= 0;
     }
 
     private notifyChanged(viewportStartChanged: boolean) {
@@ -313,7 +313,7 @@ export abstract class ScrollDimension<BGS extends BehavioredGridSettings> {
     }
 }
 
-export namespace ScrollDimension {
+export namespace RevScrollDimension {
     export type ChangedEventer = (this: void) => void
     export type ComputedEventer = (this: void, withinAnimationFrame: boolean) => number | undefined; // return Viewport Start
     export type ViewportStartChangedEventer = (this: void) => void;

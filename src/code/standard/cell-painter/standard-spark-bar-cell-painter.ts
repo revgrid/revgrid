@@ -1,20 +1,20 @@
 
-import { DatalessViewCell, Rectangle, SchemaField } from '../../client/internal-api';
-import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/internal-api';
-import { StandardCellPainter } from './standard-cell-painter';
+import { RevDatalessViewCell, RevRectangle, RevSchemaField } from '../../client/internal-api';
+import { RevStandardBehavioredColumnSettings, RevStandardBehavioredGridSettings } from '../settings/internal-api';
+import { RevStandardCellPainter } from './standard-cell-painter';
 
 /**
  * Renders a bar chart sparkline, hence the name.
  * @public
  */
-export class StandardSparkBarCellPainter<
-    BGS extends StandardBehavioredGridSettings,
-    BCS extends StandardBehavioredColumnSettings,
-    SF extends SchemaField
-> extends StandardCellPainter<BGS, BCS, SF> {
-    config: StandardSparkBarCellPainter.Config;
+export class RevStandardSparkBarCellPainter<
+    BGS extends RevStandardBehavioredGridSettings,
+    BCS extends RevStandardBehavioredColumnSettings,
+    SF extends RevSchemaField
+> extends RevStandardCellPainter<BGS, BCS, SF> {
+    config: RevStandardSparkBarCellPainter.Config;
 
-    override paint(_cell: DatalessViewCell<BCS, SF>, _prefillColor: string | undefined): number | undefined {
+    override paint(_cell: RevDatalessViewCell<BCS, SF>, _prefillColor: string | undefined): number | undefined {
         const gc = this._renderingContext;
         const config = this.config;
 
@@ -48,12 +48,12 @@ export class StandardSparkBarCellPainter<
 }
 
 /** @public */
-export namespace StandardSparkBarCellPainter {
+export namespace RevStandardSparkBarCellPainter {
     export const typeName = 'SparkBar';
 
     export interface Config {
         value: number[];
-        bounds: Rectangle;
+        bounds: RevRectangle;
         backgroundColor: string;
         isSelected: boolean;
         foregroundSelectionColor: string;

@@ -2,7 +2,7 @@
  * Will return null if conversion not possible
  * @public
  */
-export function safeConvertUnknownToBoolean(value: unknown) {
+export function revSafeConvertUnknownToBoolean(value: unknown) {
     switch (typeof value) {
         case 'string': {
             if (value === '') {
@@ -56,7 +56,7 @@ export function safeConvertUnknownToBoolean(value: unknown) {
 }
 
 /** @internal */
-export function calculateNumberArrayUniqueCount<T extends number>(array: T[]) {
+export function revCalculateNumberArrayUniqueCount<T extends number>(array: T[]) {
     array.sort((left, right) => left - right);
     const allCount = array.length;
     let previousIndex = array[0];
@@ -72,13 +72,13 @@ export function calculateNumberArrayUniqueCount<T extends number>(array: T[]) {
 }
 
 /** @internal */
-export interface SplitStringAtFirstNonNumericCharResult {
+export interface RevSplitStringAtFirstNonNumericCharResult {
     numericPart: string;
     firstNonNumericCharPart: string;
 }
 
 /** @internal */
-export function splitStringAtFirstNonNumericChar(value: string): SplitStringAtFirstNonNumericCharResult {
+export function revSplitStringAtFirstNonNumericChar(value: string): RevSplitStringAtFirstNonNumericCharResult {
     value = value.trimStart();
 
     const length = value.length;
@@ -89,7 +89,7 @@ export function splitStringAtFirstNonNumericChar(value: string): SplitStringAtFi
         let gotDecimalPoint = false;
         for (let i = 0; i < length; i++) {
             const char = value[i];
-            if (!isDigit(char)) {
+            if (!revIsDigit(char)) {
                 if (char !== '.') {
                     firstNonDigitPartIndex = i;
                     break;
@@ -111,12 +111,12 @@ export function splitStringAtFirstNonNumericChar(value: string): SplitStringAtFi
 }
 
 /** @internal */
-export function isDigit(char: string) {
+export function revIsDigit(char: string) {
     return char >= '0' && char <= '9';
 }
 
 /** @internal */
-export function calculateAdjustmentForRangeMoved(value: number, oldRangeIndex: number, newRangeIndex: number, rangeCount: number) {
+export function revCalculateAdjustmentForRangeMoved(value: number, oldRangeIndex: number, newRangeIndex: number, rangeCount: number) {
     if (newRangeIndex > oldRangeIndex) {
         if (oldRangeIndex + rangeCount <= value) {
             if (newRangeIndex + rangeCount > value) {

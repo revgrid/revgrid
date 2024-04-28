@@ -1,6 +1,6 @@
-import { SchemaField } from '../../client/internal-api';
+import { RevSchemaField } from '../../client/internal-api';
 
 /** @public */
-export interface RevDataRowArrayField extends SchemaField {
+export interface RevDataRowArrayField extends RevSchemaField {
     readonly name: string;
 }

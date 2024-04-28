@@ -1,54 +1,54 @@
-import { CellPropertiesBehavior } from '../behavior/cell-properties-behavior';
-import { DataExtractBehavior } from '../behavior/data-extract-behavior';
-import { EventBehavior } from '../behavior/event-behavior';
-import { FocusScrollBehavior } from '../behavior/focus-scroll-behavior';
-import { FocusSelectBehavior } from '../behavior/focus-select-behavior';
-import { ReindexBehavior } from '../behavior/reindex-behavior';
-import { RowPropertiesBehavior } from '../behavior/row-properties-behavior';
-import { Canvas } from '../components/canvas/canvas';
-import { ColumnsManager } from '../components/column/columns-manager';
-import { Focus } from '../components/focus/focus';
-import { Mouse } from '../components/mouse/mouse';
-import { Renderer } from '../components/renderer/renderer';
-import { Scroller } from '../components/scroller/scroller';
-import { Selection } from '../components/selection/selection';
-import { SubgridsManager } from '../components/subgrid/subgrids-manager';
-import { ViewLayout } from '../components/view/view-layout';
-import { LinedHoverCell } from '../interfaces/data/hover-cell';
-import { SchemaField } from '../interfaces/schema/schema-field';
-import { BehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
-import { BehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
+import { RevCellPropertiesBehavior } from '../behavior/cell-properties-behavior';
+import { RevDataExtractBehavior } from '../behavior/data-extract-behavior';
+import { RevEventBehavior } from '../behavior/event-behavior';
+import { RevFocusScrollBehavior } from '../behavior/focus-scroll-behavior';
+import { RevFocusSelectBehavior } from '../behavior/focus-select-behavior';
+import { RevReindexBehavior } from '../behavior/reindex-behavior';
+import { RevRowPropertiesBehavior } from '../behavior/row-properties-behavior';
+import { RevCanvas } from '../components/canvas/canvas';
+import { RevColumnsManager } from '../components/column/columns-manager';
+import { RevFocus } from '../components/focus/focus';
+import { RevMouse } from '../components/mouse/mouse';
+import { RevRenderer } from '../components/renderer/renderer';
+import { RevScroller } from '../components/scroller/scroller';
+import { RevSelection } from '../components/selection/selection';
+import { RevSubgridsManager } from '../components/subgrid/subgrids-manager';
+import { RevViewLayout } from '../components/view/view-layout';
+import { RevLinedHoverCell } from '../interfaces/data/lined-hover-cell';
+import { RevSchemaField } from '../interfaces/schema/schema-field';
+import { RevBehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
+import { RevBehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
 import { RevClientObject } from '../types-utils/client-object';
 import { RevAssertError } from '../types-utils/revgrid-error';
-import { CellClickUiController } from './controller/cell-click-ui-controller';
-import { ClipboardUiController } from './controller/clipboard-ui-controller';
-import { ColumnMovingUiController } from './controller/column-moving-ui-controller';
-import { ColumnResizingUiController } from './controller/column-resizing-ui-controller';
-import { ColumnSortingUiController } from './controller/column-sorting-ui-controller';
-import { UiControllerServices } from './controller/common/ui-controller-services';
-import { UiControllerSharedState } from './controller/common/ui-controller-shared-state';
-import { FiltersUiController } from './controller/filters-ui-controller';
-import { FocusScrollUiController } from './controller/focus-scroll-ui-controller';
-import { HoverUiController } from './controller/hover-ui-controller';
-import { RowResizingUiController } from './controller/row-resizing-ui-controller';
-import { SelectionUiController } from './controller/selection-ui-controller';
-import { TouchScrollingUiController } from './controller/touch-scrolling-ui-controller';
-import { UiController } from './controller/ui-controller';
-import { UiControllerFactory } from './ui-controller-factory';
+import { RevCellClickUiController } from './controller/cell-click-ui-controller';
+import { RevClipboardUiController } from './controller/clipboard-ui-controller';
+import { RevColumnMovingUiController } from './controller/column-moving-ui-controller';
+import { RevColumnResizingUiController } from './controller/column-resizing-ui-controller';
+import { RevColumnSortingUiController } from './controller/column-sorting-ui-controller';
+import { RevUiControllerServices } from './controller/common/ui-controller-services';
+import { RevUiControllerSharedState } from './controller/common/ui-controller-shared-state';
+import { RevFiltersUiController } from './controller/filters-ui-controller';
+import { RevFocusScrollUiController } from './controller/focus-scroll-ui-controller';
+import { RevHoverUiController } from './controller/hover-ui-controller';
+import { RevRowResizingUiController } from './controller/row-resizing-ui-controller';
+import { RevSelectionUiController } from './controller/selection-ui-controller';
+import { RevTouchScrollingUiController } from './controller/touch-scrolling-ui-controller';
+import { RevUiController } from './controller/ui-controller';
+import { RevUiControllerFactory } from './ui-controller-factory';
 
 /** @public */
-export class UiManager<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevClientObject {
+export class RevUiManager<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {
     /** @internal */
-    private readonly _uiControllerFactory = new UiControllerFactory<BGS, BCS, SF>();
+    private readonly _uiControllerFactory = new RevUiControllerFactory<BGS, BCS, SF>();
     /** @internal */
-    private readonly _uiControllerMap = new Map<string, UiController<BGS, BCS, SF>>();
+    private readonly _uiControllerMap = new Map<string, RevUiController<BGS, BCS, SF>>();
     /** @internal */
-    private readonly _sharedState: UiControllerSharedState; // Will be initialised in constructor
+    private readonly _sharedState: RevUiControllerSharedState; // Will be initialised in constructor
     /** @internal */
-    private readonly _services: UiControllerServices<BGS, BCS, SF>;
+    private readonly _services: RevUiControllerServices<BGS, BCS, SF>;
 
     /** @internal */
-    private _firstUiController: UiController<BGS, BCS, SF>;
+    private _firstUiController: RevUiController<BGS, BCS, SF>;
     /** @internal */
     private _enabled = false;
 
@@ -58,31 +58,31 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
         readonly internalParent: RevClientObject,
         hostElement: HTMLElement,
         private readonly _gridSettings: BGS,
-        canvas: Canvas<BGS>,
-        focus: Focus<BGS, BCS, SF>,
-        selection: Selection<BGS, BCS, SF>,
-        columnsManager: ColumnsManager<BCS, SF>,
-        subgridsManager: SubgridsManager<BCS, SF>,
-        viewLayout: ViewLayout<BGS, BCS, SF>,
-        renderer: Renderer<BGS, BCS, SF>,
-        private readonly _mouse: Mouse<BGS, BCS, SF>,
-        horizontalScroller: Scroller<BGS, BCS, SF>,
-        verticalScroller: Scroller<BGS, BCS, SF>,
-        focusScrollBehavior: FocusScrollBehavior<BGS, BCS, SF>,
-        selectionBehavior: FocusSelectBehavior<BGS, BCS, SF>,
-        rowPropertiesBehavior: RowPropertiesBehavior<BGS, BCS, SF>,
-        cellPropertiesBehavior: CellPropertiesBehavior<BGS, BCS, SF>,
-        dataExtractBehavior: DataExtractBehavior<BGS, BCS, SF>,
-        reindexBehavior: ReindexBehavior<BGS, BCS, SF>,
-        private readonly _eventBehavior: EventBehavior<BGS, BCS, SF>,
-        customUiControllerDefinitions: UiController.Definition<BGS, BCS, SF>[] | undefined,
+        canvas: RevCanvas<BGS>,
+        focus: RevFocus<BGS, BCS, SF>,
+        selection: RevSelection<BGS, BCS, SF>,
+        columnsManager: RevColumnsManager<BCS, SF>,
+        subgridsManager: RevSubgridsManager<BCS, SF>,
+        viewLayout: RevViewLayout<BGS, BCS, SF>,
+        renderer: RevRenderer<BGS, BCS, SF>,
+        private readonly _mouse: RevMouse<BGS, BCS, SF>,
+        horizontalScroller: RevScroller<BGS, BCS, SF>,
+        verticalScroller: RevScroller<BGS, BCS, SF>,
+        focusScrollBehavior: RevFocusScrollBehavior<BGS, BCS, SF>,
+        selectionBehavior: RevFocusSelectBehavior<BGS, BCS, SF>,
+        rowPropertiesBehavior: RevRowPropertiesBehavior<BGS, BCS, SF>,
+        cellPropertiesBehavior: RevCellPropertiesBehavior<BGS, BCS, SF>,
+        dataExtractBehavior: RevDataExtractBehavior<BGS, BCS, SF>,
+        reindexBehavior: RevReindexBehavior<BGS, BCS, SF>,
+        private readonly _eventBehavior: RevEventBehavior<BGS, BCS, SF>,
+        customUiControllerDefinitions: RevUiController.Definition<BGS, BCS, SF>[] | undefined,
     ) {
         this._sharedState = {
             locationCursorName: undefined,
             locationTitleText: undefined,
         };
 
-        this._services = new UiControllerServices(
+        this._services = new RevUiControllerServices(
             this.clientId,
             this.internalParent,
             this._sharedState,
@@ -131,7 +131,7 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
         this._eventBehavior.uiVerticalScrollerActionEventer = (event) => { this.handleVerticalScrollerActionEvent(event); };
     }
 
-    load(customUiControllerDefinitions: UiController.Definition<BGS, BCS, SF>[] | undefined) {
+    load(customUiControllerDefinitions: RevUiController.Definition<BGS, BCS, SF>[] | undefined) {
         this._firstUiController = this.createAndLinkUiControllers(customUiControllerDefinitions);
         return this._firstUiController;
     }
@@ -175,7 +175,7 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
      * @param event - the event details
      * @internal
      */
-    private handlePointerMoveEvent(event: PointerEvent): LinedHoverCell<BCS, SF> | null | undefined {
+    private handlePointerMoveEvent(event: PointerEvent): RevLinedHoverCell<BCS, SF> | null | undefined {
         if (this._enabled) {
             this._sharedState.locationCursorName = undefined;
             this._sharedState.locationTitleText = undefined;
@@ -192,7 +192,7 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
      * @param event - the event details
      * @internal
      */
-    private handleClickEvent(event: MouseEvent): LinedHoverCell<BCS, SF> | null | undefined {
+    private handleClickEvent(event: MouseEvent): RevLinedHoverCell<BCS, SF> | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiController.handleClick(event, null);
             return cell;
@@ -205,7 +205,7 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
      * delegate handling tap to the feature chain of responsibility
      * @internal
      */
-    private handleContextMenuEvent(event: MouseEvent): LinedHoverCell<BCS, SF> | null | undefined {
+    private handleContextMenuEvent(event: MouseEvent): RevLinedHoverCell<BCS, SF> | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiController.handleContextMenu(event, null);
             return cell;
@@ -218,7 +218,7 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
      * delegate handling wheel moved to the feature chain of responsibility
      * @internal
      */
-    private handleWheelMovedEvent(event: WheelEvent): LinedHoverCell<BCS, SF> | null | undefined {
+    private handleWheelMovedEvent(event: WheelEvent): RevLinedHoverCell<BCS, SF> | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiController.handleWheelMove(event, null);
             return cell;
@@ -232,7 +232,7 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
      * @param event - the event details
      * @internal
      */
-    private handlePointerUpCancelEvent(event: PointerEvent): LinedHoverCell<BCS, SF> | null | undefined {
+    private handlePointerUpCancelEvent(event: PointerEvent): RevLinedHoverCell<BCS, SF> | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiController.handlePointerUpCancel(event, null);
             return cell;
@@ -242,7 +242,7 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
     }
 
     /** @internal */
-    private handlePointerDragStartEvent(event: DragEvent): EventBehavior.UiPointerDragStartResult<BCS, SF> {
+    private handlePointerDragStartEvent(event: DragEvent): RevEventBehavior.UiPointerDragStartResult<BCS, SF> {
         if (this._enabled) {
             return this._firstUiController.handlePointerDragStart(event, null);
         } else {
@@ -254,7 +254,7 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
     }
 
     /** @internal */
-    private handlePointerDragEvent(event: PointerEvent): LinedHoverCell<BCS, SF> | null | undefined {
+    private handlePointerDragEvent(event: PointerEvent): RevLinedHoverCell<BCS, SF> | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiController.handlePointerDrag(event, null);
             return cell;
@@ -264,7 +264,7 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
     }
 
     /** @internal */
-    private handlePointerDragEndEvent(event: PointerEvent): LinedHoverCell<BCS, SF> | null | undefined {
+    private handlePointerDragEndEvent(event: PointerEvent): RevLinedHoverCell<BCS, SF> | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiController.handlePointerDragEnd(event, null);
             return cell;
@@ -278,7 +278,7 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
      * @param event - the event details
      * @internal
      */
-    private handleDblClickEvent(event: MouseEvent): LinedHoverCell<BCS, SF> | null | undefined {
+    private handleDblClickEvent(event: MouseEvent): RevLinedHoverCell<BCS, SF> | null | undefined {
         if (this._enabled) {
             this._sharedState.locationCursorName = undefined;
             this._sharedState.locationTitleText = undefined;
@@ -294,7 +294,7 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
      * @param event - the event details
      * @internal
      */
-    private handlePointerDownEvent(event: PointerEvent): LinedHoverCell<BCS, SF> | null | undefined {
+    private handlePointerDownEvent(event: PointerEvent): RevLinedHoverCell<BCS, SF> | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiController.handlePointerDown(event, null);
             return cell;
@@ -307,7 +307,7 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
      * delegate handling mouse exit to the feature chain of responsibility
      * @internal
      */
-    private handlePointerEnterEvent(event: PointerEvent): LinedHoverCell<BCS, SF> | null | undefined {
+    private handlePointerEnterEvent(event: PointerEvent): RevLinedHoverCell<BCS, SF> | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiController.handlePointerEnter(event, null);
             return cell;
@@ -320,7 +320,7 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
      * delegate handling mouse exit to the feature chain of responsibility
      * @internal
      */
-    private handlePointerLeaveOutEvent(event: PointerEvent): LinedHoverCell<BCS, SF> | null | undefined {
+    private handlePointerLeaveOutEvent(event: PointerEvent): RevLinedHoverCell<BCS, SF> | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiController.handlePointerLeaveOut(event, null);
             return cell;
@@ -370,21 +370,21 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
     }
 
     /** @internal */
-    private handleHorizontalScrollerActionEvent(eventDetail: Scroller.Action) {
+    private handleHorizontalScrollerActionEvent(eventDetail: RevScroller.Action) {
         if (this._enabled) {
             this._firstUiController.handleHorizontalScrollerAction(eventDetail);
         }
     }
 
     /** @internal */
-    private handleVerticalScrollerActionEvent(eventDetail: Scroller.Action) {
+    private handleVerticalScrollerActionEvent(eventDetail: RevScroller.Action) {
         if (this._enabled) {
             this._firstUiController.handleVerticalScrollerAction(eventDetail);
         }
     }
 
     /** @internal */
-    private createAndLinkUiControllers(customUiControllerDefinitions: UiController.Definition<BGS, BCS, SF>[] | undefined) {
+    private createAndLinkUiControllers(customUiControllerDefinitions: RevUiController.Definition<BGS, BCS, SF>[] | undefined) {
         /**
          * Controller chain of command.
          * @remarks Each feature is linked to the next feature.
@@ -395,17 +395,17 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
          * @remarks Built here but otherwise not in use.
          */
 
-        this._uiControllerFactory.registerDefinition(FocusScrollUiController.typeName, FocusScrollUiController);
-        this._uiControllerFactory.registerDefinition(CellClickUiController.typeName, CellClickUiController);
-        this._uiControllerFactory.registerDefinition(SelectionUiController.typeName, SelectionUiController);
-        this._uiControllerFactory.registerDefinition(ColumnMovingUiController.typeName, ColumnMovingUiController);
-        this._uiControllerFactory.registerDefinition(ColumnResizingUiController.typeName, ColumnResizingUiController);
-        this._uiControllerFactory.registerDefinition(ColumnSortingUiController.typeName, ColumnSortingUiController);
-        this._uiControllerFactory.registerDefinition(FiltersUiController.typeName, FiltersUiController);
-        this._uiControllerFactory.registerDefinition(HoverUiController.typeName, HoverUiController);
-        this._uiControllerFactory.registerDefinition(RowResizingUiController.typeName, RowResizingUiController);
-        this._uiControllerFactory.registerDefinition(TouchScrollingUiController.typeName, TouchScrollingUiController);
-        this._uiControllerFactory.registerDefinition(ClipboardUiController.typeName, ClipboardUiController);
+        this._uiControllerFactory.registerDefinition(RevFocusScrollUiController.typeName, RevFocusScrollUiController);
+        this._uiControllerFactory.registerDefinition(RevCellClickUiController.typeName, RevCellClickUiController);
+        this._uiControllerFactory.registerDefinition(RevSelectionUiController.typeName, RevSelectionUiController);
+        this._uiControllerFactory.registerDefinition(RevColumnMovingUiController.typeName, RevColumnMovingUiController);
+        this._uiControllerFactory.registerDefinition(RevColumnResizingUiController.typeName, RevColumnResizingUiController);
+        this._uiControllerFactory.registerDefinition(RevColumnSortingUiController.typeName, RevColumnSortingUiController);
+        this._uiControllerFactory.registerDefinition(RevFiltersUiController.typeName, RevFiltersUiController);
+        this._uiControllerFactory.registerDefinition(RevHoverUiController.typeName, RevHoverUiController);
+        this._uiControllerFactory.registerDefinition(RevRowResizingUiController.typeName, RevRowResizingUiController);
+        this._uiControllerFactory.registerDefinition(RevTouchScrollingUiController.typeName, RevTouchScrollingUiController);
+        this._uiControllerFactory.registerDefinition(RevClipboardUiController.typeName, RevClipboardUiController);
         if (customUiControllerDefinitions !== undefined) {
             for (const { typeName, constructor } of customUiControllerDefinitions) {
                 this._uiControllerFactory.registerDefinition(typeName, constructor);
@@ -414,7 +414,7 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
 
         const typeNames = this._gridSettings.defaultUiControllerTypeNames;
         const maxCount = typeNames.length;
-        const uiControllers = new Array<UiController<BGS, BCS, SF>>(maxCount);
+        const uiControllers = new Array<RevUiController<BGS, BCS, SF>>(maxCount);
         let count = 0;
         for (let i = 0; i < maxCount; i++) {
             const name = typeNames[i];
@@ -437,7 +437,7 @@ export class UiManager<BGS extends BehavioredGridSettings, BCS extends Behaviore
                 previousUiController = uiController;
             }
 
-            UiControllerSharedState.initialise(this._sharedState);
+            RevUiControllerSharedState.initialise(this._sharedState);
             firstUiController.initialise();
 
             return firstUiController;

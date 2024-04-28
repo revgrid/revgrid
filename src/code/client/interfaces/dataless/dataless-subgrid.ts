@@ -1,7 +1,7 @@
 
 /** @public */
-export interface DatalessSubgrid {
-    readonly role: DatalessSubgrid.Role;
+export interface RevDatalessSubgrid {
+    readonly role: RevDatalessSubgrid.Role;
 
     readonly isMain: boolean;
     readonly isHeader: boolean;
@@ -18,7 +18,7 @@ export interface DatalessSubgrid {
 }
 
 /** @public */
-export namespace DatalessSubgrid {
+export namespace RevDatalessSubgrid {
     export const enum RoleEnum {
         header = 'header',
         filter = 'filter',

@@ -1,32 +1,32 @@
 
 import { IndexSignatureHack } from '@xilytix/sysutils';
-import { DataServer, DatalessViewCell, GridSettings, Rectangle, RevClientGrid, SchemaField, safeConvertUnknownToBoolean } from '../../client/internal-api';
-import { StandardCheckboxPainter } from '../painters/internal-api';
-import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/internal-api';
-import { StandardCellPainter } from './standard-cell-painter';
+import { RevClientGrid, RevDataServer, RevDatalessViewCell, RevGridSettings, RevRectangle, RevSchemaField, revSafeConvertUnknownToBoolean } from '../../client/internal-api';
+import { RevStandardCheckboxPainter } from '../painters/internal-api';
+import { RevStandardBehavioredColumnSettings, RevStandardBehavioredGridSettings } from '../settings/internal-api';
+import { RevStandardCellPainter } from './standard-cell-painter';
 
 /** @public */
-export class StandardCheckboxCellPainter<
-    BGS extends StandardBehavioredGridSettings,
-    BCS extends StandardBehavioredColumnSettings,
-    SF extends SchemaField
-> extends StandardCellPainter<BGS, BCS, SF
+export class RevStandardCheckboxCellPainter<
+    BGS extends RevStandardBehavioredGridSettings,
+    BCS extends RevStandardBehavioredColumnSettings,
+    SF extends RevSchemaField
+> extends RevStandardCellPainter<BGS, BCS, SF
 > {
-    private readonly _checkboxPainter: StandardCheckboxPainter;
+    private readonly _checkboxPainter: RevStandardCheckboxPainter;
 
     constructor(
         grid: RevClientGrid<BGS, BCS, SF>,
-        dataServer: DataServer<SF>,
+        dataServer: RevDataServer<SF>,
         private readonly _editable: boolean,
     ) {
         super(grid, dataServer);
-        this._checkboxPainter = new StandardCheckboxPainter(
+        this._checkboxPainter = new RevStandardCheckboxPainter(
             this._editable,
             this._renderingContext,
         );
     }
 
-    override paint(cell: DatalessViewCell<BCS, SF>, prefillColor: string | undefined): number | undefined {
+    override paint(cell: RevDatalessViewCell<BCS, SF>, prefillColor: string | undefined): number | undefined {
         const columnSettings = cell.columnSettings;
         const bounds = cell.bounds;
         const field = cell.viewLayoutColumn.column.field;
@@ -48,7 +48,7 @@ export class StandardCheckboxCellPainter<
             }
         }
 
-        const newFingerprint: Partial<StandardCheckboxCellPainter.PaintFingerprint> = {
+        const newFingerprint: Partial<RevStandardCheckboxCellPainter.PaintFingerprint> = {
             backgroundColor,
             borderColor,
         }
@@ -60,15 +60,15 @@ export class StandardCheckboxCellPainter<
             booleanValue = null;
         } else {
             const editValue = this._dataServer.getEditValue(field, subgridRowIndex);
-            booleanValue = safeConvertUnknownToBoolean(editValue);
+            booleanValue = revSafeConvertUnknownToBoolean(editValue);
         }
 
         // write rest of newFingerprint
         checkboxPainter.writeFingerprintOrCheckPaint(newFingerprint, bounds, booleanValue, boxDetails, columnSettings.color, columnSettings.font);
 
-        let oldFingerprint: Partial<StandardCheckboxCellPainter.PaintFingerprint> | undefined;
+        let oldFingerprint: Partial<RevStandardCheckboxCellPainter.PaintFingerprint> | undefined;
         if (prefillColor === undefined) {
-            oldFingerprint = cell.paintFingerprint as StandardCheckboxCellPainter.PaintFingerprint | undefined;
+            oldFingerprint = cell.paintFingerprint as RevStandardCheckboxCellPainter.PaintFingerprint | undefined;
         } else {
             oldFingerprint = {
                 backgroundColor: prefillColor,
@@ -79,9 +79,9 @@ export class StandardCheckboxCellPainter<
 
         if (
             oldFingerprint !== undefined &&
-            StandardCheckboxCellPainter.PaintFingerprint.same(
-                newFingerprint as StandardCheckboxCellPainter.PaintFingerprint,
-                oldFingerprint as StandardCheckboxCellPainter.PaintFingerprint
+            RevStandardCheckboxCellPainter.PaintFingerprint.same(
+                newFingerprint as RevStandardCheckboxCellPainter.PaintFingerprint,
+                oldFingerprint as RevStandardCheckboxCellPainter.PaintFingerprint
             )
         ) {
             return undefined;
@@ -100,7 +100,7 @@ export class StandardCheckboxCellPainter<
         }
     }
 
-    calculateClickBox(cell: DatalessViewCell<BCS, SF>): Rectangle | undefined {
+    calculateClickBox(cell: RevDatalessViewCell<BCS, SF>): RevRectangle | undefined {
         const columnSettings = cell.columnSettings;
         const bounds = cell.bounds;
 
@@ -108,18 +108,18 @@ export class StandardCheckboxCellPainter<
         const subgridRowIndex = cell.viewLayoutRow.subgridRowIndex;
 
         const viewValue = this._dataServer.getViewValue(field, subgridRowIndex);
-        const booleanValue = safeConvertUnknownToBoolean(viewValue);
+        const booleanValue = revSafeConvertUnknownToBoolean(viewValue);
 
         return this._checkboxPainter.calculateClickBox(bounds, booleanValue, columnSettings.cellPadding, columnSettings.font);
     }
 }
 
 /** @public */
-export namespace StandardCheckboxCellPainter {
+export namespace RevStandardCheckboxCellPainter {
     export const typeName = 'Checkbox';
 
-    export interface PaintFingerprintInterface extends StandardCheckboxPainter.PaintFingerprintInterface {
-        readonly backgroundColor: GridSettings.Color;
+    export interface PaintFingerprintInterface extends RevStandardCheckboxPainter.PaintFingerprintInterface {
+        readonly backgroundColor: RevGridSettings.Color;
         readonly borderColor: string | undefined;
     }
 
@@ -130,7 +130,7 @@ export namespace StandardCheckboxCellPainter {
             return (
                 left.backgroundColor === right.backgroundColor &&
                 left.borderColor === right.borderColor &&
-                StandardCheckboxPainter.PaintFingerprint.same(left, right)
+                RevStandardCheckboxPainter.PaintFingerprint.same(left, right)
             );
         }
     }

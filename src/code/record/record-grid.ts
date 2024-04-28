@@ -1,7 +1,7 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
 import { AssertInternalError, Integer } from '@xilytix/sysutils';
-import { BehavioredColumnSettings, BehavioredGridSettings, DataServer, LinedHoverCell, MetaModel, RevApiError, RevClientGrid, RevGridDefinition, RevGridOptions, ViewCell } from '../client/internal-api';
+import { RevApiError, RevBehavioredColumnSettings, RevBehavioredGridSettings, RevClientGrid, RevDataServer, RevGridDefinition, RevGridOptions, RevLinedHoverCell, RevMetaModel, RevViewCell } from '../client/internal-api';
 import { RevColumnLayoutGrid } from '../column-layout/internal-api';
 import { RevColumnLayout } from '../column-layout/server/internal-api';
 import {
@@ -17,13 +17,13 @@ import {
 
 /** @public */
 export class RevRecordGrid<
-    BGS extends BehavioredGridSettings,
-    BCS extends BehavioredColumnSettings,
+    BGS extends RevBehavioredGridSettings,
+    BCS extends RevBehavioredColumnSettings,
     SF extends RevRecordField
 > extends RevColumnLayoutGrid<BGS, BCS, SF> implements RevColumnLayout.ChangeInitiator {
     declare schemaServer: RevRecordSchemaServer<SF>;
     declare mainDataServer: RevRecordDataServer<SF>;
-    readonly headerDataServer: DataServer<SF> | undefined;
+    readonly headerDataServer: RevDataServer<SF> | undefined;
     readonly recordStore: RevRecordStore;
 
     recordFocusedEventer: RevRecordGrid.RecordFocusEventer | undefined;
@@ -300,16 +300,16 @@ export class RevRecordGrid<
         }
     }
 
-    protected override descendantProcessColumnSort(_event: MouseEvent, headerOrFixedRowCell: ViewCell<BCS, SF>) {
+    protected override descendantProcessColumnSort(_event: MouseEvent, headerOrFixedRowCell: RevViewCell<BCS, SF>) {
         this.sortBy(headerOrFixedRowCell.viewLayoutColumn.column.field.index);
     }
 
-    protected override descendantProcessClick(event: MouseEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined) {
+    protected override descendantProcessClick(event: MouseEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined) {
         if (this.mainClickEventer !== undefined) {
             if (hoverCell === null) {
                 hoverCell = this.findLinedHoverCellAtCanvasOffset(event.offsetX, event.offsetY);
             }
-            if (hoverCell !== undefined && !LinedHoverCell.isMouseOverLine(hoverCell)) { // skip clicks on grid lines
+            if (hoverCell !== undefined && !RevLinedHoverCell.isMouseOverLine(hoverCell)) { // skip clicks on grid lines
                 const cell = hoverCell.viewCell;
                 if (!cell.isHeaderOrRowFixed) { // Skip clicks to the column headers
                     const rowIndex = cell.viewLayoutRow.subgridRowIndex;
@@ -321,12 +321,12 @@ export class RevRecordGrid<
         }
     }
 
-    protected override descendantProcessDblClick(event: MouseEvent, hoverCell: LinedHoverCell<BCS, SF> | null | undefined) {
+    protected override descendantProcessDblClick(event: MouseEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined) {
         if (this.mainDblClickEventer !== undefined) {
             if (hoverCell === null) {
                 hoverCell = this.findLinedHoverCellAtCanvasOffset(event.offsetX, event.offsetY);
             }
-            if (hoverCell !== undefined && !LinedHoverCell.isMouseOverLine(hoverCell)) { // skip clicks on grid lines
+            if (hoverCell !== undefined && !RevLinedHoverCell.isMouseOverLine(hoverCell)) { // skip clicks on grid lines
                 const cell = hoverCell.viewCell;
                 if (!cell.isHeaderOrRowFixed) { // Skip clicks to the column headers
                     const rowIndex = cell.viewLayoutRow.subgridRowIndex;
@@ -374,7 +374,7 @@ export class RevRecordGrid<
         }
     }
 
-    protected override descendantProcessDataServersRowListChanged(dataServers: DataServer<SF>[]) {
+    protected override descendantProcessDataServersRowListChanged(dataServers: RevDataServer<SF>[]) {
         if (this.dataServersRowListChangedEventer !== undefined) {
             this.dataServersRowListChangedEventer(dataServers);
         }
@@ -423,13 +423,13 @@ export namespace RevRecordGrid {
     export type MainClickEventer = (this: void, fieldIndex: RevRecordFieldIndex, recordIndex: RevRecordIndex) => void;
     export type MainDblClickEventer = (this: void, fieldIndex: RevRecordFieldIndex, recordIndex: RevRecordIndex) => void;
     export type SelectionChangedEventer = (this: void) => void;
-    export type DataServersRowListChangedEventer<SF extends RevRecordField> = (this: void, dataServers: DataServer<SF>[]) => void;
+    export type DataServersRowListChangedEventer<SF extends RevRecordField> = (this: void, dataServers: RevDataServer<SF>[]) => void;
     export type FieldSortedEventer = (this: void) => void;
 
     export interface MainSubgridDefinitionOptions {
         selectable?: boolean;
         defaultRowHeight?: number;
         rowPropertiesCanSpecifyRowHeight?: boolean;
-        rowPropertiesPrototype?: MetaModel.RowPropertiesPrototype;
+        rowPropertiesPrototype?: RevMetaModel.RowPropertiesPrototype;
     }
 }

@@ -1,4 +1,4 @@
-import { DataServer } from '../../client/internal-api';
+import { RevDataServer } from '../../client/internal-api';
 import { RevRecord } from './record';
 import { RevRecordField } from './record-field';
 
@@ -6,17 +6,17 @@ import { RevRecordField } from './record-field';
  * @public
  */
 export abstract class RevRecordFunctionizeField implements RevRecordField {
-    getViewValue: (this: void, record: never) => DataServer.ViewValue;
+    getViewValue: (this: void, record: never) => RevDataServer.ViewValue;
     compare: (this: void, left: never, right: never) => number;
     compareDesc: (this: void, left: never, right: never) => number;
 
     constructor(readonly name: string, readonly index: number) {
     }
 
-    getEditValue(_record: RevRecord): DataServer.EditValue {
+    getEditValue(_record: RevRecord): RevDataServer.EditValue {
         return undefined; // not supported
     }
-    setEditValue(_record: RevRecord, _value: DataServer.EditValue): void {
+    setEditValue(_record: RevRecord, _value: RevDataServer.EditValue): void {
         // not supported
     }
 }
@@ -29,7 +29,7 @@ export class RevRecordSimpleFunctionizeField<Record> extends RevRecordFunctioniz
     constructor(
         name: string,
         index: number,
-        value: (record: Record) => DataServer.ViewValue,
+        value: (record: Record) => RevDataServer.ViewValue,
         compare?: (left: Record, right: Record) => number,
         compareDesc?: (left: Record, right: Record) => number
     ) {

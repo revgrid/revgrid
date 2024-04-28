@@ -1,12 +1,12 @@
-import { BehavioredGridSettings } from '../../client/internal-api';
-import { defaultGridSettings } from '../default/internal-api';
-import { readonlyBehavioredSettings } from './readonly-behaviored-settings';
+import { RevBehavioredGridSettings } from '../../client/internal-api';
+import { revDefaultGridSettings } from '../default/internal-api';
+import { revReadonlyBehavioredSettings } from './readonly-behaviored-settings';
 
 /** @public */
-export const readonlyDefaultBehavioredGridSettings: Readonly<BehavioredGridSettings> = {
-    ...defaultGridSettings,
-    ...readonlyBehavioredSettings,
+export const revReadonlyDefaultBehavioredGridSettings: Readonly<RevBehavioredGridSettings> = {
+    ...revDefaultGridSettings,
+    ...revReadonlyBehavioredSettings,
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     merge: () => false,
-    clone: () => { return readonlyDefaultBehavioredGridSettings; }
+    clone: () => { return revReadonlyDefaultBehavioredGridSettings; }
 } as const;

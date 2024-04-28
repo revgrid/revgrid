@@ -1,7 +1,7 @@
 import { RevUnreachableCaseError } from './revgrid-error';
 
 /** @public */
-export const enum ModifierKeyEnum {
+export const enum RevModifierKeyEnum {
     Control = 'Control',
     Shift = 'Shift',
     Meta = 'Meta',
@@ -9,19 +9,19 @@ export const enum ModifierKeyEnum {
 }
 
 /** @public */
-export type ModifierKey = keyof typeof ModifierKeyEnum;
+export type RevModifierKey = keyof typeof RevModifierKeyEnum;
 
 /** @public */
-export namespace ModifierKey {
-    export const all = [ModifierKeyEnum.Control];
+export namespace RevModifierKey {
+    export const all = [RevModifierKeyEnum.Control];
 
-    export function isDownInEvent<T extends MouseEvent | KeyboardEvent>(keyEnum: ModifierKeyEnum | undefined, event: T) {
+    export function isDownInEvent<T extends MouseEvent | KeyboardEvent>(keyEnum: RevModifierKeyEnum | undefined, event: T) {
         switch (keyEnum) {
             case undefined: return false;
-            case ModifierKeyEnum.Control: return event.ctrlKey;
-            case ModifierKeyEnum.Shift: return event.shiftKey;
-            case ModifierKeyEnum.Meta: return event.metaKey;
-            case ModifierKeyEnum.Alt: return event.altKey;
+            case RevModifierKeyEnum.Control: return event.ctrlKey;
+            case RevModifierKeyEnum.Shift: return event.shiftKey;
+            case RevModifierKeyEnum.Meta: return event.metaKey;
+            case RevModifierKeyEnum.Alt: return event.altKey;
             default:
                 throw new RevUnreachableCaseError('HTMKIKIKE40941', keyEnum);
         }

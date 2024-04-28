@@ -1,15 +1,15 @@
 
-import { Subgrid } from '../../interfaces/data/subgrid';
-import { SchemaField } from '../../interfaces/schema/schema-field';
-import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
-import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
-import { Point } from '../../types-utils/point';
-import { UiController } from './ui-controller';
+import { RevSubgrid } from '../../interfaces/data/subgrid';
+import { RevSchemaField } from '../../interfaces/schema/schema-field';
+import { RevBehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
+import { RevBehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
+import { RevPoint } from '../../types-utils/point';
+import { RevUiController } from './ui-controller';
 
 /** @internal */
-export class RowResizingUiController<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends UiController<BGS, BCS, SF> {
+export class RevRowResizingUiController<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevUiController<BGS, BCS, SF> {
 
-    readonly typeName = RowResizingUiController.typeName;
+    readonly typeName = RevRowResizingUiController.typeName;
 
     /**
      * the index of the row/column we are dragging
@@ -24,7 +24,7 @@ export class RowResizingUiController<BGS extends BehavioredGridSettings, BCS ext
     /**
      * get the grid cell x,y coordinate
      */
-    getGridCellValue(gridCell: Point): number {
+    getGridCellValue(gridCell: RevPoint): number {
         return gridCell.x;
     }
 
@@ -39,7 +39,7 @@ export class RowResizingUiController<BGS extends BehavioredGridSettings, BCS ext
      * return the width/height of the row/column of interest
      * @param index - the row/column index of interest
      */
-    private getAreaSize(index: number, subgrid: Subgrid<BCS, SF>): number {
+    private getAreaSize(index: number, subgrid: RevSubgrid<BCS, SF>): number {
         return subgrid.getRowHeight(index);
     }
 
@@ -48,7 +48,7 @@ export class RowResizingUiController<BGS extends BehavioredGridSettings, BCS ext
      * @param index - the row/column index of interest
      * @param value - the width/height to set to
      */
-    private setAreaSize(index: number, value: number, subgrid: Subgrid<BCS, SF>) {
+    private setAreaSize(index: number, value: number, subgrid: RevSubgrid<BCS, SF>) {
         this.rowPropertiesBehavior.setRowHeight(index, value, subgrid);
     }
 
@@ -58,7 +58,7 @@ export class RowResizingUiController<BGS extends BehavioredGridSettings, BCS ext
 }
 
 /** @internal */
-export namespace RowResizingUiController {
+export namespace RevRowResizingUiController {
     export const typeName = 'rowresizing';
 
     export const cursorName = 'row-resize';

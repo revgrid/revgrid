@@ -1,20 +1,20 @@
-import { CellMetaSettings } from '../interfaces/data/cell-meta-settings';
-import { MetaModel } from '../interfaces/data/meta-model';
-import { ColumnSettings } from '../interfaces/settings/column-settings';
+import { RevCellMetaSettings } from '../interfaces/data/cell-meta-settings';
+import { RevMetaModel } from '../interfaces/data/meta-model';
+import { RevColumnSettings } from '../interfaces/settings/column-settings';
 
-export class CellMetaSettingsImplementation implements CellMetaSettings {
+export class CellMetaSettingsImplementation implements RevCellMetaSettings {
     constructor(
-        private readonly _cellOwnProperties: MetaModel.CellOwnProperties | undefined,
-        private readonly _columnSettings: ColumnSettings
+        private readonly _cellOwnProperties: RevMetaModel.CellOwnProperties | undefined,
+        private readonly _columnSettings: RevColumnSettings
     ) {
 
     }
 
-    get<T extends keyof ColumnSettings>(key: T): ColumnSettings[T];
-    get(key: string | number): MetaModel.CellOwnProperty;
-    get<T extends keyof ColumnSettings>(key: string | number) {
+    get<T extends keyof RevColumnSettings>(key: T): RevColumnSettings[T];
+    get(key: string | number): RevMetaModel.CellOwnProperty;
+    get<T extends keyof RevColumnSettings>(key: string | number) {
         // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-        let result: MetaModel.CellOwnProperty | undefined;
+        let result: RevMetaModel.CellOwnProperty | undefined;
         if (this._cellOwnProperties !== undefined) {
             result = this._cellOwnProperties[key];
         }

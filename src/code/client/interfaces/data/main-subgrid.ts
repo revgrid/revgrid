@@ -1,6 +1,6 @@
-import { SchemaField } from '../schema/schema-field';
-import { BehavioredColumnSettings } from '../settings/behaviored-column-settings';
-import { Subgrid } from './subgrid';
+import { RevSchemaField } from '../schema/schema-field';
+import { RevBehavioredColumnSettings } from '../settings/behaviored-column-settings';
+import { RevSubgrid } from './subgrid';
 
 /** @public */
-export type MainSubgrid<BCS extends BehavioredColumnSettings, SF extends SchemaField> = Subgrid<BCS, SF>
+export type RevMainSubgrid<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> = RevSubgrid<BCS, SF>

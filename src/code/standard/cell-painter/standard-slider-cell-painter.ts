@@ -1,21 +1,21 @@
 
-import { CellPainter, DatalessViewCell, Rectangle, SchemaField } from '../../client/internal-api';
-import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/internal-api';
-import { StandardCellPainter } from './standard-cell-painter';
+import { RevCellPainter, RevDatalessViewCell, RevRectangle, RevSchemaField } from '../../client/internal-api';
+import { RevStandardBehavioredColumnSettings, RevStandardBehavioredGridSettings } from '../settings/internal-api';
+import { RevStandardCellPainter } from './standard-cell-painter';
 
 /**
  * Renders a slider button.
  * Currently however the user cannot interact with it.
  * @public
  */
-export class StandardSliderCellPainter<
-    BGS extends StandardBehavioredGridSettings,
-    BCS extends StandardBehavioredColumnSettings,
-    SF extends SchemaField
-> extends StandardCellPainter<BGS, BCS, SF> {
-    config: StandardSliderCellPainter.Config;
+export class RevStandardSliderCellPainter<
+    BGS extends RevStandardBehavioredGridSettings,
+    BCS extends RevStandardBehavioredColumnSettings,
+    SF extends RevSchemaField
+> extends RevStandardCellPainter<BGS, BCS, SF> {
+    config: RevStandardSliderCellPainter.Config;
 
-    override paint(_cell: DatalessViewCell<BCS, SF>, _prefillColor: string | undefined): number | undefined {
+    override paint(_cell: RevDatalessViewCell<BCS, SF>, _prefillColor: string | undefined): number | undefined {
         const gc = this._renderingContext;
         const config = this.config;
 
@@ -35,7 +35,7 @@ export class StandardSliderCellPainter<
         arcGradient.addColorStop(0, '#aaaaaa');
         arcGradient.addColorStop(1, '#777777');
         gc.cache.fillStyle = btnGradient;
-        CellPainter.roundRect(gc, x, y, width, height, radius, btnGradient !== undefined);
+        RevCellPainter.roundRect(gc, x, y, width, height, radius, btnGradient !== undefined);
         if (val < 1.0) {
             gc.cache.fillStyle = arcGradient;
         } else {
@@ -50,12 +50,12 @@ export class StandardSliderCellPainter<
 }
 
 /** @public */
-export namespace StandardSliderCellPainter {
+export namespace RevStandardSliderCellPainter {
     export const typeName = 'Slider';
 
     export interface Config {
         value: number;
-        bounds: Rectangle;
+        bounds: RevRectangle;
         backgroundColor: string;
         isSelected: boolean;
     }

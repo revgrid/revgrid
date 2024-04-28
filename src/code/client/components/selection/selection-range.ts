@@ -4,21 +4,21 @@
  * element [0] is the beginning of the range
  * element [1] is the end of the range (inclusive) and is always >= element [0]
  */
-export type SelectionInclusiveRange = [start: number, stop: number];
-export interface SelectionRange extends SelectionInclusiveRange {
+export type RevSelectionInclusiveRange = [start: number, stop: number];
+export interface RevSelectionRange extends RevSelectionInclusiveRange {
     offsetY?: number;
 }
 
-export namespace SelectionRange {
+export namespace RevSelectionRange {
     /**
      * Preps `start` and `stop` params into order array
      * @remarks Utility function called by both `select()` and `deselect()`.
      */
-    export function make(start: number, count: number): SelectionRange {
+    export function make(start: number, count: number): RevSelectionRange {
         return [start, start + count - 1];
     }
 
-    export function copy(other: SelectionRange): SelectionRange {
+    export function copy(other: RevSelectionRange): RevSelectionRange {
         return [other[0], other[1]];
     }
 
@@ -35,7 +35,7 @@ export namespace SelectionRange {
      * @param range1 - first range
      * @param range2 - second range
      */
-    export function overlaps(range1: SelectionRange, range2: SelectionRange): boolean {
+    export function overlaps(range1: RevSelectionRange, range2: RevSelectionRange): boolean {
         return (
             range1[0] <= range2[0] && range2[0] <= range1[1] || // range2's start is within range1 OR...
             range1[0] <= range2[1] && range2[1] <= range1[1] || // range2's stop is within range1 OR...
@@ -52,7 +52,7 @@ export namespace SelectionRange {
      * @param range1 - first range
      * @param range2 - second range
      */
-    export function abuts(range1: SelectionRange, range2: SelectionRange): boolean {
+    export function abuts(range1: RevSelectionRange, range2: RevSelectionRange): boolean {
         return (
             range1[1] === range2[0] - 1 || // range1's top immediately precedes range2's start OR...
             range2[1] === range1[0] - 1    // range2's top immediately precedes range1's start
@@ -72,12 +72,12 @@ export namespace SelectionRange {
      * @param minuend - a range from which to "subtract" `subtrahend`
      * @param subtrahend - a range to "subtracted" from `minuend`
      */
-    export function subtract(minuend: SelectionRange, subtrahend: SelectionRange) {
+    export function subtract(minuend: RevSelectionRange, subtrahend: RevSelectionRange) {
         const m0 = minuend[0];
         const m1 = minuend[1];
         const s0 = subtrahend[0];
         const s1 = subtrahend[1];
-        const result: SelectionRange[] = [];
+        const result: RevSelectionRange[] = [];
 
         if (s0 <= m0 && s1 < m1) {
             //subtrahend extends before minuend: return remaining piece of `minuend`
@@ -113,7 +113,7 @@ export namespace SelectionRange {
      * @param range1 - a range to merge with `range2`
      * @param range2 - a range to merge with `range1`
      */
-    export function merge(range1: SelectionRange, range2: SelectionRange): SelectionRange {
+    export function merge(range1: RevSelectionRange, range2: RevSelectionRange): RevSelectionRange {
         const min = Math.min(Math.min(...range1), Math.min(...range2));
         const max = Math.max(Math.max(...range1), Math.max(...range2));
         return [min, max];
@@ -124,7 +124,7 @@ export namespace SelectionRange {
      * @returns `true` iff `outerRange` completely contains `range`
      * @remarks Both parameters are assumed to be _ordered_ arrays.
      */
-    export function contains(outerRange: SelectionRange, range: SelectionRange) {
+    export function contains(outerRange: RevSelectionRange, range: RevSelectionRange) {
         return range[0] >= outerRange[0] && range[1] <= outerRange[1];
     }
 }

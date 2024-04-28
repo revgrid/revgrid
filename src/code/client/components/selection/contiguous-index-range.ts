@@ -1,4 +1,4 @@
-export class ContiguousIndexRange {
+export class RevContiguousIndexRange {
     private _after: number;
 
     constructor(private _start: number, private _length: number) {
@@ -30,34 +30,34 @@ export class ContiguousIndexRange {
     }
 
     createCopy() {
-        return new ContiguousIndexRange(this._start, this._length);
+        return new RevContiguousIndexRange(this._start, this._length);
     }
 
     includes(index: number) {
         return index >= this._start && index < this._after;
     }
 
-    overlaps(other: ContiguousIndexRange): boolean {
+    overlaps(other: RevContiguousIndexRange): boolean {
         return (this._start >= other._start) && (this._start < other._after) ||
             (this._after >= other._start) && (this._after < other._after);
     }
 
-    abuts(other: ContiguousIndexRange): boolean {
+    abuts(other: RevContiguousIndexRange): boolean {
         return this._after === other._start || this._start === other._after;
     }
 
-    contains(this: ContiguousIndexRange, other: ContiguousIndexRange) {
+    contains(this: RevContiguousIndexRange, other: RevContiguousIndexRange) {
         return other._start >= this._start && other._after <= this._after;
     }
 
-    createFromAbuttingOverlapping(this: ContiguousIndexRange, other: ContiguousIndexRange) {
+    createFromAbuttingOverlapping(this: RevContiguousIndexRange, other: RevContiguousIndexRange) {
         const thisIndex = this._start;
         const otherIndex = other._start;
         const mergedIndex = thisIndex < otherIndex ? thisIndex : otherIndex;
         const thisAfter = this._after;
         const otherAfter = other._after;
         const mergedAfter = thisAfter > otherAfter ? thisAfter : otherAfter;
-        return new ContiguousIndexRange(mergedIndex, mergedAfter - mergedIndex);
+        return new RevContiguousIndexRange(mergedIndex, mergedAfter - mergedIndex);
     }
 
     addIndicesToArray(array: number[], count: number) {

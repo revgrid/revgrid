@@ -1,11 +1,11 @@
 // import { Column } from '../../interfaces/data/column';
-import { DataServer } from '../../interfaces/data/data-server';
-import { Column } from '../../interfaces/dataless/column';
-import { SchemaField } from '../../interfaces/schema/schema-field';
-import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
+import { RevDataServer } from '../../interfaces/data/data-server';
+import { RevColumn } from '../../interfaces/dataless/column';
+import { RevSchemaField } from '../../interfaces/schema/schema-field';
+import { RevBehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
 
 /** @internal */
-export class ColumnImplementation<BCS extends BehavioredColumnSettings, SF extends SchemaField> implements Column<BCS, SF> {
+export class RevColumnImplementation<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevColumn<BCS, SF> {
     preferredWidth: number | undefined;
 
     private _width: number;
@@ -14,8 +14,8 @@ export class ColumnImplementation<BCS extends BehavioredColumnSettings, SF exten
     constructor(
         readonly field: SF,
         readonly settings: BCS,
-        private readonly _widthChangedEventer: ColumnImplementation.WidthChangedEventer<BCS, SF>,
-        private readonly _horizontalViewLayoutInvalidatedEventer: ColumnImplementation.HorizontalViewLayoutInvalidatedEventer,
+        private readonly _widthChangedEventer: RevColumnImplementation.WidthChangedEventer<BCS, SF>,
+        private readonly _horizontalViewLayoutInvalidatedEventer: RevColumnImplementation.HorizontalViewLayoutInvalidatedEventer,
     ) {
         this._width = this.settings.defaultColumnWidth;
         this._autoSizing = this.settings.defaultColumnAutoSizing;
@@ -104,7 +104,7 @@ export class ColumnImplementation<BCS extends BehavioredColumnSettings, SF exten
     /**
      * @returns '' if data value is undefined
      */
-    getValueFromDataRow(dataRow: DataServer.ViewRow): DataServer.ViewValue {
+    getValueFromDataRow(dataRow: RevDataServer.ViewRow): RevDataServer.ViewValue {
         if (Array.isArray(dataRow)) {
             return dataRow[this.field.index];
         } else {
@@ -158,7 +158,7 @@ export class ColumnImplementation<BCS extends BehavioredColumnSettings, SF exten
     }
 }
 
-export namespace ColumnImplementation {
-    export type WidthChangedEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField> = (this: void, column: ColumnImplementation<BCS, SF>, ui: boolean) => void;
+export namespace RevColumnImplementation {
+    export type WidthChangedEventer<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> = (this: void, column: RevColumnImplementation<BCS, SF>, ui: boolean) => void;
     export type HorizontalViewLayoutInvalidatedEventer = (this: void) => void;
 }

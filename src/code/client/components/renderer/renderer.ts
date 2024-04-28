@@ -1,35 +1,35 @@
-import { Selection } from '../../components/selection/selection';
-import { Subgrid } from '../../interfaces/data/subgrid';
-import { ViewCell } from '../../interfaces/data/view-cell';
-import { SchemaField } from '../../interfaces/schema/schema-field';
-import { ServerNotificationId, invalidServerNotificationId, lowestValidServerNotificationId } from '../../interfaces/schema/schema-server';
-import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
-import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
+import { RevSelection } from '../../components/selection/selection';
+import { RevSubgrid } from '../../interfaces/data/subgrid';
+import { RevViewCell } from '../../interfaces/data/view-cell';
+import { RevSchemaField } from '../../interfaces/schema/schema-field';
+import { RevServerNotificationId, revInvalidServerNotificationId, revLowestValidServerNotificationId } from '../../interfaces/schema/schema-server';
+import { RevBehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
+import { RevBehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { RevClientObject } from '../../types-utils/client-object';
 import { RevAssertError, RevUnreachableCaseError } from '../../types-utils/revgrid-error';
-import { Canvas } from '../canvas/canvas';
-import { ColumnsManager } from '../column/columns-manager';
-import { Focus } from '../focus/focus';
-import { Mouse } from '../mouse/mouse';
-import { SubgridsManager } from '../subgrid/subgrids-manager';
-import { ViewLayout } from '../view/view-layout';
-import { Animation } from './animation';
-import { Animator } from './animator';
-import { ByColumnsAndRowsGridPainter } from './grid-painter/by-columns-and-rows-grid-painter';
-import { GridPainter } from './grid-painter/grid-painter';
-import { GridPainterRepository } from './grid-painter/grid-painter-repository';
+import { RevCanvas } from '../canvas/canvas';
+import { RevColumnsManager } from '../column/columns-manager';
+import { RevFocus } from '../focus/focus';
+import { RevMouse } from '../mouse/mouse';
+import { RevSubgridsManager } from '../subgrid/subgrids-manager';
+import { RevViewLayout } from '../view/view-layout';
+import { RevAnimation } from './animation';
+import { RevAnimator } from './animator';
+import { RevByColumnsAndRowsGridPainter } from './grid-painter/by-columns-and-rows-grid-painter';
+import { RevGridPainter } from './grid-painter/grid-painter';
+import { RevGridPainterRepository } from './grid-painter/grid-painter-repository';
 import { RenderAction } from './render-action';
-import { RenderActionQueue } from './render-action-queue';
+import { RevRenderActionQueue } from './render-action-queue';
 
 /** @public */
-export class Renderer<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevClientObject {
+export class RevRenderer<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {
     /** @internal */
-    renderedEventer: Renderer.RenderedEventer;
+    renderedEventer: RevRenderer.RenderedEventer;
 
     /** @internal */
-    private readonly _gridPainterRepository: GridPainterRepository<BGS, BCS, SF>;
+    private readonly _gridPainterRepository: RevGridPainterRepository<BGS, BCS, SF>;
     /** @internal */
-    private readonly _renderActionQueue: RenderActionQueue;
+    private readonly _renderActionQueue: RevRenderActionQueue;
     /** @internal */
     private readonly _gridSettingsChangedListener = () => { this.handleGridSettingsChanged(); };
 
@@ -37,18 +37,18 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
     private _documentHidden = false;
 
     /** @internal */
-    private _lastServerNotificationId: ServerNotificationId = lowestValidServerNotificationId;
+    private _lastServerNotificationId: RevServerNotificationId = revLowestValidServerNotificationId;
     /** @internal */
-    private _lastRenderedServerNotificationId: ServerNotificationId = lowestValidServerNotificationId;
+    private _lastRenderedServerNotificationId: RevServerNotificationId = revLowestValidServerNotificationId;
     /** @internal */
-    private _waitLastServerNotificationRenderedResolves = new Array<Renderer.WaitModelRenderedResolve>();
+    private _waitLastServerNotificationRenderedResolves = new Array<RevRenderer.WaitModelRenderedResolve>();
 
     /** @internal */
-    private _animator: Animator | undefined;
+    private _animator: RevAnimator | undefined;
     /** @internal */
-    private _gridPainter: GridPainter<BGS, BCS, SF>;
+    private _gridPainter: RevGridPainter<BGS, BCS, SF>;
     /** @internal */
-    private _allGridPainter: GridPainter<BGS, BCS, SF> | undefined;
+    private _allGridPainter: RevGridPainter<BGS, BCS, SF> | undefined;
 
     /** @internal */
     private _pageVisibilityChangeListener = () => { this.handlePageVisibilityChange(); };
@@ -60,21 +60,21 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
         /** @internal */
         private readonly _gridSettings: BGS,
         /** @internal */
-        private readonly _canvas: Canvas<BGS>,
+        private readonly _canvas: RevCanvas<BGS>,
         /** @internal */
-        private readonly _columnsManager: ColumnsManager<BCS, SF>,
+        private readonly _columnsManager: RevColumnsManager<BCS, SF>,
         /** @internal */
-        private readonly _subgridsManager: SubgridsManager<BCS, SF>,
+        private readonly _subgridsManager: RevSubgridsManager<BCS, SF>,
         /** @internal */
-        private readonly _viewLayout: ViewLayout<BGS, BCS, SF>,
+        private readonly _viewLayout: RevViewLayout<BGS, BCS, SF>,
         /** @internal */
-        private readonly _focus: Focus<BGS, BCS, SF>,
+        private readonly _focus: RevFocus<BGS, BCS, SF>,
         /** @internal */
-        private readonly _selection: Selection<BGS, BCS, SF>,
+        private readonly _selection: RevSelection<BGS, BCS, SF>,
         /** @internal */
-        private readonly _mouse: Mouse<BGS, BCS, SF>,
+        private readonly _mouse: RevMouse<BGS, BCS, SF>,
     ) {
-        this._gridPainterRepository = new GridPainterRepository(
+        this._gridPainterRepository = new RevGridPainterRepository(
             this._gridSettings,
             this._canvas,
             this._subgridsManager,
@@ -85,7 +85,7 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
             () => { this.repaintAll(); },
         );
 
-        this._renderActionQueue = new RenderActionQueue(() => { this.flagAnimateRequired(); });
+        this._renderActionQueue = new RevRenderActionQueue(() => { this.flagAnimateRequired(); });
 
         this._gridSettings.subscribeChangedEvent(this._gridSettingsChangedListener);
         this._gridSettings.viewRenderInvalidatedEventer = () => {
@@ -109,12 +109,12 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
     get lastServerNotificationId() { return this._lastServerNotificationId; }
 
     /** Promise resolves after paint renders the last server notification (change) for the first time. Columns and rows will then reflect server data and schema */
-    waitLastServerNotificationRendered(): Promise<ServerNotificationId> {
+    waitLastServerNotificationRendered(): Promise<RevServerNotificationId> {
         const lastRenderedServerNotificationId = this._lastRenderedServerNotificationId;
         if (lastRenderedServerNotificationId === this._lastServerNotificationId) {
             return Promise.resolve(lastRenderedServerNotificationId); // latest model already rendered
         } else {
-            return new Promise<ServerNotificationId>((resolve) => { this._waitLastServerNotificationRenderedResolves.push(resolve); });
+            return new Promise<RevServerNotificationId>((resolve) => { this._waitLastServerNotificationRenderedResolves.push(resolve); });
         }
     }
 
@@ -128,14 +128,14 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
     destroy() {
         this.stop(); // in case revgrid was not deactivated by application
 
-        this.resolveWaitLastServerNotificationRendered(invalidServerNotificationId);
+        this.resolveWaitLastServerNotificationRendered(revInvalidServerNotificationId);
 
         document.removeEventListener('visibilitychange', this._pageVisibilityChangeListener);
         this._gridSettings.unsubscribeChangedEvent(this._gridSettingsChangedListener);
     }
 
     /** @internal */
-    registerGridPainter(key: string, constructor: GridPainter.Constructor<BGS, BCS, SF>) {
+    registerGridPainter(key: string, constructor: RevGridPainter.Constructor<BGS, BCS, SF>) {
         this._gridPainterRepository.register(key, constructor);
     }
 
@@ -156,7 +156,7 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
     /** @internal */
     repaintAll() {
         if (this._allGridPainter === undefined) {
-            this._allGridPainter = this.getGridPainter(ByColumnsAndRowsGridPainter.key);
+            this._allGridPainter = this.getGridPainter(RevByColumnsAndRowsGridPainter.key);
 
         }
         this._allGridPainter.paintCells();
@@ -178,7 +178,7 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
         if (this._animator !== undefined) {
             throw new RevAssertError('RSA69107');
         } else {
-            this._animator = Animation.animation.createAnimator(
+            this._animator = RevAnimation.animation.createAnimator(
                 this._gridSettings.minimumAnimateTimeInterval,
                 this._gridSettings.backgroundAnimateTimeInterval,
                 () => { this.processRenderActionQueue(); },
@@ -193,7 +193,7 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
     /** @internal */
     stop() {
         if (this._animator !== undefined) {
-            Animation.animation.destroyAnimator(this._animator);
+            RevAnimation.animation.destroyAnimator(this._animator);
             this._animator = undefined;
         }
     }
@@ -221,14 +221,14 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
     }
 
     /** @internal */
-    invalidateViewCell(cell: ViewCell<BCS, SF>) {
+    invalidateViewCell(cell: RevViewCell<BCS, SF>) {
         if (this._canvas.hasBounds) {
             this._renderActionQueue.invalidateViewCell(cell.viewLayoutColumn.index, cell.viewLayoutRow.index);
         }
     }
 
     /** @internal */
-    invalidateSubgrid(subgrid: Subgrid<BCS, SF>) {
+    invalidateSubgrid(subgrid: RevSubgrid<BCS, SF>) {
         if (this._canvas.hasBounds) {
             const viewRowCount = subgrid.viewRowCount;
             if (viewRowCount > 0) {
@@ -238,7 +238,7 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
     }
 
     /** @internal */
-    invalidateSubgridRows(subgrid: Subgrid<BCS, SF>, subgridRowIndex: number, count: number) {
+    invalidateSubgridRows(subgrid: RevSubgrid<BCS, SF>, subgridRowIndex: number, count: number) {
         if (this._canvas.hasBounds) {
             const subgridViewRowCount = subgrid.viewRowCount;
             if (subgridViewRowCount > 0) {
@@ -260,7 +260,7 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
     }
 
     /** @internal */
-    invalidateSubgridRow(subgrid: Subgrid<BCS, SF>, subgridRowIndex: number) {
+    invalidateSubgridRow(subgrid: RevSubgrid<BCS, SF>, subgridRowIndex: number) {
         if (this._canvas.hasBounds) {
             const subgridViewRowCount = subgrid.viewRowCount;
             if (subgridViewRowCount > 0) {
@@ -273,7 +273,7 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
     }
 
     /** @internal */
-    invalidateSubgridRowCells(subgrid: Subgrid<BCS, SF>, subgridRowIndex: number, activeColumnIndices: number[]) {
+    invalidateSubgridRowCells(subgrid: RevSubgrid<BCS, SF>, subgridRowIndex: number, activeColumnIndices: number[]) {
         if (this._canvas.hasBounds) {
             const subgridViewRowCount = subgrid.viewRowCount;
             if (subgridViewRowCount > 0) {
@@ -299,7 +299,7 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
     }
 
     /** @internal */
-    invalidateSubgridCell(subgrid: Subgrid<BCS, SF>, activeColumnIndex: number, subgridRowIndex: number) {
+    invalidateSubgridCell(subgrid: RevSubgrid<BCS, SF>, activeColumnIndex: number, subgridRowIndex: number) {
         if (this._canvas.hasBounds) {
             const subgridViewRowCount = subgrid.viewRowCount;
             if (subgridViewRowCount > 0) {
@@ -330,7 +330,7 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
     }
 
     /** @internal */
-    private resolveWaitLastServerNotificationRendered(lastServerNotificationId: ServerNotificationId) {
+    private resolveWaitLastServerNotificationRendered(lastServerNotificationId: RevServerNotificationId) {
         if (this._waitLastServerNotificationRenderedResolves.length > 0) {
             for (const resolve of this._waitLastServerNotificationRenderedResolves) {
                 resolve(lastServerNotificationId);
@@ -409,9 +409,9 @@ export class Renderer<BGS extends BehavioredGridSettings, BCS extends Behaviored
 }
 
 /** @public */
-export namespace Renderer {
+export namespace RevRenderer {
     /** @internal */
-    export type WaitModelRenderedResolve = (this: void, id: ServerNotificationId) => void;
+    export type WaitModelRenderedResolve = (this: void, id: RevServerNotificationId) => void;
     /** @internal */
     export type RenderedEventer = (this: void) => void;
 }

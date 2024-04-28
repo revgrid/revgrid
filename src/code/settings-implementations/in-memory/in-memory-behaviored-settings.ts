@@ -1,30 +1,30 @@
 import {
-    BehavioredSettings,
-    GridSettingChangeInvalidateType,
-    GridSettingChangeInvalidateTypeId,
     RevAssertError,
+    RevBehavioredSettings,
+    RevGridSettingChangeInvalidateType,
+    RevGridSettingChangeInvalidateTypeId,
     RevUnreachableCaseError
 } from '../../client/internal-api';
 
 /** @public */
-export abstract class InMemoryBehavioredSettings implements BehavioredSettings {
+export abstract class RevInMemoryBehavioredSettings implements RevBehavioredSettings {
     /** @internal */
-    viewRenderInvalidatedEventer: BehavioredSettings.ViewRenderInvalidatedEventer | undefined;
+    viewRenderInvalidatedEventer: RevBehavioredSettings.ViewRenderInvalidatedEventer | undefined;
     /** @internal */
-    viewLayoutInvalidatedEventer: BehavioredSettings.ViewLayoutInvalidatedEventer | undefined;
+    viewLayoutInvalidatedEventer: RevBehavioredSettings.ViewLayoutInvalidatedEventer | undefined;
     /** @internal */
-    horizontalViewLayoutInvalidatedEventer: BehavioredSettings.ViewLayoutInvalidatedEventer | undefined;
+    horizontalViewLayoutInvalidatedEventer: RevBehavioredSettings.ViewLayoutInvalidatedEventer | undefined;
     /** @internal */
-    verticalViewLayoutInvalidatedEventer: BehavioredSettings.ViewLayoutInvalidatedEventer | undefined;
+    verticalViewLayoutInvalidatedEventer: RevBehavioredSettings.ViewLayoutInvalidatedEventer | undefined;
     /** @internal */
-    resizeEventer: BehavioredSettings.ResizeEventer | undefined;
+    resizeEventer: RevBehavioredSettings.ResizeEventer | undefined;
 
     /** @internal */
     private _beginChangeCount = 0;
     /** @internal */
-    private _highestPriorityInvalidateType: GridSettingChangeInvalidateTypeId | undefined;
+    private _highestPriorityInvalidateType: RevGridSettingChangeInvalidateTypeId | undefined;
     /** @internal */
-    private _changedEventHandlers =  new Array<BehavioredSettings.ChangedEventHandler>();
+    private _changedEventHandlers =  new Array<RevBehavioredSettings.ChangedEventHandler>();
 
 
     beginChange() {
@@ -49,11 +49,11 @@ export abstract class InMemoryBehavioredSettings implements BehavioredSettings {
         return changed;
     }
 
-    subscribeChangedEvent(handler: BehavioredSettings.ChangedEventHandler) {
+    subscribeChangedEvent(handler: RevBehavioredSettings.ChangedEventHandler) {
         this._changedEventHandlers.push(handler);
     }
 
-    unsubscribeChangedEvent(handler: BehavioredSettings.ChangedEventHandler) {
+    unsubscribeChangedEvent(handler: RevBehavioredSettings.ChangedEventHandler) {
         const index = this._changedEventHandlers.indexOf(handler);
         if (index < 0) {
             throw new RevAssertError('IMBSUCE23445');
@@ -63,61 +63,61 @@ export abstract class InMemoryBehavioredSettings implements BehavioredSettings {
     }
 
     protected flagChangedViewRender() {
-        this.flagChanged(GridSettingChangeInvalidateTypeId.ViewRender);
+        this.flagChanged(RevGridSettingChangeInvalidateTypeId.ViewRender);
     }
 
-    protected flagChanged(invalidateType: GridSettingChangeInvalidateTypeId) {
+    protected flagChanged(invalidateType: RevGridSettingChangeInvalidateTypeId) {
         if (this._highestPriorityInvalidateType === undefined) {
             this._highestPriorityInvalidateType = invalidateType;
         } else {
-            this._highestPriorityInvalidateType = GridSettingChangeInvalidateType.getHigherPriority(invalidateType, this._highestPriorityInvalidateType);
+            this._highestPriorityInvalidateType = RevGridSettingChangeInvalidateType.getHigherPriority(invalidateType, this._highestPriorityInvalidateType);
         }
     }
 
-    private notifyChanged(invalidateType: GridSettingChangeInvalidateTypeId) {
+    private notifyChanged(invalidateType: RevGridSettingChangeInvalidateTypeId) {
         for (const handler of this._changedEventHandlers) {
             handler();
         }
 
         switch (invalidateType) {
-            case GridSettingChangeInvalidateTypeId.None:
+            case RevGridSettingChangeInvalidateTypeId.None:
                 break;
-            case GridSettingChangeInvalidateTypeId.ViewRender:
+            case RevGridSettingChangeInvalidateTypeId.ViewRender:
                 if (this.viewRenderInvalidatedEventer !== undefined) {
                     this.viewRenderInvalidatedEventer();
                 }
                 break;
-            case GridSettingChangeInvalidateTypeId.HorizontalViewLayout:
+            case RevGridSettingChangeInvalidateTypeId.HorizontalViewLayout:
                 if (this.horizontalViewLayoutInvalidatedEventer !== undefined) {
                     this.horizontalViewLayoutInvalidatedEventer(false);
                 }
                 break;
-            case GridSettingChangeInvalidateTypeId.VerticalViewLayout:
+            case RevGridSettingChangeInvalidateTypeId.VerticalViewLayout:
                 if (this.verticalViewLayoutInvalidatedEventer !== undefined) {
                     this.verticalViewLayoutInvalidatedEventer(false);
                 }
                 break;
-            case GridSettingChangeInvalidateTypeId.ViewLayout:
+            case RevGridSettingChangeInvalidateTypeId.ViewLayout:
                 if (this.viewLayoutInvalidatedEventer !== undefined) {
                     this.viewLayoutInvalidatedEventer(false);
                 }
                 break;
-            case GridSettingChangeInvalidateTypeId.HorizontalViewLayoutAndScrollDimension:
+            case RevGridSettingChangeInvalidateTypeId.HorizontalViewLayoutAndScrollDimension:
                 if (this.horizontalViewLayoutInvalidatedEventer !== undefined) {
                     this.horizontalViewLayoutInvalidatedEventer(true);
                 }
                 break;
-            case GridSettingChangeInvalidateTypeId.VerticalViewLayoutAndScrollDimension:
+            case RevGridSettingChangeInvalidateTypeId.VerticalViewLayoutAndScrollDimension:
                 if (this.verticalViewLayoutInvalidatedEventer !== undefined) {
                     this.verticalViewLayoutInvalidatedEventer(true);
                 }
                 break;
-            case GridSettingChangeInvalidateTypeId.ViewLayoutAndScrollDimension:
+            case RevGridSettingChangeInvalidateTypeId.ViewLayoutAndScrollDimension:
                 if (this.viewLayoutInvalidatedEventer !== undefined) {
                     this.viewLayoutInvalidatedEventer(true);
                 }
                 break;
-            case GridSettingChangeInvalidateTypeId.Resize:
+            case RevGridSettingChangeInvalidateTypeId.Resize:
                 if (this.resizeEventer !== undefined) {
                     this.resizeEventer();
                 }

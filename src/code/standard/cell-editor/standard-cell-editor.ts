@@ -1,19 +1,19 @@
-import { BehavioredColumnSettings, BehavioredGridSettings, CellEditor, DataServer, DatalessViewCell, Focus, RevClientGrid, SchemaField } from '../../client/internal-api';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevCellEditor, RevClientGrid, RevDataServer, RevDatalessViewCell, RevFocus, RevSchemaField } from '../../client/internal-api';
 
 /** @public */
-export abstract class StandardCellEditor<
-    BGS extends BehavioredGridSettings,
-    BCS extends BehavioredColumnSettings,
-    SF extends SchemaField
-> implements CellEditor<BCS, SF> {
-    cellClosedEventer: CellEditor.CellClosedEventer;
+export abstract class RevStandardCellEditor<
+    BGS extends RevBehavioredGridSettings,
+    BCS extends RevBehavioredColumnSettings,
+    SF extends RevSchemaField
+> implements RevCellEditor<BCS, SF> {
+    cellClosedEventer: RevCellEditor.CellClosedEventer;
 
     /** @internal */
     private _readonly: boolean;
 
     constructor(
         protected readonly _grid: RevClientGrid<BGS, BCS, SF>,
-        protected readonly _dataServer: DataServer<SF>,
+        protected readonly _dataServer: RevDataServer<SF>,
     ) {
     }
 
@@ -22,7 +22,7 @@ export abstract class StandardCellEditor<
         this.setReadonly(value); // defer this to a method which can be safely overridden (cannot override a getter or setter in Javascript without overriding both)
     }
 
-    abstract tryOpenCell(viewCell: DatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined): boolean;
+    abstract tryOpenCell(viewCell: RevDatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined): boolean;
     abstract closeCell(field: SF, subgridRowIndex: number, cancel: boolean): void;
 
     abstract processGridKeyDownEvent(event: KeyboardEvent, fromEditor: boolean, field: SF, subgridRowIndex: number): boolean;
@@ -32,7 +32,7 @@ export abstract class StandardCellEditor<
     }
 
     protected isToggleKey(key: string) {
-        return (key as Focus.ActionKeyboardKey) === Focus.ActionKeyboardKey.Enter || key === ' ';
+        return (key as RevFocus.ActionKeyboardKey) === RevFocus.ActionKeyboardKey.Enter || key === ' ';
     }
 
     protected tryToggleBoolenValue(field: SF, subgridRowIndex: number) {

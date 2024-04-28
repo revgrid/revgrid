@@ -1,5 +1,5 @@
 /** @public */
-export interface SchemaField {
+export interface RevSchemaField {
     readonly name: string;
     index: number;
 }

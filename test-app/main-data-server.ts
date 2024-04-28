@@ -1,11 +1,11 @@
-import { Column, DataServer, StandardBehavioredColumnSettings } from '..';
+import { RevColumn, RevDataServer, StandardBehavioredColumnSettings } from '..';
 import { AppSchemaField } from './app-schema-field';
 import { MainRecord } from './main-record';
 
-export class MainDataServer implements DataServer<AppSchemaField> {
+export class MainDataServer implements RevDataServer<AppSchemaField> {
     private readonly _data: MainRecord[] = [];
     private _fishCreateCount = 0;
-    private _notificationsClient: DataServer.NotificationsClient;
+    private _notificationsClient: RevDataServer.NotificationsClient;
 
     constructor() {
         const initialDataCount = MainDataServer.initialData.length;
@@ -17,7 +17,7 @@ export class MainDataServer implements DataServer<AppSchemaField> {
         }
     }
 
-    subscribeDataNotifications(client: DataServer.NotificationsClient) {
+    subscribeDataNotifications(client: RevDataServer.NotificationsClient) {
         this._notificationsClient = client;
 
         const existingRecordCount = this._data.length;
@@ -42,7 +42,7 @@ export class MainDataServer implements DataServer<AppSchemaField> {
         return record[fieldName];
     }
 
-    setEditValue(field: AppSchemaField, rowIndex: number, value: DataServer.EditValue) {
+    setEditValue(field: AppSchemaField, rowIndex: number, value: RevDataServer.EditValue) {
         const record = this._data[rowIndex];
         const fieldName = field.name;
         switch (fieldName) {
@@ -70,6 +70,7 @@ export class MainDataServer implements DataServer<AppSchemaField> {
                 record.restrictMovement = value as boolean;
                 break;
             default:
+                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                 throw new Error(`Unexpected field name: ${fieldName}`);
         }
         this._notificationsClient.invalidateCell(field.index, rowIndex);
@@ -102,13 +103,14 @@ export class MainDataServer implements DataServer<AppSchemaField> {
             case 'age': return prefix + record.age.toString();
             case 'receiveDate': return prefix + record.receiveDate.toDateString();
             case 'favoriteFood': return prefix + record.favoriteFood;
-            case 'restrictMovement': return prefix + record.restrictMovement ? 'true' : 'false';
+            case 'restrictMovement': return prefix + (record.restrictMovement ? 'true' : 'false');
             default:
+                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                 throw new Error(`Unexpected field name: ${fieldName}`);
         }
     }
 
-    sort(column: Column<StandardBehavioredColumnSettings, AppSchemaField>) {
+    sort(column: RevColumn<StandardBehavioredColumnSettings, AppSchemaField>) {
         this._notificationsClient.preReindex();
         try {
             const field = column.field;

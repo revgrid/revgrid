@@ -1,29 +1,29 @@
 import { moveElementInArray } from '@xilytix/sysutils';
-import { Column, ColumnAutoSizeableWidth } from '../../interfaces/dataless/column';
-import { SchemaField } from '../../interfaces/schema/schema-field';
-import { SchemaServer } from '../../interfaces/schema/schema-server';
-import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
-import { ColumnSettings } from '../../interfaces/settings/column-settings';
-import { GridSettings } from '../../interfaces/settings/grid-settings';
+import { RevColumn, RevColumnAutoSizeableWidth } from '../../interfaces/dataless/column';
+import { RevSchemaField } from '../../interfaces/schema/schema-field';
+import { RevSchemaServer } from '../../interfaces/schema/schema-server';
+import { RevBehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
+import { RevColumnSettings } from '../../interfaces/settings/column-settings';
+import { RevGridSettings } from '../../interfaces/settings/grid-settings';
 import { RevClientObject } from '../../types-utils/client-object';
 import { RevApiError, RevAssertError } from '../../types-utils/revgrid-error';
 import { RevListChangedEventer, RevListChangedTypeId, RevUiableListChangedEventHandler as UiableListChangedEventer } from '../../types-utils/types';
-import { ColumnImplementation } from './column-implementation';
+import { RevColumnImplementation } from './column-implementation';
 
 /** @public */
-export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends SchemaField> implements RevClientObject {
+export class RevColumnsManager<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {
     /** @internal */
-    invalidateHorizontalViewLayoutEventer: ColumnsManager.InvalidateHorizontalViewLayoutEventer;
+    invalidateHorizontalViewLayoutEventer: RevColumnsManager.InvalidateHorizontalViewLayoutEventer;
     /** @internal */
     fieldColumnListChangedEventer: RevListChangedEventer;
     /** @internal */
     activeColumnListChangedEventer: UiableListChangedEventer;
     /** @internal */
-    columnsWidthChangedEventer: ColumnsManager.ColumnsWidthChangedEventer<BCS, SF>;
+    columnsWidthChangedEventer: RevColumnsManager.ColumnsWidthChangedEventer<BCS, SF>;
     /** @internal */
-    private readonly _activeColumns = new Array<Column<BCS, SF>>();
+    private readonly _activeColumns = new Array<RevColumn<BCS, SF>>();
     /** @internal */
-    private readonly _fieldColumns = new Array<Column<BCS, SF>>(); // always in same order as Schema
+    private readonly _fieldColumns = new Array<RevColumn<BCS, SF>>(); // always in same order as Schema
 
     /** @internal */
     private _beginSchemaChangeCount = 0;
@@ -31,15 +31,15 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
     private _schemaChanged = false;
 
     /** @internal */
-    private _beforeCreateColumnsListeners = new Array<ColumnsManager.BeforeCreateColumnsListener>();
+    private _beforeCreateColumnsListeners = new Array<RevColumnsManager.BeforeCreateColumnsListener>();
 
     /** @internal */
     constructor(
         readonly clientId: string,
         readonly internalParent: RevClientObject,
-        readonly schemaServer: SchemaServer<SF>,
-        readonly gridSettings: GridSettings,
-        public getSettingsForNewColumnEventer: ColumnsManager.GetSettingsForNewColumnEventer<BCS, SF>,
+        readonly schemaServer: RevSchemaServer<SF>,
+        readonly gridSettings: RevGridSettings,
+        public getSettingsForNewColumnEventer: RevColumnsManager.GetSettingsForNewColumnEventer<BCS, SF>,
     ) {
     }
 
@@ -47,12 +47,12 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
     get activeColumnCount() { return this._activeColumns.length; }
 
     /** @internal */
-    addBeforeCreateColumnsListener(listener: ColumnsManager.BeforeCreateColumnsListener) {
+    addBeforeCreateColumnsListener(listener: RevColumnsManager.BeforeCreateColumnsListener) {
         this._beforeCreateColumnsListeners.push(listener);
     }
 
     /** @internal */
-    removeBeforeCreateColumnsListener(listener: ColumnsManager.BeforeCreateColumnsListener) {
+    removeBeforeCreateColumnsListener(listener: RevColumnsManager.BeforeCreateColumnsListener) {
         const index = this._beforeCreateColumnsListeners.indexOf(listener);
         if (index < 0) {
             throw new RevAssertError('CMRBCCL72009');
@@ -166,9 +166,9 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
     }
 
     /** @internal */
-    newColumn(field: SF): Column<BCS, SF> {
+    newColumn(field: SF): RevColumn<BCS, SF> {
         const columnSettings = this.getSettingsForNewColumnEventer(field);
-        return new ColumnImplementation(
+        return new RevColumnImplementation(
             field,
             columnSettings,
             (column, ui) => { this.notifyColumnsWidthChanged([column], ui); },
@@ -194,7 +194,7 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
             this._activeColumns[i] = column;
             const fieldIndex = field.index;
             if (this._fieldColumns[fieldIndex] !== undefined) {
-                throw new RevApiError('CMCC10197', `ColumnsManager.createColumns: Duplicate column index ${fieldIndex}`);
+                throw new RevApiError('CMCC10197', `RevColumnsManager.createColumns: Duplicate column index ${fieldIndex}`);
             } else {
                 this._fieldColumns[fieldIndex] = column;
             }
@@ -205,12 +205,12 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
     }
 
     /** @internal */
-    createDummyColumn(): Column<BCS, SF> {
+    createDummyColumn(): RevColumn<BCS, SF> {
         const field: SF = {
             name: '',
             index: -1,
         } as SF;
-        return new ColumnImplementation(
+        return new RevColumnImplementation(
             field,
             {
                 defaultColumnWidth: 50,
@@ -263,11 +263,11 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
     }
 
     /** @internal */
-    setColumnWidths(columnWidths: ColumnAutoSizeableWidth<BCS, SF>[], ui: boolean) {
-        const changedColumns = new Array<Column<BCS, SF>>(columnWidths.length);
+    setColumnWidths(columnWidths: RevColumnAutoSizeableWidth<BCS, SF>[], ui: boolean) {
+        const changedColumns = new Array<RevColumn<BCS, SF>>(columnWidths.length);
         let changedColumnsCount = 0;
         for (const columnWidth of columnWidths) {
-            const column = columnWidth.column as ColumnImplementation<BCS, SF>;
+            const column = columnWidth.column as RevColumnImplementation<BCS, SF>;
             const width = columnWidth.width;
             if (width === undefined) {
                 column.setAutoWidthSizing(true);
@@ -288,12 +288,12 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
     }
 
     /** @internal */
-    setColumnWidthsByFieldName(fieldNameAndWidths: ColumnsManager.FieldNameAndAutoSizableWidth[], ui: boolean) {
-        const changedColumns = new Array<Column<BCS, SF>>(fieldNameAndWidths.length);
+    setColumnWidthsByFieldName(fieldNameAndWidths: RevColumnsManager.FieldNameAndAutoSizableWidth[], ui: boolean) {
+        const changedColumns = new Array<RevColumn<BCS, SF>>(fieldNameAndWidths.length);
         let changedColumnsCount = 0;
         for (const fieldNameAndWidth of fieldNameAndWidths) {
             const { name, autoSizableWidth } = fieldNameAndWidth;
-            const column = this._fieldColumns.find((aColumn) => aColumn.field.name === name) as ColumnImplementation<BCS, SF>;
+            const column = this._fieldColumns.find((aColumn) => aColumn.field.name === name) as RevColumnImplementation<BCS, SF>;
             if (column === undefined) {
                 throw new RevApiError('CMSCWBFN20251', `Behavior.setColumnWidthsByName: Column name not found: ${name}`);
             } else {
@@ -315,15 +315,15 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
         }
     }
 
-    setActiveColumnsAndWidthsByFieldName(fieldNameAndWidths: ColumnsManager.FieldNameAndAutoSizableWidth[], ui: boolean) {
+    setActiveColumnsAndWidthsByFieldName(fieldNameAndWidths: RevColumnsManager.FieldNameAndAutoSizableWidth[], ui: boolean) {
         const activeColumns = this._activeColumns;
         const newActiveColumnCount = fieldNameAndWidths.length;
         activeColumns.length = newActiveColumnCount;
-        const changedColumns = new Array<Column<BCS, SF>>(newActiveColumnCount);
+        const changedColumns = new Array<RevColumn<BCS, SF>>(newActiveColumnCount);
         let changedColumnsCount = 0;
         for (let i = 0; i < newActiveColumnCount; i++) {
             const { name, autoSizableWidth } = fieldNameAndWidths[i];
-            const column = this._fieldColumns.find((aColumn) => aColumn.field.name === name) as ColumnImplementation<BCS, SF>;
+            const column = this._fieldColumns.find((aColumn) => aColumn.field.name === name) as RevColumnImplementation<BCS, SF>;
             if (column === undefined) {
                 throw new RevApiError('CMSACAWBFN01098', `Behavior.setActiveColumnsAndWidthsByName: Column name not found: ${name}`);
             } else {
@@ -368,7 +368,7 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
      * @param settingState - Clear columns' properties objects before copying properties.
      * @internal
      */
-    mergeAllColumnSettings(settings: Partial<ColumnSettings>[] | Record<string, Partial<ColumnSettings>>, settingState?: boolean) {
+    mergeAllColumnSettings(settings: Partial<RevColumnSettings>[] | Record<string, Partial<RevColumnSettings>>, settingState?: boolean) {
         // looks weird - needs fixing
         // const allColumns = this._allColumns;
 
@@ -415,7 +415,7 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
         const activeColumns = this._activeColumns;
         const sourceColumnList = indexesAreActive ? activeColumns : this._fieldColumns;
 
-        let newColumns: Column<BCS, SF>[];
+        let newColumns: RevColumn<BCS, SF>[];
         if (columnIndexOrIndices === undefined) {
             newColumns = sourceColumnList;
         } else {
@@ -468,7 +468,7 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
     }
 
     /** @internal */
-    setActiveColumns(columnArray: readonly Column<BCS, SF>[]) {
+    setActiveColumns(columnArray: readonly RevColumn<BCS, SF>[]) {
         const oldActiveCount = this._activeColumns.length;
         this._activeColumns.splice(0, oldActiveCount, ...columnArray);
         this.notifyActiveColumnListChanged(RevListChangedTypeId.Set, 0, columnArray.length, undefined, false);
@@ -545,7 +545,7 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
         let autoWidened = false;
 
         for (const column of this._activeColumns) {
-            if ((column as ColumnImplementation<BCS, SF>).checkAutoWidthSizingWithoutInvalidation(true)) {
+            if ((column as RevColumnImplementation<BCS, SF>).checkAutoWidthSizingWithoutInvalidation(true)) {
                 autoWidened = true;
             }
         }
@@ -553,12 +553,12 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
     }
 
     /** @internal */
-    get fieldColumns(): readonly Column<BCS, SF>[] {
+    get fieldColumns(): readonly RevColumn<BCS, SF>[] {
         return this._fieldColumns;
     }
 
     /** @internal */
-    get activeColumns(): readonly Column<BCS, SF>[] {
+    get activeColumns(): readonly RevColumn<BCS, SF>[] {
         return this._activeColumns;
     }
 
@@ -567,7 +567,7 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
         // this does not look right
         const visible = this._activeColumns;
         const all = this._fieldColumns;
-        const hidden = new Array<Column<BCS, SF>>();
+        const hidden = new Array<RevColumn<BCS, SF>>();
         for (let i = 0; i < all.length; i++) {
             if (!visible.includes(all[i])) {
                 hidden.push(all[i]);
@@ -584,19 +584,19 @@ export class ColumnsManager<BCS extends BehavioredColumnSettings, SF extends Sch
         this.invalidateHorizontalViewLayoutEventer(true);
     }
 
-    private notifyColumnsWidthChanged(columns: Column<BCS, SF>[], ui: boolean) {
+    private notifyColumnsWidthChanged(columns: RevColumn<BCS, SF>[], ui: boolean) {
         this.columnsWidthChangedEventer(columns, ui);
         this.invalidateHorizontalViewLayoutEventer(true);
     }
 }
 
 /** @public */
-export namespace ColumnsManager {
-    export type GetSettingsForNewColumnEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField> = (this: void, field: SF) => BCS;
+export namespace RevColumnsManager {
+    export type GetSettingsForNewColumnEventer<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> = (this: void, field: SF) => BCS;
     /** @internal */
     export type InvalidateHorizontalViewLayoutEventer = (this: void, scrollDimensionAsWell: boolean) => void;
     /** @internal */
-    export type ColumnsWidthChangedEventer<BCS extends BehavioredColumnSettings, SF extends SchemaField> = (this: void, columns: Column<BCS, SF>[], ui: boolean) => void;
+    export type ColumnsWidthChangedEventer<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> = (this: void, columns: RevColumn<BCS, SF>[], ui: boolean) => void;
     /** @internal */
     export type BeforeCreateColumnsListener = (this: void) => void;
 

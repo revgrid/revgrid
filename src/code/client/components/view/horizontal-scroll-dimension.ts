@@ -1,19 +1,19 @@
-import { SchemaField } from '../../interfaces/schema/schema-field';
-import { BehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
-import { BehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
-import { GridSettings } from '../../interfaces/settings/grid-settings';
-import { Canvas } from '../canvas/canvas';
-import { ColumnsManager } from '../column/columns-manager';
-import { ScrollDimension } from './scroll-dimension';
+import { RevSchemaField } from '../../interfaces/schema/schema-field';
+import { RevBehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
+import { RevBehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
+import { RevGridSettings } from '../../interfaces/settings/grid-settings';
+import { RevCanvas } from '../canvas/canvas';
+import { RevColumnsManager } from '../column/columns-manager';
+import { RevScrollDimension } from './scroll-dimension';
 
-export class HorizontalScrollDimension<BGS extends BehavioredGridSettings, BCS extends BehavioredColumnSettings, SF extends SchemaField> extends ScrollDimension<BGS> {
+export class RevHorizontalScrollDimension<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevScrollDimension<BGS> {
     constructor(
-        gridSettings: GridSettings,
-        canvas: Canvas<BGS>,
-        private readonly _columnsManager: ColumnsManager<BCS, SF>,
+        gridSettings: RevGridSettings,
+        canvas: RevCanvas<BGS>,
+        private readonly _columnsManager: RevColumnsManager<BCS, SF>,
     ) {
         super(
-            ScrollDimension.AxisEnum.horizontal,
+            RevScrollDimension.AxisEnum.horizontal,
             gridSettings,
             canvas,
         );
@@ -26,7 +26,7 @@ export class HorizontalScrollDimension<BGS extends BehavioredGridSettings, BCS e
     //     super.reset();
     // }
 
-    calculateLimitedScrollAnchorFromViewportStart(viewportStart: number): ScrollDimension.Anchor {
+    calculateLimitedScrollAnchorFromViewportStart(viewportStart: number): RevScrollDimension.Anchor {
         const anchor = this.calculateScrollAnchorFromViewportStart(viewportStart);
         return this.calculateLimitedScrollAnchor(anchor.index, anchor.offset);
     }
@@ -36,7 +36,7 @@ export class HorizontalScrollDimension<BGS extends BehavioredGridSettings, BCS e
      * @param activeColumnIndex - index of column to bring into view
      * @returns Scroll Anchor which will ensure the column is displayed
      */
-    calculateColumnScrollAnchorToScrollIntoView(activeColumnIndex: number, gridRightAligned: boolean): ScrollDimension.Anchor {
+    calculateColumnScrollAnchorToScrollIntoView(activeColumnIndex: number, gridRightAligned: boolean): RevScrollDimension.Anchor {
         this.ensureComputedOutsideAnimationFrame();
 
         const gridSettings = this._gridSettings;
@@ -129,8 +129,8 @@ export class HorizontalScrollDimension<BGS extends BehavioredGridSettings, BCS e
 
         const scrollStart = this.calculateScrollStart();
         const viewportSize = this._canvas.flooredWidth - scrollStart;
-        let startAnchor: ScrollDimension.Anchor;
-        let finishAnchor: ScrollDimension.Anchor;
+        let startAnchor: RevScrollDimension.Anchor;
+        let finishAnchor: RevScrollDimension.Anchor;
         let scrollSize: number;
 
         if (this._gridSettings.gridRightAligned) {
@@ -138,7 +138,7 @@ export class HorizontalScrollDimension<BGS extends BehavioredGridSettings, BCS e
             startAnchor = scrollSizeAndAnchor.anchor;
             scrollSize = scrollSizeAndAnchor.scrollSize;
             if (startAnchor.index < 0) {
-                finishAnchor = ScrollDimension.invalidAnchor;
+                finishAnchor = RevScrollDimension.invalidAnchor;
             } else {
                 const lastColumnIndex = this._columnsManager.activeColumnCount - 1;
                 finishAnchor = {
@@ -151,7 +151,7 @@ export class HorizontalScrollDimension<BGS extends BehavioredGridSettings, BCS e
             finishAnchor = scrollSizeAndAnchor.anchor;
             scrollSize = scrollSizeAndAnchor.scrollSize;
             if (finishAnchor.index < 0) {
-                startAnchor = ScrollDimension.invalidAnchor;
+                startAnchor = RevScrollDimension.invalidAnchor;
             } else {
                 startAnchor = {
                     index: this._gridSettings.fixedColumnCount,
@@ -160,14 +160,14 @@ export class HorizontalScrollDimension<BGS extends BehavioredGridSettings, BCS e
             }
         }
 
-        let viewportCoverageExtent: ScrollDimension.ViewportCoverageExtent;
+        let viewportCoverageExtent: RevScrollDimension.ViewportCoverageExtent;
         if (viewportSize <= 0) {
-            viewportCoverageExtent = ScrollDimension.ViewportCoverageExtent.None;
+            viewportCoverageExtent = RevScrollDimension.ViewportCoverageExtent.None;
         } else {
             if (viewportSize < scrollSize) {
-                viewportCoverageExtent = ScrollDimension.ViewportCoverageExtent.Partial;
+                viewportCoverageExtent = RevScrollDimension.ViewportCoverageExtent.Partial;
             } else {
-                viewportCoverageExtent = ScrollDimension.ViewportCoverageExtent.Full;
+                viewportCoverageExtent = RevScrollDimension.ViewportCoverageExtent.Full;
             }
         }
 
@@ -194,20 +194,20 @@ export class HorizontalScrollDimension<BGS extends BehavioredGridSettings, BCS e
         }
     }
 
-    private calculateNotRightAlignedGridRightAnchorLimit(scrollStart: number, viewportSize: number): ScrollDimension.ScrollSizeAndAnchor {
+    private calculateNotRightAlignedGridRightAnchorLimit(scrollStart: number, viewportSize: number): RevScrollDimension.ScrollSizeAndAnchor {
         const gridSettings = this._gridSettings;
         const fixedColumnCount = gridSettings.fixedColumnCount;
         const columnCount = this._columnsManager.activeColumnCount;
         if (columnCount <= fixedColumnCount) {
             return {
-                anchor: ScrollDimension.invalidAnchor,
+                anchor: RevScrollDimension.invalidAnchor,
                 scrollSize: 0,
             }
         } else {
             let scrollSize = this.calculateActiveNonFixedColumnsWidth();
             if (scrollSize === 0) {
                 return {
-                    anchor: ScrollDimension.invalidAnchor,
+                    anchor: RevScrollDimension.invalidAnchor,
                     scrollSize: 0,
                 }
             } else {
@@ -252,20 +252,20 @@ export class HorizontalScrollDimension<BGS extends BehavioredGridSettings, BCS e
         }
     }
 
-    private calculateRightAlignedGridLeftAnchorLimit(scrollStart: number, viewportSize: number): ScrollDimension.ScrollSizeAndAnchor {
+    private calculateRightAlignedGridLeftAnchorLimit(scrollStart: number, viewportSize: number): RevScrollDimension.ScrollSizeAndAnchor {
         const gridSettings = this._gridSettings;
         const fixedColumnCount = gridSettings.fixedColumnCount;
         const columnCount = this._columnsManager.activeColumnCount;
         if (columnCount <= fixedColumnCount) {
             return {
-                anchor: ScrollDimension.invalidAnchor,
+                anchor: RevScrollDimension.invalidAnchor,
                 scrollSize: 0,
             }
         } else {
             let scrollSize = this.calculateActiveNonFixedColumnsWidth();
             if (scrollSize === 0) {
                 return {
-                    anchor: ScrollDimension.invalidAnchor,
+                    anchor: RevScrollDimension.invalidAnchor,
                     scrollSize: 0,
                 }
             } else {
@@ -330,7 +330,7 @@ export class HorizontalScrollDimension<BGS extends BehavioredGridSettings, BCS e
         return result;
     }
 
-    private calculateScrollAnchorFromViewportStart(viewportStart: number): ScrollDimension.Anchor {
+    private calculateScrollAnchorFromViewportStart(viewportStart: number): RevScrollDimension.Anchor {
         this.ensureComputedOutsideAnimationFrame();
 
         viewportStart = Math.round(viewportStart);

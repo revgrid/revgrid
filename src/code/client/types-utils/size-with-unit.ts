@@ -1,21 +1,21 @@
-import { SizeUnit, SizeUnitEnum } from './size-unit';
-import { splitStringAtFirstNonNumericChar } from './utils';
+import { RevSizeUnit, RevSizeUnitEnum } from './size-unit';
+import { revSplitStringAtFirstNonNumericChar } from './utils';
 
 /** @public */
-export interface SizeWithUnit {
+export interface RevSizeWithUnit {
     size: number;
-    sizeUnit: SizeUnitEnum;
+    sizeUnit: RevSizeUnitEnum;
 }
 
 /** @public */
-export namespace SizeWithUnit {
-    export function tryParse(value: string): SizeWithUnit | undefined {
-        const { numericPart: digitsPart, firstNonNumericCharPart: firstNonDigitPart } = splitStringAtFirstNonNumericChar(value);
+export namespace RevSizeWithUnit {
+    export function tryParse(value: string): RevSizeWithUnit | undefined {
+        const { numericPart: digitsPart, firstNonNumericCharPart: firstNonDigitPart } = revSplitStringAtFirstNonNumericChar(value);
         const size = Number.parseFloat(digitsPart);
         if (isNaN(size)) {
             return undefined;
         } else {
-            const sizeUnit = SizeUnit.tryParse(firstNonDigitPart);
+            const sizeUnit = RevSizeUnit.tryParse(firstNonDigitPart);
             if (sizeUnit === undefined) {
                 return undefined;
             } else {
@@ -25,7 +25,7 @@ export namespace SizeWithUnit {
     }
 
     /** @internal */
-    export function formatSize(size: number, sizeUnit: SizeUnitEnum) {
-        return size.toString(10) + SizeUnit.format(sizeUnit);
+    export function formatSize(size: number, sizeUnit: RevSizeUnitEnum) {
+        return size.toString(10) + RevSizeUnit.format(sizeUnit);
     }
 }

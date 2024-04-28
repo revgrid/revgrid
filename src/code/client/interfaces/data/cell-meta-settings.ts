@@ -1,7 +1,7 @@
-import { ColumnSettings } from '../settings/column-settings';
-import { MetaModel } from './meta-model';
+import { RevColumnSettings } from '../settings/column-settings';
+import { RevMetaModel } from './meta-model';
 
-export interface CellMetaSettings {
-    get<T extends keyof ColumnSettings>(key: T): ColumnSettings[T];
-    get(key: string | number): MetaModel.CellOwnProperty;
+export interface RevCellMetaSettings {
+    get<T extends keyof RevColumnSettings>(key: T): RevColumnSettings[T];
+    get(key: string | number): RevMetaModel.CellOwnProperty;
 }

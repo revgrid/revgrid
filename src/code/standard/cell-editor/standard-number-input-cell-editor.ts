@@ -1,18 +1,18 @@
-import { BehavioredColumnSettings, BehavioredGridSettings, DataServer, DatalessViewCell, RevAssertError, RevClientGrid, SchemaField } from '../../client/internal-api';
-import { StandardInputElementCellEditor } from './standard-input-element-cell-editor';
+import { RevAssertError, RevBehavioredColumnSettings, RevBehavioredGridSettings, RevClientGrid, RevDataServer, RevDatalessViewCell, RevSchemaField } from '../../client/internal-api';
+import { RevStandardInputElementCellEditor } from './standard-input-element-cell-editor';
 
 /** @public */
-export class StandardNumberInputCellEditor<
-    BGS extends BehavioredGridSettings,
-    BCS extends BehavioredColumnSettings,
-    SF extends SchemaField
-> extends StandardInputElementCellEditor<BGS, BCS, SF> {
-    constructor(grid: RevClientGrid<BGS, BCS, SF>, dataServer: DataServer<SF>) {
+export class RevStandardNumberInputCellEditor<
+    BGS extends RevBehavioredGridSettings,
+    BCS extends RevBehavioredColumnSettings,
+    SF extends RevSchemaField
+> extends RevStandardInputElementCellEditor<BGS, BCS, SF> {
+    constructor(grid: RevClientGrid<BGS, BCS, SF>, dataServer: RevDataServer<SF>) {
         super(grid, dataServer, 'number');
         this.element.classList.add('revgrid-number-input-editor');
     }
 
-    override tryOpenCell(cell: DatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined) {
+    override tryOpenCell(cell: RevDatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined) {
         const dataServer = this._dataServer;
         if (dataServer.getEditValue === undefined) {
             return false;

@@ -1,14 +1,14 @@
 
 import { IndexSignatureHack } from '@xilytix/sysutils';
 import {
-    DataServer,
-    DatalessViewCell,
     RevClientGrid,
-    SchemaField
+    RevDataServer,
+    RevDatalessViewCell,
+    RevSchemaField
 } from '../../client/internal-api';
-import { StandardTextPainter } from '../painters/internal-api';
-import { StandardBehavioredColumnSettings, StandardBehavioredGridSettings } from '../settings/internal-api';
-import { StandardCellPainter } from './standard-cell-painter';
+import { RevStandardTextPainter } from '../painters/internal-api';
+import { RevStandardBehavioredColumnSettings, RevStandardBehavioredGridSettings } from '../settings/internal-api';
+import { RevStandardCellPainter } from './standard-cell-painter';
 
 /**
  * A cell painter with features typically needed by header cells
@@ -19,24 +19,24 @@ import { StandardCellPainter } from './standard-cell-painter';
  * Clipping bounds are not set here as this is also an expensive operation. Instead, we employ a number of strategies to truncate overflowing text and content.
  * @public
  */
-export class StandardHeaderTextCellPainter<
-    BGS extends StandardBehavioredGridSettings,
-    BCS extends StandardBehavioredColumnSettings,
-    SF extends SchemaField
-> extends StandardCellPainter<BGS, BCS, SF> {
-    private readonly _textPainter: StandardTextPainter;
+export class RevStandardHeaderTextCellPainter<
+    BGS extends RevStandardBehavioredGridSettings,
+    BCS extends RevStandardBehavioredColumnSettings,
+    SF extends RevSchemaField
+> extends RevStandardCellPainter<BGS, BCS, SF> {
+    private readonly _textPainter: RevStandardTextPainter;
 
     constructor(
         grid: RevClientGrid<BGS, BCS, SF>,
-        dataServer: DataServer<SF>,
+        dataServer: RevDataServer<SF>,
     ) {
         super(grid, dataServer);
 
-        this._textPainter = new StandardTextPainter(this._renderingContext);
+        this._textPainter = new RevStandardTextPainter(this._renderingContext);
     }
 
 
-    override paint(cell: DatalessViewCell<BCS, SF>, _prefillColor: string | undefined): number | undefined {
+    override paint(cell: RevDatalessViewCell<BCS, SF>, _prefillColor: string | undefined): number | undefined {
         const grid = this._grid;
 
         const columnSettings = cell.columnSettings;
@@ -83,10 +83,10 @@ export class StandardHeaderTextCellPainter<
         const columnHeaderBackgroundColor = columnSettings.columnHeaderBackgroundColor;
         const backgroundColor = columnHeaderBackgroundColor === undefined ? columnSettings.backgroundColor : columnHeaderBackgroundColor;
 
-        const fingerprint = cell.paintFingerprint as PaintFingerprint | undefined;
+        const fingerprint = cell.paintFingerprint as RevPaintFingerprint | undefined;
 
         // return a fingerprint to save in View cell for future comparisons by partial renderer
-        const newFingerprint: PaintFingerprint = {
+        const newFingerprint: RevPaintFingerprint = {
             value: valText,
             backgroundColor,
             textColor,
@@ -124,16 +124,16 @@ export class StandardHeaderTextCellPainter<
  * effect on `drawImage` in the case of SVGs on these browsers.
  */
 
-export interface PaintFingerprintInterface {
+export interface RevPaintFingerprintInterface {
     readonly value: string;
     readonly backgroundColor: string;
     readonly textColor: string;
     readonly textFont: string;
 }
 
-export type PaintFingerprint = IndexSignatureHack<PaintFingerprintInterface>;
+export type RevPaintFingerprint = IndexSignatureHack<RevPaintFingerprintInterface>;
 export namespace PaintFingerprint {
-    export function same(left: PaintFingerprint, right: PaintFingerprint) {
+    export function same(left: RevPaintFingerprint, right: RevPaintFingerprint) {
         return (
             left.value === right.value &&
             left.backgroundColor === right.backgroundColor &&

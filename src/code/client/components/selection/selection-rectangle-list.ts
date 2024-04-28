@@ -1,17 +1,17 @@
-import { InexclusiveRectangle } from '../../types-utils/inexclusive-rectangle';
-import { calculateNumberArrayUniqueCount } from '../../types-utils/utils';
-import { SelectionAreaList } from './selection-area-list';
-import { SelectionRectangle } from './selection-rectangle';
+import { RevInexclusiveRectangle } from '../../types-utils/inexclusive-rectangle';
+import { revCalculateNumberArrayUniqueCount } from '../../types-utils/utils';
+import { RevSelectionAreaList } from './selection-area-list';
+import { RevSelectionRectangle } from './selection-rectangle';
 
-export class SelectionRectangleList implements SelectionAreaList {
-    readonly rectangles: SelectionRectangle[] = [];
-    private readonly _flattenedX = new Array<InexclusiveRectangle>();
-    private readonly _flattenedY = new Array<InexclusiveRectangle>();
+export class RevSelectionRectangleList implements RevSelectionAreaList {
+    readonly rectangles: RevSelectionRectangle[] = [];
+    private readonly _flattenedX = new Array<RevInexclusiveRectangle>();
+    private readonly _flattenedY = new Array<RevInexclusiveRectangle>();
 
     get has() { return this.rectangles.length !== 0; }
     get areaCount() { return this.rectangles.length; }
 
-    assign(other: SelectionRectangleList) {
+    assign(other: RevSelectionRectangleList) {
         const count = other.areaCount;
 
         const otherRectangles = other.rectangles;
@@ -75,7 +75,7 @@ export class SelectionRectangleList implements SelectionAreaList {
 
     getRectanglesContainingPoint(x: number, y: number) {
         const rectangles = this.rectangles;
-        const result = new Array<SelectionRectangle>(0);
+        const result = new Array<RevSelectionRectangle>(0);
         for (const rectangle of rectangles) {
             if (rectangle.containsXY(x, y)) {
                 result.push(rectangle);
@@ -83,14 +83,14 @@ export class SelectionRectangleList implements SelectionAreaList {
         }
         return result;
     }
-    push(rectangle: SelectionRectangle) {
+    push(rectangle: RevSelectionRectangle) {
         this.rectangles.push(rectangle);
         // Following can be cast as InexclusiveRectangle constructor used which uses unchanged extent
         this._flattenedX.push(rectangle.newXFlattened(0));
         this._flattenedY.push(rectangle.newYFlattened(0));
     }
 
-    only(rectangle: SelectionRectangle) {
+    only(rectangle: RevSelectionRectangle) {
         this.rectangles.length = 1;
         this.rectangles[0] = rectangle;
         this._flattenedX.length = 1;
@@ -126,15 +126,15 @@ export class SelectionRectangleList implements SelectionAreaList {
     }
 
     containsY(y: number): boolean {
-        return InexclusiveRectangle.arrayContainsPoint(this._flattenedX, 0, y);
+        return RevInexclusiveRectangle.arrayContainsPoint(this._flattenedX, 0, y);
     }
 
     containsX(x: number): boolean {
-        return InexclusiveRectangle.arrayContainsPoint(this._flattenedY, x, 0);
+        return RevInexclusiveRectangle.arrayContainsPoint(this._flattenedY, x, 0);
     }
 
     containsPoint(x: number, y: number) {
-        return InexclusiveRectangle.arrayContainsPoint(this.rectangles, x, y);
+        return RevInexclusiveRectangle.arrayContainsPoint(this.rectangles, x, y);
     }
 
     getUniqueXIndices() {
@@ -147,7 +147,7 @@ export class SelectionRectangleList implements SelectionAreaList {
                 return rectangles[0].height;
             } else {
                 const nonUniqueIndices = this.getNonUniqueXIndices();
-                return calculateNumberArrayUniqueCount(nonUniqueIndices);
+                return revCalculateNumberArrayUniqueCount(nonUniqueIndices);
             }
         }
     }
