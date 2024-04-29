@@ -1,10 +1,10 @@
-import { RevSizeUnit, RevSizeUnitEnum } from './size-unit';
+import { RevSizeUnit, RevSizeUnitId } from './size-unit';
 import { revSplitStringAtFirstNonNumericChar } from './utils';
 
 /** @public */
 export interface RevSizeWithUnit {
     size: number;
-    sizeUnit: RevSizeUnitEnum;
+    sizeUnit: RevSizeUnitId;
 }
 
 /** @public */
@@ -25,7 +25,7 @@ export namespace RevSizeWithUnit {
     }
 
     /** @internal */
-    export function formatSize(size: number, sizeUnit: RevSizeUnitEnum) {
+    export function formatSize(size: number, sizeUnit: RevSizeUnitId) {
         return size.toString(10) + RevSizeUnit.format(sizeUnit);
     }
 }

@@ -5,7 +5,7 @@ import { RevBehavioredGridSettings } from '../../interfaces/settings/behaviored-
 import { RevClientObject } from '../../types-utils/client-object';
 import { RevCssTypes } from '../../types-utils/css-types';
 import { RevAssertError, RevUnreachableCaseError } from '../../types-utils/revgrid-error';
-import { RevSizeUnitEnum } from '../../types-utils/size-unit';
+import { RevSizeUnitId } from '../../types-utils/size-unit';
 import { RevSizeWithUnit } from '../../types-utils/size-with-unit';
 import { RevCanvas } from '../canvas/canvas';
 import { RevScrollDimension } from '../view/scroll-dimension';
@@ -294,23 +294,23 @@ export class RevScroller<BGS extends RevBehavioredGridSettings, BCS extends RevB
         if (thicknessSizeWithUnit === undefined) {
             thicknessSizeWithUnit = {
                 size: 7,
-                sizeUnit: RevSizeUnitEnum.Pixel,
+                sizeUnit: RevSizeUnitId.Pixel,
             }
         }
 
         let pixelsSize: number;
         switch (thicknessSizeWithUnit.sizeUnit) {
-            case RevSizeUnitEnum.Pixel:
+            case RevSizeUnitId.Pixel:
                 pixelsSize = thicknessSizeWithUnit.size;
                 break;
-            case RevSizeUnitEnum.Em: {
+            case RevSizeUnitId.Em: {
                 const emWidth = this._canvas.gc.getEmWidth();
                 pixelsSize = Math.ceil(thicknessSizeWithUnit.size * emWidth);
                 break;
             }
-            case RevSizeUnitEnum.Fractional:
-            case RevSizeUnitEnum.Percent: {
-                throw new RevAssertError('SATT83210', thicknessSizeWithUnit.sizeUnit);
+            case RevSizeUnitId.Fractional:
+            case RevSizeUnitId.Percent: {
+                throw new RevAssertError('SATT83210', `${thicknessSizeWithUnit.sizeUnit}`);
             }
             default:
                 throw new RevUnreachableCaseError('SATTD83210', thicknessSizeWithUnit.sizeUnit);

@@ -1,7 +1,15 @@
 import { RevUnreachableCaseError } from './revgrid-error';
 
 /** @public */
-export const enum RevSizeUnitEnum {
+export const enum RevSizeUnitId {
+    Pixel,
+    Percent,
+    Fractional,
+    Em,
+}
+
+/** @public */
+export const enum RevSizeUnitCode {
     Pixel = 'px',
     Percent = '%',
     Fractional = 'fr',
@@ -9,26 +17,23 @@ export const enum RevSizeUnitEnum {
 }
 
 /** @public */
-export type RevSizeUnit = typeof RevSizeUnitEnum;
-
-/** @public */
 export namespace RevSizeUnit {
     export function tryParse(value: string) {
-        switch (value as RevSizeUnitEnum) {
-            case RevSizeUnitEnum.Pixel: return RevSizeUnitEnum.Pixel;
-            case RevSizeUnitEnum.Percent: return RevSizeUnitEnum.Percent;
-            case RevSizeUnitEnum.Fractional: return RevSizeUnitEnum.Fractional;
-            case RevSizeUnitEnum.Em: return RevSizeUnitEnum.Em;
+        switch (value as RevSizeUnitCode) {
+            case RevSizeUnitCode.Pixel: return RevSizeUnitId.Pixel;
+            case RevSizeUnitCode.Percent: return RevSizeUnitId.Percent;
+            case RevSizeUnitCode.Fractional: return RevSizeUnitId.Fractional;
+            case RevSizeUnitCode.Em: return RevSizeUnitId.Em;
             default: return undefined;
         }
     }
 
-    export function format(value: RevSizeUnitEnum) {
+    export function format(value: RevSizeUnitId) {
         switch (value) {
-            case RevSizeUnitEnum.Pixel: return RevSizeUnitEnum.Pixel;
-            case RevSizeUnitEnum.Percent: return RevSizeUnitEnum.Percent;
-            case RevSizeUnitEnum.Fractional: return RevSizeUnitEnum.Fractional;
-            case RevSizeUnitEnum.Em: return RevSizeUnitEnum.Em;
+            case RevSizeUnitId.Pixel: return RevSizeUnitCode.Pixel;
+            case RevSizeUnitId.Percent: return RevSizeUnitCode.Percent;
+            case RevSizeUnitId.Fractional: return RevSizeUnitCode.Fractional;
+            case RevSizeUnitId.Em: return RevSizeUnitCode.Em;
             default:
                 throw new RevUnreachableCaseError('SUEF44998', value);
         }
