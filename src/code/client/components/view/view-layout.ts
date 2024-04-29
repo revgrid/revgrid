@@ -491,14 +491,14 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
         // in the future, may want to do more with action
         const scrollablePlaneDimensionAsWell = action.scrollDimensionAsWell;
         switch (action.dimension) {
-            case RevScrollDimension.AxisEnum.horizontal: {
+            case RevScrollDimension.AxisId.horizontal: {
                 if (scrollablePlaneDimensionAsWell) {
                     this._horizontalScrollDimension.invalidate();
                 }
                 this._horizontalComputed = false;
                 break;
             }
-            case RevScrollDimension.AxisEnum.vertical: {
+            case RevScrollDimension.AxisId.vertical: {
                 if (scrollablePlaneDimensionAsWell) {
                     this._verticalScrollDimension.invalidate();
                 }
@@ -533,7 +533,7 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
     invalidateHorizontalAll(scrollDimensionAsWell: boolean) {
         const action: RevViewLayout.AllInvalidateAction = {
             type: RevViewLayout.InvalidateAction.Type.All,
-            dimension: RevScrollDimension.AxisEnum.horizontal,
+            dimension: RevScrollDimension.AxisId.horizontal,
             scrollDimensionAsWell: scrollDimensionAsWell,
         }
         this.invalidate(action);
@@ -542,7 +542,7 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
     invalidateVerticalAll(scrollDimensionAsWell: boolean) {
         const action: RevViewLayout.AllInvalidateAction = {
             type: RevViewLayout.InvalidateAction.Type.All,
-            dimension: RevScrollDimension.AxisEnum.vertical,
+            dimension: RevScrollDimension.AxisId.vertical,
             scrollDimensionAsWell: scrollDimensionAsWell,
         }
         this.invalidate(action);
@@ -559,7 +559,7 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
     invalidateFieldsInserted(index: number, count: number) {
         const action: RevViewLayout.DataRangeInsertedInvalidateAction = {
             type: RevViewLayout.InvalidateAction.Type.DataRangeInserted,
-            dimension: RevScrollDimension.AxisEnum.horizontal,
+            dimension: RevScrollDimension.AxisId.horizontal,
             scrollDimensionAsWell: true,
             index,
             count,
@@ -587,7 +587,7 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
             if (affected) {
                 action = {
                     type: RevViewLayout.InvalidateAction.Type.ActiveRangeDeleted,
-                    dimension: RevScrollDimension.AxisEnum.horizontal,
+                    dimension: RevScrollDimension.AxisId.horizontal,
                     scrollDimensionAsWell: true,
                     index,
                     count,
@@ -595,7 +595,7 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
             } else {
                 action = {
                     type: RevViewLayout.InvalidateAction.Type.ActiveRangeDeletedButViewNotAffected,
-                    dimension: RevScrollDimension.AxisEnum.horizontal,
+                    dimension: RevScrollDimension.AxisId.horizontal,
                     scrollDimensionAsWell: true,
                     index,
                     count,
@@ -609,7 +609,7 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
     invalidateAllColumnsDeleted() {
         const action: RevViewLayout.AllDeletedInvalidateAction = {
             type: RevViewLayout.InvalidateAction.Type.AllDeleted,
-            dimension: RevScrollDimension.AxisEnum.horizontal,
+            dimension: RevScrollDimension.AxisId.horizontal,
             scrollDimensionAsWell: true,
         };
         this.invalidate(action);
@@ -619,7 +619,7 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
     invalidateColumnsChanged() {
         const action: RevViewLayout.AllChangedInvalidateAction = {
             type: RevViewLayout.InvalidateAction.Type.AllChanged,
-            dimension: RevScrollDimension.AxisEnum.horizontal,
+            dimension: RevScrollDimension.AxisId.horizontal,
             scrollDimensionAsWell: true,
         };
         this.invalidate(action);
@@ -639,7 +639,7 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
             if (affected) {
                 action = {
                     type: RevViewLayout.InvalidateAction.Type.DataRangeInserted,
-                    dimension: RevScrollDimension.AxisEnum.vertical,
+                    dimension: RevScrollDimension.AxisId.vertical,
                     scrollDimensionAsWell: true,
                     index,
                     count,
@@ -647,7 +647,7 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
             } else {
                 action = {
                     type: RevViewLayout.InvalidateAction.Type.DataRangeInsertedButViewNotAffected,
-                    dimension: RevScrollDimension.AxisEnum.vertical,
+                    dimension: RevScrollDimension.AxisId.vertical,
                     scrollDimensionAsWell: true,
                     index,
                     count,
@@ -675,7 +675,7 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
             if (affected) {
                 action = {
                     type: RevViewLayout.InvalidateAction.Type.DataRangeDeleted,
-                    dimension: RevScrollDimension.AxisEnum.vertical,
+                    dimension: RevScrollDimension.AxisId.vertical,
                     scrollDimensionAsWell: true,
                     index,
                     count,
@@ -683,7 +683,7 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
             } else {
                 action = {
                     type: RevViewLayout.InvalidateAction.Type.DataRangeDeletedButViewNotAffected,
-                    dimension: RevScrollDimension.AxisEnum.vertical,
+                    dimension: RevScrollDimension.AxisId.vertical,
                     scrollDimensionAsWell: true,
                     index,
                     count,
@@ -697,7 +697,7 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
     invalidateAllDataRowsDeleted() {
         const action: RevViewLayout.AllDeletedInvalidateAction = {
             type: RevViewLayout.InvalidateAction.Type.AllDeleted,
-            dimension: RevScrollDimension.AxisEnum.vertical,
+            dimension: RevScrollDimension.AxisId.vertical,
             scrollDimensionAsWell: true,
         };
         this.invalidate(action);
@@ -707,7 +707,7 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
     invalidateDataRowsLoaded() {
         const action: RevViewLayout.LoadedInvalidateAction = {
             type: RevViewLayout.InvalidateAction.Type.Loaded,
-            dimension: RevScrollDimension.AxisEnum.vertical,
+            dimension: RevScrollDimension.AxisId.vertical,
             scrollDimensionAsWell: true,
         };
         this.invalidate(action);
@@ -730,7 +730,7 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
             if (affected) {
                 const action: RevViewLayout.DataRangeMovedInvalidateAction = {
                     type: RevViewLayout.InvalidateAction.Type.DataRangeMoved,
-                    dimension: RevScrollDimension.AxisEnum.vertical,
+                    dimension: RevScrollDimension.AxisId.vertical,
                     scrollDimensionAsWell: true,
                     oldIndex: oldRowIndex,
                     newIndex: newRowIndex,
@@ -2490,7 +2490,7 @@ export namespace RevViewLayout {
     /** @internal */
     export interface InvalidateAction {
         readonly type: InvalidateAction.Type;
-        readonly dimension: RevScrollDimension.AxisEnum | undefined; // undefined means both
+        readonly dimension: RevScrollDimension.AxisId | undefined; // undefined means both
         readonly scrollDimensionAsWell: boolean
     }
 

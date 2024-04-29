@@ -14,7 +14,7 @@ export class RevVerticalScrollDimension<BGS extends RevBehavioredGridSettings, B
         private readonly _subgridsManager: RevSubgridsManager<BCS, SF>,
     ) {
         super(
-            RevScrollDimension.AxisEnum.vertical,
+            RevScrollDimension.AxisId.vertical,
             gridSettings,
             canvas,
         );

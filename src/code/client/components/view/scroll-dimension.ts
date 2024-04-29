@@ -26,7 +26,7 @@ export abstract class RevScrollDimension<BGS extends RevBehavioredGridSettings> 
     private _scrollable: boolean;
 
     constructor(
-        public readonly horizontalVertical: RevScrollDimension.AxisEnum,
+        public readonly horizontalVertical: RevScrollDimension.AxisId,
         protected readonly _gridSettings: RevGridSettings,
         protected readonly _canvas: RevCanvas<BGS>,
     ) {
@@ -325,12 +325,12 @@ export namespace RevScrollDimension {
     }
 
     /** @public */
-    export const enum AxisEnum {
+    export const enum AxisId {
         horizontal,
         vertical,
     }
 
-    export type Axis = keyof typeof AxisEnum;
+    export type Axis = keyof typeof AxisId;
 
     export interface Anchor {
         readonly index: number; // Index of column/row

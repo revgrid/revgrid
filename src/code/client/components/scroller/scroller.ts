@@ -395,18 +395,18 @@ export class RevScroller<BGS extends RevBehavioredGridSettings, BCS extends RevB
                 const thumbBox = this._thumb.getBoundingClientRect();
                 const goingUp = evt[this._axisProperties.client] < thumbBox[this._axisProperties.leading];
 
-                let actionType: RevScroller.Action.TypeEnum;
+                let actionType: RevScroller.Action.TypeId;
                 if (goingUp) {
                     if (evt.altKey) {
-                        actionType = RevScroller.Action.TypeEnum.StepBack;
+                        actionType = RevScroller.Action.TypeId.StepBack;
                     } else {
-                        actionType = RevScroller.Action.TypeEnum.PageBack;
+                        actionType = RevScroller.Action.TypeId.PageBack;
                     }
                 } else {
                     if (evt.altKey) {
-                        actionType = RevScroller.Action.TypeEnum.StepForward;
+                        actionType = RevScroller.Action.TypeId.StepForward;
                     } else {
-                        actionType = RevScroller.Action.TypeEnum.PageForward;
+                        actionType = RevScroller.Action.TypeId.PageForward;
                     }
                 }
                 const action: RevScroller.Action = {
@@ -497,7 +497,7 @@ export class RevScroller<BGS extends RevBehavioredGridSettings, BCS extends RevB
         this.setThumbPosition(viewportStart);
 
         const action: RevScroller.Action = {
-            type: RevScroller.Action.TypeEnum.newViewportStart,
+            type: RevScroller.Action.TypeId.newViewportStart,
             viewportStart,
         };
 
@@ -826,13 +826,13 @@ export namespace RevScroller {
 
     /** @public */
     export interface Action {
-        readonly type: Action.TypeEnum;
+        readonly type: Action.TypeId;
         readonly viewportStart: number | undefined;
     }
 
     /** @public */
     export namespace Action {
-        export const enum TypeEnum {
+        export const enum TypeId {
             StepForward,
             StepBack,
             PageForward,
@@ -874,7 +874,7 @@ interface AxisProperties {
 }
 
 // Note Axes is plural of Axis
-type AxesProperties = { [axis in keyof typeof RevScrollDimension.AxisEnum]: AxisProperties };
+type AxesProperties = { [axis in keyof typeof RevScrollDimension.AxisId]: AxisProperties };
 
 const axesProperties: AxesProperties = {
     vertical: {

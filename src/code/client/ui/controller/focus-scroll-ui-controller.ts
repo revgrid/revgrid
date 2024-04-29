@@ -188,19 +188,19 @@ export class RevFocusScrollUiController<BGS extends RevBehavioredGridSettings, B
 
     override handleHorizontalScrollerAction(action: RevScroller.Action) {
         switch (action.type) {
-            case RevScroller.Action.TypeEnum.StepForward:
+            case RevScroller.Action.TypeId.StepForward:
                 this.focusScrollBehavior.tryScrollRight();
                 break;
-            case RevScroller.Action.TypeEnum.StepBack:
+            case RevScroller.Action.TypeId.StepBack:
                 this.focusScrollBehavior.tryScrollLeft();
                 break;
-            case RevScroller.Action.TypeEnum.PageForward:
+            case RevScroller.Action.TypeId.PageForward:
                 this.focusScrollBehavior.tryScrollPageRight();
                 break;
-            case RevScroller.Action.TypeEnum.PageBack:
+            case RevScroller.Action.TypeId.PageBack:
                 this.focusScrollBehavior.tryScrollPageLeft();
                 break;
-            case RevScroller.Action.TypeEnum.newViewportStart: {
+            case RevScroller.Action.TypeId.newViewportStart: {
                 const viewportStart = action.viewportStart;
                 if (viewportStart === undefined) {
                     throw new RevAssertError('FUBPHSAV53009')
@@ -217,19 +217,19 @@ export class RevFocusScrollUiController<BGS extends RevBehavioredGridSettings, B
 
     override handleVerticalScrollerAction(action: RevScroller.Action) {
         switch (action.type) {
-            case RevScroller.Action.TypeEnum.StepForward:
+            case RevScroller.Action.TypeId.StepForward:
                 this.focusScrollBehavior.tryScrollDown();
                 break;
-            case RevScroller.Action.TypeEnum.StepBack:
+            case RevScroller.Action.TypeId.StepBack:
                 this.focusScrollBehavior.tryScrollUp();
                 break;
-            case RevScroller.Action.TypeEnum.PageForward:
+            case RevScroller.Action.TypeId.PageForward:
                 this.focusScrollBehavior.tryScrollPageDown();
                 break;
-            case RevScroller.Action.TypeEnum.PageBack:
+            case RevScroller.Action.TypeId.PageBack:
                 this.focusScrollBehavior.tryScrollPageUp();
                 break;
-            case RevScroller.Action.TypeEnum.newViewportStart: {
+            case RevScroller.Action.TypeId.newViewportStart: {
                 const viewportStart = action.viewportStart;
                 if (viewportStart === undefined) {
                     throw new RevAssertError('FUBPHSAV53009')

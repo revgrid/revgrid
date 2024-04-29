@@ -4768,7 +4768,7 @@ export namespace RevScroller {
     // (undocumented)
     export interface Action {
         // (undocumented)
-        readonly type: Action.TypeEnum;
+        readonly type: Action.TypeId;
         // (undocumented)
         readonly viewportStart: number | undefined;
     }
@@ -4781,7 +4781,7 @@ export namespace RevScroller {
     // (undocumented)
     export namespace Action {
         // (undocumented)
-        export const enum TypeEnum {
+        export const enum TypeId {
             // (undocumented)
             newViewportStart = 4,
             // (undocumented)
@@ -7241,7 +7241,7 @@ export namespace RevViewLayout {
     // @internal (undocumented)
     export interface InvalidateAction {
         // (undocumented)
-        readonly dimension: RevScrollDimension.AxisEnum | undefined;
+        readonly dimension: RevScrollDimension.AxisId | undefined;
         // (undocumented)
         readonly scrollDimensionAsWell: boolean;
         // (undocumented)

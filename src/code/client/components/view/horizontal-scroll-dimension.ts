@@ -13,7 +13,7 @@ export class RevHorizontalScrollDimension<BGS extends RevBehavioredGridSettings,
         private readonly _columnsManager: RevColumnsManager<BCS, SF>,
     ) {
         super(
-            RevScrollDimension.AxisEnum.horizontal,
+            RevScrollDimension.AxisId.horizontal,
             gridSettings,
             canvas,
         );
