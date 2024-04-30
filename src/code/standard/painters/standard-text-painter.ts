@@ -1,5 +1,5 @@
 import { RevCachedCanvasRenderingContext2D, RevRectangle, RevUnreachableCaseError } from '../../client/internal-api';
-import { RevHorizontalAlign, RevTextTruncateTypeId } from '../../text/internal-api';
+import { RevHorizontalAlign, RevHorizontalAlignId, RevTextTruncateTypeId } from '../../text/internal-api';
 
 /** @public */
 export class RevStandardTextPainter {
@@ -18,7 +18,7 @@ export class RevStandardTextPainter {
         text: string,
         leftPadding: number,
         rightPadding: number,
-        horizontalAlign: RevHorizontalAlign,
+        horizontalAlignId: RevHorizontalAlignId,
         font: string,
     ) {
         const columnSettings = this._columnSettings;
@@ -31,17 +31,17 @@ export class RevStandardTextPainter {
         const lines = this.findLines(cleanText.split(' '), width);
 
         if (lines.length === 1) {
-            return this.renderSingleLineText(bounds, cleanText, leftPadding, rightPadding, horizontalAlign);
+            return this.renderSingleLineText(bounds, cleanText, leftPadding, rightPadding, horizontalAlignId);
         } else {
             let halignOffset = leftPadding;
             let valignOffset = columnSettings.verticalOffset;
             const textHeight = gc.getTextHeight(font).height;
 
-            switch (horizontalAlign) {
-                case 'right':
+            switch (horizontalAlignId) {
+                case RevHorizontalAlignId.Right:
                     halignOffset = width - rightPadding;
                     break;
-                case 'center':
+                case RevHorizontalAlignId.Center:
                     halignOffset = width / 2;
                     break;
             }
@@ -59,7 +59,7 @@ export class RevStandardTextPainter {
             gc.rect(x, y, width, height);
             gc.clip();
 
-            gc.cache.textAlign = horizontalAlign;
+            gc.cache.textAlign = RevHorizontalAlign.idToCanvasTextAlign(horizontalAlignId);
             gc.cache.textBaseline = 'middle';
 
             for (let i = 0; i < lines.length; i++) {
@@ -81,7 +81,7 @@ export class RevStandardTextPainter {
         text: string,
         leftPadding: number,
         rightPadding: number,
-        horizontalAlign: RevHorizontalAlign,
+        horizontalAlignId: RevHorizontalAlignId,
     ) {
         if (text === '') {
             return leftPadding + rightPadding
@@ -94,24 +94,24 @@ export class RevStandardTextPainter {
             let halignOffset = leftPadding;
             let minWidth: number;
 
-            const rightHaligned = horizontalAlign === 'right';
+            const rightHaligned = horizontalAlignId === RevHorizontalAlignId.Right;
             const truncateWidth = width - rightPadding - leftPadding;
             if (columnSettings.defaultColumnAutoSizing) {
-                const truncatedMeasure = this.measureAndTruncateText(gc, text, truncateWidth, columnSettings.textTruncateType, false, rightHaligned);
+                const truncatedMeasure = this.measureAndTruncateText(gc, text, truncateWidth, columnSettings.textTruncateTypeId, false, rightHaligned);
                 minWidth = truncatedMeasure.width;
                 text = truncatedMeasure.text ?? text;
-                if (horizontalAlign === 'center') {
+                if (horizontalAlignId === RevHorizontalAlignId.Center) {
                     halignOffset = (width - truncatedMeasure.width) / 2;
                 }
             } else {
-                const truncatedResult = this.measureAndTruncateText(gc, text, truncateWidth, columnSettings.textTruncateType, true, rightHaligned);
+                const truncatedResult = this.measureAndTruncateText(gc, text, truncateWidth, columnSettings.textTruncateTypeId, true, rightHaligned);
                 minWidth = 0;
                 if (truncatedResult.text !== undefined) {
                     // not enough space to show the extire text, the text is truncated to fit for the width
                     text = truncatedResult.text;
                 } else {
                     // enought space to show the entire text
-                    if (horizontalAlign === 'center') {
+                    if (horizontalAlignId === RevHorizontalAlignId.Center) {
                         halignOffset = (width - truncatedResult.width) / 2;
                     }
                 }
@@ -122,14 +122,14 @@ export class RevStandardTextPainter {
                 // for canvas to print text, when textAlign is 'end' or 'right'
                 // it will start with position x and print the text on the left
                 // so the exact position for x need to increase by the acutal width - rightPadding
-                x += horizontalAlign === 'right'
+                x += horizontalAlignId === RevHorizontalAlignId.Right
                     ? width - rightPadding
                     : Math.max(leftPadding, halignOffset);
                 y += Math.floor(bounds.height / 2);
 
                 this.decorateText();
 
-                gc.cache.textAlign = horizontalAlign === 'right'
+                gc.cache.textAlign = horizontalAlignId === RevHorizontalAlignId.Right
                     ? 'right'
                     : 'left';
                 gc.cache.textBaseline = 'middle';
@@ -302,15 +302,15 @@ export class RevStandardTextPainter {
                             }
                             truncString = truncWidth > width
                                 ? '' // not enough room even for ellipsis
-                                : truncString = RevStandardTextPainter.Ellipsis + text.substr(truncAt);
+                                : truncString = RevStandardTextPainter.Ellipsis + text.substring(truncAt);
                             break;
                         }
                         case RevTextTruncateTypeId.BeforeLastPartiallyVisibleCharacter: { // truncate *before* last partially visible character
-                            truncString = text.substr(i + 1);
+                            truncString = text.substring(i + 1);
                             break;
                         }
                         case RevTextTruncateTypeId.AfterLastPartiallyVisibleCharacter: { // truncate *after* partially visible character
-                            truncString = text.substr(i);
+                            truncString = text.substring(i);
                             break;
                         }
                         default:
@@ -341,17 +341,17 @@ export class RevStandardTextPainter {
                             }
                             truncString = truncWidth > width
                                 ? '' // not enough room even for ellipsis
-                                : truncString = text.substr(0, truncAt) + RevStandardTextPainter.Ellipsis;
+                                : truncString = text.substring(0, truncAt) + RevStandardTextPainter.Ellipsis;
                             break;
                         }
                         case RevTextTruncateTypeId.BeforeLastPartiallyVisibleCharacter: { // truncate *before* last partially visible character
-                            truncString = text.substr(0, i);
+                            truncString = text.substring(0, i);
                             break;
                         }
                         case RevTextTruncateTypeId.AfterLastPartiallyVisibleCharacter: { // truncate *after* partially visible character
                             const truncAt = i + 1;
                             if (truncAt < text.length) {
-                                truncString = text.substr(0, truncAt);
+                                truncString = text.substring(0, truncAt);
                             }
                             break;
                         }
@@ -388,11 +388,16 @@ export namespace RevStandardTextPainter {
         width: number
     }
 
-    export interface ColumnSettings {
-        // Properties below must match properties in Grid ColumnSettings interface
+    export interface ClientColumnSettings {
         defaultColumnAutoSizing: boolean;
+    }
+
+    export interface OnlyColumnSettings {
         verticalOffset: number;
-        textTruncateType: RevTextTruncateTypeId | undefined;
+        textTruncateTypeId: RevTextTruncateTypeId | undefined;
         textStrikeThrough: boolean;
+    }
+
+    export interface ColumnSettings extends ClientColumnSettings, OnlyColumnSettings {
     }
 }

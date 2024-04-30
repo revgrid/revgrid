@@ -1,13 +1,15 @@
-import { RevTextTruncateTypeId } from '../../../text/internal-api';
+import { RevHorizontalAlignId, RevTextTruncateTypeId } from '../../../text/internal-api';
 import { RevStandardOnlyGridSettings } from '../../settings/internal-api';
 
 /** @public */
 export const revStandardDefaultOnlyGridSettings: RevStandardOnlyGridSettings = {
     cellPadding: 5,
     font: '13px Tahoma, Geneva, sans-serif',
+    horizontalAlignId: RevHorizontalAlignId.Center,
     horizontalAlign: 'center',
     verticalOffset: 0,
-    textTruncateType: RevTextTruncateTypeId.WithEllipsis,
+    textTruncateTypeId: RevTextTruncateTypeId.WithEllipsis,
+    textTruncateType: 'withEllipsis',
     textStrikeThrough: false,
 
     // When the following settings are undefined, typically a cell painter will fallback to another setting (if it supports that setting)
@@ -17,6 +19,7 @@ export const revStandardDefaultOnlyGridSettings: RevStandardOnlyGridSettings = {
     columnHoverBackgroundColor: undefined,
 
     columnHeaderFont: undefined,
+    columnHeaderHorizontalAlignId: undefined,
     columnHeaderHorizontalAlign: undefined,
     columnHeaderBackgroundColor: undefined,
     columnHeaderForegroundColor: undefined,

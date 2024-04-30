@@ -99,8 +99,8 @@ export class RevStandardHeaderTextCellPainter<
         } else {
             const bounds = cell.bounds;
             const cellPadding = columnSettings.cellPadding;
-            const columnHeaderHorizontalAlign = columnSettings.columnHeaderHorizontalAlign;
-            const horizontalAlign = columnHeaderHorizontalAlign === undefined ? columnSettings.horizontalAlign : columnHeaderHorizontalAlign;
+            const columnHeaderHorizontalAlignId = columnSettings.columnHeaderHorizontalAlignId;
+            const horizontalAlignId = columnHeaderHorizontalAlignId === undefined ? columnSettings.horizontalAlignId : columnHeaderHorizontalAlignId;
 
             // background
             gc.cache.fillStyle = backgroundColor;
@@ -109,7 +109,7 @@ export class RevStandardHeaderTextCellPainter<
             // draw text
             gc.cache.fillStyle = textColor;
             gc.cache.font = textFont;
-            return this._textPainter.renderSingleLineText(bounds, valText, cellPadding, cellPadding, horizontalAlign);
+            return this._textPainter.renderSingleLineText(bounds, valText, cellPadding, cellPadding, horizontalAlignId);
         }
     }
 }

@@ -1,7 +1,7 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
 import { Integer } from '@xilytix/sysutils';
-import { RevHorizontalAlign } from '../../../../../text/internal-api';
+import { RevHorizontalAlignId } from '../../../../../text/internal-api';
 import { RevSourcedFieldDefinition } from '../../../../sourced-field/server/internal-api';
 import { RevRecordSourcedFieldSourceDefinition } from './record-sourced-field-source-definition';
 
@@ -13,7 +13,7 @@ export class RevRecordSourcedFieldDefinition implements RevSourcedFieldDefinitio
         readonly sourceDefinition: RevRecordSourcedFieldSourceDefinition,
         readonly sourcelessName: string,
         readonly defaultHeading: string,
-        readonly defaultTextAlign: RevHorizontalAlign,
+        readonly defaultTextAlignId: RevHorizontalAlignId,
         readonly defaultWidth?: Integer,
     ) {
         this.name = RevSourcedFieldDefinition.Name.compose(sourceDefinition.name, sourcelessName);

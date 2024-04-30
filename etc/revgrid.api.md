@@ -469,7 +469,7 @@ export namespace RevCanvas {
     // @internal (undocumented)
     export type MouseEventer = (this: void, event: MouseEvent) => void;
     // @internal (undocumented)
-    export const enum PointerDownState {
+    export const enum PointerDownStateId {
         // (undocumented)
         Dragging = 3,
         // (undocumented)
@@ -1614,26 +1614,23 @@ export interface RevDatalessSubgrid {
 // @public (undocumented)
 export namespace RevDatalessSubgrid {
     // (undocumented)
-    export type Role = keyof typeof RoleEnum;
+    export type Role = typeof Role.header | typeof Role.filter | typeof Role.main | typeof Role.summary | typeof Role.footer;
     // (undocumented)
     export namespace Role {
         const // (undocumented)
-        defaultRole = RoleEnum.main;
+        header = "header";
+        const // (undocumented)
+        filter = "filter";
+        const // (undocumented)
+        main = "main";
+        const // (undocumented)
+        summary = "summary";
+        const // (undocumented)
+        footer = "footer";
+        const // (undocumented)
+        defaultRole = "main";
         // (undocumented)
         export function gridOrderCompare(left: Role | undefined, right: Role | undefined): number;
-    }
-    // (undocumented)
-    export const enum RoleEnum {
-        // (undocumented)
-        filter = "filter",
-        // (undocumented)
-        footer = "footer",
-        // (undocumented)
-        header = "header",
-        // (undocumented)
-        main = "main",
-        // (undocumented)
-        summary = "summary"
     }
 }
 
@@ -2531,29 +2528,31 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
 // @public (undocumented)
 export namespace RevFocus {
     // (undocumented)
-    export const enum ActionKeyboardKey {
-        // (undocumented)
-        ArrowDown = "ArrowDown",
-        // (undocumented)
-        ArrowLeft = "ArrowLeft",
-        // (undocumented)
-        ArrowRight = "ArrowRight",
-        // (undocumented)
-        ArrowUp = "ArrowUp",
-        // (undocumented)
-        End = "End",
-        // (undocumented)
-        Enter = "Enter",
-        // (undocumented)
-        Escape = "Escape",
-        // (undocumented)
-        Home = "Home",
-        // (undocumented)
-        PageDown = "PageDown",
-        // (undocumented)
-        PageUp = "PageUp",
-        // (undocumented)
-        Tab = "Tab"
+    export type ActionKeyboardKey = typeof ActionKeyboardKey.tab | typeof ActionKeyboardKey.escape | typeof ActionKeyboardKey.enter | typeof ActionKeyboardKey.arrowLeft | typeof ActionKeyboardKey.arrowRight | typeof ActionKeyboardKey.arrowUp | typeof ActionKeyboardKey.arrowDown | typeof ActionKeyboardKey.pageUp | typeof ActionKeyboardKey.pageDown | typeof ActionKeyboardKey.home | typeof ActionKeyboardKey.end;
+    // (undocumented)
+    export namespace ActionKeyboardKey {
+        const // (undocumented)
+        tab = "Tab";
+        const // (undocumented)
+        escape = "Escape";
+        const // (undocumented)
+        enter = "Enter";
+        const // (undocumented)
+        arrowLeft = "ArrowLeft";
+        const // (undocumented)
+        arrowRight = "ArrowRight";
+        const // (undocumented)
+        arrowUp = "ArrowUp";
+        const // (undocumented)
+        arrowDown = "ArrowDown";
+        const // (undocumented)
+        pageUp = "PageUp";
+        const // (undocumented)
+        pageDown = "PageDown";
+        const // (undocumented)
+        home = "Home";
+        const // (undocumented)
+        end = "End";
     }
     // @internal (undocumented)
     export type CurrentCellChangedForEventBehaviorEventer = (this: void, newPoint: RevPoint | undefined, oldPoint: RevPoint | undefined) => void;
@@ -2566,7 +2565,7 @@ export namespace RevFocus {
     // (undocumented)
     export type GetCellEditorEventer<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> = (this: void, field: SF, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>, readonly: boolean, cell: RevViewCell<BCS, SF> | undefined) => RevCellEditor<BCS, SF> | undefined;
     // (undocumented)
-    export function isNavActionKeyboardKey(key: string): boolean;
+    export function isNavActionKeyboardKey(key: ActionKeyboardKey): boolean;
     // @internal (undocumented)
     export interface Stash {
         // (undocumented)
@@ -2675,7 +2674,7 @@ export namespace RevGridSettings {
     // (undocumented)
     export function getSelectionAreaTypeFromEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: RevGridSettings, event: T): "all" | "rectangle" | "row" | "column";
     // (undocumented)
-    export function getSelectionAreaTypeSpecifierFromEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: RevGridSettings, event: T): RevSelectionAreaTypeSpecifier.Primary | RevSelectionAreaTypeSpecifier.Secondary;
+    export function getSelectionAreaTypeSpecifierFromEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: RevGridSettings, event: T): RevSelectionAreaTypeSpecifierId.Primary | RevSelectionAreaTypeSpecifierId.Secondary;
     // (undocumented)
     export function isAddToggleSelectionAreaModifierKeyDownInEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: RevGridSettings, event: T): boolean;
     // (undocumented)
@@ -2687,24 +2686,46 @@ export namespace RevGridSettings {
 }
 
 // @public (undocumented)
-export type RevHorizontalAlign = keyof typeof RevHorizontalAlignEnum;
+export type RevHorizontalAlign = typeof RevHorizontalAlign.left | typeof RevHorizontalAlign.right | typeof RevHorizontalAlign.center | typeof RevHorizontalAlign.start | typeof RevHorizontalAlign.end;
 
 // @public (undocumented)
-export const enum RevHorizontalAlignEnum {
+export namespace RevHorizontalAlign {
     // (undocumented)
-    center = "center",
+    export type Id = RevHorizontalAlignId;
+    const // (undocumented)
+    left = "left";
+    const // (undocumented)
+    right = "right";
+    const // (undocumented)
+    center = "center";
+    const // (undocumented)
+    start = "start";
+    const // (undocumented)
+    end = "end";
     // (undocumented)
-    end = "end",
+    export function idToCanvasTextAlign(id: Id): CanvasTextAlign;
     // (undocumented)
-    left = "left",
+    export function toId(value: RevHorizontalAlign, noMatchFallbackId?: Id): Id;
     // (undocumented)
-    right = "right",
-    // (undocumented)
-    start = "start"
+    export function tryToId(value: RevHorizontalAlign): Id | undefined;
 }
 
 // @public (undocumented)
-export const enum RevHorizontalWheelScrollingAllowed {
+export const enum RevHorizontalAlignId {
+    // (undocumented)
+    Center = 2,
+    // (undocumented)
+    End = 4,
+    // (undocumented)
+    Left = 0,
+    // (undocumented)
+    Right = 1,
+    // (undocumented)
+    Start = 3
+}
+
+// @public (undocumented)
+export const enum RevHorizontalWheelScrollingAllowedId {
     // (undocumented)
     Always = 1,
     // (undocumented)
@@ -2885,8 +2906,8 @@ export class RevInMemoryBehavioredColumnSettings extends RevInMemoryBehavioredSe
 // @public (undocumented)
 export class RevInMemoryBehavioredGridSettings extends RevInMemoryBehavioredSettings implements RevBehavioredGridSettings {
     // (undocumented)
-    get addToggleSelectionAreaModifierKey(): RevModifierKeyEnum;
-    set addToggleSelectionAreaModifierKey(value: RevModifierKeyEnum);
+    get addToggleSelectionAreaModifierKey(): RevModifierKey;
+    set addToggleSelectionAreaModifierKey(value: RevModifierKey);
     // (undocumented)
     get addToggleSelectionAreaModifierKeyDoesToggle(): boolean;
     set addToggleSelectionAreaModifierKeyDoesToggle(value: boolean);
@@ -2980,8 +3001,8 @@ export class RevInMemoryBehavioredGridSettings extends RevInMemoryBehavioredSett
     get eventDispatchEnabled(): boolean;
     set eventDispatchEnabled(value: boolean);
     // (undocumented)
-    get extendLastSelectionAreaModifierKey(): RevModifierKeyEnum;
-    set extendLastSelectionAreaModifierKey(value: RevModifierKeyEnum);
+    get extendLastSelectionAreaModifierKey(): RevModifierKey;
+    set extendLastSelectionAreaModifierKey(value: RevModifierKey);
     // (undocumented)
     get filterable(): boolean;
     set filterable(value: boolean);
@@ -3034,8 +3055,8 @@ export class RevInMemoryBehavioredGridSettings extends RevInMemoryBehavioredSett
     get horizontalGridLinesWidth(): number;
     set horizontalGridLinesWidth(value: number);
     // (undocumented)
-    get horizontalWheelScrollingAllowed(): RevHorizontalWheelScrollingAllowed;
-    set horizontalWheelScrollingAllowed(value: RevHorizontalWheelScrollingAllowed);
+    get horizontalWheelScrollingAllowed(): RevHorizontalWheelScrollingAllowedId;
+    set horizontalWheelScrollingAllowed(value: RevHorizontalWheelScrollingAllowedId);
     // (undocumented)
     get maximumColumnWidth(): number | undefined;
     set maximumColumnWidth(value: number | undefined);
@@ -3048,8 +3069,8 @@ export class RevInMemoryBehavioredGridSettings extends RevInMemoryBehavioredSett
     get minimumColumnWidth(): number;
     set minimumColumnWidth(value: number);
     // (undocumented)
-    get mouseAddToggleExtendSelectionAreaDragModifierKey(): RevModifierKeyEnum | undefined;
-    set mouseAddToggleExtendSelectionAreaDragModifierKey(value: RevModifierKeyEnum | undefined);
+    get mouseAddToggleExtendSelectionAreaDragModifierKey(): RevModifierKey | undefined;
+    set mouseAddToggleExtendSelectionAreaDragModifierKey(value: RevModifierKey | undefined);
     // (undocumented)
     get mouseAddToggleExtendSelectionAreaEnabled(): boolean;
     set mouseAddToggleExtendSelectionAreaEnabled(value: boolean);
@@ -3057,8 +3078,8 @@ export class RevInMemoryBehavioredGridSettings extends RevInMemoryBehavioredSett
     get mouseColumnSelectionEnabled(): boolean;
     set mouseColumnSelectionEnabled(value: boolean);
     // (undocumented)
-    get mouseColumnSelectionModifierKey(): RevModifierKeyEnum | undefined;
-    set mouseColumnSelectionModifierKey(value: RevModifierKeyEnum | undefined);
+    get mouseColumnSelectionModifierKey(): RevModifierKey | undefined;
+    set mouseColumnSelectionModifierKey(value: RevModifierKey | undefined);
     // (undocumented)
     get mouseLastSelectionAreaExtendingDragActiveCursorName(): string | undefined;
     set mouseLastSelectionAreaExtendingDragActiveCursorName(value: string | undefined);
@@ -3069,8 +3090,8 @@ export class RevInMemoryBehavioredGridSettings extends RevInMemoryBehavioredSett
     get mouseRowSelectionEnabled(): boolean;
     set mouseRowSelectionEnabled(value: boolean);
     // (undocumented)
-    get mouseRowSelectionModifierKey(): RevModifierKeyEnum | undefined;
-    set mouseRowSelectionModifierKey(value: RevModifierKeyEnum | undefined);
+    get mouseRowSelectionModifierKey(): RevModifierKey | undefined;
+    set mouseRowSelectionModifierKey(value: RevModifierKey | undefined);
     // (undocumented)
     get multipleSelectionAreas(): boolean;
     set multipleSelectionAreas(value: boolean);
@@ -3111,8 +3132,8 @@ export class RevInMemoryBehavioredGridSettings extends RevInMemoryBehavioredSett
     get secondarySelectionAreaType(): RevSelectionAreaType;
     set secondarySelectionAreaType(value: RevSelectionAreaType);
     // (undocumented)
-    get secondarySelectionAreaTypeSpecifierModifierKey(): RevModifierKeyEnum | undefined;
-    set secondarySelectionAreaTypeSpecifierModifierKey(value: RevModifierKeyEnum | undefined);
+    get secondarySelectionAreaTypeSpecifierModifierKey(): RevModifierKey | undefined;
+    set secondarySelectionAreaTypeSpecifierModifierKey(value: RevModifierKey | undefined);
     // (undocumented)
     get selectionRegionOutlineColor(): RevGridSettings.Color | undefined;
     set selectionRegionOutlineColor(value: RevGridSettings.Color | undefined);
@@ -3123,8 +3144,8 @@ export class RevInMemoryBehavioredGridSettings extends RevInMemoryBehavioredSett
     get showFilterRow(): boolean;
     set showFilterRow(value: boolean);
     // (undocumented)
-    get showScrollerThumbOnMouseMoveModifierKey(): RevModifierKeyEnum | undefined;
-    set showScrollerThumbOnMouseMoveModifierKey(value: RevModifierKeyEnum | undefined);
+    get showScrollerThumbOnMouseMoveModifierKey(): RevModifierKey | undefined;
+    set showScrollerThumbOnMouseMoveModifierKey(value: RevModifierKey | undefined);
     // (undocumented)
     get sortOnClick(): boolean;
     set sortOnClick(value: boolean);
@@ -3311,26 +3332,20 @@ export namespace RevMetaModel {
 }
 
 // @public (undocumented)
-export type RevModifierKey = keyof typeof RevModifierKeyEnum;
+export type RevModifierKey = typeof RevModifierKey.control | typeof RevModifierKey.shift | typeof RevModifierKey.meta | typeof RevModifierKey.alt;
 
 // @public (undocumented)
 export namespace RevModifierKey {
     const // (undocumented)
-    all: RevModifierKeyEnum[];
+    control = "Control";
+    const // (undocumented)
+    shift = "Shift";
+    const // (undocumented)
+    meta = "Meta";
+    const // (undocumented)
+    alt = "Alt";
     // (undocumented)
-    export function isDownInEvent<T extends MouseEvent | KeyboardEvent>(keyEnum: RevModifierKeyEnum | undefined, event: T): boolean;
-}
-
-// @public (undocumented)
-export const enum RevModifierKeyEnum {
-    // (undocumented)
-    Alt = "Alt",
-    // (undocumented)
-    Control = "Control",
-    // (undocumented)
-    Meta = "Meta",
-    // (undocumented)
-    Shift = "Shift"
+    export function isDownInEvent<T extends MouseEvent | KeyboardEvent>(key: RevModifierKey | undefined, event: T): boolean;
 }
 
 // @public (undocumented)
@@ -3340,7 +3355,7 @@ export class RevMouse<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
     _canvas: RevCanvas<BGS>,
     _viewLayout: RevViewLayout<BGS, BCS, SF>);
     // (undocumented)
-    get activeDragType(): RevMouse.DragTypeEnum | undefined;
+    get activeDragType(): RevMouse.DragType | undefined;
     // @internal (undocumented)
     cellEnteredEventer: RevMouse.CellEnteredExitedEventer<BCS, SF>;
     // @internal (undocumented)
@@ -3354,7 +3369,7 @@ export class RevMouse<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
     // @internal (undocumented)
     reset(): void;
     // @internal (undocumented)
-    setActiveDragType(value: RevMouse.DragTypeEnum | undefined): void;
+    setActiveDragType(value: RevMouse.DragType | undefined): void;
     // @internal (undocumented)
     setLocation(cursorName: string | undefined, titleText: string | undefined): void;
     // @internal (undocumented)
@@ -3377,19 +3392,19 @@ export namespace RevMouse {
         readonly titleText: string;
     }
     // (undocumented)
-    export type DragType = keyof typeof DragTypeEnum;
+    export type DragType = typeof DragType.lastRectangleSelectionAreaExtending | typeof DragType.lastColumnSelectionAreaExtending | typeof DragType.lastRowSelectionAreaExtending | typeof DragType.columnResizing | typeof DragType.columnMoving;
     // (undocumented)
-    export const enum DragTypeEnum {
-        // (undocumented)
-        ColumnMoving = "revgridcolumnmoving",
-        // (undocumented)
-        ColumnResizing = "revgridcolumnresizing",
-        // (undocumented)
-        LastColumnSelectionAreaExtending = "revgridlastcolumnselectionareaextending",
-        // (undocumented)
-        LastRectangleSelectionAreaExtending = "revgridlastrectangleselectionareaextending",
-        // (undocumented)
-        LastRowSelectionAreaExtending = "revgridlastrowselectionareaextending"
+    export namespace DragType {
+        const // (undocumented)
+        lastRectangleSelectionAreaExtending = "revgridlastrectangleselectionareaextending";
+        const // (undocumented)
+        lastColumnSelectionAreaExtending = "revgridlastcolumnselectionareaextending";
+        const // (undocumented)
+        lastRowSelectionAreaExtending = "revgridlastrowselectionareaextending";
+        const // (undocumented)
+        columnResizing = "revgridcolumnresizing";
+        const // (undocumented)
+        columnMoving = "revgridcolumnmoving";
     }
     // (undocumented)
     export type ViewCellRenderInvalidatedEventer<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> = (this: void, cell: RevViewCell<BCS, SF>) => void;
@@ -3421,7 +3436,7 @@ export interface RevMultiHeadingDataRowArraySourcedFieldDefinition extends RevSo
 // @public (undocumented)
 export namespace RevMultiHeadingDataRowArraySourcedFieldDefinition {
     // (undocumented)
-    export function create(sourceDefinition: RevSourcedFieldSourceDefinition, sourcelessName: string, headings: string[], defaultHeading: string | undefined, defaultTextAlign: RevHorizontalAlign, defaultWidth?: Integer, key?: string): RevMultiHeadingDataRowArraySourcedFieldDefinition;
+    export function create(sourceDefinition: RevSourcedFieldSourceDefinition, sourcelessName: string, headings: string[], defaultHeading: string | undefined, defaultTextAlignId: RevHorizontalAlignId, defaultWidth?: Integer, key?: string): RevMultiHeadingDataRowArraySourcedFieldDefinition;
 }
 
 // @public (undocumented)
@@ -3466,7 +3481,7 @@ export type RevOnlyColumnSettings = Pick<RevOnlyGridSettings, 'backgroundColor' 
 
 // @public (undocumented)
 export interface RevOnlyGridSettings {
-    addToggleSelectionAreaModifierKey: RevModifierKeyEnum;
+    addToggleSelectionAreaModifierKey: RevModifierKey;
     addToggleSelectionAreaModifierKeyDoesToggle: boolean;
     backgroundAnimateTimeInterval: number | undefined;
     // (undocumented)
@@ -3513,7 +3528,7 @@ export interface RevOnlyGridSettings {
     editOnKeyDown: boolean;
     editorClickableCursorName: string | undefined;
     eventDispatchEnabled: boolean;
-    extendLastSelectionAreaModifierKey: RevModifierKeyEnum;
+    extendLastSelectionAreaModifierKey: RevModifierKey;
     filterable: boolean;
     // (undocumented)
     filterBackgroundColor: RevOnlyGridSettings.Color;
@@ -3545,24 +3560,24 @@ export interface RevOnlyGridSettings {
     horizontalGridLinesVisible: boolean;
     horizontalGridLinesWidth: number;
     // (undocumented)
-    horizontalWheelScrollingAllowed: RevHorizontalWheelScrollingAllowed;
+    horizontalWheelScrollingAllowed: RevHorizontalWheelScrollingAllowedId;
     // (undocumented)
     maximumColumnWidth: number | undefined;
     minimumAnimateTimeInterval: number;
     // (undocumented)
     minimumColumnWidth: number;
     // (undocumented)
-    mouseAddToggleExtendSelectionAreaDragModifierKey: RevModifierKeyEnum | undefined;
+    mouseAddToggleExtendSelectionAreaDragModifierKey: RevModifierKey | undefined;
     mouseAddToggleExtendSelectionAreaEnabled: boolean;
     mouseColumnSelectionEnabled: boolean;
     // (undocumented)
-    mouseColumnSelectionModifierKey: RevModifierKeyEnum | undefined;
+    mouseColumnSelectionModifierKey: RevModifierKey | undefined;
     mouseLastSelectionAreaExtendingDragActiveCursorName: string | undefined;
     // (undocumented)
     mouseLastSelectionAreaExtendingDragActiveTitleText: string | undefined;
     mouseRowSelectionEnabled: boolean;
     // (undocumented)
-    mouseRowSelectionModifierKey: RevModifierKeyEnum | undefined;
+    mouseRowSelectionModifierKey: RevModifierKey | undefined;
     multipleSelectionAreas: boolean;
     primarySelectionAreaType: RevSelectionAreaType;
     // (undocumented)
@@ -3581,13 +3596,13 @@ export interface RevOnlyGridSettings {
     scrollingEnabled: boolean;
     // (undocumented)
     secondarySelectionAreaType: RevSelectionAreaType;
-    secondarySelectionAreaTypeSpecifierModifierKey: RevModifierKeyEnum | undefined;
+    secondarySelectionAreaTypeSpecifierModifierKey: RevModifierKey | undefined;
     selectionRegionOutlineColor: RevOnlyGridSettings.Color | undefined;
     selectionRegionOverlayColor: RevOnlyGridSettings.Color | undefined;
     // (undocumented)
     showFilterRow: boolean;
     // (undocumented)
-    showScrollerThumbOnMouseMoveModifierKey: RevModifierKeyEnum | undefined;
+    showScrollerThumbOnMouseMoveModifierKey: RevModifierKey | undefined;
     sortOnClick: boolean;
     sortOnDoubleClick: boolean;
     // (undocumented)
@@ -4270,11 +4285,11 @@ export abstract class RevRecordSourcedField<RenderValueTypeId, RenderAttributeTy
 
 // @public (undocumented)
 export class RevRecordSourcedFieldDefinition implements RevSourcedFieldDefinition {
-    constructor(sourceDefinition: RevRecordSourcedFieldSourceDefinition, sourcelessName: string, defaultHeading: string, defaultTextAlign: RevHorizontalAlign, defaultWidth?: number | undefined);
+    constructor(sourceDefinition: RevRecordSourcedFieldSourceDefinition, sourcelessName: string, defaultHeading: string, defaultTextAlignId: RevHorizontalAlignId, defaultWidth?: number | undefined);
     // (undocumented)
     readonly defaultHeading: string;
     // (undocumented)
-    readonly defaultTextAlign: RevHorizontalAlign;
+    readonly defaultTextAlignId: RevHorizontalAlignId;
     // (undocumented)
     readonly defaultWidth?: number | undefined;
     // (undocumented)
@@ -4799,7 +4814,7 @@ export namespace RevScroller {
     // @internal (undocumented)
     export type PointerEventListener = (event: PointerEvent) => void;
     // @internal (undocumented)
-    export const enum PointerScrollingState {
+    export const enum PointerScrollingStateId {
         // (undocumented)
         Active = 2,
         // (undocumented)
@@ -4841,7 +4856,7 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
     get areaCount(): number;
     beginChange(): void;
     // @internal (undocumented)
-    calculateAreaTypeFromSpecifier(specifier: RevSelectionAreaTypeSpecifier): RevSelectionAreaTypeId;
+    calculateAreaTypeFromSpecifier(specifier: RevSelectionAreaTypeSpecifierId): RevSelectionAreaTypeId;
     // @internal (undocumented)
     calculateMouseMainSelectAllowedAreaTypeId(): RevSelectionAreaTypeId.rectangle | RevSelectionAreaTypeId.row | RevSelectionAreaTypeId.column | undefined;
     // @internal (undocumented)
@@ -5018,7 +5033,7 @@ export const enum RevSelectionAreaTypeId {
 }
 
 // @public (undocumented)
-export const enum RevSelectionAreaTypeSpecifier {
+export const enum RevSelectionAreaTypeSpecifierId {
     // (undocumented)
     Column = 4,
     // (undocumented)
@@ -5065,7 +5080,7 @@ export interface RevSingleHeadingDataRowArraySourcedFieldDefinition extends RevS
 // @public (undocumented)
 export namespace RevSingleHeadingDataRowArraySourcedFieldDefinition {
     // (undocumented)
-    export function create(sourceDefinition: RevSourcedFieldSourceDefinition, sourcelessName: string, defaultHeading: string, defaultTextAlign: RevHorizontalAlign, defaultWidth?: Integer, key?: string): RevSingleHeadingDataRowArraySourcedFieldDefinition;
+    export function create(sourceDefinition: RevSourcedFieldSourceDefinition, sourcelessName: string, defaultHeading: string, defaultTextAlignId: RevHorizontalAlignId, defaultWidth?: Integer, key?: string): RevSingleHeadingDataRowArraySourcedFieldDefinition;
 }
 
 // @public (undocumented)
@@ -5128,7 +5143,7 @@ export namespace RevSourcedField {
         // (undocumented)
         export type Id = FieldId;
         // (undocumented)
-        export function idToHorizontalAlign(id: Id): RevHorizontalAlignEnum;
+        export function idToHorizontalAlignId(id: Id): RevHorizontalAlignId;
         // (undocumented)
         export function idToName(id: Id): string;
     }
@@ -5170,7 +5185,7 @@ export interface RevSourcedFieldDefinition {
     // (undocumented)
     readonly defaultHeading: string;
     // (undocumented)
-    readonly defaultTextAlign: RevHorizontalAlign;
+    readonly defaultTextAlignId: RevHorizontalAlignId;
     // (undocumented)
     readonly defaultWidth?: Integer;
     // (undocumented)
@@ -5517,6 +5532,8 @@ export class RevStandardInMemoryBehavioredColumnSettings extends RevInMemoryBeha
     get columnHeaderHorizontalAlign(): RevHorizontalAlign | undefined;
     set columnHeaderHorizontalAlign(value: RevHorizontalAlign | undefined);
     // (undocumented)
+    get columnHeaderHorizontalAlignId(): RevHorizontalAlignId | undefined;
+    // (undocumented)
     get columnHeaderSelectionBackgroundColor(): RevGridSettings.Color | undefined;
     set columnHeaderSelectionBackgroundColor(value: RevGridSettings.Color | undefined);
     // (undocumented)
@@ -5537,13 +5554,17 @@ export class RevStandardInMemoryBehavioredColumnSettings extends RevInMemoryBeha
     get horizontalAlign(): RevHorizontalAlign;
     set horizontalAlign(value: RevHorizontalAlign);
     // (undocumented)
+    get horizontalAlignId(): RevHorizontalAlignId;
+    // (undocumented)
     merge(settings: Partial<RevStandardColumnSettings>): boolean;
     // (undocumented)
     get textStrikeThrough(): boolean;
     set textStrikeThrough(value: boolean);
     // (undocumented)
-    get textTruncateType(): RevTextTruncateTypeId | undefined;
-    set textTruncateType(value: RevTextTruncateTypeId | undefined);
+    get textTruncateType(): RevTextTruncateType | undefined;
+    set textTruncateType(value: RevTextTruncateType | undefined);
+    // (undocumented)
+    get textTruncateTypeId(): RevTextTruncateTypeId | undefined;
     // (undocumented)
     get verticalOffset(): number;
     set verticalOffset(value: number);
@@ -5575,6 +5596,8 @@ export class RevStandardInMemoryBehavioredGridSettings extends RevInMemoryBehavi
     get columnHeaderHorizontalAlign(): RevHorizontalAlign | undefined;
     set columnHeaderHorizontalAlign(value: RevHorizontalAlign | undefined);
     // (undocumented)
+    get columnHeaderHorizontalAlignId(): RevHorizontalAlignId | undefined;
+    // (undocumented)
     get columnHeaderSelectionBackgroundColor(): RevGridSettings.Color | undefined;
     set columnHeaderSelectionBackgroundColor(value: RevGridSettings.Color | undefined);
     // (undocumented)
@@ -5593,6 +5616,8 @@ export class RevStandardInMemoryBehavioredGridSettings extends RevInMemoryBehavi
     get horizontalAlign(): RevHorizontalAlign;
     set horizontalAlign(value: RevHorizontalAlign);
     // (undocumented)
+    get horizontalAlignId(): RevHorizontalAlignId;
+    // (undocumented)
     merge(settings: Partial<RevStandardGridSettings>): boolean;
     // (undocumented)
     get rowHoverBackgroundColor(): RevGridSettings.Color | undefined;
@@ -5610,8 +5635,10 @@ export class RevStandardInMemoryBehavioredGridSettings extends RevInMemoryBehavi
     get textStrikeThrough(): boolean;
     set textStrikeThrough(value: boolean);
     // (undocumented)
-    get textTruncateType(): RevTextTruncateTypeId | undefined;
-    set textTruncateType(value: RevTextTruncateTypeId | undefined);
+    get textTruncateType(): RevTextTruncateType | undefined;
+    set textTruncateType(value: RevTextTruncateType | undefined);
+    // (undocumented)
+    get textTruncateTypeId(): RevTextTruncateTypeId | undefined;
     // (undocumented)
     get verticalOffset(): number;
     set verticalOffset(value: number);
@@ -5646,10 +5673,10 @@ export class RevStandardNumberInputCellEditor<BGS extends RevBehavioredGridSetti
 }
 
 // @public (undocumented)
-export type RevStandardOnlyColumnSettings = Pick<RevStandardOnlyGridSettings, 'cellPadding' | 'cellFocusedBorderColor' | 'cellHoverBackgroundColor' | 'columnHoverBackgroundColor' | 'columnHeaderFont' | 'columnHeaderHorizontalAlign' | 'columnHeaderBackgroundColor' | 'columnHeaderForegroundColor' | 'columnHeaderSelectionFont' | 'columnHeaderSelectionBackgroundColor' | 'columnHeaderSelectionForegroundColor' | 'font' | 'horizontalAlign' | 'verticalOffset' | 'textTruncateType' | 'textStrikeThrough'>;
+export type RevStandardOnlyColumnSettings = Pick<RevStandardOnlyGridSettings, 'cellPadding' | 'cellFocusedBorderColor' | 'cellHoverBackgroundColor' | 'columnHoverBackgroundColor' | 'columnHeaderFont' | 'columnHeaderHorizontalAlignId' | 'columnHeaderHorizontalAlign' | 'columnHeaderBackgroundColor' | 'columnHeaderForegroundColor' | 'columnHeaderSelectionFont' | 'columnHeaderSelectionBackgroundColor' | 'columnHeaderSelectionForegroundColor' | 'font' | 'horizontalAlignId' | 'horizontalAlign' | 'verticalOffset' | 'textTruncateTypeId' | 'textTruncateType' | 'textStrikeThrough'>;
 
 // @public (undocumented)
-export interface RevStandardOnlyGridSettings {
+export interface RevStandardOnlyGridSettings extends RevStandardTextPainter.OnlyColumnSettings {
     // (undocumented)
     cellFocusedBorderColor: RevGridSettings.Color | undefined;
     // (undocumented)
@@ -5664,6 +5691,8 @@ export interface RevStandardOnlyGridSettings {
     // (undocumented)
     columnHeaderHorizontalAlign: RevHorizontalAlign | undefined;
     // (undocumented)
+    readonly columnHeaderHorizontalAlignId: RevHorizontalAlignId | undefined;
+    // (undocumented)
     columnHeaderSelectionBackgroundColor: RevGridSettings.Color | undefined;
     columnHeaderSelectionFont: string | undefined;
     // (undocumented)
@@ -5672,7 +5701,9 @@ export interface RevStandardOnlyGridSettings {
     columnHoverBackgroundColor: RevGridSettings.Color | undefined;
     // (undocumented)
     font: string;
+    // (undocumented)
     horizontalAlign: RevHorizontalAlign;
+    readonly horizontalAlignId: RevHorizontalAlignId;
     // (undocumented)
     rowHoverBackgroundColor: RevGridSettings.Color | undefined;
     selectionBackgroundColor: RevGridSettings.Color | undefined;
@@ -5680,7 +5711,9 @@ export interface RevStandardOnlyGridSettings {
     selectionForegroundColor: RevGridSettings.Color | undefined;
     textStrikeThrough: boolean;
     // (undocumented)
-    textTruncateType: RevTextTruncateTypeId | undefined;
+    textTruncateType: RevTextTruncateType | undefined;
+    // (undocumented)
+    readonly textTruncateTypeId: RevTextTruncateTypeId | undefined;
     verticalOffset: number;
 }
 
@@ -5831,8 +5864,8 @@ export class RevStandardTextPainter {
     // (undocumented)
     protected findLines(words: string[], width: number): string[];
     // (undocumented)
-    renderMultiLineText(bounds: RevRectangle, text: string, leftPadding: number, rightPadding: number, horizontalAlign: RevHorizontalAlign, font: string): number;
-    renderSingleLineText(bounds: RevRectangle, text: string, leftPadding: number, rightPadding: number, horizontalAlign: RevHorizontalAlign): number;
+    renderMultiLineText(bounds: RevRectangle, text: string, leftPadding: number, rightPadding: number, horizontalAlignId: RevHorizontalAlignId, font: string): number;
+    renderSingleLineText(bounds: RevRectangle, text: string, leftPadding: number, rightPadding: number, horizontalAlignId: RevHorizontalAlignId): number;
     // (undocumented)
     setColumnSettings(value: RevStandardTextPainter.ColumnSettings): void;
     // (undocumented)
@@ -5848,13 +5881,19 @@ export namespace RevStandardTextPainter {
     const // (undocumented)
     Ellipsis = "\u2026";
     // (undocumented)
-    export interface ColumnSettings {
+    export interface ClientColumnSettings {
         // (undocumented)
         defaultColumnAutoSizing: boolean;
+    }
+    // (undocumented)
+    export interface ColumnSettings extends ClientColumnSettings, OnlyColumnSettings {
+    }
+    // (undocumented)
+    export interface OnlyColumnSettings {
         // (undocumented)
         textStrikeThrough: boolean;
         // (undocumented)
-        textTruncateType: RevTextTruncateTypeId | undefined;
+        textTruncateTypeId: RevTextTruncateTypeId | undefined;
         // (undocumented)
         verticalOffset: number;
     }
@@ -5944,7 +5983,6 @@ export namespace RevSubgrid {
         // (undocumented)
         selectable?: boolean;
     }
-    import RoleEnum = RevDatalessSubgrid.RoleEnum;
     import Role = RevDatalessSubgrid.Role;
     // (undocumented)
     export type GetCellPainterEventer<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> = (this: void, viewCell: RevDatalessViewCell<BCS, SF>) => RevCellPainter<BCS, SF>;
@@ -6261,7 +6299,7 @@ export namespace RevTableField {
     export type Constructor<RenderValueTypeId, RenderAttributeTypeId> = new (textFormatter: RevRenderValue.TextFormatter<RenderValueTypeId, RenderAttributeTypeId>, definition: RevTableField.Definition<RenderValueTypeId, RenderAttributeTypeId>, heading: string, index: Integer) => RevTableField<RenderValueTypeId, RenderAttributeTypeId>;
     // (undocumented)
     export class Definition<RenderValueTypeId, RenderAttributeTypeId> extends RevRecordSourcedFieldDefinition {
-        constructor(sourceDefinition: RevSourcedFieldSourceDefinition, sourcelessName: string, defaultHeading: string, defaultTextAlign: RevHorizontalAlign, gridFieldConstructor: RevTableField.Constructor<RenderValueTypeId, RenderAttributeTypeId>, gridValueConstructor: RevTableValue.Constructor<RenderValueTypeId, RenderAttributeTypeId>);
+        constructor(sourceDefinition: RevSourcedFieldSourceDefinition, sourcelessName: string, defaultHeading: string, defaultTextAlignId: RevHorizontalAlignId, gridFieldConstructor: RevTableField.Constructor<RenderValueTypeId, RenderAttributeTypeId>, gridValueConstructor: RevTableValue.Constructor<RenderValueTypeId, RenderAttributeTypeId>);
         // (undocumented)
         readonly gridFieldConstructor: RevTableField.Constructor<RenderValueTypeId, RenderAttributeTypeId>;
         // (undocumented)
@@ -6757,6 +6795,25 @@ export class RevTableValuesRecord<RenderValueTypeId, RenderAttributeTypeId> impl
 }
 
 // @public (undocumented)
+export type RevTextTruncateType = typeof RevTextTruncateType.withEllipsis | typeof RevTextTruncateType.beforeLastPartiallyVisibleCharacter | typeof RevTextTruncateType.afterLastPartiallyVisibleCharacter;
+
+// @public (undocumented)
+export namespace RevTextTruncateType {
+    // (undocumented)
+    export type Id = RevTextTruncateTypeId;
+    const // (undocumented)
+    withEllipsis = "withEllipsis";
+    const // (undocumented)
+    beforeLastPartiallyVisibleCharacter = "beforeLastPartiallyVisibleCharacter";
+    const // (undocumented)
+    afterLastPartiallyVisibleCharacter = "afterLastPartiallyVisibleCharacter";
+    // (undocumented)
+    export function toId(value: RevTextTruncateType, noMatchFallbackId?: Id): Id;
+    // (undocumented)
+    export function tryToId(value: RevTextTruncateType): Id | undefined;
+}
+
+// @public (undocumented)
 export const enum RevTextTruncateTypeId {
     // (undocumented)
     AfterLastPartiallyVisibleCharacter = 2,
@@ -7179,22 +7236,22 @@ export namespace RevViewLayout {
         // (undocumented)
         readonly index: number;
         // (undocumented)
-        readonly type: InvalidateAction.Type.ActiveRangeDeleted | InvalidateAction.Type.ActiveRangeDeletedButViewNotAffected;
+        readonly type: InvalidateAction.TypeId.ActiveRangeDeleted | InvalidateAction.TypeId.ActiveRangeDeletedButViewNotAffected;
     }
     // @internal (undocumented)
     export interface AllChangedInvalidateAction extends InvalidateAction {
         // (undocumented)
-        readonly type: InvalidateAction.Type.AllChanged;
+        readonly type: InvalidateAction.TypeId.AllChanged;
     }
     // @internal (undocumented)
     export interface AllDeletedInvalidateAction extends InvalidateAction {
         // (undocumented)
-        readonly type: InvalidateAction.Type.AllDeleted;
+        readonly type: InvalidateAction.TypeId.AllDeleted;
     }
     // @internal (undocumented)
     export interface AllInvalidateAction extends InvalidateAction {
         // (undocumented)
-        readonly type: InvalidateAction.Type.All;
+        readonly type: InvalidateAction.TypeId.All;
     }
     // @internal (undocumented)
     export type CellPoolComputedEventer = (this: void) => void;
@@ -7216,7 +7273,7 @@ export namespace RevViewLayout {
         // (undocumented)
         readonly index: number;
         // (undocumented)
-        readonly type: InvalidateAction.Type.DataRangeDeleted | InvalidateAction.Type.DataRangeDeletedButViewNotAffected;
+        readonly type: InvalidateAction.TypeId.DataRangeDeleted | InvalidateAction.TypeId.DataRangeDeletedButViewNotAffected;
     }
     // @internal (undocumented)
     export interface DataRangeInsertedInvalidateAction extends InvalidateAction {
@@ -7225,7 +7282,7 @@ export namespace RevViewLayout {
         // (undocumented)
         readonly index: number;
         // (undocumented)
-        readonly type: InvalidateAction.Type.DataRangeInserted | InvalidateAction.Type.DataRangeInsertedButViewNotAffected;
+        readonly type: InvalidateAction.TypeId.DataRangeInserted | InvalidateAction.TypeId.DataRangeInsertedButViewNotAffected;
     }
     // @internal (undocumented)
     export interface DataRangeMovedInvalidateAction extends InvalidateAction {
@@ -7236,7 +7293,7 @@ export namespace RevViewLayout {
         // (undocumented)
         readonly oldIndex: number;
         // (undocumented)
-        readonly type: InvalidateAction.Type.DataRangeMoved;
+        readonly type: InvalidateAction.TypeId.DataRangeMoved;
     }
     // @internal (undocumented)
     export interface InvalidateAction {
@@ -7245,12 +7302,12 @@ export namespace RevViewLayout {
         // (undocumented)
         readonly scrollDimensionAsWell: boolean;
         // (undocumented)
-        readonly type: InvalidateAction.Type;
+        readonly type: InvalidateAction.TypeId;
     }
     // @internal (undocumented)
     export namespace InvalidateAction {
         // (undocumented)
-        export const enum Type {
+        export const enum TypeId {
             // (undocumented)
             ActiveRangeDeleted = 6,
             // (undocumented)
@@ -7280,7 +7337,7 @@ export namespace RevViewLayout {
     // @internal (undocumented)
     export interface LoadedInvalidateAction extends InvalidateAction {
         // (undocumented)
-        readonly type: InvalidateAction.Type.Loaded;
+        readonly type: InvalidateAction.TypeId.Loaded;
     }
     // (undocumented)
     export interface ScrollAnchor {

@@ -7,6 +7,7 @@ export type RevStandardOnlyColumnSettings = Pick<RevStandardOnlyGridSettings,
     'cellHoverBackgroundColor' |
     'columnHoverBackgroundColor' |
     'columnHeaderFont' |
+    'columnHeaderHorizontalAlignId' |
     'columnHeaderHorizontalAlign' |
     'columnHeaderBackgroundColor' |
     'columnHeaderForegroundColor' |
@@ -14,8 +15,10 @@ export type RevStandardOnlyColumnSettings = Pick<RevStandardOnlyGridSettings,
     'columnHeaderSelectionBackgroundColor' |
     'columnHeaderSelectionForegroundColor' |
     'font' |
+    'horizontalAlignId' |
     'horizontalAlign' |
     'verticalOffset' |
+    'textTruncateTypeId' |
     'textTruncateType' |
     'textStrikeThrough'
 >;

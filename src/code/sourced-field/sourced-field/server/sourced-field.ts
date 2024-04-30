@@ -4,7 +4,7 @@ import {
     EnumInfoOutOfOrderError
 } from '@xilytix/sysutils';
 import { RevSchemaField } from '../../../client/internal-api';
-import { RevHorizontalAlignEnum } from '../../../text/internal-api';
+import { RevHorizontalAlignId } from '../../../text/internal-api';
 import { RevSourcedFieldDefinition } from './definition/internal-api';
 import { RevSourcedFieldCustomHeadingsService } from './sourced-field-custom-headings-service';
 
@@ -32,7 +32,7 @@ export namespace RevSourcedField {
         interface Info {
             readonly id: Id;
             readonly name: string;
-            readonly horizontalAlign: RevHorizontalAlignEnum;
+            readonly horizontalAlignId: RevHorizontalAlignId;
         }
 
         type InfosObject = { [id in keyof typeof FieldId]: Info };
@@ -41,32 +41,32 @@ export namespace RevSourcedField {
             Name: {
                 id: FieldId.Name,
                 name: 'Name',
-                horizontalAlign: RevHorizontalAlignEnum.left,
+                horizontalAlignId: RevHorizontalAlignId.Left,
             },
             Heading: {
                 id: FieldId.Heading,
                 name: 'Heading',
-                horizontalAlign: RevHorizontalAlignEnum.left,
+                horizontalAlignId: RevHorizontalAlignId.Left,
             },
             SourceName: {
                 id: FieldId.SourceName,
                 name: 'SourceName',
-                horizontalAlign: RevHorizontalAlignEnum.left,
+                horizontalAlignId: RevHorizontalAlignId.Left,
             },
             DefaultHeading: {
                 id: FieldId.DefaultHeading,
                 name: 'DefaultHeading',
-                horizontalAlign: RevHorizontalAlignEnum.left,
+                horizontalAlignId: RevHorizontalAlignId.Left,
             },
             DefaultTextAlign: {
                 id: FieldId.DefaultTextAlign,
                 name: 'DefaultTextAlign',
-                horizontalAlign: RevHorizontalAlignEnum.left,
+                horizontalAlignId: RevHorizontalAlignId.Left,
             },
             DefaultWidth: {
                 id: FieldId.DefaultWidth,
                 name: 'DefaultWidth',
-                horizontalAlign: RevHorizontalAlignEnum.right,
+                horizontalAlignId: RevHorizontalAlignId.Right,
             },
         } as const;
 
@@ -88,8 +88,8 @@ export namespace RevSourcedField {
             return infos[id].name;
         }
 
-        export function idToHorizontalAlign(id: Id) {
-            return infos[id].horizontalAlign;
+        export function idToHorizontalAlignId(id: Id) {
+            return infos[id].horizontalAlignId;
         }
     }
 

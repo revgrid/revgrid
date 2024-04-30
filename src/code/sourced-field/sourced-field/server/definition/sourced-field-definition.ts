@@ -1,7 +1,7 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
 import { CommaText, Err, Integer, Ok, Result, UnreachableCaseError } from '@xilytix/sysutils';
-import { RevHorizontalAlign } from '../../../../text/internal-api';
+import { RevHorizontalAlignId } from '../../../../text/internal-api';
 import { RevSourcedFieldSourceDefinition } from './sourced-field-source-definition';
 
 /** @public */
@@ -9,7 +9,7 @@ export interface RevSourcedFieldDefinition {
     readonly name: string;
     readonly sourceDefinition: RevSourcedFieldSourceDefinition,
     readonly sourcelessName: string,
-    readonly defaultTextAlign: RevHorizontalAlign,
+    readonly defaultTextAlignId: RevHorizontalAlignId,
     readonly defaultHeading: string,
     readonly defaultWidth?: Integer,
 }

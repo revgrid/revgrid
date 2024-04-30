@@ -1,6 +1,6 @@
 import { RevGridSettings } from '../../../client/internal-api';
 import { RevInMemoryBehavioredGridSettings } from '../../../settings-implementations/internal-api';
-import { RevHorizontalAlign, RevTextTruncateTypeId } from '../../../text/internal-api';
+import { RevHorizontalAlign, RevHorizontalAlignId, RevTextTruncateType, RevTextTruncateTypeId } from '../../../text/internal-api';
 import { RevStandardBehavioredGridSettings, RevStandardGridSettings, RevStandardOnlyGridSettings } from '../../settings/internal-api';
 
 /** @public */
@@ -10,6 +10,7 @@ export class RevStandardInMemoryBehavioredGridSettings extends RevInMemoryBehavi
     private _cellHoverBackgroundColor: RevGridSettings.Color | undefined;
     private _columnHoverBackgroundColor: RevGridSettings.Color | undefined;
     private _columnHeaderFont: string | undefined;
+    private _columnHeaderHorizontalAlignId: RevHorizontalAlignId | undefined;
     private _columnHeaderHorizontalAlign: RevHorizontalAlign | undefined;
     private _columnHeaderBackgroundColor: RevGridSettings.Color | undefined;
     private _columnHeaderForegroundColor: RevGridSettings.Color | undefined;
@@ -21,9 +22,11 @@ export class RevStandardInMemoryBehavioredGridSettings extends RevInMemoryBehavi
     private _selectionBackgroundColor: RevGridSettings.Color | undefined;
     private _selectionForegroundColor: RevGridSettings.Color | undefined;
     private _font: string;
+    private _horizontalAlignId: RevHorizontalAlignId;
     private _horizontalAlign: RevHorizontalAlign;
     private _verticalOffset: number;
-    private _textTruncateType: RevTextTruncateTypeId | undefined;
+    private _textTruncateTypeId: RevTextTruncateTypeId | undefined;
+    private _textTruncateType: RevTextTruncateType | undefined;
     private _textStrikeThrough: boolean;
 
     get cellPadding() { return this._cellPadding; }
@@ -71,11 +74,17 @@ export class RevStandardInMemoryBehavioredGridSettings extends RevInMemoryBehavi
             this.endChange();
         }
     }
+    get columnHeaderHorizontalAlignId() { return this._columnHeaderHorizontalAlignId; }
     get columnHeaderHorizontalAlign() { return this._columnHeaderHorizontalAlign; }
     set columnHeaderHorizontalAlign(value: RevHorizontalAlign | undefined) {
         if (value !== this._columnHeaderHorizontalAlign) {
             this.beginChange();
             this._columnHeaderHorizontalAlign = value;
+            if (value === undefined) {
+                this._columnHeaderHorizontalAlignId = undefined;
+            } else {
+                this._columnHeaderHorizontalAlignId = RevHorizontalAlign.toId(value);
+            }
             this.flagChangedViewRender();
             this.endChange();
         }
@@ -170,11 +179,13 @@ export class RevStandardInMemoryBehavioredGridSettings extends RevInMemoryBehavi
             this.endChange();
         }
     }
+    get horizontalAlignId() { return this._horizontalAlignId; }
     get horizontalAlign() { return this._horizontalAlign; }
     set horizontalAlign(value: RevHorizontalAlign) {
         if (value !== this._horizontalAlign) {
             this.beginChange();
             this._horizontalAlign = value;
+            this._horizontalAlignId = RevHorizontalAlign.toId(value);
             this.flagChangedViewRender();
             this.endChange();
         }
@@ -188,11 +199,13 @@ export class RevStandardInMemoryBehavioredGridSettings extends RevInMemoryBehavi
             this.endChange();
         }
     }
+    get textTruncateTypeId() { return this._textTruncateTypeId; }
     get textTruncateType() { return this._textTruncateType; }
-    set textTruncateType(value: RevTextTruncateTypeId | undefined) {
+    set textTruncateType(value: RevTextTruncateType | undefined) {
         if (value !== this._textTruncateType) {
             this.beginChange();
             this._textTruncateType = value;
+            this._textTruncateTypeId = value === undefined ? undefined : RevTextTruncateType.toId(value);
             this.flagChangedViewRender();
             this.endChange();
         }
@@ -247,8 +260,11 @@ export class RevStandardInMemoryBehavioredGridSettings extends RevInMemoryBehavi
                         this.flagChangedViewRender();
                     }
                     break;
+                case 'columnHeaderHorizontalAlignId':
+                    break; // Always same as columnHeaderHorizontalAlign
                 case 'columnHeaderHorizontalAlign':
                     if (this._columnHeaderHorizontalAlign !== requiredSettings.columnHeaderHorizontalAlign) {
+                        this._columnHeaderHorizontalAlignId = requiredSettings.columnHeaderHorizontalAlignId;
                         this._columnHeaderHorizontalAlign = requiredSettings.columnHeaderHorizontalAlign;
                         this.flagChangedViewRender();
                     }
@@ -313,8 +329,11 @@ export class RevStandardInMemoryBehavioredGridSettings extends RevInMemoryBehavi
                         this.flagChangedViewRender();
                     }
                     break;
+                case 'horizontalAlignId':
+                    break; // Always same as columnHeaderHorizontalAlign
                 case 'horizontalAlign':
                     if (this._horizontalAlign !== requiredSettings.horizontalAlign) {
+                        this._horizontalAlignId = requiredSettings.horizontalAlignId;
                         this._horizontalAlign = requiredSettings.horizontalAlign;
                         this.flagChangedViewRender();
                     }
@@ -325,8 +344,11 @@ export class RevStandardInMemoryBehavioredGridSettings extends RevInMemoryBehavi
                         this.flagChangedViewRender();
                     }
                     break;
+                case 'textTruncateTypeId':
+                    break; // Always same as columnHeaderHorizontalAlign
                 case 'textTruncateType':
-                    if (this._textTruncateType !== requiredSettings.textTruncateType) {
+                    if (this._textTruncateType !== requiredSettings.textTruncateTypeId) {
+                        this._textTruncateTypeId = requiredSettings.textTruncateTypeId;
                         this._textTruncateType = requiredSettings.textTruncateType;
                         this.flagChangedViewRender();
                     }

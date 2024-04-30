@@ -8,6 +8,7 @@ export const revStandardDefaultOnlyColumnSettings: RevStandardOnlyColumnSettings
     cellHoverBackgroundColor: revStandardDefaultOnlyGridSettings.cellHoverBackgroundColor,
     columnHoverBackgroundColor: revStandardDefaultOnlyGridSettings.columnHoverBackgroundColor,
     columnHeaderFont: revStandardDefaultOnlyGridSettings.columnHeaderFont,
+    columnHeaderHorizontalAlignId: revStandardDefaultOnlyGridSettings.columnHeaderHorizontalAlignId,
     columnHeaderHorizontalAlign: revStandardDefaultOnlyGridSettings.columnHeaderHorizontalAlign,
     columnHeaderBackgroundColor: revStandardDefaultOnlyGridSettings.columnHeaderBackgroundColor,
     columnHeaderForegroundColor: revStandardDefaultOnlyGridSettings.columnHeaderForegroundColor,
@@ -15,8 +16,10 @@ export const revStandardDefaultOnlyColumnSettings: RevStandardOnlyColumnSettings
     columnHeaderSelectionBackgroundColor: revStandardDefaultOnlyGridSettings.columnHeaderSelectionBackgroundColor,
     columnHeaderSelectionForegroundColor: revStandardDefaultOnlyGridSettings.columnHeaderSelectionForegroundColor,
     font: revStandardDefaultOnlyGridSettings.font,
+    horizontalAlignId: revStandardDefaultOnlyGridSettings.horizontalAlignId,
     horizontalAlign: revStandardDefaultOnlyGridSettings.horizontalAlign,
     verticalOffset: revStandardDefaultOnlyGridSettings.verticalOffset,
+    textTruncateTypeId: revStandardDefaultOnlyGridSettings.textTruncateTypeId,
     textTruncateType: revStandardDefaultOnlyGridSettings.textTruncateType,
     textStrikeThrough: revStandardDefaultOnlyGridSettings.textStrikeThrough,
 } as const;
