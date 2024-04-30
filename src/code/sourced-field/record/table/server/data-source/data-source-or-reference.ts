@@ -12,12 +12,29 @@ import { RevReferenceableDataSource } from './referenceable-data-source';
 import { RevReferenceableDataSourcesService } from './referenceable-data-sources-service';
 
 /** @public */
-export class RevDataSourceOrReference<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId> {
+export class RevDataSourceOrReference<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> {
     private readonly _referenceId: Guid | undefined;
-    private readonly _dataSourceDefinition: RevDataSourceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId> | undefined;
+    private readonly _dataSourceDefinition: RevDataSourceDefinition<
+        TableRecordSourceDefinitionTypeId,
+        TableFieldSourceDefinitionTypeId,
+        TextFormattableValueTypeId,
+        TextFormattableValueAttributeTypeId
+    > | undefined;
 
-    private _lockedDataSource: RevDataSource<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId> | undefined;
-    private _lockedReferenceableDataSource: RevReferenceableDataSource<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId> | undefined;
+    private _lockedDataSource: RevDataSource<
+        Badness,
+        TableRecordSourceDefinitionTypeId,
+        TableFieldSourceDefinitionTypeId,
+        TextFormattableValueTypeId,
+        TextFormattableValueAttributeTypeId
+    > | undefined;
+    private _lockedReferenceableDataSource: RevReferenceableDataSource<
+        Badness,
+        TableRecordSourceDefinitionTypeId,
+        TableFieldSourceDefinitionTypeId,
+        TextFormattableValueTypeId,
+        TextFormattableValueAttributeTypeId
+    > | undefined;
 
     constructor(
         private readonly _referenceableColumnLayoutsService: RevReferenceableColumnLayoutsService | undefined,
@@ -25,12 +42,22 @@ export class RevDataSourceOrReference<Badness, TableRecordSourceDefinitionTypeId
             Badness,
             TableRecordSourceDefinitionTypeId,
             TableFieldSourceDefinitionTypeId,
-            RenderValueTypeId,
-            RenderAttributeTypeId
+            TextFormattableValueTypeId,
+            TextFormattableValueAttributeTypeId
         > | undefined,
-        private readonly _tableFieldSourceDefinitionFactory: RevTableFieldSourceDefinitionFactory<TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>,
-        private readonly _tableRecordSourceFactory: RevTableRecordSourceFactory<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>,
-        definition: RevDataSourceOrReferenceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>
+        private readonly _tableFieldSourceDefinitionFactory: RevTableFieldSourceDefinitionFactory<
+            TableFieldSourceDefinitionTypeId,
+            TextFormattableValueTypeId,
+            TextFormattableValueAttributeTypeId
+        >,
+        private readonly _tableRecordSourceFactory: RevTableRecordSourceFactory<
+            Badness,
+            TableRecordSourceDefinitionTypeId,
+            TableFieldSourceDefinitionTypeId,
+            TextFormattableValueTypeId,
+            TextFormattableValueAttributeTypeId
+        >,
+        definition: RevDataSourceOrReferenceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>
     ) {
         if (definition.referenceId !== undefined ) {
             this._referenceId = definition.referenceId;
@@ -48,11 +75,19 @@ export class RevDataSourceOrReference<Badness, TableRecordSourceDefinitionTypeId
 
     createDefinition(rowOrderDefinition: RevRecordRowOrderDefinition | undefined) {
         if (this._lockedReferenceableDataSource !== undefined) {
-            return new RevDataSourceOrReferenceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>(this._lockedReferenceableDataSource.id);
+            return new RevDataSourceOrReferenceDefinition<
+                TableRecordSourceDefinitionTypeId,
+                TableFieldSourceDefinitionTypeId,
+                TextFormattableValueTypeId,
+                TextFormattableValueAttributeTypeId>(this._lockedReferenceableDataSource.id);
         } else {
             if (this.lockedDataSource !== undefined) {
                 const dataSourceDefinition = this.lockedDataSource.createDefinition(rowOrderDefinition);
-                return new RevDataSourceOrReferenceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>(dataSourceDefinition);
+                return new RevDataSourceOrReferenceDefinition<
+                    TableRecordSourceDefinitionTypeId,
+                    TableFieldSourceDefinitionTypeId,
+                    TextFormattableValueTypeId,
+                    TextFormattableValueAttributeTypeId>(dataSourceDefinition);
             } else {
                 throw new AssertInternalError('GSONRCDU59923');
             }
@@ -61,7 +96,7 @@ export class RevDataSourceOrReference<Badness, TableRecordSourceDefinitionTypeId
 
     async tryLock(locker: LockOpenListItem.Locker): Promise<Result<void, RevDataSourceOrReference.LockErrorIdPlusTryError>> {
         if (this._dataSourceDefinition !== undefined) {
-            const dataSource = new RevDataSource<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>(
+            const dataSource = new RevDataSource<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>(
                 this._referenceableColumnLayoutsService,
                 this._tableFieldSourceDefinitionFactory,
                 this._tableRecordSourceFactory,

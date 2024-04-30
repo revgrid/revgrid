@@ -6,9 +6,14 @@ import { RevRecordRowOrderDefinition } from '../../../../../../record/server/int
 import { RevTableRecordSourceDefinition, RevTableRecordSourceDefinitionFromJsonFactory } from '../../record-source/internal-api';
 
 /** @public */
-export class RevDataSourceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId> {
+export class RevDataSourceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> {
     constructor(
-        public readonly tableRecordSourceDefinition: RevTableRecordSourceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>,
+        public readonly tableRecordSourceDefinition: RevTableRecordSourceDefinition<
+            TableRecordSourceDefinitionTypeId,
+            TableFieldSourceDefinitionTypeId,
+            TextFormattableValueTypeId,
+            TextFormattableValueAttributeTypeId
+        >,
         public columnLayoutOrReferenceDefinition: RevColumnLayoutOrReferenceDefinition | undefined,
         public rowOrderDefinition: RevRecordRowOrderDefinition | undefined,
     ) {
@@ -59,11 +64,16 @@ export namespace RevDataSourceDefinition {
         readonly extra: string | undefined;
     }
 
-    export function tryCreateTableRecordSourceDefinitionFromJson<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>(
-        tableRecordSourceDefinitionFromJsonFactory: RevTableRecordSourceDefinitionFromJsonFactory<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>,
+    export function tryCreateTableRecordSourceDefinitionFromJson<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>(
+        tableRecordSourceDefinitionFromJsonFactory: RevTableRecordSourceDefinitionFromJsonFactory<
+            TableRecordSourceDefinitionTypeId,
+            TableFieldSourceDefinitionTypeId,
+            TextFormattableValueTypeId,
+            TextFormattableValueAttributeTypeId
+        >,
         element: JsonElement
     ): Result<
-        RevTableRecordSourceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>,
+        RevTableRecordSourceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>,
         CreateFromJsonErrorIdPlusExtra
     > {
         const getElementResult = element.tryGetElement(JsonName.tableRecordSource);
@@ -160,16 +170,21 @@ export namespace RevDataSourceDefinition {
         }
     }
 
-    export interface WithLayoutError<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId> {
-        definition: RevDataSourceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>
+    export interface WithLayoutError<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> {
+        definition: RevDataSourceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>
         layoutCreateFromJsonErrorId: LayoutCreateFromJsonErrorId | undefined;
     }
 
-    export function tryCreateFromJson<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>(
-        tableRecordSourceDefinitionFromJsonFactory: RevTableRecordSourceDefinitionFromJsonFactory<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>,
+    export function tryCreateFromJson<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>(
+        tableRecordSourceDefinitionFromJsonFactory: RevTableRecordSourceDefinitionFromJsonFactory<
+            TableRecordSourceDefinitionTypeId,
+            TableFieldSourceDefinitionTypeId,
+            TextFormattableValueTypeId,
+            TextFormattableValueAttributeTypeId
+        >,
         element: JsonElement
     ): Result<
-        WithLayoutError<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>,
+        WithLayoutError<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>,
         CreateFromJsonErrorIdPlusExtra
     > {
         const tableRecordSourceDefinitionResult = tryCreateTableRecordSourceDefinitionFromJson(
@@ -195,7 +210,7 @@ export namespace RevDataSourceDefinition {
 
             const rowOrderDefinition = tryGetRowOrderFromJson(element);
 
-            const definition = new RevDataSourceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>(
+            const definition = new RevDataSourceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>(
                 tableRecordSourceDefinition,
                 columnLayoutOrReferenceDefinition,
                 rowOrderDefinition,

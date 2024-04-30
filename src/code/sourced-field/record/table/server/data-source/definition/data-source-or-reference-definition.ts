@@ -6,11 +6,13 @@ import { RevTableRecordSourceDefinitionFromJsonFactory } from '../../record-sour
 import { RevDataSourceDefinition } from './data-source-definition';
 
 /** @public */
-export class RevDataSourceOrReferenceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId> {
+export class RevDataSourceOrReferenceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> {
     readonly referenceId: Guid | undefined;
-    readonly dataSourceDefinition: RevDataSourceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId> | undefined;
+    readonly dataSourceDefinition: RevDataSourceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> | undefined;
 
-    constructor(dataSourceDefinitionOrReferenceId: RevDataSourceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId> | Guid) {
+    constructor(
+        dataSourceDefinitionOrReferenceId: RevDataSourceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> | Guid
+    ) {
         if (typeof dataSourceDefinitionOrReferenceId === 'string') {
             this.referenceId = dataSourceDefinitionOrReferenceId;
         } else {
@@ -69,8 +71,8 @@ export namespace RevDataSourceOrReferenceDefinition {
         TableRecordSourceTryCreate,
     }
 
-    export interface WithLayoutError<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId> {
-        definition: RevDataSourceOrReferenceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>
+    export interface WithLayoutError<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> {
+        definition: RevDataSourceOrReferenceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>
         layoutCreateFromJsonErrorId: RevDataSourceDefinition.LayoutCreateFromJsonErrorId | undefined;
     }
 
@@ -79,17 +81,24 @@ export namespace RevDataSourceOrReferenceDefinition {
         readonly extra: string | undefined;
     }
 
-    export function tryCreateFromJson<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>(
-        tableRecordSourceDefinitionFromJsonFactory: RevTableRecordSourceDefinitionFromJsonFactory<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>,
+    export function tryCreateFromJson<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>(
+        tableRecordSourceDefinitionFromJsonFactory: RevTableRecordSourceDefinitionFromJsonFactory<
+            TableRecordSourceDefinitionTypeId,
+            TableFieldSourceDefinitionTypeId,
+            TextFormattableValueTypeId,
+            TextFormattableValueAttributeTypeId
+        >,
         element: JsonElement
     ): Result<
-        WithLayoutError<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>,
+        WithLayoutError<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>,
         CreateFromJsonErrorIdPlusExtra<CreateFromJsonErrorId>
     > {
         const referenceIdResult = element.tryGetString(JsonName.referenceId);
         if (referenceIdResult.isOk()) {
             const referenceId = referenceIdResult.value;
-            const definition = new RevDataSourceOrReferenceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>(referenceId);
+            const definition = new RevDataSourceOrReferenceDefinition<
+                TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId
+            >(referenceId);
             return new Ok({ definition, layoutCreateFromJsonErrorId: undefined });
         } else {
             const definitionElementResult = element.tryGetElement(JsonName.dataSourceDefinition);
@@ -104,8 +113,8 @@ export namespace RevDataSourceOrReferenceDefinition {
                     const definition = new RevDataSourceOrReferenceDefinition<
                         TableRecordSourceDefinitionTypeId,
                         TableFieldSourceDefinitionTypeId,
-                        RenderValueTypeId,
-                        RenderAttributeTypeId
+                        TextFormattableValueTypeId,
+                        TextFormattableValueAttributeTypeId
                     >(definitionWithLayoutError.definition);
 
                     return new Ok({ definition, layoutCreateFromJsonErrorId: definitionWithLayoutError.layoutCreateFromJsonErrorId });

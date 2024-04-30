@@ -1,34 +1,34 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
-import { RevRenderValue } from '../../../../../cell-content/internal-api';
+import { RevTextFormattableValue } from '../../../../../cell-content/client/internal-api';
 
 /** @public */
-export abstract class RevTableValue<RenderValueTypeId, RenderAttributeTypeId> {
-    private _renderValue: RevRenderValue<RenderValueTypeId, RenderAttributeTypeId> | undefined;
-    private _renderAttributes: RevRenderValue.Attribute<RenderAttributeTypeId>[] = [];
+export abstract class RevTableValue<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> {
+    private _textFormattableValue: RevTextFormattableValue<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> | undefined;
+    private _renderAttributes: RevTextFormattableValue.Attribute<TextFormattableValueAttributeTypeId>[] = [];
 
-    get renderValue() {
-        if (this._renderValue === undefined) {
-            this._renderValue = this.createRenderValue();
-            this._renderValue.setAttributes(this._renderAttributes);
+    get textFormattableValue() {
+        if (this._textFormattableValue === undefined) {
+            this._textFormattableValue = this.createTextFormattableValue();
+            this._textFormattableValue.setAttributes(this._renderAttributes);
         }
-        return this._renderValue;
+        return this._textFormattableValue;
     }
 
-    addRenderAttribute(value: RevRenderValue.Attribute<RenderAttributeTypeId>) {
+    addRenderAttribute(value: RevTextFormattableValue.Attribute<TextFormattableValueAttributeTypeId>) {
         this._renderAttributes.push(value);
     }
 
     clearRendering() {
-        this._renderValue = undefined;
+        this._textFormattableValue = undefined;
     }
 
     abstract isUndefined(): boolean;
 
-    protected abstract createRenderValue(): RevRenderValue<RenderValueTypeId, RenderAttributeTypeId>;
+    protected abstract createTextFormattableValue(): RevTextFormattableValue<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>;
 }
 
 /** @public */
 export namespace RevTableValue {
-    export type Constructor<RenderValueTypeId, RenderAttributeTypeId> = new() => RevTableValue<RenderValueTypeId, RenderAttributeTypeId>;
+    export type Constructor<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> = new() => RevTableValue<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>;
 }

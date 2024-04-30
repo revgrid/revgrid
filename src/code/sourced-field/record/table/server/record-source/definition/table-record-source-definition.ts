@@ -7,25 +7,29 @@ import { RevAllowedRecordSourcedField } from '../../../../record/server/internal
 import { RevTableFieldSourceDefinitionCachingFactoryService } from '../../field-source/internal-api';
 
 /** @public */
-export abstract class RevTableRecordSourceDefinition<TypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId> {
+export abstract class RevTableRecordSourceDefinition<TypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> {
     constructor(
         private readonly _customHeadingsService: RevSourcedFieldCustomHeadingsService,
-        readonly tableFieldSourceDefinitionCachingFactoryService: RevTableFieldSourceDefinitionCachingFactoryService<TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>,
+        readonly tableFieldSourceDefinitionCachingFactoryService: RevTableFieldSourceDefinitionCachingFactoryService<
+            TableFieldSourceDefinitionTypeId,
+            TextFormattableValueTypeId,
+            TextFormattableValueAttributeTypeId
+        >,
         readonly typeId: TypeId,
         readonly name: string,
         readonly allowedFieldSourceDefinitionTypeIds: readonly TableFieldSourceDefinitionTypeId[],
     ) {
     }
 
-    createAllowedFields(): readonly RevAllowedRecordSourcedField<RenderValueTypeId, RenderAttributeTypeId>[] {
+    createAllowedFields(): readonly RevAllowedRecordSourcedField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>[] {
         const tableFieldSourceDefinitionCachingFactoryService = this.tableFieldSourceDefinitionCachingFactoryService;
         const customHeadingsService = this._customHeadingsService;
-        let result: RevAllowedRecordSourcedField<RenderValueTypeId, RenderAttributeTypeId>[] = [];
+        let result: RevAllowedRecordSourcedField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>[] = [];
         for (const allowedFieldSourceDefinitionTypeId of this.allowedFieldSourceDefinitionTypeIds) {
             const fieldSourceDefinition = tableFieldSourceDefinitionCachingFactoryService.get(allowedFieldSourceDefinitionTypeId);
             const fieldCount = fieldSourceDefinition.fieldCount;
             const fieldDefinitions = fieldSourceDefinition.fieldDefinitions;
-            const sourceAllowedFields = new Array<RevAllowedRecordSourcedField<RenderValueTypeId, RenderAttributeTypeId>>(fieldCount);
+            const sourceAllowedFields = new Array<RevAllowedRecordSourcedField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>>(fieldCount);
             for (let i = 0; i < fieldCount; i++) {
                 const fieldDefinition = fieldDefinitions[i];
                 const heading = RevSourcedField.generateHeading(customHeadingsService, fieldDefinition);

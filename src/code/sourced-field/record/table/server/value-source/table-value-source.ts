@@ -5,9 +5,9 @@ import { RevRecordValueRecentChangeTypeId } from '../../../../../record/server/i
 import { RevTableValue } from '../value/internal-api';
 
 /** @public */
-export abstract class RevTableValueSource<RenderValueTypeId, RenderAttributeTypeId> {
-    valueChangesEvent: RevTableValueSource.ValueChangesEvent<RenderValueTypeId, RenderAttributeTypeId>;
-    allValuesChangeEvent: RevTableValueSource.AllValuesChangeEvent<RenderValueTypeId, RenderAttributeTypeId>;
+export abstract class RevTableValueSource<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> {
+    valueChangesEvent: RevTableValueSource.ValueChangesEvent<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>;
+    allValuesChangeEvent: RevTableValueSource.AllValuesChangeEvent<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>;
     becomeIncubatedEventer: RevTableValueSource.BecomeIncubatedEventer;
 
     protected _beenIncubated = false;
@@ -18,14 +18,14 @@ export abstract class RevTableValueSource<RenderValueTypeId, RenderAttributeType
     get fieldCount() { return this.getfieldCount(); }
     get firstFieldIndexOffset() { return this._firstFieldIndexOffset; }
 
-    protected notifyValueChangesEvent(valueChanges: RevTableValueSource.ValueChange<RenderValueTypeId, RenderAttributeTypeId>[]) {
+    protected notifyValueChangesEvent(valueChanges: RevTableValueSource.ValueChange<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>[]) {
         for (let i = 0; i < valueChanges.length; i++) {
             valueChanges[i].fieldIndex += this._firstFieldIndexOffset;
         }
         this.valueChangesEvent(valueChanges);
     }
 
-    protected notifyAllValuesChangeEvent(newValues: RevTableValue<RenderValueTypeId, RenderAttributeTypeId>[]) {
+    protected notifyAllValuesChangeEvent(newValues: RevTableValue<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>[]) {
         this.allValuesChangeEvent(this._firstFieldIndexOffset, newValues);
     }
 
@@ -33,7 +33,7 @@ export abstract class RevTableValueSource<RenderValueTypeId, RenderAttributeType
         this._beenIncubated = value;
     }
 
-    protected processDataCorrectnessChanged(allValues: RevTableValue<RenderValueTypeId, RenderAttributeTypeId>[], incubated: boolean) {
+    protected processDataCorrectnessChanged(allValues: RevTableValue<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>[], incubated: boolean) {
         this.allValuesChangeEvent(this._firstFieldIndexOffset, allValues);
 
         if (incubated) {
@@ -48,27 +48,31 @@ export abstract class RevTableValueSource<RenderValueTypeId, RenderAttributeType
         }
     }
 
-    abstract activate(): RevTableValue<RenderValueTypeId, RenderAttributeTypeId>[];
+    abstract activate(): RevTableValue<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>[];
     abstract deactivate(): void;
-    abstract getAllValues(): RevTableValue<RenderValueTypeId, RenderAttributeTypeId>[];
+    abstract getAllValues(): RevTableValue<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>[];
 
     protected abstract getfieldCount(): Integer;
 }
 
 /** @public */
 export namespace RevTableValueSource {
-    export interface ChangedValue<RenderValueTypeId, RenderAttributeTypeId> {
+    export interface ChangedValue<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> {
         fieldIdx: Integer;
-        newValue: RevTableValue<RenderValueTypeId, RenderAttributeTypeId>;
+        newValue: RevTableValue<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>;
     }
 
-    export interface ValueChange<RenderValueTypeId, RenderAttributeTypeId> {
+    export interface ValueChange<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> {
         fieldIndex: Integer;
-        newValue: RevTableValue<RenderValueTypeId, RenderAttributeTypeId>;
+        newValue: RevTableValue<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>;
         recentChangeTypeId: RevRecordValueRecentChangeTypeId | undefined;
     }
     export namespace ValueChange {
-        export function arrayIncludesFieldIndex<RenderValueTypeId, RenderAttributeTypeId>(array: readonly ValueChange<RenderValueTypeId, RenderAttributeTypeId>[], fieldIndex: Integer, end: Integer): boolean {
+        export function arrayIncludesFieldIndex<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>(
+            array: readonly ValueChange<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>[],
+            fieldIndex: Integer,
+            end: Integer
+        ): boolean {
             for (let i = 0; i < end; i++) {
                 const valueChange = array[i];
                 if (valueChange.fieldIndex === fieldIndex) {
@@ -81,8 +85,16 @@ export namespace RevTableValueSource {
 
     export type BeginValuesChangeEvent = (this: void) => void;
     export type EndValuesChangeEvent = (this: void) => void;
-    export type ValueChangesEvent<RenderValueTypeId, RenderAttributeTypeId> = (valueChanges: ValueChange<RenderValueTypeId, RenderAttributeTypeId>[]) => void;
-    export type AllValuesChangeEvent<RenderValueTypeId, RenderAttributeTypeId> = (firstFieldIdxOffset: Integer, newValues: RevTableValue<RenderValueTypeId, RenderAttributeTypeId>[]) => void;
+    export type ValueChangesEvent<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> = (
+        valueChanges: ValueChange<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>[]
+    ) => void;
+    export type AllValuesChangeEvent<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> = (
+        firstFieldIdxOffset: Integer,
+        newValues: RevTableValue<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>[]
+    ) => void;
     export type BecomeIncubatedEventer = (this: void) => void;
-    export type Constructor<RenderValueTypeId, RenderAttributeTypeId> = new(firstFieldIdxOffset: Integer, recordIdx: Integer) => RevTableValueSource<RenderValueTypeId, RenderAttributeTypeId>;
+    export type Constructor<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> = new(
+        firstFieldIdxOffset: Integer,
+        recordIdx: Integer
+    ) => RevTableValueSource<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>;
 }

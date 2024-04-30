@@ -11,7 +11,7 @@ import {
     Result,
     UsableListChangeTypeId,
 } from '@xilytix/sysutils';
-import { RevRenderValue } from '../../../../../cell-content/internal-api';
+import { RevTextFormatterService } from '../../../../../cell-content/server/internal-api';
 import { RevSourcedFieldCustomHeadingsService } from '../../../../sourced-field/server/internal-api';
 import { RevAllowedRecordSourcedField } from '../../../record/server/internal-api';
 import { RevTableFieldSource, RevTableFieldSourceDefinitionCachingFactoryService } from '../field-source/internal-api';
@@ -21,9 +21,9 @@ import { RevTableRecord } from '../record/internal-api';
 import { RevTableRecordSourceDefinition } from './definition/internal-api';
 
 /** @public */
-export abstract class RevTableRecordSource<Badness, TypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId> implements CorrectnessState<Badness> {
-    private _activeFieldSources: readonly RevTableFieldSource<TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>[] = [];
-    private _fields: readonly RevTableField<RenderValueTypeId, RenderAttributeTypeId>[] = [];
+export abstract class RevTableRecordSource<Badness, TypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> implements CorrectnessState<Badness> {
+    private _activeFieldSources: readonly RevTableFieldSource<TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>[] = [];
+    private _fields: readonly RevTableField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>[] = [];
 
     private _opened = false;
 
@@ -32,11 +32,15 @@ export abstract class RevTableRecordSource<Badness, TypeId, TableFieldSourceDefi
     private _afterRecDefinitionChangeMultiEvent = new MultiEvent<RevTableRecordSource.RecDefinitionChangeEventHandler>();
 
     constructor(
-        private readonly _textFormatter: RevRenderValue.TextFormatter<RenderValueTypeId, RenderAttributeTypeId>,
+        private readonly _textFormatterService: RevTextFormatterService<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>,
         protected readonly _gridFieldCustomHeadingsService: RevSourcedFieldCustomHeadingsService,
-        protected readonly _tableFieldSourceDefinitionCachingFactoryService: RevTableFieldSourceDefinitionCachingFactoryService<TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>,
+        protected readonly _tableFieldSourceDefinitionCachingFactoryService: RevTableFieldSourceDefinitionCachingFactoryService<
+            TableFieldSourceDefinitionTypeId,
+            TextFormattableValueTypeId,
+            TextFormattableValueAttributeTypeId
+        >,
         private readonly _correctnessState: CorrectnessState<Badness>,
-        protected readonly definition: RevTableRecordSourceDefinition<TypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>,
+        protected readonly definition: RevTableRecordSourceDefinition<TypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>,
         readonly allowedFieldSourceDefinitionTypeIds: readonly TableFieldSourceDefinitionTypeId[],
     ) {
     }
@@ -84,7 +88,7 @@ export abstract class RevTableRecordSource<Badness, TypeId, TableFieldSourceDefi
         this._correctnessState.checkSetUnusable(badness);
     }
 
-    createAllowedFields(): readonly RevAllowedRecordSourcedField<RenderValueTypeId, RenderAttributeTypeId>[] {
+    createAllowedFields(): readonly RevAllowedRecordSourcedField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>[] {
         return this.definition.createAllowedFields();
     }
 
@@ -180,8 +184,8 @@ export abstract class RevTableRecordSource<Badness, TypeId, TableFieldSourceDefi
         }
     }
 
-    protected createFields(): RevTableField<RenderValueTypeId, RenderAttributeTypeId>[] {
-        let result: RevTableField<RenderValueTypeId, RenderAttributeTypeId>[] = [];
+    protected createFields(): RevTableField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>[] {
+        let result: RevTableField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>[] = [];
         for (const source of this._activeFieldSources) {
             const sourceFields = source.createTableFields();
 
@@ -198,12 +202,14 @@ export abstract class RevTableRecordSource<Badness, TypeId, TableFieldSourceDefi
         return result;
     }
 
-    private createActiveSources(fieldSourceTypeIds: readonly TableFieldSourceDefinitionTypeId[]): readonly RevTableFieldSource<TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>[] {
+    private createActiveSources(
+        fieldSourceTypeIds: readonly TableFieldSourceDefinitionTypeId[]
+    ): readonly RevTableFieldSource<TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>[] {
         const maxCount = this.allowedFieldSourceDefinitionTypeIds.length;
         if (fieldSourceTypeIds.length > maxCount) {
             throw new AssertInternalError('TRSCFSC34424');
         } else {
-            const sources = new Array<RevTableFieldSource<TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>>(maxCount);
+            const sources = new Array<RevTableFieldSource<TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>>(maxCount);
             let sourceCount = 0;
             let fieldCount = 0;
             for (const fieldSourceTypeId of fieldSourceTypeIds) {
@@ -222,16 +228,19 @@ export abstract class RevTableRecordSource<Badness, TypeId, TableFieldSourceDefi
         }
     }
 
-    private createFieldSource(fieldSourceTypeId: TableFieldSourceDefinitionTypeId, fieldCount: Integer): RevTableFieldSource<TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId> {
+    private createFieldSource(
+        fieldSourceTypeId: TableFieldSourceDefinitionTypeId,
+        fieldCount: Integer
+    ): RevTableFieldSource<TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> {
         const definition = this._tableFieldSourceDefinitionCachingFactoryService.get(fieldSourceTypeId);
-        const source = new RevTableFieldSource(this._textFormatter, this._gridFieldCustomHeadingsService, definition, '');
+        const source = new RevTableFieldSource(this._textFormatterService, this._gridFieldCustomHeadingsService, definition, '');
         source.fieldIndexOffset = fieldCount;
         source.nextFieldIndexOffset = source.fieldIndexOffset + source.fieldCount;
         return source;
     }
 
-    abstract createDefinition(): RevTableRecordSourceDefinition<TypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>;
-    abstract createTableRecord(recordIndex: Integer, eventHandlers: RevTableRecord.EventHandlers): RevTableRecord<RenderValueTypeId, RenderAttributeTypeId>;
+    abstract createDefinition(): RevTableRecordSourceDefinition<TypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>;
+    abstract createTableRecord(recordIndex: Integer, eventHandlers: RevTableRecord.EventHandlers): RevTableRecord<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>;
     abstract createRecordDefinition(recordIdx: Integer): RevTableRecordDefinition<TableFieldSourceDefinitionTypeId>;
 
     protected abstract getCount(): Integer;
@@ -241,10 +250,10 @@ export abstract class RevTableRecordSource<Badness, TypeId, TableFieldSourceDefi
 
 /** @public */
 export namespace RevTableRecordSource {
-    export type FactoryClosure<Badness, TypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId> = (
+    export type FactoryClosure<Badness, TypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> = (
         this: void,
-        definition: RevTableRecordSourceDefinition<TypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>
-    ) => RevTableRecordSource<Badness, TypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>;
+        definition: RevTableRecordSourceDefinition<TypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>
+    ) => RevTableRecordSource<Badness, TypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>;
 
     export type ListChangeEventHandler = (
         this: void,
@@ -254,9 +263,9 @@ export namespace RevTableRecordSource {
     ) => void;
     export type RecDefinitionChangeEventHandler = (this: void, itemIdx: Integer) => void;
     export type badnessChangedEventHandler = (this: void) => void;
-    export type ModifiedEventHandler<Badness, TypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId> = (
+    export type ModifiedEventHandler<Badness, TypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> = (
         this: void,
-        list: RevTableRecordSource<Badness, TypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>
+        list: RevTableRecordSource<Badness, TypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>
     ) => void;
     export type RequestIsGroupSaveEnabledEventHandler = (this: void) => boolean;
 

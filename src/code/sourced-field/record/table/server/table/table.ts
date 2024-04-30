@@ -22,8 +22,8 @@ export class RevTable<
     Badness,
     TableRecordSourceDefinitionTypeId,
     TableFieldSourceDefinitionTypeId,
-    RenderValueTypeId,
-    RenderAttributeTypeId
+    TextFormattableValueTypeId,
+    TextFormattableValueAttributeTypeId
 > {
     // openEvent: Table.OpenEventHandler;
     // openChangeEvent: Table.OpenChangeEventHandler;
@@ -40,7 +40,7 @@ export class RevTable<
     // firstPreUsableEvent: Table.FirstPreUsableEventHandler;
     // recordDisplayOrderSetEvent: Table.RecordDisplayOrderSetEventHandler;
 
-    private _records = new Array<RevTableRecord<RenderValueTypeId, RenderAttributeTypeId>>();
+    private _records = new Array<RevTableRecord<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>>();
     private _beenUsable: boolean;
 
     private _correctnessStateUsableChangedSubscriptionId: MultiEvent.SubscriptionId;
@@ -52,7 +52,15 @@ export class RevTable<
 
     private _fieldsChangedMultiEvent = new MultiEvent<RevTable.FieldsChangedEventHandler>();
 
-    private _openMultiEvent = new MultiEvent<RevTable.OpenEventHandler<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>>();
+    private _openMultiEvent = new MultiEvent<
+        RevTable.OpenEventHandler<
+            Badness,
+            TableRecordSourceDefinitionTypeId,
+            TableFieldSourceDefinitionTypeId,
+            TextFormattableValueTypeId,
+            TextFormattableValueAttributeTypeId
+        >
+    >();
     private _openChangeMultiEvent = new MultiEvent<RevTable.OpenChangeEventHandler>();
     private _recordsLoadedMultiEvent = new MultiEvent<RevTable.RecordsLoadedEventHandler>();
     private _recordsInsertedMultiEvent = new MultiEvent<RevTable.RecordsInsertedEventHandler>();
@@ -70,7 +78,7 @@ export class RevTable<
     private _recordDisplayOrderSetMultiEvent = new MultiEvent<RevTable.RecordDisplayOrderSetEventHandler>();
 
     constructor(
-        readonly recordSource: RevTableRecordSource<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>,
+        readonly recordSource: RevTableRecordSource<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>,
         private readonly _correctnessState: CorrectnessState<Badness>,
         initialActiveFieldSources: readonly TableFieldSourceDefinitionTypeId[],
     ) {
@@ -80,10 +88,10 @@ export class RevTable<
     get usable() { return this._correctnessState.usable; }
     get badness() { return this._correctnessState.badness; }
 
-    get fields(): readonly RevTableField<RenderValueTypeId, RenderAttributeTypeId>[] { return this.recordSource.fields; }
+    get fields(): readonly RevTableField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>[] { return this.recordSource.fields; }
 
     get recordCount() { return this._records.length; }
-    get records(): readonly RevTableRecord<RenderValueTypeId, RenderAttributeTypeId>[] { return this._records; }
+    get records(): readonly RevTableRecord<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>[] { return this._records; }
     get beenUsable() { return this._beenUsable; }
 
     setActiveFieldSources(
@@ -97,7 +105,7 @@ export class RevTable<
         }
     }
 
-    createAllowedFields(): readonly RevAllowedRecordSourcedField<RenderValueTypeId, RenderAttributeTypeId>[] {
+    createAllowedFields(): readonly RevAllowedRecordSourcedField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>[] {
         return this.recordSource.createAllowedFields();
     }
 
@@ -520,7 +528,9 @@ export class RevTable<
         this._fieldsChangedMultiEvent.unsubscribe(subscriptionId);
     }
 
-    subscribeOpenEvent(handler: RevTable.OpenEventHandler<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>) {
+    subscribeOpenEvent(
+        handler: RevTable.OpenEventHandler<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>
+    ) {
         return this._openMultiEvent.subscribe(handler);
     }
     unsubscribeOpenEvent(subscriptionId: MultiEvent.SubscriptionId) {
@@ -692,7 +702,7 @@ export class RevTable<
     }
 
     private notifyOpen(
-        recordDefinitionList: RevTableRecordSource<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>
+        recordDefinitionList: RevTableRecordSource<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>
     ) {
         const handlers = this._openMultiEvent.copyHandlers();
         for (let i = 0; i < handlers.length; i++) {
@@ -947,7 +957,7 @@ export class RevTable<
     }
 
     private insertRecords(idx: Integer, insertCount: Integer) {
-        const newRecordsArray = new Array<RevTableRecord<RenderValueTypeId, RenderAttributeTypeId>>(insertCount);
+        const newRecordsArray = new Array<RevTableRecord<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>>(insertCount);
         for (let i = 0; i < insertCount; i++) {
             const recIdx = idx + i;
             const record = this.createRecord(recIdx);
@@ -1102,16 +1112,16 @@ export namespace RevTable {
     //     getOrderedGridRecIndices(): Integer[];
     // }
 
-    export interface RecordUsageRec<RenderValueTypeId, RenderAttributeTypeId> {
-        record: RevTableRecord<RenderValueTypeId, RenderAttributeTypeId>;
+    export interface RecordUsageRec<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> {
+        record: RevTableRecord<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>;
         used: boolean;
     }
 
     export type ExclusiveUnlockedEventer = (this: void) => void;
 
-    export type OpenEventHandler<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId> = (
+    export type OpenEventHandler<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> = (
         this: void,
-        recordDefinitionList: RevTableRecordSource<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>
+        recordDefinitionList: RevTableRecordSource<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>
     ) => void;
     export type OpenChangeEventHandler = (this: void, opened: boolean) => void;
     export type BadnessChangedEventHandler = (this: void) => void;

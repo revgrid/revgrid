@@ -4,12 +4,12 @@ import { IndexedRecord, Integer } from '@xilytix/sysutils';
 import { RevTableValue } from './table-value';
 
 /** @public */
-export class RevTableValuesRecord<RenderValueTypeId, RenderAttributeTypeId> implements IndexedRecord {
-    protected _values: RevTableValue<RenderValueTypeId, RenderAttributeTypeId>[];
+export class RevTableValuesRecord<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> implements IndexedRecord {
+    protected _values: RevTableValue<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>[];
 
     constructor(public index: Integer) {
         // no code
     }
 
-    get values(): readonly RevTableValue<RenderValueTypeId, RenderAttributeTypeId>[] { return this._values; }
+    get values(): readonly RevTableValue<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>[] { return this._values; }
 }

@@ -4,18 +4,19 @@ import {
     Integer,
     compareValue
 } from '@xilytix/sysutils';
-import { RevHorizontalAlignId, RevRenderValue } from '../../../../../cell-content/internal-api';
+import { RevHorizontalAlignId, RevTextFormattableValue } from '../../../../../cell-content/client/internal-api';
+import { RevTextFormatterService } from '../../../../../cell-content/server/internal-api';
 import { RevSourcedFieldSourceDefinition } from '../../../../sourced-field/server/internal-api';
 import { RevRecordSourcedField, RevRecordSourcedFieldDefinition } from '../../../record/server/internal-api';
 import { RevGenericTableValue, RevTableValue, RevTableValuesRecord } from '../value/internal-api';
 
 /** @public */
-export abstract class RevTableField<RenderValueTypeId, RenderAttributeTypeId> extends RevRecordSourcedField<RenderValueTypeId, RenderAttributeTypeId> {
-    private _valueTypeId: RenderValueTypeId;
+export abstract class RevTableField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> extends RevRecordSourcedField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> {
+    private _valueTypeId: TextFormattableValueTypeId;
 
     constructor(
-        protected readonly textFormatter: RevRenderValue.TextFormatter<RenderValueTypeId, RenderAttributeTypeId>,
-        definition: RevTableField.Definition<RenderValueTypeId, RenderAttributeTypeId>,
+        protected readonly textFormatter: RevTextFormatterService<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>,
+        definition: RevTableField.Definition<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>,
         heading: string,
     ) {
         super(definition, heading);
@@ -23,7 +24,7 @@ export abstract class RevTableField<RenderValueTypeId, RenderAttributeTypeId> ex
 
     get valueTypeId() { return this._valueTypeId; }
 
-    compare(left: RevTableValuesRecord<RenderValueTypeId, RenderAttributeTypeId>, right: RevTableValuesRecord<RenderValueTypeId, RenderAttributeTypeId>): number {
+    compare(left: RevTableValuesRecord<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, right: RevTableValuesRecord<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>): number {
         const leftValue = left.values[this.index];
         const rightValue = right.values[this.index];
         if (leftValue === rightValue) {
@@ -45,7 +46,7 @@ export abstract class RevTableField<RenderValueTypeId, RenderAttributeTypeId> ex
         }
     }
 
-    compareDesc(left: RevTableValuesRecord<RenderValueTypeId, RenderAttributeTypeId>, right: RevTableValuesRecord<RenderValueTypeId, RenderAttributeTypeId>): number {
+    compareDesc(left: RevTableValuesRecord<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, right: RevTableValuesRecord<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>): number {
         const leftValue = left.values[this.index];
         const rightValue = right.values[this.index];
         if (leftValue === rightValue) {
@@ -67,52 +68,59 @@ export abstract class RevTableField<RenderValueTypeId, RenderAttributeTypeId> ex
         }
     }
 
-    override getViewValue(record: RevTableValuesRecord<RenderValueTypeId, RenderAttributeTypeId>): RevRenderValue<RenderValueTypeId, RenderAttributeTypeId> {
+    override getViewValue(record: RevTableValuesRecord<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>): RevTextFormattableValue<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> {
         const tableGridValue = record.values[this.index];
-        return tableGridValue.renderValue;
+        return tableGridValue.textFormattableValue;
     }
 
-    protected setValueTypeId(value: RenderValueTypeId) {
+    protected setValueTypeId(value: TextFormattableValueTypeId) {
         this._valueTypeId = value;
     }
 
-    protected compareUndefinedToDefinedField(definedValue: RevTableValue<RenderValueTypeId, RenderAttributeTypeId>) {
+    protected compareUndefinedToDefinedField(definedValue: RevTableValue<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>) {
         // left is undefined, right is defined (parameter)
         return -1;
     }
 
-    protected abstract compareDefined(left: RevTableValue<RenderValueTypeId, RenderAttributeTypeId>, right: RevTableValue<RenderValueTypeId, RenderAttributeTypeId>): number;
+    protected abstract compareDefined(left: RevTableValue<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, right: RevTableValue<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>): number;
 }
 
 /** @public */
 export namespace RevTableField {
-    export class Definition<RenderValueTypeId, RenderAttributeTypeId> extends RevRecordSourcedFieldDefinition {
+    export class Definition<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> extends RevRecordSourcedFieldDefinition {
         constructor(
             sourceDefinition: RevSourcedFieldSourceDefinition,
             sourcelessName: string,
             defaultHeading: string,
             defaultTextAlignId: RevHorizontalAlignId,
-            readonly gridFieldConstructor: RevTableField.Constructor<RenderValueTypeId, RenderAttributeTypeId>,
-            readonly gridValueConstructor: RevTableValue.Constructor<RenderValueTypeId, RenderAttributeTypeId>,
+            readonly gridFieldConstructor: RevTableField.Constructor<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>,
+            readonly gridValueConstructor: RevTableValue.Constructor<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>,
 
         ) {
             super(sourceDefinition, sourcelessName, defaultHeading, defaultTextAlignId);
         }
     }
 
-    export type Constructor<RenderValueTypeId, RenderAttributeTypeId> = new(
-        textFormatter: RevRenderValue.TextFormatter<RenderValueTypeId, RenderAttributeTypeId>,
-        definition: RevTableField.Definition<RenderValueTypeId, RenderAttributeTypeId>,
+    export type Constructor<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> = new(
+        textFormatter: RevTextFormatterService<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>,
+        definition: RevTableField.Definition<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>,
         heading: string,
         index: Integer,
-    ) => RevTableField<RenderValueTypeId, RenderAttributeTypeId>;
+    ) => RevTableField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>;
 }
 
 /** @public */
-export class RevGenericTableField<DataType extends number | string, ValueClass extends RevGenericTableValue<DataType, RenderValueTypeId, RenderAttributeTypeId>, RenderValueTypeId, RenderAttributeTypeId>
-    extends RevTableField<RenderValueTypeId, RenderAttributeTypeId> {
+export class RevGenericTableField<
+    DataType extends number | string,
+    ValueClass extends RevGenericTableValue<DataType, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>,
+    TextFormattableValueTypeId,
+    TextFormattableValueAttributeTypeId
+> extends RevTableField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> {
 
-    protected compareDefined(left: RevTableValue<RenderValueTypeId, RenderAttributeTypeId>, right: RevTableValue<RenderValueTypeId, RenderAttributeTypeId>): number {
+    protected compareDefined(
+        left: RevTableValue<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>,
+        right: RevTableValue<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>
+    ): number {
         return compareValue<DataType>((left as ValueClass).definedData, (right as ValueClass).definedData);
     }
 }

@@ -26,12 +26,24 @@ export class RevTableGrid<
     Badness,
     TableRecordSourceDefinitionTypeId,
     TableFieldSourceDefinitionTypeId,
-    RenderValueTypeId,
-    RenderAttributeTypeId,
+    TextFormattableValueTypeId,
+    TextFormattableValueAttributeTypeId,
     BGS extends RevBehavioredGridSettings,
     BCS extends RevBehavioredColumnSettings
-> extends RevRecordSourcedFieldGrid<RenderValueTypeId, RenderAttributeTypeId, BGS, BCS, RevRecordSourcedField<RenderValueTypeId, RenderAttributeTypeId>> {
-    declare readonly recordStore: RevTableRecordStore<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>;
+> extends RevRecordSourcedFieldGrid<
+    TextFormattableValueTypeId,
+    TextFormattableValueAttributeTypeId,
+    BGS,
+    BCS,
+    RevRecordSourcedField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>
+> {
+    declare readonly recordStore: RevTableRecordStore<
+        Badness,
+        TableRecordSourceDefinitionTypeId,
+        TableFieldSourceDefinitionTypeId,
+        TextFormattableValueTypeId,
+        TextFormattableValueAttributeTypeId
+    >;
 
     opener: LockOpenListItem.Opener;
     keepPreviousLayoutIfPossible = false;
@@ -44,11 +56,11 @@ export class RevTableGrid<
         Badness,
         TableRecordSourceDefinitionTypeId,
         TableFieldSourceDefinitionTypeId,
-        RenderValueTypeId,
-        RenderAttributeTypeId
+        TextFormattableValueTypeId,
+        TextFormattableValueAttributeTypeId
     > | undefined;
-    private _openedDataSource: RevDataSource<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId> | undefined;
-    private _openedTable: RevTable<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId> | undefined;
+    private _openedDataSource: RevDataSource<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> | undefined;
+    private _openedTable: RevTable<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> | undefined;
 
     private _keptRowOrderDefinition: RevRecordRowOrderDefinition | undefined;
     private _keptGridRowAnchor: RevRecordGrid.ViewAnchor | undefined;
@@ -62,32 +74,36 @@ export class RevTableGrid<
     constructor(
         readonly gridFieldCustomHeadingsService: RevSourcedFieldCustomHeadingsService,
         private readonly _referenceableColumnLayoutsService: RevReferenceableColumnLayoutsService | undefined,
-        readonly tableFieldSourceDefinitionCachingFactoryService: RevTableFieldSourceDefinitionCachingFactoryService<TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>,
+        readonly tableFieldSourceDefinitionCachingFactoryService: RevTableFieldSourceDefinitionCachingFactoryService<
+            TableFieldSourceDefinitionTypeId,
+            TextFormattableValueTypeId,
+            TextFormattableValueAttributeTypeId
+        >,
         readonly tableRecordSourceDefinitionFactoryService: RevTableRecordSourceDefinitionFromJsonFactory<
             TableRecordSourceDefinitionTypeId,
             TableFieldSourceDefinitionTypeId,
-            RenderValueTypeId,
-            RenderAttributeTypeId
+            TextFormattableValueTypeId,
+            TextFormattableValueAttributeTypeId
         >,
         private readonly _referenceableDataSourcesService: RevReferenceableDataSourcesService<
             Badness,
             TableRecordSourceDefinitionTypeId,
             TableFieldSourceDefinitionTypeId,
-            RenderValueTypeId,
-            RenderAttributeTypeId
+            TextFormattableValueTypeId,
+            TextFormattableValueAttributeTypeId
         > | undefined,
         private readonly _tableRecordSourceFactory: RevTableRecordSourceFactory<
             Badness,
             TableRecordSourceDefinitionTypeId,
             TableFieldSourceDefinitionTypeId,
-            RenderValueTypeId,
-            RenderAttributeTypeId
+            TextFormattableValueTypeId,
+            TextFormattableValueAttributeTypeId
         >,
         gridHostElement: HTMLElement,
-        definition: RevGridDefinition<BCS, RevRecordSourcedField<RenderValueTypeId, RenderAttributeTypeId>>,
+        definition: RevGridDefinition<BCS, RevRecordSourcedField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>>,
         settings: BGS,
-        customiseSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, RevRecordSourcedField<RenderValueTypeId, RenderAttributeTypeId>>,
-        options?: RevGridOptions<BGS, BCS, RevRecordSourcedField<RenderValueTypeId, RenderAttributeTypeId>>,
+        customiseSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, RevRecordSourcedField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>>,
+        options?: RevGridOptions<BGS, BCS, RevRecordSourcedField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>>,
     ) {
         super(gridHostElement, definition, settings, customiseSettingsForNewColumnEventer, options);
 
@@ -105,7 +121,7 @@ export class RevTableGrid<
             return this._openedTable;
         }
     }
-    get openedRecordSource(): RevTableRecordSource<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId> {
+    get openedRecordSource(): RevTableRecordSource<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> {
         if (this._openedTable === undefined) {
             throw new AssertInternalError('RTGGORS32072');
         } else {
@@ -121,17 +137,17 @@ export class RevTableGrid<
     }
 
     tryOpenDataSource(
-        definition: RevDataSourceOrReferenceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>,
+        definition: RevDataSourceOrReferenceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>,
         keepView: boolean
     ): Promise<
         Result<
-            RevDataSourceOrReference<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>,
+            RevDataSourceOrReference<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>,
             RevDataSourceOrReference.LockErrorIdPlusTryError
         >
     > {
         // Replace with Promise.withResolvers when available in TypeScript (ES2023)
         let resolve: (value: Result<
-            RevDataSourceOrReference<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>,
+            RevDataSourceOrReference<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>,
             RevDataSourceOrReference.LockErrorIdPlusTryError
         >) => void;
         const resultPromise = new Promise<
@@ -140,8 +156,8 @@ export class RevTableGrid<
                     Badness,
                     TableRecordSourceDefinitionTypeId,
                     TableFieldSourceDefinitionTypeId,
-                    RenderValueTypeId,
-                    RenderAttributeTypeId
+                    TextFormattableValueTypeId,
+                    TextFormattableValueAttributeTypeId
                 >,
                 RevDataSourceOrReference.LockErrorIdPlusTryError
             >
@@ -159,7 +175,13 @@ export class RevTableGrid<
         ) {
             definition.updateColumnLayoutDefinitionOrReference(this.keptColumnLayoutOrReferenceDefinition);
         }
-        const dataSourceOrReference = new RevDataSourceOrReference<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>(
+        const dataSourceOrReference = new RevDataSourceOrReference<
+            Badness,
+            TableRecordSourceDefinitionTypeId,
+            TableFieldSourceDefinitionTypeId,
+            TextFormattableValueTypeId,
+            TextFormattableValueAttributeTypeId
+        >(
             this._referenceableColumnLayoutsService,
             this._referenceableDataSourcesService,
             this.tableFieldSourceDefinitionCachingFactoryService.definitionFactory,
@@ -262,7 +284,7 @@ export class RevTableGrid<
         }
     }
 
-    createDataSourceOrReferenceDefinition(): RevDataSourceOrReferenceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId> {
+    createDataSourceOrReferenceDefinition(): RevDataSourceOrReferenceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> {
         if (this._lockedDataSourceOrReference === undefined) {
             throw new AssertInternalError('GSFCGSONRD22209');
         } else {
@@ -279,7 +301,7 @@ export class RevTableGrid<
         }
     }
 
-    createTableRecordSourceDefinition(): RevTableRecordSourceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId> {
+    createTableRecordSourceDefinition(): RevTableRecordSourceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> {
         if (this._openedDataSource === undefined) {
             throw new AssertInternalError('GSFCGSONRD22209');
         } else {
@@ -338,7 +360,7 @@ export class RevTableGrid<
         }
     }
 
-    override createAllowedSourcedFieldsColumnLayoutDefinition(): RevAllowedRecordSourcedFieldsColumnLayoutDefinition<RenderValueTypeId, RenderAttributeTypeId> {
+    override createAllowedSourcedFieldsColumnLayoutDefinition(): RevAllowedRecordSourcedFieldsColumnLayoutDefinition<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> {
         if (this._openedTable === undefined) {
             throw new AssertInternalError('GSFCAFALD56678');
         } else {

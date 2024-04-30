@@ -16,10 +16,10 @@ import { RevTable } from '../table/internal-api';
 import { RevDataSourceDefinition } from './definition/internal-api';
 
 /** @public */
-export class RevDataSource<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>
+export class RevDataSource<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>
     implements
         LockOpenListItem<
-            RevDataSource<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>,
+            RevDataSource<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>,
             RevDataSource.LockErrorIdPlusTryError
         >,
         IndexedRecord {
@@ -30,27 +30,44 @@ export class RevDataSource<Badness, TableRecordSourceDefinitionTypeId, TableFiel
     public index: number;
 
     private readonly _lockOpenManager: LockOpenManager<
-        RevDataSource<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>,
+        RevDataSource<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>,
         RevDataSource.LockErrorIdPlusTryError
     >;
 
-    private readonly _tableRecordSourceDefinition: RevTableRecordSourceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>;
+    private readonly _tableRecordSourceDefinition: RevTableRecordSourceDefinition<
+        TableRecordSourceDefinitionTypeId,
+        TableFieldSourceDefinitionTypeId,
+        TextFormattableValueTypeId,
+        TextFormattableValueAttributeTypeId
+    >;
     private _columnLayoutOrReferenceDefinition: RevColumnLayoutOrReferenceDefinition | undefined;
     private _initialRowOrderDefinition: RevRecordRowOrderDefinition | undefined;
 
-    private _lockedTableRecordSource: RevTableRecordSource<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId> | undefined;
+    private _lockedTableRecordSource: RevTableRecordSource<
+        Badness,
+        TableRecordSourceDefinitionTypeId,
+        TableFieldSourceDefinitionTypeId,
+        TextFormattableValueTypeId,
+        TextFormattableValueAttributeTypeId
+    > | undefined;
     private _lockedColumnLayout: RevColumnLayout | undefined;
     private _lockedReferenceableColumnLayout: RevReferenceableColumnLayout | undefined;
 
-    private _table: RevTable<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId> | undefined;
+    private _table: RevTable<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> | undefined;
 
     private _columnLayoutSetMultiEvent = new MultiEvent<RevDataSource.GridColumnSetEventHandler>();
 
     constructor(
         private readonly _referenceableColumnLayoutsService: RevReferenceableColumnLayoutsService | undefined,
-        private readonly _tableFieldSourceDefinitionFactory: RevTableFieldSourceDefinitionFactory<TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>,
-        private readonly _tableRecordSourceFactory: RevTableRecordSourceFactory<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>,
-        definition: RevDataSourceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>,
+        private readonly _tableFieldSourceDefinitionFactory: RevTableFieldSourceDefinitionFactory<TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>,
+        private readonly _tableRecordSourceFactory: RevTableRecordSourceFactory<
+            Badness,
+            TableRecordSourceDefinitionTypeId,
+            TableFieldSourceDefinitionTypeId,
+            TextFormattableValueTypeId,
+            TextFormattableValueAttributeTypeId
+        >,
+        definition: RevDataSourceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>,
         id?: Guid,
         mapKey?: MapKey,
     ) {
@@ -58,7 +75,7 @@ export class RevDataSource<Badness, TableRecordSourceDefinitionTypeId, TableFiel
         this.mapKey = mapKey ?? this.id;
 
         this._lockOpenManager = new LockOpenManager<
-            RevDataSource<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>,
+            RevDataSource<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>,
             RevDataSource.LockErrorIdPlusTryError
         >(
             (locker) => this.tryProcessFirstLock(locker),
@@ -104,24 +121,24 @@ export class RevDataSource<Badness, TableRecordSourceDefinitionTypeId, TableFiel
         return this._lockOpenManager.isLocked(ignoreOnlyLocker);
     }
 
-    equals(other: RevDataSource<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>): boolean {
+    equals(other: RevDataSource<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>): boolean {
         return this.mapKey === other.mapKey;
     }
 
     createDefinition(
         rowOrderDefinition: RevRecordRowOrderDefinition | undefined
-    ): RevDataSourceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId> {
+    ): RevDataSourceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> {
         const tableRecordSourceDefinition = this.createTableRecordSourceDefinition();
         const columnLayoutOrReferenceDefinition = this.createColumnLayoutOrReferenceDefinition();
 
-        return new RevDataSourceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>(
+        return new RevDataSourceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>(
             tableRecordSourceDefinition,
             columnLayoutOrReferenceDefinition,
             rowOrderDefinition,
         );
     }
 
-    createTableRecordSourceDefinition(): RevTableRecordSourceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId> {
+    createTableRecordSourceDefinition(): RevTableRecordSourceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> {
         if (this._lockedTableRecordSource === undefined) {
             throw new AssertInternalError('GSCDTR23008');
         } else {
@@ -277,7 +294,7 @@ export class RevDataSource<Badness, TableRecordSourceDefinitionTypeId, TableFiel
             throw new AssertInternalError('GSOLT23008');
         } else {
             const tableFieldSourceDefinitionTypeIds = this.getTableFieldSourceDefinitionTypeIdsFromLayout(this._lockedColumnLayout);
-            this._table = new RevTable<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>(
+            this._table = new RevTable<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>(
                 this._lockedTableRecordSource,
                 this._tableRecordSourceFactory.createCorrectnessState(),
                 tableFieldSourceDefinitionTypeIds

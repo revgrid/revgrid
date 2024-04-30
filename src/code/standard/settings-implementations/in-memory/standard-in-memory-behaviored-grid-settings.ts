@@ -1,4 +1,4 @@
-import { RevHorizontalAlign, RevHorizontalAlignId, RevTextTruncateType, RevTextTruncateTypeId } from '../../../cell-content/internal-api';
+import { RevHorizontalAlign, RevHorizontalAlignId, RevTextTruncateType, RevTextTruncateTypeId } from '../../../cell-content/client/internal-api';
 import { RevGridSettings } from '../../../client/internal-api';
 import { RevInMemoryBehavioredGridSettings } from '../../../settings-implementations/internal-api';
 import { RevStandardBehavioredGridSettings, RevStandardGridSettings, RevStandardOnlyGridSettings } from '../../settings/internal-api';

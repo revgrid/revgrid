@@ -6,14 +6,14 @@ import { RevReferenceableDataSourceDefinition } from './definition/internal-api'
 import { RevReferenceableDataSource } from './referenceable-data-source';
 
 /** @public */
-export interface RevReferenceableDataSourcesService<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>
+export interface RevReferenceableDataSourcesService<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>
     extends LockItemByKeyList<
         RevReferenceableDataSource<
             Badness,
             TableRecordSourceDefinitionTypeId,
             TableFieldSourceDefinitionTypeId,
-            RenderValueTypeId,
-            RenderAttributeTypeId
+            TextFormattableValueTypeId,
+            TextFormattableValueAttributeTypeId
         >,
         RevDataSource.LockErrorIdPlusTryError
     > {
@@ -21,8 +21,8 @@ export interface RevReferenceableDataSourcesService<Badness, TableRecordSourceDe
     // readonly saveModified: boolean;
 
     getOrNew(
-        definition: RevReferenceableDataSourceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>
-    ): RevReferenceableDataSource<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>;
+        definition: RevReferenceableDataSourceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>
+    ): RevReferenceableDataSource<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>;
 
     // save(): void;
     // checkSave(onlyIfPeriodicRequired: boolean): void;

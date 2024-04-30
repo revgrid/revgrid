@@ -7,14 +7,16 @@ import { RevAllowedRecordSourcedField, RevAllowedRecordSourcedFieldsColumnLayout
 
 /** @public */
 export class RevRecordSourcedFieldGrid<
-    RenderValueTypeId,
-    RenderAttributeTypeId,
+    TextFormattableValueTypeId,
+    TextFormattableValueAttributeTypeId,
     BGS extends RevBehavioredGridSettings,
     BCS extends RevBehavioredColumnSettings,
-    SF extends RevRecordSourcedField<RenderValueTypeId, RenderAttributeTypeId>
+    SF extends RevRecordSourcedField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>
 > extends RevRecordGrid<BGS, BCS, SF> implements RevSourcedFieldGrid<BGS, BCS, SF> {
-    createAllowedSourcedFieldsColumnLayoutDefinition(allowedFields: readonly RevAllowedRecordSourcedField<RenderValueTypeId, RenderAttributeTypeId>[]) {
+    createAllowedSourcedFieldsColumnLayoutDefinition(allowedFields: readonly RevAllowedRecordSourcedField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>[]) {
         const definitionColumns = this.createColumnLayoutDefinitionColumns();
-        return new RevAllowedRecordSourcedFieldsColumnLayoutDefinition<RenderValueTypeId, RenderAttributeTypeId>(definitionColumns, allowedFields, this.settings.fixedColumnCount);
+        return new RevAllowedRecordSourcedFieldsColumnLayoutDefinition<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>(
+            definitionColumns, allowedFields, this.settings.fixedColumnCount
+        );
     }
 }

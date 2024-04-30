@@ -6,11 +6,14 @@ import { RevAllowedSourcedFieldsColumnLayoutDefinition } from '../../../sourced-
 import { RevAllowedRecordSourcedField } from './allowed-record-sourced-field';
 
 /** @public */
-export class RevAllowedRecordSourcedFieldsColumnLayoutDefinition<RenderValueTypeId, RenderAttributeTypeId> extends RevColumnLayoutDefinition implements RevAllowedSourcedFieldsColumnLayoutDefinition {
+export class RevAllowedRecordSourcedFieldsColumnLayoutDefinition<
+    TextFormattableValueTypeId,
+    TextFormattableValueAttributeTypeId
+> extends RevColumnLayoutDefinition implements RevAllowedSourcedFieldsColumnLayoutDefinition {
     // Uses AllowedGridField instead of RevFieldDefinition as heading can be changed at runtime
     constructor(
         columns: readonly RevColumnLayoutDefinition.Column[],
-        readonly allowedFields: readonly RevAllowedRecordSourcedField<RenderValueTypeId, RenderAttributeTypeId>[],
+        readonly allowedFields: readonly RevAllowedRecordSourcedField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>[],
         readonly fixedColumnCount: Integer,
     ) {
         super(columns);

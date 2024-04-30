@@ -5,14 +5,14 @@ import {
     IndexedRecord,
     Integer
 } from '@xilytix/sysutils';
-import { RevRenderValue } from '../../../../cell-content/internal-api';
+import { RevTextFormattableValue } from '../../../../cell-content/client/internal-api';
 import { RevDataServer } from '../../../../client/internal-api';
 import { RevRecordField } from '../../../../record/server/internal-api';
 import { RevSourcedField } from '../../../sourced-field/server/internal-api';
 import { RevRecordSourcedFieldDefinition } from './definition/internal-api';
 
 /** @public */
-export abstract class RevRecordSourcedField<RenderValueTypeId, RenderAttributeTypeId> implements RevSourcedField, RevRecordField {
+export abstract class RevRecordSourcedField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> implements RevSourcedField, RevRecordField {
     getEditValueEventer: RevSourcedRecordField.GetEditValueEventer | undefined;
     setEditValueEventer: RevSourcedRecordField.SetEditValueEventer | undefined;
 
@@ -41,7 +41,7 @@ export abstract class RevRecordSourcedField<RenderValueTypeId, RenderAttributeTy
         }
     }
 
-    abstract getViewValue(record: IndexedRecord): RevRenderValue<RenderValueTypeId, RenderAttributeTypeId>;
+    abstract getViewValue(record: IndexedRecord): RevTextFormattableValue<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>;
 }
 
 /** @public */

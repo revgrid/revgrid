@@ -8,8 +8,8 @@ import { RevTableField } from '../../field/internal-api';
 import { RevTableValue } from '../../value/internal-api';
 
 /** @public */
-export abstract class RevTableFieldSourceDefinition<TypeId, RenderValueTypeId, RenderAttributeTypeId> extends RevRecordSourcedFieldSourceDefinition {
-    readonly fieldDefinitions: RevTableField.Definition<RenderValueTypeId, RenderAttributeTypeId>[];
+export abstract class RevTableFieldSourceDefinition<TypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> extends RevRecordSourcedFieldSourceDefinition {
+    readonly fieldDefinitions: RevTableField.Definition<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>[];
 
     constructor(readonly typeId: TypeId, name: string) {
         super(name);
@@ -36,15 +36,15 @@ export abstract class RevTableFieldSourceDefinition<TypeId, RenderValueTypeId, R
 
 /** @public */
 export namespace RevTableFieldSourceDefinition {
-    export type TableFieldValueConstructors<RenderValueTypeId, RenderAttributeTypeId> = [
-        field: RevTableField.Constructor<RenderValueTypeId, RenderAttributeTypeId>,
-        value: RevTableValue.Constructor<RenderValueTypeId, RenderAttributeTypeId>
+    export type TableFieldValueConstructors<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> = [
+        field: RevTableField.Constructor<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>,
+        value: RevTableValue.Constructor<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>
     ];
 
     // used by descendants
-    export type TableGridConstructors<RenderValueTypeId, RenderAttributeTypeId> = [
-        RevTableField.Constructor<RenderValueTypeId, RenderAttributeTypeId>,
-        RevTableValue.Constructor<RenderValueTypeId, RenderAttributeTypeId>
+    export type TableGridConstructors<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> = [
+        RevTableField.Constructor<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>,
+        RevTableValue.Constructor<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>
     ];
 
     export interface FieldName<TypeId> {

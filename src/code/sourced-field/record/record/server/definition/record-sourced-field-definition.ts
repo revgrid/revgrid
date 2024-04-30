@@ -1,7 +1,7 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
 import { Integer } from '@xilytix/sysutils';
-import { RevHorizontalAlignId } from '../../../../../cell-content/internal-api';
+import { RevHorizontalAlignId } from '../../../../../cell-content/client/internal-api';
 import { RevSourcedFieldDefinition } from '../../../../sourced-field/server/internal-api';
 import { RevRecordSourcedFieldSourceDefinition } from './record-sourced-field-source-definition';
 

@@ -6,8 +6,8 @@ import { RevTableValueSource } from '../value-source/internal-api';
 import { RevTableValue, RevTableValuesRecord } from '../value/internal-api';
 
 /** @public */
-export class RevTableRecord<RenderValueTypeId, RenderAttributeTypeId> extends RevTableValuesRecord<RenderValueTypeId, RenderAttributeTypeId> {
-    private _sources = new ComparableList<RevTableValueSource<RenderValueTypeId, RenderAttributeTypeId>>();
+export class RevTableRecord<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> extends RevTableValuesRecord<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> {
+    private _sources = new ComparableList<RevTableValueSource<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>>();
     private _fieldCount = 0;
     private _beenIncubated = false;
     private _beginValuesChangeCount = 0;
@@ -30,7 +30,7 @@ export class RevTableRecord<RenderValueTypeId, RenderAttributeTypeId> extends Re
     get fieldCount() { return this._fieldCount; }
 
     activate() {
-        let values: RevTableValue<RenderValueTypeId, RenderAttributeTypeId>[] = [];
+        let values: RevTableValue<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>[] = [];
         for (let i = 0; i < this._sources.count; i++) {
             const source = this._sources.getAt(i);
             const sourceValues = source.activate();
@@ -48,7 +48,7 @@ export class RevTableRecord<RenderValueTypeId, RenderAttributeTypeId> extends Re
         }
     }
 
-    addSource(source: RevTableValueSource<RenderValueTypeId, RenderAttributeTypeId>) {
+    addSource(source: RevTableValueSource<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>) {
         source.valueChangesEvent = (valueChanges) => { this.handleSourceValueChangesEvent(valueChanges); };
         source.allValuesChangeEvent = (idx, newValues) => { this.handleSourceAllValuesChangeEvent(idx, newValues); };
         source.becomeIncubatedEventer = () => { this.handleBecomeIncubatedEvent(); };
@@ -70,11 +70,11 @@ export class RevTableRecord<RenderValueTypeId, RenderAttributeTypeId> extends Re
         this._values = this.getAllValues();
     }
 
-    getAllValues(): RevTableValue<RenderValueTypeId, RenderAttributeTypeId>[] {
+    getAllValues(): RevTableValue<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>[] {
         if (this._sources.count === 1) {
             return this._sources.getAt(0).getAllValues();
         } else {
-            const values = new Array<RevTableValue<RenderValueTypeId, RenderAttributeTypeId>>(this._fieldCount);
+            const values = new Array<RevTableValue<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>>(this._fieldCount);
             let idx = 0;
             for (let srcIdx = 0; srcIdx < this._sources.count; srcIdx++) {
                 const sourceValues = this._sources.getAt(srcIdx).getAllValues();
@@ -104,7 +104,7 @@ export class RevTableRecord<RenderValueTypeId, RenderAttributeTypeId> extends Re
         }
     }
 
-    private handleSourceValueChangesEvent(valueChanges: RevTableRecord.ValueChange<RenderValueTypeId, RenderAttributeTypeId>[]) {
+    private handleSourceValueChangesEvent(valueChanges: RevTableRecord.ValueChange<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>[]) {
         const valueChangesCount = valueChanges.length;
         if (valueChangesCount > 0) {
             const invalidatedValues = new Array<RevRecordInvalidatedValue>(valueChangesCount);
@@ -123,7 +123,7 @@ export class RevTableRecord<RenderValueTypeId, RenderAttributeTypeId> extends Re
         }
     }
 
-    private handleSourceAllValuesChangeEvent(firstFieldIndex: Integer, newValues: RevTableValue<RenderValueTypeId, RenderAttributeTypeId>[]) {
+    private handleSourceAllValuesChangeEvent(firstFieldIndex: Integer, newValues: RevTableValue<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>[]) {
         const newValuesCount = newValues.length;
         if (newValuesCount > 0) {
             let fieldIndex = firstFieldIndex;
@@ -177,7 +177,7 @@ export class RevTableRecord<RenderValueTypeId, RenderAttributeTypeId> extends Re
 export namespace RevTableRecord {
     // export type Sources = ComparableList<TableValueSource>;
     // export type ChangedValue = TableValueSource.ChangedValue;
-    export type ValueChange<RenderValueTypeId, RenderAttributeTypeId> = RevTableValueSource.ValueChange<RenderValueTypeId, RenderAttributeTypeId>;
+    export type ValueChange<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> = RevTableValueSource.ValueChange<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>;
     // export interface FindValueResult {
     //     found: boolean;
     //     sourceIdx: Integer;

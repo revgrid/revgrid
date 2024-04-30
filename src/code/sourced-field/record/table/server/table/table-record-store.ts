@@ -10,8 +10,8 @@ import { RevRecordFieldIndex, RevRecordIndex, RevRecordInvalidatedValue, RevReco
 import { RevTable } from './table';
 
 /** @public */
-export class RevTableRecordStore<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId> implements RevRecordStore {
-    private _table: RevTable<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId> | undefined;
+export class RevTableRecordStore<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> implements RevRecordStore {
+    private _table: RevTable<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> | undefined;
 
     private _recordsEventers: RevRecordStore.RecordsEventers;
 
@@ -30,7 +30,7 @@ export class RevTableRecordStore<Badness, TableRecordSourceDefinitionTypeId, Tab
         return this._table === undefined ? 0 : this._table.recordCount;
     }
 
-    setTable(value: RevTable<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>) {
+    setTable(value: RevTable<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>) {
         if (this._table !== undefined) {
             this.unbindTable(this._table);
             this._recordsEventers.allRecordsDeleted(); // should already be done
@@ -94,7 +94,7 @@ export class RevTableRecordStore<Badness, TableRecordSourceDefinitionTypeId, Tab
         this._recordsEventers.invalidateRecord(recordIndex);
     }
 
-    private bindTable(table: RevTable<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>) {
+    private bindTable(table: RevTable<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>) {
         this._allRecordsDeletedSubscriptionId = table.subscribeAllRecordsDeletedEvent(() => { this._recordsEventers.allRecordsDeleted(); });
         this._recordsLoadedSubscriptionId = table.subscribeRecordsLoadedEvent(() => { this._recordsEventers.recordsLoaded(); });
         this._recordsInsertedSubscriptionId = table.subscribeRecordsInsertedEvent(
@@ -120,7 +120,7 @@ export class RevTableRecordStore<Badness, TableRecordSourceDefinitionTypeId, Tab
         );
     }
 
-    private unbindTable(table: RevTable<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, RenderValueTypeId, RenderAttributeTypeId>) {
+    private unbindTable(table: RevTable<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>) {
         table.unsubscribeAllRecordsDeletedEvent(this._allRecordsDeletedSubscriptionId);
         this._allRecordsDeletedSubscriptionId = undefined;
         table.unsubscribeRecordsLoadedEvent(this._recordsLoadedSubscriptionId);

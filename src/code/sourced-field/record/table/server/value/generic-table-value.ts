@@ -3,7 +3,7 @@
 import { RevTableValue } from './table-value';
 
 /** @public */
-export abstract class RevGenericTableValue<T, RenderValueTypeId, RenderAttributeTypeId> extends RevTableValue<RenderValueTypeId, RenderAttributeTypeId> {
+export abstract class RevGenericTableValue<T, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> extends RevTableValue<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> {
     private _data: T | undefined;
     private _definedData: T;
 

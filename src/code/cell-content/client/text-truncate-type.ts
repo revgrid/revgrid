@@ -1,4 +1,6 @@
-import { RevApiError } from '../client/internal-api';
+// (c) 2024 Xilytix Pty Ltd / Paul Klink
+
+import { RevApiError } from '../../client/internal-api';
 
 /** @public */
 export const enum RevTextTruncateTypeId {
