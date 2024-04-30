@@ -440,11 +440,11 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
                     return true;
                 } else {
                     switch (key) {
-                        case RevFocus.ActionKeyboardKey.Enter: {
+                        case RevFocus.ActionKeyboardKey.enter: {
                             this.closeEditor(editor, false, true);
                             return true;
                         }
-                        case RevFocus.ActionKeyboardKey.Escape: {
+                        case RevFocus.ActionKeyboardKey.escape: {
                             this.closeEditor(editor, true, true);
                             return true;
                         }
@@ -973,38 +973,50 @@ export namespace RevFocus {
     /** @internal */
     export type ViewCellRenderInvalidatedEventer<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> = (this: void, cell: RevViewCell<BCS, SF>) => void;
 
-    export const enum ActionKeyboardKey {
-        Tab = 'Tab',
-        Escape = 'Escape',
-        Enter = 'Enter',
-        ArrowLeft = 'ArrowLeft',
-        ArrowRight = 'ArrowRight',
-        ArrowUp = 'ArrowUp',
-        ArrowDown = 'ArrowDown',
-        PageUp = 'PageUp',
-        PageDown = 'PageDown',
-        Home = 'Home',
-        End = 'End',
+    export type ActionKeyboardKey =
+        typeof ActionKeyboardKey.tab |
+        typeof ActionKeyboardKey.escape |
+        typeof ActionKeyboardKey.enter |
+        typeof ActionKeyboardKey.arrowLeft |
+        typeof ActionKeyboardKey.arrowRight |
+        typeof ActionKeyboardKey.arrowUp |
+        typeof ActionKeyboardKey.arrowDown |
+        typeof ActionKeyboardKey.pageUp |
+        typeof ActionKeyboardKey.pageDown |
+        typeof ActionKeyboardKey.home |
+        typeof ActionKeyboardKey.end;
+
+    export namespace ActionKeyboardKey {
+        export const tab = 'Tab';
+        export const escape = 'Escape';
+        export const enter = 'Enter';
+        export const arrowLeft = 'ArrowLeft';
+        export const arrowRight = 'ArrowRight';
+        export const arrowUp = 'ArrowUp';
+        export const arrowDown = 'ArrowDown';
+        export const pageUp = 'PageUp';
+        export const pageDown = 'PageDown';
+        export const home = 'Home';
+        export const end = 'End';
     }
 
-    export function isNavActionKeyboardKey(key: string) {
-        const actionKey = key as ActionKeyboardKey;
-        switch (actionKey) {
-            case ActionKeyboardKey.Escape:
-            case ActionKeyboardKey.Enter:
+    export function isNavActionKeyboardKey(key: ActionKeyboardKey) {
+        switch (key) {
+            case ActionKeyboardKey.escape:
+            case ActionKeyboardKey.enter:
                 return false;
-            case ActionKeyboardKey.Tab:
-            case ActionKeyboardKey.ArrowLeft:
-            case ActionKeyboardKey.ArrowRight:
-            case ActionKeyboardKey.ArrowUp:
-            case ActionKeyboardKey.ArrowDown:
-            case ActionKeyboardKey.PageUp:
-            case ActionKeyboardKey.PageDown:
-            case ActionKeyboardKey.Home:
-            case ActionKeyboardKey.End:
+            case ActionKeyboardKey.tab:
+            case ActionKeyboardKey.arrowLeft:
+            case ActionKeyboardKey.arrowRight:
+            case ActionKeyboardKey.arrowUp:
+            case ActionKeyboardKey.arrowDown:
+            case ActionKeyboardKey.pageUp:
+            case ActionKeyboardKey.pageDown:
+            case ActionKeyboardKey.home:
+            case ActionKeyboardKey.end:
                 return true;
             default:
-                actionKey satisfies never;
+                key satisfies never;
                 return false;
         }
     }

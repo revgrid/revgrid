@@ -10,7 +10,7 @@ import { RevClientObject } from '../../types-utils/client-object';
 import { RevRectangle } from '../../types-utils/rectangle';
 import { RevAssertError, RevUnreachableCaseError } from '../../types-utils/revgrid-error';
 import { RevSelectionAreaType, RevSelectionAreaTypeId } from '../../types-utils/selection-area-type';
-import { RevSelectionAreaTypeSpecifier } from '../../types-utils/types';
+import { RevSelectionAreaTypeSpecifierId } from '../../types-utils/types';
 import { RevColumnsManager } from '../column/columns-manager';
 import { RevFocus } from '../focus/focus';
 import { RevContiguousIndexRange } from './contiguous-index-range';
@@ -860,17 +860,17 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
     }
 
     /** @internal */
-    calculateAreaTypeFromSpecifier(specifier: RevSelectionAreaTypeSpecifier): RevSelectionAreaTypeId {
+    calculateAreaTypeFromSpecifier(specifier: RevSelectionAreaTypeSpecifierId): RevSelectionAreaTypeId {
         switch (specifier) {
-            case RevSelectionAreaTypeSpecifier.Primary: return RevSelectionAreaType.toId(this._gridSettings.primarySelectionAreaType);
-            case RevSelectionAreaTypeSpecifier.Secondary: return RevSelectionAreaType.toId(this._gridSettings.secondarySelectionAreaType);
-            case RevSelectionAreaTypeSpecifier.Rectangle: return RevSelectionAreaTypeId.rectangle;
-            case RevSelectionAreaTypeSpecifier.Row: return RevSelectionAreaTypeId.row;
-            case RevSelectionAreaTypeSpecifier.Column: return RevSelectionAreaTypeId.column;
-            case RevSelectionAreaTypeSpecifier.LastOrPrimary: {
+            case RevSelectionAreaTypeSpecifierId.Primary: return RevSelectionAreaType.toId(this._gridSettings.primarySelectionAreaType);
+            case RevSelectionAreaTypeSpecifierId.Secondary: return RevSelectionAreaType.toId(this._gridSettings.secondarySelectionAreaType);
+            case RevSelectionAreaTypeSpecifierId.Rectangle: return RevSelectionAreaTypeId.rectangle;
+            case RevSelectionAreaTypeSpecifierId.Row: return RevSelectionAreaTypeId.row;
+            case RevSelectionAreaTypeSpecifierId.Column: return RevSelectionAreaTypeId.column;
+            case RevSelectionAreaTypeSpecifierId.LastOrPrimary: {
                 const lastArea = this._lastArea;
                 if (lastArea === undefined) {
-                    return this.calculateAreaTypeFromSpecifier(RevSelectionAreaTypeSpecifier.Primary);
+                    return this.calculateAreaTypeFromSpecifier(RevSelectionAreaTypeSpecifierId.Primary);
                 } else {
                     return lastArea.areaTypeId;
                 }
@@ -1131,7 +1131,7 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
     private calculateMouseMainSelectAreaTypeId() {
         const switchNewRectangleSelectionToRowOrColumn = this._gridSettings.switchNewRectangleSelectionToRowOrColumn;
         switch (switchNewRectangleSelectionToRowOrColumn) {
-            case undefined: return this.calculateAreaTypeFromSpecifier(RevSelectionAreaTypeSpecifier.Primary);
+            case undefined: return this.calculateAreaTypeFromSpecifier(RevSelectionAreaTypeSpecifierId.Primary);
             case 'row': return RevSelectionAreaTypeId.row;
             case 'column': return RevSelectionAreaTypeId.column;
             default:

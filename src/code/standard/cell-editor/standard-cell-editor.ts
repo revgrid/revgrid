@@ -32,7 +32,7 @@ export abstract class RevStandardCellEditor<
     }
 
     protected isToggleKey(key: string) {
-        return (key as RevFocus.ActionKeyboardKey) === RevFocus.ActionKeyboardKey.Enter || key === ' ';
+        return (key as RevFocus.ActionKeyboardKey) === RevFocus.ActionKeyboardKey.enter || key === ' ';
     }
 
     protected tryToggleBoolenValue(field: SF, subgridRowIndex: number) {

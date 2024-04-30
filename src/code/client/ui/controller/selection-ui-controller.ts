@@ -20,7 +20,7 @@ export class RevSelectionUiController<BGS extends RevBehavioredGridSettings, BCS
     readonly typeName = RevSelectionUiController.typeName;
 
     /** @internal */
-    private _activeDragType: RevMouse.DragTypeEnum | undefined;
+    private _activeDragType: RevMouse.DragType | undefined;
     /**
      * a millisecond value representing the previous time an autoscroll started
      * Probably not used
@@ -184,7 +184,7 @@ export class RevSelectionUiController<BGS extends RevBehavioredGridSettings, BCS
     }
 
     override handleKeyDown(event: KeyboardEvent, fromEditor: boolean) {
-        if (RevFocus.isNavActionKeyboardKey(event.key)) {
+        if (RevFocus.isNavActionKeyboardKey(event.key as RevFocus.ActionKeyboardKey)) {
             if (RevGridSettings.isExtendLastSelectionAreaModifierKeyDownInEvent(this.gridSettings, event)) {
                 if (this.focusSelectBehavior.tryExtendLastSelectionAreaAsCloseAsPossibleToFocus()) {
                     this.pingAutoScroll();
@@ -670,16 +670,16 @@ export class RevSelectionUiController<BGS extends RevBehavioredGridSettings, BCS
             switch (lastArea.areaTypeId) {
                 case RevSelectionAreaTypeId.all:
                     throw new RevAssertError('SUCGDTFSLA44377');
-                case RevSelectionAreaTypeId.rectangle: return RevMouse.DragTypeEnum.LastRectangleSelectionAreaExtending;
-                case RevSelectionAreaTypeId.column: return RevMouse.DragTypeEnum.LastColumnSelectionAreaExtending;
-                case RevSelectionAreaTypeId.row: return RevMouse.DragTypeEnum.LastRowSelectionAreaExtending;
+                case RevSelectionAreaTypeId.rectangle: return RevMouse.DragType.lastRectangleSelectionAreaExtending;
+                case RevSelectionAreaTypeId.column: return RevMouse.DragType.lastColumnSelectionAreaExtending;
+                case RevSelectionAreaTypeId.row: return RevMouse.DragType.lastRowSelectionAreaExtending;
                 default:
                     throw new RevUnreachableCaseError('SUBGDTFSLA59598', lastArea.areaTypeId);
             }
         }
     }
 
-    private setActiveDragType(dragType: RevMouse.DragTypeEnum | undefined) {
+    private setActiveDragType(dragType: RevMouse.DragType | undefined) {
         this._activeDragType = dragType;
         this.mouse.setActiveDragType(dragType);
         if (dragType === undefined) {

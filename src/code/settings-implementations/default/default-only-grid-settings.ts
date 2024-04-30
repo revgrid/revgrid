@@ -1,5 +1,5 @@
 
-import { RevHorizontalWheelScrollingAllowed, RevModifierKeyEnum, RevOnlyGridSettings } from '../../client/internal-api';
+import { RevHorizontalWheelScrollingAllowedId, RevModifierKey, RevOnlyGridSettings } from '../../client/internal-api';
 
 /** @public */
 export const revDefaultOnlyGridSettings: RevOnlyGridSettings = {
@@ -83,10 +83,10 @@ export const revDefaultOnlyGridSettings: RevOnlyGridSettings = {
     scrollerThickness: '0.7em',
     scrollerThumbColor: '#d3d3d3',
     scrollerThumbReducedVisibilityOpacity: 0.4,
-    showScrollerThumbOnMouseMoveModifierKey: RevModifierKeyEnum.Control,
+    showScrollerThumbOnMouseMoveModifierKey: RevModifierKey.control,
     scrollHorizontallySmoothly: true,
     scrollingEnabled: true,
-    horizontalWheelScrollingAllowed: RevHorizontalWheelScrollingAllowed.CtrlKeyDown,
+    horizontalWheelScrollingAllowed: RevHorizontalWheelScrollingAllowedId.CtrlKeyDown,
 
     horizontalGridLinesWidth: 1,
     horizontalGridLinesColor: 'rgb(199, 199, 199)',
@@ -179,14 +179,14 @@ export const revDefaultOnlyGridSettings: RevOnlyGridSettings = {
     mouseAddToggleExtendSelectionAreaEnabled: true,
     mouseAddToggleExtendSelectionAreaDragModifierKey: undefined,
     mouseColumnSelectionEnabled: true,
-    mouseColumnSelectionModifierKey: RevModifierKeyEnum.Alt,
+    mouseColumnSelectionModifierKey: RevModifierKey.alt,
     mouseRowSelectionEnabled: true,
     mouseRowSelectionModifierKey: undefined,
     primarySelectionAreaType: 'rectangle',
     secondarySelectionAreaType: 'row',
-    secondarySelectionAreaTypeSpecifierModifierKey: RevModifierKeyEnum.Control,
-    extendLastSelectionAreaModifierKey: RevModifierKeyEnum.Shift,
-    addToggleSelectionAreaModifierKey: RevModifierKeyEnum.Control,
+    secondarySelectionAreaTypeSpecifierModifierKey: RevModifierKey.control,
+    extendLastSelectionAreaModifierKey: RevModifierKey.shift,
+    addToggleSelectionAreaModifierKey: RevModifierKey.control,
     addToggleSelectionAreaModifierKeyDoesToggle: true,
     switchNewRectangleSelectionToRowOrColumn: undefined,
 

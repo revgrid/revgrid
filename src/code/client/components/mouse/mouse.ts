@@ -16,7 +16,7 @@ export class RevMouse<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
     /** @internal */
     viewCellRenderInvalidatedEventer: RevMouse.ViewCellRenderInvalidatedEventer<BCS, SF>;
     /** @internal */
-    private _activeDragType: RevMouse.DragTypeEnum | undefined;
+    private _activeDragType: RevMouse.DragType | undefined;
     /** @internal */
     private _canvasOffsetPoint: RevPoint | undefined;
     /** @internal */
@@ -80,7 +80,7 @@ export class RevMouse<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
     }
 
     /** @internal */
-    setActiveDragType(value: RevMouse.DragTypeEnum | undefined) {
+    setActiveDragType(value: RevMouse.DragType | undefined) {
         this._activeDragType = value;
     }
 
@@ -216,16 +216,21 @@ export class RevMouse<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
 
 /** @public */
 export namespace RevMouse {
-    export const enum DragTypeEnum {
-        // Make sure values are all lower case so could be used in Drag Drop API
-        LastRectangleSelectionAreaExtending = 'revgridlastrectangleselectionareaextending',
-        LastColumnSelectionAreaExtending = 'revgridlastcolumnselectionareaextending',
-        LastRowSelectionAreaExtending = 'revgridlastrowselectionareaextending',
-        ColumnResizing = 'revgridcolumnresizing',
-        ColumnMoving = 'revgridcolumnmoving',
-    }
+    export type DragType =
+        typeof DragType.lastRectangleSelectionAreaExtending |
+        typeof DragType.lastColumnSelectionAreaExtending |
+        typeof DragType.lastRowSelectionAreaExtending |
+        typeof DragType.columnResizing |
+        typeof DragType.columnMoving;
 
-    export type DragType = keyof typeof DragTypeEnum;
+    export namespace DragType {
+        // Make sure values are all lower case so could be used in Drag Drop API
+        export const lastRectangleSelectionAreaExtending = 'revgridlastrectangleselectionareaextending';
+        export const lastColumnSelectionAreaExtending = 'revgridlastcolumnselectionareaextending';
+        export const lastRowSelectionAreaExtending = 'revgridlastrowselectionareaextending';
+        export const columnResizing = 'revgridcolumnresizing';
+        export const columnMoving = 'revgridcolumnmoving';
+    }
 
     /** @internal */
     export type CellEnteredExitedEventer<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> = (this: void, cell: RevViewCell<BCS, SF>) => void;

@@ -361,7 +361,7 @@ export class RevRenderer<BGS extends RevBehavioredGridSettings, BCS extends RevB
                 for (let i = 0; i < actionsCount; i++) {
                     const action = renderActions[i];
                     switch (action.type) {
-                        case RenderAction.Type.PaintAll: {
+                        case RenderAction.TypeId.PaintAll: {
                             this.paintAll();
                             break;
                         }

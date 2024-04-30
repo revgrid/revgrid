@@ -49,7 +49,7 @@ export { RevClientObject } from './types-utils/client-object';
 export { RevCssTypes } from './types-utils/css-types';
 export { RevInexclusiveArea } from './types-utils/inexclusive-area';
 export { RevInexclusiveRectangle } from './types-utils/inexclusive-rectangle';
-export { RevModifierKey, RevModifierKeyEnum } from './types-utils/modifier-key';
+export { RevModifierKey } from './types-utils/modifier-key';
 export { RevPartialPoint, RevPoint, RevWritablePoint } from './types-utils/point';
 export { RevRectangle } from './types-utils/rectangle';
 export * from './types-utils/revgrid-error';

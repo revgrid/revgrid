@@ -70,7 +70,7 @@ export class RevCanvas<BGS extends RevBehavioredGridSettings> implements RevClie
     /** @internal */
     private _pointerEntered = false;
     /** @internal */
-    private _pointerDownState: RevCanvas.PointerDownState = RevCanvas.PointerDownState.NotDown;
+    private _pointerDownState: RevCanvas.PointerDownStateId = RevCanvas.PointerDownStateId.NotDown;
     /** @internal */
     private _pointerDragInternal: boolean;
 
@@ -116,22 +116,22 @@ export class RevCanvas<BGS extends RevBehavioredGridSettings> implements RevClie
         // event.preventDefault(); // no mouse event
 
         switch (this._pointerDownState) {
-            case RevCanvas.PointerDownState.NotDown:
+            case RevCanvas.PointerDownStateId.NotDown:
                 break;
-            case RevCanvas.PointerDownState.NotDragging:
-                this.setPointerDownState(RevCanvas.PointerDownState.NotDown, event);
+            case RevCanvas.PointerDownStateId.NotDragging:
+                this.setPointerDownState(RevCanvas.PointerDownStateId.NotDown, event);
                 break;
-            case RevCanvas.PointerDownState.DragStarting:
+            case RevCanvas.PointerDownStateId.DragStarting:
                 this.pointerUpCancelEventer(event);
-                this.setPointerDownState(RevCanvas.PointerDownState.NotDown, event);
+                this.setPointerDownState(RevCanvas.PointerDownStateId.NotDown, event);
                 break;
-            case RevCanvas.PointerDownState.Dragging:
+            case RevCanvas.PointerDownStateId.Dragging:
                 this.pointerDragEndEventer(event, this._pointerDragInternal);
                 this.pointerUpCancelEventer(event);
-                this.setPointerDownState(RevCanvas.PointerDownState.IgnoreClickAfterDrag, event);
+                this.setPointerDownState(RevCanvas.PointerDownStateId.IgnoreClickAfterDrag, event);
                 break;
-            case RevCanvas.PointerDownState.IgnoreClickAfterDrag:
-                this.setPointerDownState(RevCanvas.PointerDownState.NotDown, event);
+            case RevCanvas.PointerDownStateId.IgnoreClickAfterDrag:
+                this.setPointerDownState(RevCanvas.PointerDownStateId.NotDown, event);
                 break;
             default:
                 throw new RevUnreachableCaseError('CMPUCEL34440', this._pointerDownState);
@@ -199,8 +199,8 @@ export class RevCanvas<BGS extends RevBehavioredGridSettings> implements RevClie
 
     /** @internal */
     private clickEventListener = (e: MouseEvent) => {
-        if (this._pointerDownState === RevCanvas.PointerDownState.IgnoreClickAfterDrag) {
-            this.setPointerDownState(RevCanvas.PointerDownState.NotDown, undefined);
+        if (this._pointerDownState === RevCanvas.PointerDownStateId.IgnoreClickAfterDrag) {
+            this.setPointerDownState(RevCanvas.PointerDownStateId.NotDown, undefined);
         } else {
             this.clickEventer(e);
         }
@@ -267,20 +267,20 @@ export class RevCanvas<BGS extends RevBehavioredGridSettings> implements RevClie
             // event.preventDefault(); // no mouse event
 
             switch (this._pointerDownState) {
-                case RevCanvas.PointerDownState.NotDown:
-                    this.setPointerDownState(RevCanvas.PointerDownState.NotDragging, event);
+                case RevCanvas.PointerDownStateId.NotDown:
+                    this.setPointerDownState(RevCanvas.PointerDownStateId.NotDragging, event);
                     this.pointerDownEventer(event);
                     break;
-                case RevCanvas.PointerDownState.NotDragging:
+                case RevCanvas.PointerDownStateId.NotDragging:
                     // must have lost a pointer up event
                     this.pointerDownEventer(event);
                     break;
-                case RevCanvas.PointerDownState.IgnoreClickAfterDrag:
+                case RevCanvas.PointerDownStateId.IgnoreClickAfterDrag:
                     // must have lost a click event
                     this.pointerDownEventer(event);
                     break;
-                case RevCanvas.PointerDownState.DragStarting:
-                case RevCanvas.PointerDownState.Dragging:
+                case RevCanvas.PointerDownStateId.DragStarting:
+                case RevCanvas.PointerDownStateId.Dragging:
                     // Should normally never occur but debugger can trigger this transition
                     this.pointerUpCancelEventListener(event); // pretend pointer went up
                     this.pointerDownEventer(event);
@@ -294,18 +294,18 @@ export class RevCanvas<BGS extends RevBehavioredGridSettings> implements RevClie
             // event.preventDefault(); // no mouse event
 
             switch (this._pointerDownState) {
-                case RevCanvas.PointerDownState.NotDown:
-                case RevCanvas.PointerDownState.NotDragging:
-                case RevCanvas.PointerDownState.IgnoreClickAfterDrag:
+                case RevCanvas.PointerDownStateId.NotDown:
+                case RevCanvas.PointerDownStateId.NotDragging:
+                case RevCanvas.PointerDownStateId.IgnoreClickAfterDrag:
                     this.pointerMoveEventer(event);
                     break;
-                case RevCanvas.PointerDownState.DragStarting: {
+                case RevCanvas.PointerDownStateId.DragStarting: {
                     this.pointerMoveEventer(event);
-                    this.setPointerDownState(RevCanvas.PointerDownState.Dragging, event);
+                    this.setPointerDownState(RevCanvas.PointerDownStateId.Dragging, event);
                     this.pointerDragEventer(event, this._pointerDragInternal);
                     break;
                 }
-                case RevCanvas.PointerDownState.Dragging:
+                case RevCanvas.PointerDownStateId.Dragging:
                     this.pointerMoveEventer(event);
                     this.pointerDragEventer(event, this._pointerDragInternal);
                     break;
@@ -336,7 +336,7 @@ export class RevCanvas<BGS extends RevBehavioredGridSettings> implements RevClie
         this.element.addEventListener('pointercancel', this.pointerUpCancelEventListener);
         this.element.addEventListener('wheel', (event) => {
             const pointerDownState = this._pointerDownState;
-            if (pointerDownState !== RevCanvas.PointerDownState.Dragging) {
+            if (pointerDownState !== RevCanvas.PointerDownStateId.Dragging) {
                 this.wheelMoveEventer(event);
             }
         });
@@ -359,16 +359,16 @@ export class RevCanvas<BGS extends RevBehavioredGridSettings> implements RevClie
                 event.preventDefault();
 
                 if (
-                    this._pointerDownState !== RevCanvas.PointerDownState.NotDragging &&
-                    this._pointerDownState !== RevCanvas.PointerDownState.NotDown && // Debugger can cause this unexpected state
-                    this._pointerDownState !== RevCanvas.PointerDownState.IgnoreClickAfterDrag // Debugger can cause this unexpected state
+                    this._pointerDownState !== RevCanvas.PointerDownStateId.NotDragging &&
+                    this._pointerDownState !== RevCanvas.PointerDownStateId.NotDown && // Debugger can cause this unexpected state
+                    this._pointerDownState !== RevCanvas.PointerDownStateId.IgnoreClickAfterDrag // Debugger can cause this unexpected state
                 ) {
                     throw new RevAssertError('CMCAELDS1220');
                 } else {
                     const pointerDragInternal = this.pointerDragStartEventer(event);
                     if (pointerDragInternal !== undefined) {
                         this._pointerDragInternal = pointerDragInternal;
-                        this.setPointerDownState(RevCanvas.PointerDownState.DragStarting, undefined);
+                        this.setPointerDownState(RevCanvas.PointerDownStateId.DragStarting, undefined);
                     }
                 }
             }
@@ -590,24 +590,24 @@ export class RevCanvas<BGS extends RevBehavioredGridSettings> implements RevClie
     }
 
     /** @internal */
-    private setPointerDownState(state: RevCanvas.PointerDownState, event: PointerEvent | undefined) {
+    private setPointerDownState(state: RevCanvas.PointerDownStateId, event: PointerEvent | undefined) {
         switch (state) {
-            case RevCanvas.PointerDownState.NotDown:
-            case RevCanvas.PointerDownState.NotDragging:
-            case RevCanvas.PointerDownState.IgnoreClickAfterDrag:
+            case RevCanvas.PointerDownStateId.NotDown:
+            case RevCanvas.PointerDownStateId.NotDragging:
+            case RevCanvas.PointerDownStateId.IgnoreClickAfterDrag:
                 document.body.style.userSelect = '';
                 if (event !== undefined) {
                     this.element.releasePointerCapture(event.pointerId);
                 } else {
-                    if (this._pointerDownState !== RevCanvas.PointerDownState.IgnoreClickAfterDrag) {
+                    if (this._pointerDownState !== RevCanvas.PointerDownStateId.IgnoreClickAfterDrag) {
                         throw new RevAssertError('CMSPDSN68201');
                     }
                 }
                 break;
-            case RevCanvas.PointerDownState.DragStarting:
+            case RevCanvas.PointerDownStateId.DragStarting:
                 document.body.style.userSelect = 'none';
                 break;
-            case RevCanvas.PointerDownState.Dragging:
+            case RevCanvas.PointerDownStateId.Dragging:
                 document.body.style.userSelect = 'none';
                 if (event === undefined) {
                     throw new RevAssertError('CMSPDSR68201');
@@ -673,7 +673,7 @@ export namespace RevCanvas {
     export type DragEventer = (this: void, event: DragEvent) => void;
 
     /** @internal */
-    export const enum PointerDownState {
+    export const enum PointerDownStateId {
         NotDown,
         NotDragging,
         DragStarting,

@@ -71,11 +71,11 @@ export class RevScroller<BGS extends RevBehavioredGridSettings, BCS extends RevB
     /** @internal */
     private _temporaryThumbFullVisibilityTimeoutId: ReturnType<typeof setTimeout> | undefined;
     /** @internal */
-    private _pointerScrollingState = RevScroller.PointerScrollingState.Inactive;
+    private _pointerScrollingState = RevScroller.PointerScrollingStateId.Inactive;
     /** @internal */
     private _viewLayoutTrackingActive = false;
     /** @internal */
-    private _thumbVisibilityState = ThumbVisibilityState.Reduced;
+    private _thumbVisibilityState = ThumbVisibilityStateId.Reduced;
     /** @internal */
     private readonly _settingsChangedListener = () => { this.applySettings(); };
     /** @internal */
@@ -188,7 +188,7 @@ export class RevScroller<BGS extends RevBehavioredGridSettings, BCS extends RevB
 
         this._scrollDimension.changedEventer = () => { this.resize(); };
         this._scrollDimension.scrollerTargettedViewportStartChangedEventer = () => {
-            if (this._pointerScrollingState !== RevScroller.PointerScrollingState.Active) {
+            if (this._pointerScrollingState !== RevScroller.PointerScrollingStateId.Active) {
                 this.setThumbPosition(this._scrollDimension.viewportStart);
             }
         }
@@ -388,8 +388,8 @@ export class RevScroller<BGS extends RevBehavioredGridSettings, BCS extends RevB
 
     /** @internal */
     private handleBarClickEvent(evt: MouseEvent) {
-        if (this._pointerScrollingState === RevScroller.PointerScrollingState.ClickWaiting) {
-            this.updatePointerScrolling(RevScroller.PointerScrollingState.Inactive, undefined);
+        if (this._pointerScrollingState === RevScroller.PointerScrollingStateId.ClickWaiting) {
+            this.updatePointerScrolling(RevScroller.PointerScrollingStateId.Inactive, undefined);
         } else {
             if (evt.target === this.bar && this._scrollDimension.viewportStart !== undefined) {
                 const thumbBox = this._thumb.getBoundingClientRect();
@@ -441,8 +441,8 @@ export class RevScroller<BGS extends RevBehavioredGridSettings, BCS extends RevB
 
     /** @internal */
     private handleThumbTransitionEndEvent() {
-        if (this._thumbVisibilityState === ThumbVisibilityState.ToFullTransitioning) {
-            this._thumbVisibilityState = ThumbVisibilityState.Full;
+        if (this._thumbVisibilityState === ThumbVisibilityStateId.ToFullTransitioning) {
+            this._thumbVisibilityState = ThumbVisibilityStateId.Full;
             this.updateThumbVisibility();
         }
     }
@@ -463,7 +463,7 @@ export class RevScroller<BGS extends RevBehavioredGridSettings, BCS extends RevB
 
     /** @internal */
     private handleBarPointerDownEvent(event: PointerEvent) {
-        this.updatePointerScrolling(RevScroller.PointerScrollingState.Armed, event);
+        this.updatePointerScrolling(RevScroller.PointerScrollingStateId.Armed, event);
 
         event.stopPropagation();
         event.preventDefault();
@@ -471,7 +471,7 @@ export class RevScroller<BGS extends RevBehavioredGridSettings, BCS extends RevB
 
     /** @internal */
     private handleBarPointerMoveEvent(evt: PointerEvent) {
-        this.updatePointerScrolling(RevScroller.PointerScrollingState.Active, evt);
+        this.updatePointerScrolling(RevScroller.PointerScrollingStateId.Active, evt);
 
         // if (!(evt.buttons & 1)) {
         //     // mouse button may have been released without `onmouseup` triggering (see
@@ -509,7 +509,7 @@ export class RevScroller<BGS extends RevBehavioredGridSettings, BCS extends RevB
 
     /** @internal */
     private handleBarPointerUpCancelEvent(event: PointerEvent) {
-        this.updatePointerScrolling(RevScroller.PointerScrollingState.Inactive, event)
+        this.updatePointerScrolling(RevScroller.PointerScrollingStateId.Inactive, event)
 
         event.stopPropagation();
         event.preventDefault();
@@ -557,59 +557,59 @@ export class RevScroller<BGS extends RevBehavioredGridSettings, BCS extends RevB
     }
 
     /** @internal */
-    private updatePointerScrolling(newState: RevScroller.PointerScrollingState, event: PointerEvent | undefined) {
+    private updatePointerScrolling(newState: RevScroller.PointerScrollingStateId, event: PointerEvent | undefined) {
         switch (this._pointerScrollingState) {
-            case RevScroller.PointerScrollingState.Inactive: {
+            case RevScroller.PointerScrollingStateId.Inactive: {
                 switch (newState) {
-                    case RevScroller.PointerScrollingState.Inactive:
+                    case RevScroller.PointerScrollingStateId.Inactive:
                         break; // no change
-                    case RevScroller.PointerScrollingState.Armed:
-                        this._pointerScrollingState = RevScroller.PointerScrollingState.Armed;
+                    case RevScroller.PointerScrollingStateId.Armed:
+                        this._pointerScrollingState = RevScroller.PointerScrollingStateId.Armed;
                         if (event === undefined) {
                             throw new RevAssertError('SUPSIR50521')
                         } else {
                             this.armPointerScrolling(event);
                         }
                         break;
-                    case RevScroller.PointerScrollingState.Active:
+                    case RevScroller.PointerScrollingStateId.Active:
                         // weird
                         if (event === undefined) {
                             throw new RevAssertError('SUPSIA50521')
                         } else {
-                            this._pointerScrollingState = RevScroller.PointerScrollingState.Armed;
+                            this._pointerScrollingState = RevScroller.PointerScrollingStateId.Armed;
                             this.armPointerScrolling(event);
-                            this._pointerScrollingState = RevScroller.PointerScrollingState.Active;
+                            this._pointerScrollingState = RevScroller.PointerScrollingStateId.Active;
                             this.activatePointerScrolling(event);
                         }
                         break;
-                    case RevScroller.PointerScrollingState.ClickWaiting:
+                    case RevScroller.PointerScrollingStateId.ClickWaiting:
                         throw new RevAssertError('SUPSIC50521');
                     default:
                         throw new RevUnreachableCaseError('SUPSDI50521', newState);
                 }
                 break;
             }
-            case RevScroller.PointerScrollingState.Armed:
+            case RevScroller.PointerScrollingStateId.Armed:
                 switch (newState) {
-                    case RevScroller.PointerScrollingState.Inactive:
-                        this._pointerScrollingState = RevScroller.PointerScrollingState.Inactive;
+                    case RevScroller.PointerScrollingStateId.Inactive:
+                        this._pointerScrollingState = RevScroller.PointerScrollingStateId.Inactive;
                         if (event === undefined) {
                             throw new RevAssertError('SUPSRI50521')
                         } else {
                             this.deactivatePointerScrolling(event);
                         }
                         break;
-                    case RevScroller.PointerScrollingState.Armed:
+                    case RevScroller.PointerScrollingStateId.Armed:
                         break; // no change
-                    case RevScroller.PointerScrollingState.Active:
+                    case RevScroller.PointerScrollingStateId.Active:
                         if (event === undefined) {
                             throw new RevAssertError('SUPSRA50521')
                         } else {
-                            this._pointerScrollingState = RevScroller.PointerScrollingState.Active;
+                            this._pointerScrollingState = RevScroller.PointerScrollingStateId.Active;
                             this.activatePointerScrolling(event);
                         }
                         break;
-                    case RevScroller.PointerScrollingState.ClickWaiting:
+                    case RevScroller.PointerScrollingStateId.ClickWaiting:
                         throw new RevAssertError('SUPSRC50521')
                         // this._pointerScrollingState = Scroller.PointerScrollingState.ClickWaiting;
                         // this.deactivatePointerScrolling(event);
@@ -618,32 +618,32 @@ export class RevScroller<BGS extends RevBehavioredGridSettings, BCS extends RevB
                         throw new RevUnreachableCaseError('SUPSRD50521', newState);
                 }
                 break;
-            case RevScroller.PointerScrollingState.Active:
+            case RevScroller.PointerScrollingStateId.Active:
                 switch (newState) {
-                    case RevScroller.PointerScrollingState.Inactive:
+                    case RevScroller.PointerScrollingStateId.Inactive:
                         // Since we are active, we want to ignore the next click
-                        this._pointerScrollingState = RevScroller.PointerScrollingState.ClickWaiting;
+                        this._pointerScrollingState = RevScroller.PointerScrollingStateId.ClickWaiting;
                         if (event === undefined) {
                             throw new RevAssertError('SUPSAI50521')
                         } else {
                             this.deactivatePointerScrolling(event);
                         }
                         break;
-                    case RevScroller.PointerScrollingState.Armed:
+                    case RevScroller.PointerScrollingStateId.Armed:
                         // weird
                         if (event === undefined) {
                             throw new RevAssertError('SUPSAR50521')
                         } else {
-                            this._pointerScrollingState = RevScroller.PointerScrollingState.Inactive;
+                            this._pointerScrollingState = RevScroller.PointerScrollingStateId.Inactive;
                             this.deactivatePointerScrolling(event);
-                            this._pointerScrollingState = RevScroller.PointerScrollingState.Armed;
+                            this._pointerScrollingState = RevScroller.PointerScrollingStateId.Armed;
                             this.armPointerScrolling(event);
                         }
                         break;
-                    case RevScroller.PointerScrollingState.Active:
+                    case RevScroller.PointerScrollingStateId.Active:
                         break; // no change
-                    case RevScroller.PointerScrollingState.ClickWaiting:
-                        this._pointerScrollingState = RevScroller.PointerScrollingState.ClickWaiting;
+                    case RevScroller.PointerScrollingStateId.ClickWaiting:
+                        this._pointerScrollingState = RevScroller.PointerScrollingStateId.ClickWaiting;
                         if (event === undefined) {
                             throw new RevAssertError('SUPSAC50521')
                         } else {
@@ -654,32 +654,32 @@ export class RevScroller<BGS extends RevBehavioredGridSettings, BCS extends RevB
                         throw new RevUnreachableCaseError('SUPSAD50521', newState);
                 }
                 break;
-            case RevScroller.PointerScrollingState.ClickWaiting:
+            case RevScroller.PointerScrollingStateId.ClickWaiting:
                 switch (newState) {
-                    case RevScroller.PointerScrollingState.Inactive:
-                        this._pointerScrollingState = RevScroller.PointerScrollingState.Inactive;
+                    case RevScroller.PointerScrollingStateId.Inactive:
+                        this._pointerScrollingState = RevScroller.PointerScrollingStateId.Inactive;
                         break;
-                    case RevScroller.PointerScrollingState.Armed:
+                    case RevScroller.PointerScrollingStateId.Armed:
                         // must have lost a click event
-                        this._pointerScrollingState = RevScroller.PointerScrollingState.Armed;
+                        this._pointerScrollingState = RevScroller.PointerScrollingStateId.Armed;
                         if (event === undefined) {
                             throw new RevAssertError('SUPSCR50521')
                         } else {
                             this.armPointerScrolling(event);
                         }
                         break;
-                    case RevScroller.PointerScrollingState.Active:
+                    case RevScroller.PointerScrollingStateId.Active:
                         // weird
                         if (event === undefined) {
                             throw new RevAssertError('SUPSCA50521')
                         } else {
-                            this._pointerScrollingState = RevScroller.PointerScrollingState.Armed;
+                            this._pointerScrollingState = RevScroller.PointerScrollingStateId.Armed;
                             this.armPointerScrolling(event);
-                            this._pointerScrollingState = RevScroller.PointerScrollingState.Active;
+                            this._pointerScrollingState = RevScroller.PointerScrollingStateId.Active;
                             this.activatePointerScrolling(event);
                         }
                         break;
-                    case RevScroller.PointerScrollingState.ClickWaiting:
+                    case RevScroller.PointerScrollingStateId.ClickWaiting:
                         break; // no action
                     default:
                         throw new RevUnreachableCaseError('SUPSCD50521', newState);
@@ -750,22 +750,22 @@ export class RevScroller<BGS extends RevBehavioredGridSettings, BCS extends RevB
     /** @internal */
     private updateThumbVisibility() {
         switch (this._thumbVisibilityState) {
-            case ThumbVisibilityState.Reduced: {
+            case ThumbVisibilityStateId.Reduced: {
                 if (this.wantThumbFullVisibility()) {
                     this._thumb.style.opacity = '1';
                     if (this.isThumbVisibilityTransitionSpecified()) {
-                        this._thumbVisibilityState = ThumbVisibilityState.ToFullTransitioning;
+                        this._thumbVisibilityState = ThumbVisibilityStateId.ToFullTransitioning;
                     } else {
-                        this._thumbVisibilityState = ThumbVisibilityState.Full;
+                        this._thumbVisibilityState = ThumbVisibilityStateId.Full;
                         this.updateThumbVisibility(); // check for temporary
                     }
                 }
                 break;
             }
-            case ThumbVisibilityState.ToFullTransitioning: {
+            case ThumbVisibilityStateId.ToFullTransitioning: {
                 break;
             }
-            case ThumbVisibilityState.Full: {
+            case ThumbVisibilityStateId.Full: {
                 if (this.wantThumbFullVisibility()) {
                     if (this._temporaryThumbFullVisibilityTimePeriod !== undefined && this._temporaryThumbFullVisibilityTimeoutId === undefined) {
                         this._temporaryThumbFullVisibilityTimeoutId = setTimeout(
@@ -775,7 +775,7 @@ export class RevScroller<BGS extends RevBehavioredGridSettings, BCS extends RevB
                     }
                 } else {
                     this._thumb.style.opacity = this._gridSettings.scrollerThumbReducedVisibilityOpacity.toString(10);
-                    this._thumbVisibilityState = ThumbVisibilityState.Reduced;
+                    this._thumbVisibilityState = ThumbVisibilityStateId.Reduced;
                 }
                 break;
             }
@@ -789,8 +789,8 @@ export class RevScroller<BGS extends RevBehavioredGridSettings, BCS extends RevB
         return (
             this._pointerOverBar ||
             this._pointerOverThumb ||
-            this._pointerScrollingState === RevScroller.PointerScrollingState.Armed ||
-            this._pointerScrollingState === RevScroller.PointerScrollingState.Active ||
+            this._pointerScrollingState === RevScroller.PointerScrollingStateId.Armed ||
+            this._pointerScrollingState === RevScroller.PointerScrollingStateId.Active ||
             this._temporaryThumbFullVisibilityTimePeriod !== undefined
         );
     }
@@ -849,7 +849,7 @@ export namespace RevScroller {
     export type PointerEventListener = (event: PointerEvent) => void;
 
     /** @internal */
-    export const enum PointerScrollingState {
+    export const enum PointerScrollingStateId {
         Inactive,
         Armed,
         Active,
@@ -920,7 +920,7 @@ type LeadingTrailing = {
     -readonly [key in keyof typeof LeadingTrailingKey]?: string;
 }
 
-const enum ThumbVisibilityState {
+const enum ThumbVisibilityStateId {
     Reduced,
     ToFullTransitioning,
     Full,

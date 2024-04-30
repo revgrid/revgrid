@@ -523,7 +523,7 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
 
     invalidateAll(scrollDimensionAsWell: boolean) {
         const action: RevViewLayout.AllInvalidateAction = {
-            type: RevViewLayout.InvalidateAction.Type.All,
+            type: RevViewLayout.InvalidateAction.TypeId.All,
             dimension: undefined,
             scrollDimensionAsWell,
         }
@@ -532,7 +532,7 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
 
     invalidateHorizontalAll(scrollDimensionAsWell: boolean) {
         const action: RevViewLayout.AllInvalidateAction = {
-            type: RevViewLayout.InvalidateAction.Type.All,
+            type: RevViewLayout.InvalidateAction.TypeId.All,
             dimension: RevScrollDimension.AxisId.horizontal,
             scrollDimensionAsWell: scrollDimensionAsWell,
         }
@@ -541,7 +541,7 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
 
     invalidateVerticalAll(scrollDimensionAsWell: boolean) {
         const action: RevViewLayout.AllInvalidateAction = {
-            type: RevViewLayout.InvalidateAction.Type.All,
+            type: RevViewLayout.InvalidateAction.TypeId.All,
             dimension: RevScrollDimension.AxisId.vertical,
             scrollDimensionAsWell: scrollDimensionAsWell,
         }
@@ -558,7 +558,7 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
     /** @internal */
     invalidateFieldsInserted(index: number, count: number) {
         const action: RevViewLayout.DataRangeInsertedInvalidateAction = {
-            type: RevViewLayout.InvalidateAction.Type.DataRangeInserted,
+            type: RevViewLayout.InvalidateAction.TypeId.DataRangeInserted,
             dimension: RevScrollDimension.AxisId.horizontal,
             scrollDimensionAsWell: true,
             index,
@@ -586,7 +586,7 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
             let action: RevViewLayout.ActiveRangeDeletedInvalidateAction;
             if (affected) {
                 action = {
-                    type: RevViewLayout.InvalidateAction.Type.ActiveRangeDeleted,
+                    type: RevViewLayout.InvalidateAction.TypeId.ActiveRangeDeleted,
                     dimension: RevScrollDimension.AxisId.horizontal,
                     scrollDimensionAsWell: true,
                     index,
@@ -594,7 +594,7 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
                 };
             } else {
                 action = {
-                    type: RevViewLayout.InvalidateAction.Type.ActiveRangeDeletedButViewNotAffected,
+                    type: RevViewLayout.InvalidateAction.TypeId.ActiveRangeDeletedButViewNotAffected,
                     dimension: RevScrollDimension.AxisId.horizontal,
                     scrollDimensionAsWell: true,
                     index,
@@ -608,7 +608,7 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
     /** @internal */
     invalidateAllColumnsDeleted() {
         const action: RevViewLayout.AllDeletedInvalidateAction = {
-            type: RevViewLayout.InvalidateAction.Type.AllDeleted,
+            type: RevViewLayout.InvalidateAction.TypeId.AllDeleted,
             dimension: RevScrollDimension.AxisId.horizontal,
             scrollDimensionAsWell: true,
         };
@@ -618,7 +618,7 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
     /** @internal */
     invalidateColumnsChanged() {
         const action: RevViewLayout.AllChangedInvalidateAction = {
-            type: RevViewLayout.InvalidateAction.Type.AllChanged,
+            type: RevViewLayout.InvalidateAction.TypeId.AllChanged,
             dimension: RevScrollDimension.AxisId.horizontal,
             scrollDimensionAsWell: true,
         };
@@ -638,7 +638,7 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
             let action: RevViewLayout.DataRangeInsertedInvalidateAction;
             if (affected) {
                 action = {
-                    type: RevViewLayout.InvalidateAction.Type.DataRangeInserted,
+                    type: RevViewLayout.InvalidateAction.TypeId.DataRangeInserted,
                     dimension: RevScrollDimension.AxisId.vertical,
                     scrollDimensionAsWell: true,
                     index,
@@ -646,7 +646,7 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
                 };
             } else {
                 action = {
-                    type: RevViewLayout.InvalidateAction.Type.DataRangeInsertedButViewNotAffected,
+                    type: RevViewLayout.InvalidateAction.TypeId.DataRangeInsertedButViewNotAffected,
                     dimension: RevScrollDimension.AxisId.vertical,
                     scrollDimensionAsWell: true,
                     index,
@@ -674,7 +674,7 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
             let action: RevViewLayout.DataRangeDeletedInvalidateAction;
             if (affected) {
                 action = {
-                    type: RevViewLayout.InvalidateAction.Type.DataRangeDeleted,
+                    type: RevViewLayout.InvalidateAction.TypeId.DataRangeDeleted,
                     dimension: RevScrollDimension.AxisId.vertical,
                     scrollDimensionAsWell: true,
                     index,
@@ -682,7 +682,7 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
                 };
             } else {
                 action = {
-                    type: RevViewLayout.InvalidateAction.Type.DataRangeDeletedButViewNotAffected,
+                    type: RevViewLayout.InvalidateAction.TypeId.DataRangeDeletedButViewNotAffected,
                     dimension: RevScrollDimension.AxisId.vertical,
                     scrollDimensionAsWell: true,
                     index,
@@ -696,7 +696,7 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
     /** @internal */
     invalidateAllDataRowsDeleted() {
         const action: RevViewLayout.AllDeletedInvalidateAction = {
-            type: RevViewLayout.InvalidateAction.Type.AllDeleted,
+            type: RevViewLayout.InvalidateAction.TypeId.AllDeleted,
             dimension: RevScrollDimension.AxisId.vertical,
             scrollDimensionAsWell: true,
         };
@@ -706,7 +706,7 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
     /** @internal */
     invalidateDataRowsLoaded() {
         const action: RevViewLayout.LoadedInvalidateAction = {
-            type: RevViewLayout.InvalidateAction.Type.Loaded,
+            type: RevViewLayout.InvalidateAction.TypeId.Loaded,
             dimension: RevScrollDimension.AxisId.vertical,
             scrollDimensionAsWell: true,
         };
@@ -729,7 +729,7 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
 
             if (affected) {
                 const action: RevViewLayout.DataRangeMovedInvalidateAction = {
-                    type: RevViewLayout.InvalidateAction.Type.DataRangeMoved,
+                    type: RevViewLayout.InvalidateAction.TypeId.DataRangeMoved,
                     dimension: RevScrollDimension.AxisId.vertical,
                     scrollDimensionAsWell: true,
                     oldIndex: oldRowIndex,
@@ -2489,14 +2489,14 @@ export namespace RevViewLayout {
 
     /** @internal */
     export interface InvalidateAction {
-        readonly type: InvalidateAction.Type;
+        readonly type: InvalidateAction.TypeId;
         readonly dimension: RevScrollDimension.AxisId | undefined; // undefined means both
         readonly scrollDimensionAsWell: boolean
     }
 
     /** @internal */
     export namespace InvalidateAction {
-        export const enum Type {
+        export const enum TypeId {
             All,
             Loaded,
             DataRangeInserted,
@@ -2513,43 +2513,43 @@ export namespace RevViewLayout {
 
     /** @internal */
     export interface AllInvalidateAction extends InvalidateAction {
-        readonly type: InvalidateAction.Type.All,
+        readonly type: InvalidateAction.TypeId.All,
     }
 
     /** @internal */
     export interface LoadedInvalidateAction extends InvalidateAction {
-        readonly type: InvalidateAction.Type.Loaded,
+        readonly type: InvalidateAction.TypeId.Loaded,
     }
 
     /** @internal */
     export interface DataRangeInsertedInvalidateAction extends InvalidateAction {
-        readonly type: InvalidateAction.Type.DataRangeInserted | InvalidateAction.Type.DataRangeInsertedButViewNotAffected,
+        readonly type: InvalidateAction.TypeId.DataRangeInserted | InvalidateAction.TypeId.DataRangeInsertedButViewNotAffected,
         readonly index: number;
         readonly count: number;
     }
 
     /** @internal */
     export interface DataRangeDeletedInvalidateAction extends InvalidateAction {
-        readonly type: InvalidateAction.Type.DataRangeDeleted | InvalidateAction.Type.DataRangeDeletedButViewNotAffected,
+        readonly type: InvalidateAction.TypeId.DataRangeDeleted | InvalidateAction.TypeId.DataRangeDeletedButViewNotAffected,
         readonly index: number;
         readonly count: number;
     }
 
     /** @internal */
     export interface ActiveRangeDeletedInvalidateAction extends InvalidateAction {
-        readonly type: InvalidateAction.Type.ActiveRangeDeleted | InvalidateAction.Type.ActiveRangeDeletedButViewNotAffected,
+        readonly type: InvalidateAction.TypeId.ActiveRangeDeleted | InvalidateAction.TypeId.ActiveRangeDeletedButViewNotAffected,
         readonly index: number;
         readonly count: number;
     }
 
     /** @internal */
     export interface AllDeletedInvalidateAction extends InvalidateAction {
-        readonly type: InvalidateAction.Type.AllDeleted,
+        readonly type: InvalidateAction.TypeId.AllDeleted,
     }
 
     /** @internal */
     export interface DataRangeMovedInvalidateAction extends InvalidateAction {
-        readonly type: InvalidateAction.Type.DataRangeMoved,
+        readonly type: InvalidateAction.TypeId.DataRangeMoved,
         readonly oldIndex: number;
         readonly newIndex: number;
         readonly count: number;
@@ -2557,6 +2557,6 @@ export namespace RevViewLayout {
 
     /** @internal */
     export interface AllChangedInvalidateAction extends InvalidateAction {
-        readonly type: InvalidateAction.Type.AllChanged,
+        readonly type: InvalidateAction.TypeId.AllChanged,
     }
 }

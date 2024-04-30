@@ -100,7 +100,7 @@ export class RevRenderActionQueue {
         if (this._queuedActions.length === 0) {
             // currently only support paint all
             const action: RepaintViewAction = {
-                type: RenderAction.Type.PaintAll,
+                type: RenderAction.TypeId.PaintAll,
             };
             this._queuedActions.push(action);
         }

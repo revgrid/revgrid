@@ -332,7 +332,7 @@ export class RevColumnResizingUiController<BGS extends RevBehavioredGridSettings
 
     private setMouseDragging(active: boolean) {
         if (active) {
-            this.mouse.setActiveDragType(RevMouse.DragTypeEnum.ColumnResizing);
+            this.mouse.setActiveDragType(RevMouse.DragType.columnResizing);
             this.mouse.setOperation(this.gridSettings.columnResizeDragActiveCursorName, this.gridSettings.columnResizeDragActiveTitleText);
         } else {
             this.mouse.setActiveDragType(undefined);

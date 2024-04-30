@@ -8,26 +8,26 @@ import { RevAssertError, RevUnreachableCaseError } from '../../types-utils/revgr
 import { RevUiController } from './ui-controller';
 
 /** @internal */
-const enum MoveLocation { Before, After }
+const enum MoveLocationId { Before, After }
 /** @internal */
-const enum DragActionType { Move, Scroll, None }
+const enum DragActionTypeId { Move, Scroll, None }
 
 /** @internal */
 interface Action {
-    type: DragActionType;
+    type: DragActionTypeId;
 }
 
 /** @internal */
 interface MoveAction<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends Action {
-    type: DragActionType.Move;
-    location: MoveLocation;
+    type: DragActionTypeId.Move;
+    location: MoveLocationId;
     source: RevViewLayoutColumn<BCS, SF>;
     target: RevViewLayoutColumn<BCS, SF>;
 }
 
 /** @internal */
 interface ScrollAction<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends Action {
-    type: DragActionType.Scroll;
+    type: DragActionTypeId.Scroll;
     toRight: boolean;
     mouseOffGrid: boolean; // only considers left and right off grid
     source: RevViewLayoutColumn<BCS, SF>;
@@ -35,7 +35,7 @@ interface ScrollAction<BCS extends RevBehavioredColumnSettings, SF extends RevSc
 
 /** @internal */
 interface NoAction extends Action {
-    type: DragActionType.None;
+    type: DragActionTypeId.None;
 }
 
 /** @internal */
@@ -145,7 +145,7 @@ export class RevColumnMovingUiController<BGS extends RevBehavioredGridSettings, 
         } else {
             const dragAction = this.getDragAction(event, this._dragColumn);
 
-            if (dragAction.type === DragActionType.Scroll) {
+            if (dragAction.type === DragActionTypeId.Scroll) {
                 this.scroll(dragAction);
             } else {
                 this.endGridScrolling();
@@ -202,8 +202,8 @@ export class RevColumnMovingUiController<BGS extends RevBehavioredGridSettings, 
 
                     if (dragAction !== undefined) {
 
-                        if (dragAction.type == DragActionType.Move) {
-                            const indicatorX = dragAction.location === MoveLocation.Before
+                        if (dragAction.type == DragActionTypeId.Move) {
+                            const indicatorX = dragAction.location === MoveLocationId.Before
                                 ? dragAction.target.left
                                 : dragAction.target.rightPlus1;
                             dragContext.fillStyle = 'rgba(50, 50, 255, 1)';
@@ -212,7 +212,7 @@ export class RevColumnMovingUiController<BGS extends RevBehavioredGridSettings, 
 
                         const dragCol = this.viewLayout.findColumnWithActiveIndex(dragColumn.activeColumnIndex);
                         if (dragCol) {
-                            const hideAction = dragAction.type === DragActionType.Scroll && this.gridSettings.columnsReorderableHideable && dragAction.mouseOffGrid;
+                            const hideAction = dragAction.type === DragActionTypeId.Scroll && this.gridSettings.columnsReorderableHideable && dragAction.mouseOffGrid;
                             dragContext.fillStyle = hideAction
                                 ? 'rgba(255, 50, 50, 0.2)'
                                 : 'rgba(50, 50, 255, 0.2)';
@@ -226,17 +226,17 @@ export class RevColumnMovingUiController<BGS extends RevBehavioredGridSettings, 
 
     private endDragColumn(dragAction: ColumnDragAction<BCS, SF>) {
         switch (dragAction.type) {
-            case DragActionType.Scroll: {
+            case DragActionTypeId.Scroll: {
                 if (this.gridSettings.columnsReorderableHideable && dragAction.mouseOffGrid) {
                     this.columnsManager.hideActiveColumn(dragAction.source.activeColumnIndex, true);
                 }
                 break;
             }
-            case DragActionType.Move: {
+            case DragActionTypeId.Move: {
                 const fromIndex = dragAction.source.activeColumnIndex;
                 let toIndex = dragAction.target.activeColumnIndex;
 
-                if (dragAction.location === MoveLocation.After) {
+                if (dragAction.location === MoveLocationId.After) {
                     toIndex++;
                 }
                 if (toIndex > fromIndex) {
@@ -246,7 +246,7 @@ export class RevColumnMovingUiController<BGS extends RevBehavioredGridSettings, 
                 this.columnsManager.moveActiveColumn(fromIndex, toIndex, true);
                 break;
             }
-            case DragActionType.None:
+            case DragActionTypeId.None:
                 break;
             default:
                 throw new RevUnreachableCaseError('CMUBEDC23334', dragAction);
@@ -259,7 +259,7 @@ export class RevColumnMovingUiController<BGS extends RevBehavioredGridSettings, 
         const columnCount = columns.length;
         if (columnCount === 0) {
             return {
-                type: DragActionType.None,
+                type: DragActionTypeId.None,
             };
         } else {
             const scrollable = viewLayout.horizontalScrollDimension.scrollable;
@@ -270,7 +270,7 @@ export class RevColumnMovingUiController<BGS extends RevBehavioredGridSettings, 
             if (offsetX < firstScrollableColumnViewLeft) {
                 if (scrollable) {
                     return {
-                        type: DragActionType.Scroll,
+                        type: DragActionTypeId.Scroll,
                         toRight: false,
                         mouseOffGrid: offsetX < 0,
                         source: sourceDragColumn
@@ -279,15 +279,15 @@ export class RevColumnMovingUiController<BGS extends RevBehavioredGridSettings, 
                     const firstScrollableColumn = this.viewLayout.firstScrollableColumn;
                     if (firstScrollableColumn === undefined) {
                         return {
-                            type: DragActionType.None,
+                            type: DragActionTypeId.None,
                         };
                     } else {
                         if (sourceDragColumn === firstScrollableColumn) {
-                            return { type: DragActionType.None }
+                            return { type: DragActionTypeId.None }
                         } else {
                             return {
-                                type: DragActionType.Move,
-                                location: MoveLocation.Before,
+                                type: DragActionTypeId.Move,
+                                location: MoveLocationId.Before,
                                 source: sourceDragColumn,
                                 target: firstScrollableColumn,
                             };
@@ -299,18 +299,18 @@ export class RevColumnMovingUiController<BGS extends RevBehavioredGridSettings, 
                 if (offsetX >= lastColumn.rightPlus1) {
                     if (scrollable) {
                         return {
-                            type: DragActionType.Scroll,
+                            type: DragActionTypeId.Scroll,
                             toRight: true,
                             mouseOffGrid: offsetX >= this.canvas.flooredBounds.width,
                             source: sourceDragColumn
                         };
                     } else {
                         if (sourceDragColumn === lastColumn) {
-                            return { type: DragActionType.None }
+                            return { type: DragActionTypeId.None }
                         } else {
                             return {
-                                type: DragActionType.Move,
-                                location: MoveLocation.After,
+                                type: DragActionTypeId.Move,
+                                location: MoveLocationId.After,
                                 source: sourceDragColumn,
                                 target: lastColumn,
                             };
@@ -329,15 +329,15 @@ export class RevColumnMovingUiController<BGS extends RevBehavioredGridSettings, 
                     const upper = sourceDragColumn.rightPlus1 + overCol.width / 2;
                     const inMoveRange = updatedDragColumn === undefined || offsetX < lower || offsetX > upper;
                     if (!inMoveRange || overCol.index < 0) {
-                        return { type: DragActionType.None }
+                        return { type: DragActionTypeId.None }
                     }
 
                     const location = (offsetX - overCol.left) > overCol.width / 2
-                        ? MoveLocation.After
-                        : MoveLocation.Before;
+                        ? MoveLocationId.After
+                        : MoveLocationId.Before;
 
                     return {
-                        type: DragActionType.Move,
+                        type: DragActionTypeId.Move,
                         location,
                         source: sourceDragColumn,
                         target: overCol
@@ -349,7 +349,7 @@ export class RevColumnMovingUiController<BGS extends RevBehavioredGridSettings, 
 
     private setMouseDragging(active: boolean) {
         if (active) {
-            this.mouse.setActiveDragType(RevMouse.DragTypeEnum.ColumnMoving);
+            this.mouse.setActiveDragType(RevMouse.DragType.columnMoving);
             this.mouse.setOperation(this.gridSettings.columnMoveDragActiveCursorName, this.gridSettings.columnMoveDragActiveTitleText);
         } else {
             this.mouse.setActiveDragType(undefined);

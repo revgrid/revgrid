@@ -53,8 +53,6 @@ export namespace RevSubgrid {
     > = (this: void, viewCell: RevDatalessViewCell<BCS, SF>) => RevCellPainter<BCS, SF>;
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    export import RoleEnum = RevDatalessSubgrid.RoleEnum;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     export import Role = RevDatalessSubgrid.Role;
 
     export interface Definition<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> {

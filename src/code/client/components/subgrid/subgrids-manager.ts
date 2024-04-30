@@ -104,7 +104,7 @@ export class RevSubgridsManager<BCS extends RevBehavioredColumnSettings, SF exte
         definition: RevSubgrid.Definition<BCS, SF>,
     ) {
         const role = definition.role ?? RevSubgrid.Role.defaultRole;
-        const isMainRole = role === RevSubgrid.RoleEnum.main;
+        const isMainRole = role === RevSubgrid.Role.main;
 
         let dataServer = definition.dataServer;
         if (typeof dataServer === 'function') {
@@ -146,7 +146,7 @@ export class RevSubgridsManager<BCS extends RevBehavioredColumnSettings, SF exte
         getCellPainterEventer: RevSubgrid.GetCellPainterEventer<BCS, SF>,
     ) {
         let subgrid: RevSubgridImplementation<BCS, SF>;
-        if (role === RevSubgrid.RoleEnum.main) {
+        if (role === RevSubgrid.Role.main) {
             subgrid = new RevMainSubgridImplementation<BCS, SF>(
                 this._gridSettings,
                 this._columnsManager,

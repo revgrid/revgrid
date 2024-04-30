@@ -19,25 +19,28 @@ export interface RevDatalessSubgrid {
 
 /** @public */
 export namespace RevDatalessSubgrid {
-    export const enum RoleEnum {
-        header = 'header',
-        filter = 'filter',
-        main = 'main',
-        summary = 'summary',
-        footer = 'footer',
-    }
-
-    export type Role = keyof typeof RoleEnum;
+    export type Role =
+        typeof Role.header |
+        typeof Role.filter |
+        typeof Role.main |
+        typeof Role.summary |
+        typeof Role.footer;
 
     export namespace Role {
-        export const defaultRole = RoleEnum.main;
+        export const header = 'header';
+        export const filter = 'filter';
+        export const main = 'main';
+        export const summary = 'summary';
+        export const footer = 'footer';
+
+        export const defaultRole = main;
 
         const gridOrder: Role[] = [
-            RoleEnum.header,
-            RoleEnum.filter,
-            RoleEnum.main,
-            RoleEnum.summary,
-            RoleEnum.footer,
+            header,
+            filter,
+            main,
+            summary,
+            footer,
         ];
 
         export function gridOrderCompare(left: Role | undefined, right: Role | undefined) {

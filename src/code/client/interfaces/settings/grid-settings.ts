@@ -1,6 +1,6 @@
 import { deepExtendValue } from '@xilytix/sysutils';
 import { RevModifierKey } from '../../types-utils/modifier-key';
-import { RevSelectionAreaTypeSpecifier } from '../../types-utils/types';
+import { RevSelectionAreaTypeSpecifierId } from '../../types-utils/types';
 import { RevOnlyGridSettings } from './only-grid-settings';
 
 /** @public */
@@ -52,9 +52,9 @@ export namespace RevGridSettings {
 
     export function getSelectionAreaTypeSpecifierFromEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: RevGridSettings, event: T) {
         if (RevGridSettings.isSecondarySelectionAreaTypeSpecifierModifierKeyDownInEvent(gridSettings, event)) {
-            return RevSelectionAreaTypeSpecifier.Secondary;
+            return RevSelectionAreaTypeSpecifierId.Secondary;
         } else {
-            return RevSelectionAreaTypeSpecifier.Primary;
+            return RevSelectionAreaTypeSpecifierId.Primary;
         }
     }
 }

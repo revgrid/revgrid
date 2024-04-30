@@ -1,5 +1,5 @@
 /** @public */
-export const enum RevHorizontalWheelScrollingAllowed {
+export const enum RevHorizontalWheelScrollingAllowedId {
     Never,
     Always,
     CtrlKeyDown,
@@ -29,7 +29,7 @@ export type RevListChangedEventer = (
 ) => void;
 
 /** @public */
-export const enum RevSelectionAreaTypeSpecifier {
+export const enum RevSelectionAreaTypeSpecifierId {
     Primary,
     Secondary,
     Rectangle,

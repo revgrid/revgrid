@@ -9,31 +9,35 @@ export const enum RevSizeUnitId {
 }
 
 /** @public */
-export const enum RevSizeUnitCode {
-    Pixel = 'px',
-    Percent = '%',
-    Fractional = 'fr',
-    Em = 'em',
-}
+export type RevSizeUnit =
+    typeof RevSizeUnit.pixel |
+    typeof RevSizeUnit.percent |
+    typeof RevSizeUnit.fractional |
+    typeof RevSizeUnit.em;
 
 /** @public */
 export namespace RevSizeUnit {
-    export function tryParse(value: string) {
-        switch (value as RevSizeUnitCode) {
-            case RevSizeUnitCode.Pixel: return RevSizeUnitId.Pixel;
-            case RevSizeUnitCode.Percent: return RevSizeUnitId.Percent;
-            case RevSizeUnitCode.Fractional: return RevSizeUnitId.Fractional;
-            case RevSizeUnitCode.Em: return RevSizeUnitId.Em;
+    export const pixel = 'px';
+    export const percent = '%';
+    export const fractional = 'fr';
+    export const em = 'em';
+
+    export function tryParse(value: string): RevSizeUnitId | undefined {
+        switch (value) {
+            case pixel: return RevSizeUnitId.Pixel;
+            case percent: return RevSizeUnitId.Percent;
+            case fractional: return RevSizeUnitId.Fractional;
+            case em: return RevSizeUnitId.Em;
             default: return undefined;
         }
     }
 
-    export function format(value: RevSizeUnitId) {
+    export function format(value: RevSizeUnitId): RevSizeUnit {
         switch (value) {
-            case RevSizeUnitId.Pixel: return RevSizeUnitCode.Pixel;
-            case RevSizeUnitId.Percent: return RevSizeUnitCode.Percent;
-            case RevSizeUnitId.Fractional: return RevSizeUnitCode.Fractional;
-            case RevSizeUnitId.Em: return RevSizeUnitCode.Em;
+            case RevSizeUnitId.Pixel: return pixel;
+            case RevSizeUnitId.Percent: return percent;
+            case RevSizeUnitId.Fractional: return fractional;
+            case RevSizeUnitId.Em: return em;
             default:
                 throw new RevUnreachableCaseError('SUEF44998', value);
         }

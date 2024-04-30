@@ -2,8 +2,8 @@ import { isArrayEqual } from '@xilytix/sysutils';
 import {
     RevBehavioredGridSettings,
     RevGridSettings,
-    RevHorizontalWheelScrollingAllowed,
-    RevModifierKeyEnum,
+    RevHorizontalWheelScrollingAllowedId,
+    RevModifierKey,
     RevOnlyGridSettings,
     RevRowOrColumnSelectionAreaType,
     RevSelectionAreaType,
@@ -13,7 +13,7 @@ import { RevInMemoryBehavioredSettings } from './in-memory-behaviored-settings';
 
 /** @public */
 export class RevInMemoryBehavioredGridSettings extends RevInMemoryBehavioredSettings implements RevBehavioredGridSettings {
-    private _addToggleSelectionAreaModifierKey: RevModifierKeyEnum;
+    private _addToggleSelectionAreaModifierKey: RevModifierKey;
     private _addToggleSelectionAreaModifierKeyDoesToggle: boolean;
     private _backgroundColor: RevGridSettings.Color;
     private _color: RevGridSettings.Color;
@@ -43,7 +43,7 @@ export class RevInMemoryBehavioredGridSettings extends RevInMemoryBehavioredSett
     private _editOnFocusCell: boolean;
     private _editOnKeyDown: boolean;
     private _editorClickableCursorName: string | undefined;
-    private _extendLastSelectionAreaModifierKey: RevModifierKeyEnum;
+    private _extendLastSelectionAreaModifierKey: RevModifierKey;
     private _eventDispatchEnabled: boolean;
     private _filterable: boolean;
     private _filterBackgroundColor: RevGridSettings.Color;
@@ -69,18 +69,18 @@ export class RevInMemoryBehavioredGridSettings extends RevInMemoryBehavioredSett
     private _visibleVerticalGridLinesDrawnInFixedAndPreMainOnly: boolean;
     private _verticalGridLinesColor: RevGridSettings.Color;
     private _verticalGridLinesWidth: number;
-    private _horizontalWheelScrollingAllowed: RevHorizontalWheelScrollingAllowed;
+    private _horizontalWheelScrollingAllowed: RevHorizontalWheelScrollingAllowedId;
     private _minimumColumnWidth: number;
     private _maximumColumnWidth: number | undefined;
     private _visibleColumnWidthAdjust: boolean;
     private _mouseLastSelectionAreaExtendingDragActiveCursorName: string | undefined;
     private _mouseLastSelectionAreaExtendingDragActiveTitleText: string | undefined;
     private _mouseAddToggleExtendSelectionAreaEnabled: boolean;
-    private _mouseAddToggleExtendSelectionAreaDragModifierKey: RevModifierKeyEnum | undefined;
+    private _mouseAddToggleExtendSelectionAreaDragModifierKey: RevModifierKey | undefined;
     private _mouseColumnSelectionEnabled: boolean;
-    private _mouseColumnSelectionModifierKey: RevModifierKeyEnum | undefined;
+    private _mouseColumnSelectionModifierKey: RevModifierKey | undefined;
     private _mouseRowSelectionEnabled: boolean;
-    private _mouseRowSelectionModifierKey: RevModifierKeyEnum | undefined;
+    private _mouseRowSelectionModifierKey: RevModifierKey | undefined;
     private _multipleSelectionAreas: boolean;
     private _primarySelectionAreaType: RevSelectionAreaType;
     private _minimumAnimateTimeInterval: number;
@@ -95,12 +95,12 @@ export class RevInMemoryBehavioredGridSettings extends RevInMemoryBehavioredSett
     private _scrollerThumbColor: string;
     private _scrollerThumbReducedVisibilityOpacity: number;
     private _scrollingEnabled: boolean;
-    private _secondarySelectionAreaTypeSpecifierModifierKey: RevModifierKeyEnum | undefined;
+    private _secondarySelectionAreaTypeSpecifierModifierKey: RevModifierKey | undefined;
     private _secondarySelectionAreaType: RevSelectionAreaType;
     private _selectionRegionOutlineColor: RevGridSettings.Color | undefined;
     private _selectionRegionOverlayColor: RevGridSettings.Color | undefined;
     private _showFilterRow: boolean;
-    private _showScrollerThumbOnMouseMoveModifierKey: RevModifierKeyEnum | undefined;
+    private _showScrollerThumbOnMouseMoveModifierKey: RevModifierKey | undefined;
     private _sortOnDoubleClick: boolean;
     private _sortOnClick: boolean;
     private _useHiDPI: boolean;
@@ -108,7 +108,7 @@ export class RevInMemoryBehavioredGridSettings extends RevInMemoryBehavioredSett
     private _wheelVFactor: number;
 
     get addToggleSelectionAreaModifierKey() { return this._addToggleSelectionAreaModifierKey; }
-    set addToggleSelectionAreaModifierKey(value: RevModifierKeyEnum) {
+    set addToggleSelectionAreaModifierKey(value: RevModifierKey) {
         if (value !== this._addToggleSelectionAreaModifierKey) {
             this.beginChange();
             this._addToggleSelectionAreaModifierKey = value;
@@ -408,7 +408,7 @@ export class RevInMemoryBehavioredGridSettings extends RevInMemoryBehavioredSett
         }
     }
     get extendLastSelectionAreaModifierKey() { return this._extendLastSelectionAreaModifierKey; }
-    set extendLastSelectionAreaModifierKey(value: RevModifierKeyEnum) {
+    set extendLastSelectionAreaModifierKey(value: RevModifierKey) {
         if (value !== this._extendLastSelectionAreaModifierKey) {
             this.beginChange();
             this._extendLastSelectionAreaModifierKey = value;
@@ -668,7 +668,7 @@ export class RevInMemoryBehavioredGridSettings extends RevInMemoryBehavioredSett
         }
     }
     get horizontalWheelScrollingAllowed() { return this._horizontalWheelScrollingAllowed; }
-    set horizontalWheelScrollingAllowed(value: RevHorizontalWheelScrollingAllowed) {
+    set horizontalWheelScrollingAllowed(value: RevHorizontalWheelScrollingAllowedId) {
         if (value !== this._horizontalWheelScrollingAllowed) {
             this.beginChange();
             this._horizontalWheelScrollingAllowed = value;
@@ -718,7 +718,7 @@ export class RevInMemoryBehavioredGridSettings extends RevInMemoryBehavioredSett
         }
     }
     get mouseColumnSelectionModifierKey() { return this._mouseColumnSelectionModifierKey; }
-    set mouseColumnSelectionModifierKey(value: RevModifierKeyEnum | undefined) {
+    set mouseColumnSelectionModifierKey(value: RevModifierKey | undefined) {
         if (value !== this._mouseColumnSelectionModifierKey) {
             this.beginChange();
             this._mouseColumnSelectionModifierKey = value;
@@ -758,7 +758,7 @@ export class RevInMemoryBehavioredGridSettings extends RevInMemoryBehavioredSett
         }
     }
     get mouseAddToggleExtendSelectionAreaDragModifierKey() { return this._mouseAddToggleExtendSelectionAreaDragModifierKey; }
-    set mouseAddToggleExtendSelectionAreaDragModifierKey(value: RevModifierKeyEnum | undefined) {
+    set mouseAddToggleExtendSelectionAreaDragModifierKey(value: RevModifierKey | undefined) {
         if (value !== this._mouseAddToggleExtendSelectionAreaDragModifierKey) {
             this.beginChange();
             this._mouseAddToggleExtendSelectionAreaDragModifierKey = value;
@@ -778,7 +778,7 @@ export class RevInMemoryBehavioredGridSettings extends RevInMemoryBehavioredSett
         }
     }
     get mouseRowSelectionModifierKey() { return this._mouseRowSelectionModifierKey; }
-    set mouseRowSelectionModifierKey(value: RevModifierKeyEnum | undefined) {
+    set mouseRowSelectionModifierKey(value: RevModifierKey | undefined) {
         if (value !== this._mouseRowSelectionModifierKey) {
             this.beginChange();
             this._mouseRowSelectionModifierKey = value;
@@ -928,7 +928,7 @@ export class RevInMemoryBehavioredGridSettings extends RevInMemoryBehavioredSett
         }
     }
     get secondarySelectionAreaTypeSpecifierModifierKey() { return this._secondarySelectionAreaTypeSpecifierModifierKey; }
-    set secondarySelectionAreaTypeSpecifierModifierKey(value: RevModifierKeyEnum | undefined) {
+    set secondarySelectionAreaTypeSpecifierModifierKey(value: RevModifierKey | undefined) {
         if (value !== this._secondarySelectionAreaTypeSpecifierModifierKey) {
             this.beginChange();
             this._secondarySelectionAreaTypeSpecifierModifierKey = value;
@@ -978,7 +978,7 @@ export class RevInMemoryBehavioredGridSettings extends RevInMemoryBehavioredSett
         }
     }
     get showScrollerThumbOnMouseMoveModifierKey() { return this._showScrollerThumbOnMouseMoveModifierKey; }
-    set showScrollerThumbOnMouseMoveModifierKey(value: RevModifierKeyEnum | undefined) {
+    set showScrollerThumbOnMouseMoveModifierKey(value: RevModifierKey | undefined) {
         if (value !== this.showScrollerThumbOnMouseMoveModifierKey) {
             this.beginChange();
             this.showScrollerThumbOnMouseMoveModifierKey = value;

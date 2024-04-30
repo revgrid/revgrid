@@ -7,7 +7,7 @@ import { RevBehavioredColumnSettings } from '../../interfaces/settings/behaviore
 import { RevBehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
 import { RevGridSettings } from '../../interfaces/settings/grid-settings';
 import { RevAssertError, RevUnreachableCaseError } from '../../types-utils/revgrid-error';
-import { RevHorizontalWheelScrollingAllowed } from '../../types-utils/types';
+import { RevHorizontalWheelScrollingAllowedId } from '../../types-utils/types';
 import { RevUiController } from './ui-controller';
 
 /** @internal */
@@ -105,19 +105,19 @@ export class RevFocusScrollUiController<BGS extends RevBehavioredGridSettings, B
         if (!this.focus.checkEditorWantsKeyDownEvent(event, fromEditor)) {
             const key = event.key as RevFocus.ActionKeyboardKey;
             switch (key) {
-                case RevFocus.ActionKeyboardKey.ArrowLeft:
+                case RevFocus.ActionKeyboardKey.arrowLeft:
                     this.focusScrollBehavior.tryMoveFocusLeft();
                     break;
-                case RevFocus.ActionKeyboardKey.ArrowRight:
+                case RevFocus.ActionKeyboardKey.arrowRight:
                     this.focusScrollBehavior.tryMoveFocusRight();
                     break;
-                case RevFocus.ActionKeyboardKey.ArrowUp:
+                case RevFocus.ActionKeyboardKey.arrowUp:
                     this.focusScrollBehavior.tryMoveFocusUp();
                     break;
-                case RevFocus.ActionKeyboardKey.ArrowDown:
+                case RevFocus.ActionKeyboardKey.arrowDown:
                     this.focusScrollBehavior.tryMoveFocusDown();
                     break;
-                case RevFocus.ActionKeyboardKey.PageUp:
+                case RevFocus.ActionKeyboardKey.pageUp:
                     // If implementing focus driven paging, then use focusBehavior
                     if (event.altKey) {
                         this.focusScrollBehavior.tryPageFocusLeft();
@@ -125,7 +125,7 @@ export class RevFocusScrollUiController<BGS extends RevBehavioredGridSettings, B
                         this.focusScrollBehavior.tryPageFocusUp();
                     }
                     break;
-                case RevFocus.ActionKeyboardKey.PageDown:
+                case RevFocus.ActionKeyboardKey.pageDown:
                     // If implementing focus driven paging, then use focusBehavior
                     if (event.altKey) {
                         this.focusScrollBehavior.tryPageFocusRight();
@@ -133,25 +133,25 @@ export class RevFocusScrollUiController<BGS extends RevBehavioredGridSettings, B
                         this.focusScrollBehavior.tryPageFocusDown();
                     }
                     break;
-                case RevFocus.ActionKeyboardKey.Home:
+                case RevFocus.ActionKeyboardKey.home:
                     if (event.ctrlKey) {
                         this.focusScrollBehavior.tryFocusTop();
                     } else {
                         this.focusScrollBehavior.tryFocusFirstColumn();
                     }
                     break;
-                case RevFocus.ActionKeyboardKey.End:
+                case RevFocus.ActionKeyboardKey.end:
                     if (event.ctrlKey) {
                         this.focusScrollBehavior.tryFocusBottom();
                     } else {
                         this.focusScrollBehavior.tryFocusLastColumn();
                     }
                     break;
-                case RevFocus.ActionKeyboardKey.Tab:
+                case RevFocus.ActionKeyboardKey.tab:
                     this.focusScrollBehavior.tryMoveFocusRight();
                     break;
-                case RevFocus.ActionKeyboardKey.Enter:
-                case RevFocus.ActionKeyboardKey.Escape:
+                case RevFocus.ActionKeyboardKey.enter:
+                case RevFocus.ActionKeyboardKey.escape:
                     break;
                 default:
                     key satisfies never;
@@ -246,9 +246,9 @@ export class RevFocusScrollUiController<BGS extends RevBehavioredGridSettings, B
     private isHorizontalWheelScrollingAllowed(event: WheelEvent) {
         const gridSettings = this.gridSettings;
         switch (gridSettings.horizontalWheelScrollingAllowed) {
-            case RevHorizontalWheelScrollingAllowed.Never: return false;
-            case RevHorizontalWheelScrollingAllowed.Always: return true;
-            case RevHorizontalWheelScrollingAllowed.CtrlKeyDown: return event.ctrlKey;
+            case RevHorizontalWheelScrollingAllowedId.Never: return false;
+            case RevHorizontalWheelScrollingAllowedId.Always: return true;
+            case RevHorizontalWheelScrollingAllowedId.CtrlKeyDown: return event.ctrlKey;
             default: throw new RevUnreachableCaseError('TSIHWCA82007', gridSettings.horizontalWheelScrollingAllowed);
         }
     }

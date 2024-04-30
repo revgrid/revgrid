@@ -1,11 +1,11 @@
-import { RevModifierKeyEnum } from '../../types-utils/modifier-key';
+import { RevModifierKey } from '../../types-utils/modifier-key';
 import { RevRowOrColumnSelectionAreaType, RevSelectionAreaType } from '../../types-utils/selection-area-type';
-import { RevHorizontalWheelScrollingAllowed } from '../../types-utils/types';
+import { RevHorizontalWheelScrollingAllowedId } from '../../types-utils/types';
 
 /** @public */
 export interface RevOnlyGridSettings {
     /** Modifier key that indicates a UI action should add a selection area to selection or toggle a selection area within a selection */
-    addToggleSelectionAreaModifierKey: RevModifierKeyEnum;
+    addToggleSelectionAreaModifierKey: RevModifierKey;
     /** Specifies whether the addToggleSelectionAreaModifierKey toggles.  If if does not toggle, then it adds */
     addToggleSelectionAreaModifierKeyDoesToggle: boolean;
     backgroundColor: RevOnlyGridSettings.Color;
@@ -48,7 +48,7 @@ export interface RevOnlyGridSettings {
     /** Cursor to display when cell editor can be clicked */
     editorClickableCursorName: string | undefined;
     /** Modifier key that indicates a UI action should extend the selection area */
-    extendLastSelectionAreaModifierKey: RevModifierKeyEnum;
+    extendLastSelectionAreaModifierKey: RevModifierKey;
     /** Whether grid events are dispatched as DOM events */
     eventDispatchEnabled: boolean;
     /** Validation failure feedback. */
@@ -106,7 +106,7 @@ export interface RevOnlyGridSettings {
     /** Thickness of horizontal grid lines (pixels). */
     horizontalGridLinesWidth: number;
     horizontalGridLinesVisible: boolean;
-    horizontalWheelScrollingAllowed: RevHorizontalWheelScrollingAllowed;
+    horizontalWheelScrollingAllowed: RevHorizontalWheelScrollingAllowedId;
     minimumColumnWidth: number;
     maximumColumnWidth: number | undefined;
     /** Cursor to appear when extending a selection with a mouse drag */
@@ -114,13 +114,13 @@ export interface RevOnlyGridSettings {
     mouseLastSelectionAreaExtendingDragActiveTitleText: string | undefined;
     /** Allows rectangle selections with more than one cell and/or multiple rectangle selections.  If false, then only focused cell is selected */
     mouseAddToggleExtendSelectionAreaEnabled: boolean;
-    mouseAddToggleExtendSelectionAreaDragModifierKey: RevModifierKeyEnum | undefined;
+    mouseAddToggleExtendSelectionAreaDragModifierKey: RevModifierKey | undefined;
     /** Enables column selections with mouse */
     mouseColumnSelectionEnabled: boolean;
-    mouseColumnSelectionModifierKey: RevModifierKeyEnum | undefined;
+    mouseColumnSelectionModifierKey: RevModifierKey | undefined;
     /** Enables row selections with mouse */
     mouseRowSelectionEnabled: boolean;
-    mouseRowSelectionModifierKey: RevModifierKeyEnum | undefined;
+    mouseRowSelectionModifierKey: RevModifierKey | undefined;
     /** Allow multiple cell region selections. */
     multipleSelectionAreas: boolean;
     /** The area type that is added to a selection by default in a UI operation. Can also be specified in API calls which add an area to a RevSelection. */
@@ -149,14 +149,14 @@ export interface RevOnlyGridSettings {
     scrollHorizontallySmoothly: boolean;
     scrollingEnabled: boolean;
     /** The alternative area type that can be added to a selection in a UI operation. Can also be specified in API calls which add an area to a RevSelection. */
-    secondarySelectionAreaTypeSpecifierModifierKey: RevModifierKeyEnum | undefined;
+    secondarySelectionAreaTypeSpecifierModifierKey: RevModifierKey | undefined;
     secondarySelectionAreaType: RevSelectionAreaType;
     /** Stroke color for last selection overlay. */
     selectionRegionOutlineColor: RevOnlyGridSettings.Color | undefined;
     /** Fill color for last selection overlay. */
     selectionRegionOverlayColor: RevOnlyGridSettings.Color | undefined;
     showFilterRow: boolean;
-    showScrollerThumbOnMouseMoveModifierKey: RevModifierKeyEnum | undefined;
+    showScrollerThumbOnMouseMoveModifierKey: RevModifierKey | undefined;
     /** Sort column on double-click rather than single-click. */
     sortOnDoubleClick: boolean;
     /** Column can be sorted with mouse click on column header */
