@@ -13,6 +13,6 @@
 
   "references": [
     { "path": "../../../../sourced-field/server/tsconfig.json" },
-    { "path": "../../../../../text/tsconfig.json" },
+    { "path": "../../../../../cell-content/tsconfig.json" },
   ]
 }

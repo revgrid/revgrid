@@ -4,7 +4,7 @@
   "extends": "../tsconfig.code.json",
 
   "compilerOptions": {
-    "tsBuildInfoFile": "../../../tsbuildinfo/code-text.tsbuildinfo"
+    "tsBuildInfoFile": "../../../tsbuildinfo/code-cell-content.tsbuildinfo"
   },
 
   "include": [

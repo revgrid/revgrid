@@ -16,7 +16,7 @@
     { "path": "./data-row-array/tsconfig.json" },
     { "path": "./header/tsconfig.json" },
     { "path": "./column-layout/tsconfig.json" },
-    { "path": "./text/tsconfig.json" },
+    { "path": "./cell-content/tsconfig.json" },
     { "path": "./settings-implementations/tsconfig.json" },
     { "path": "./client/tsconfig.json" },
   ]

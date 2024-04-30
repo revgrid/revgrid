@@ -11,7 +11,7 @@ import {
     Result,
     UsableListChangeTypeId,
 } from '@xilytix/sysutils';
-import { RevRenderValue } from '../../../../../text/internal-api';
+import { RevRenderValue } from '../../../../../cell-content/internal-api';
 import { RevSourcedFieldCustomHeadingsService } from '../../../../sourced-field/server/internal-api';
 import { RevAllowedRecordSourcedField } from '../../../record/server/internal-api';
 import { RevTableFieldSource, RevTableFieldSourceDefinitionCachingFactoryService } from '../field-source/internal-api';

@@ -5,9 +5,9 @@ import {
     IndexedRecord,
     Integer
 } from '@xilytix/sysutils';
+import { RevRenderValue } from '../../../../cell-content/internal-api';
 import { RevDataServer } from '../../../../client/internal-api';
 import { RevRecordField } from '../../../../record/server/internal-api';
-import { RevRenderValue } from '../../../../text/internal-api';
 import { RevSourcedField } from '../../../sourced-field/server/internal-api';
 import { RevRecordSourcedFieldDefinition } from './definition/internal-api';
 

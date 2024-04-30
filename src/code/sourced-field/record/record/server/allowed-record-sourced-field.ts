@@ -1,7 +1,7 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
 import { AssertInternalError, IndexedRecord } from '@xilytix/sysutils';
-import { RevRenderValue } from '../../../../text/internal-api';
+import { RevRenderValue } from '../../../../cell-content/internal-api';
 import { RevRecordSourcedField } from './record-sourced-field';
 
 // AllowedGridField is used in Column selector
