@@ -2,7 +2,7 @@
   "extends": "../../../tsconfig.code.json",
 
   "compilerOptions": {
-    "tsBuildInfoFile": "../../../../../tsbuildinfo/code-grid-components-dispatchable-event.tsbuildinfo"
+    "tsBuildInfoFile": "../../../../../tsbuildinfo/code-client-components-dispatchable-event.tsbuildinfo"
   },
 
   "include": [
@@ -14,7 +14,7 @@
     { "path": "../view/tsconfig.json" },
     { "path": "../../interfaces/data/tsconfig.json" },
     { "path": "../../interfaces/schema/tsconfig.json" },
-    { "path": "../../interfaces/settings/tsconfig.json" },
-    { "path": "../../types-utils/tsconfig.json" }
+    { "path": "../../settings/tsconfig.json" },
+    { "path": "../../../common/tsconfig.json" }
   ]
 }

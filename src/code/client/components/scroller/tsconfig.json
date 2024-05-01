@@ -2,7 +2,7 @@
   "extends": "../../../tsconfig.code.json",
 
   "compilerOptions": {
-    "tsBuildInfoFile": "../../../../../tsbuildinfo/code-grid-components-scroller.tsbuildinfo"
+    "tsBuildInfoFile": "../../../../../tsbuildinfo/code-client-components-scroller.tsbuildinfo"
   },
 
   "include": [
@@ -11,6 +11,6 @@
 
   "references": [
     { "path": "../view/tsconfig.json" },
-    { "path": "../../types-utils/tsconfig.json" }
+    { "path": "../../../common/tsconfig.json" }
   ]
 }

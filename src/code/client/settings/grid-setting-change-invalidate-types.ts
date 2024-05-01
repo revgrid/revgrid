@@ -1,4 +1,6 @@
-import { RevAssertError } from '../../types-utils/revgrid-error';
+// (c) 2024 Xilytix Pty Ltd / Paul Klink
+
+import { RevAssertError } from '../../common/internal-api';
 import { RevGridSettings } from './grid-settings';
 
 /** @public */

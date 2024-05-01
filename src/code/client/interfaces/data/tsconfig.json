@@ -2,7 +2,7 @@
   "extends": "../../../tsconfig.code.json",
 
   "compilerOptions": {
-    "tsBuildInfoFile": "../../../../../tsbuildinfo/code-grid-interfaces-data.tsbuildinfo"
+    "tsBuildInfoFile": "../../../../../tsbuildinfo/code-client-interfaces-data.tsbuildinfo"
   },
 
   "include": [
@@ -12,7 +12,7 @@
   "references": [
     { "path": "../dataless/tsconfig.json" },
     { "path": "../schema/tsconfig.json" },
-    { "path": "../settings/tsconfig.json" },
-    { "path": "../../types-utils/tsconfig.json" }
+    { "path": "../../settings/tsconfig.json" },
+    { "path": "../../../common/tsconfig.json" }
   ]
 }

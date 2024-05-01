@@ -1,13 +1,10 @@
+import { RevAssertError, RevClientObject, RevSelectionAreaTypeId, RevUnreachableCaseError } from '../../common/internal-api';
 import { RevColumnsManager } from '../components/column/columns-manager';
 import { RevSelection } from '../components/selection/selection';
 import { RevDataServer } from '../interfaces/data/data-server';
 import { RevColumn } from '../interfaces/dataless/column';
 import { RevSchemaField } from '../interfaces/schema/schema-field';
-import { RevBehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
-import { RevBehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
-import { RevClientObject } from '../types-utils/client-object';
-import { RevAssertError, RevUnreachableCaseError } from '../types-utils/revgrid-error';
-import { RevSelectionAreaTypeId } from '../types-utils/selection-area-type';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../settings/internal-api';
 
 /** @public */
 export class RevDataExtractBehavior<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {

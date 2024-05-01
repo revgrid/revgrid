@@ -1,9 +1,7 @@
+import { RevClientObject, RevPoint } from '../../../common/internal-api';
 import { RevViewCell } from '../../interfaces/data/view-cell';
 import { RevSchemaField } from '../../interfaces/schema/schema-field';
-import { RevBehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
-import { RevBehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
-import { RevClientObject } from '../../types-utils/client-object';
-import { RevPoint } from '../../types-utils/point';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../../settings/internal-api';
 import { RevCanvas } from '../canvas/canvas';
 import { RevViewLayout } from '../view/view-layout';
 

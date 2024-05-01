@@ -1,12 +1,10 @@
+import { RevAssertError, RevClientObject, RevUnreachableCaseError } from '../../../common/internal-api';
 import { RevSelection } from '../../components/selection/selection';
 import { RevSubgrid } from '../../interfaces/data/subgrid';
 import { RevViewCell } from '../../interfaces/data/view-cell';
 import { RevSchemaField } from '../../interfaces/schema/schema-field';
 import { RevServerNotificationId, revInvalidServerNotificationId, revLowestValidServerNotificationId } from '../../interfaces/schema/schema-server';
-import { RevBehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
-import { RevBehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
-import { RevClientObject } from '../../types-utils/client-object';
-import { RevAssertError, RevUnreachableCaseError } from '../../types-utils/revgrid-error';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../../settings/internal-api';
 import { RevCanvas } from '../canvas/canvas';
 import { RevColumnsManager } from '../column/columns-manager';
 import { RevFocus } from '../focus/focus';

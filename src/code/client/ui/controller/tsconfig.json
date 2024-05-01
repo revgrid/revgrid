@@ -2,7 +2,7 @@
   "extends": "../../../tsconfig.code.json",
 
   "compilerOptions": {
-    "tsBuildInfoFile": "../../../../../tsbuildinfo/code-grid-ui-controller.tsbuildinfo"
+    "tsBuildInfoFile": "../../../../../tsbuildinfo/code-client-ui-controller.tsbuildinfo"
   },
 
   "include": [
@@ -22,7 +22,7 @@
     { "path": "../../components/column/tsconfig.json" },
     { "path": "../../components/canvas/tsconfig.json" },
     { "path": "../../interfaces/data/tsconfig.json" },
-    { "path": "../../interfaces/settings/tsconfig.json" },
-    { "path": "../../types-utils/tsconfig.json" },
+    { "path": "../../settings/tsconfig.json" },
+    { "path": "../../../common/tsconfig.json" },
   ]
 }

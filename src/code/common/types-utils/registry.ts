@@ -1,3 +1,6 @@
+// (c) 2024 Xilytix Pty Ltd / Paul Klink
+
+/** @public */
 export class RevRegistry<T> {
     private readonly items = new Map<string, T>();
 

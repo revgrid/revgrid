@@ -1,3 +1,5 @@
+// (c) 2024 Xilytix Pty Ltd / Paul Klink
+
 import { RevInexclusiveArea } from './inexclusive-area';
 import { RevPoint } from './point';
 

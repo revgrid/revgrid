@@ -2,7 +2,7 @@
 import { RevDataServer } from '../../interfaces/data/data-server';
 import { RevColumn } from '../../interfaces/dataless/column';
 import { RevSchemaField } from '../../interfaces/schema/schema-field';
-import { RevBehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
+import { RevBehavioredColumnSettings } from '../../settings/internal-api';
 
 /** @internal */
 export class RevColumnImplementation<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevColumn<BCS, SF> {

@@ -1,8 +1,6 @@
 
 import { RevSchemaField } from '../../../interfaces/schema/schema-field';
-import { RevBehavioredColumnSettings } from '../../../interfaces/settings/behaviored-column-settings';
-import { RevBehavioredGridSettings } from '../../../interfaces/settings/behaviored-grid-settings';
-import { RevGridSettings } from '../../../interfaces/settings/grid-settings';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevGridSettings } from '../../../settings/internal-api';
 import { RevCanvas } from '../../canvas/canvas';
 import { RevFocus } from '../../focus/focus';
 import { RevMouse } from '../../mouse/mouse';

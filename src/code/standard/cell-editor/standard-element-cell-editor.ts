@@ -1,5 +1,6 @@
 import { numberToPixels } from '@xilytix/sysutils';
-import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevClientGrid, RevDataServer, RevDatalessViewCell, RevRectangle, RevSchemaField } from '../../client/internal-api';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevClientGrid, RevDataServer, RevDatalessViewCell, RevSchemaField } from '../../client/internal-api';
+import { RevRectangle } from '../../common/internal-api';
 import { RevStandardCellEditor } from './standard-cell-editor';
 
 /** @public */

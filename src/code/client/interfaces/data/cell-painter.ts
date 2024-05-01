@@ -1,7 +1,7 @@
-import { RevCachedCanvasRenderingContext2D } from '../../types-utils/cached-canvas-rendering-context-2d';
+import { RevCachedCanvasRenderingContext2D } from '../../../common/internal-api';
+import { RevBehavioredColumnSettings } from '../../settings/internal-api';
 import { RevDatalessViewCell } from '../dataless/dataless-view-cell';
 import { RevSchemaField } from '../schema/schema-field';
-import { RevBehavioredColumnSettings } from '../settings/behaviored-column-settings';
 import { RevCellPossiblyPaintable } from './cell-possibly-paintable';
 
 /**

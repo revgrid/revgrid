@@ -1,12 +1,7 @@
 import { numberToPixels } from '@xilytix/sysutils';
+import { RevAssertError, RevClientObject, RevCssTypes, RevSizeUnitId, RevSizeWithUnit, RevUnreachableCaseError } from '../../../common/internal-api';
 import { RevSchemaField } from '../../interfaces/schema/schema-field';
-import { RevBehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
-import { RevBehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
-import { RevClientObject } from '../../types-utils/client-object';
-import { RevCssTypes } from '../../types-utils/css-types';
-import { RevAssertError, RevUnreachableCaseError } from '../../types-utils/revgrid-error';
-import { RevSizeUnitId } from '../../types-utils/size-unit';
-import { RevSizeWithUnit } from '../../types-utils/size-with-unit';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../../settings/internal-api';
 import { RevCanvas } from '../canvas/canvas';
 import { RevScrollDimension } from '../view/scroll-dimension';
 import { RevViewLayout } from '../view/view-layout';

@@ -1,7 +1,7 @@
-import { RevRectangle } from '../../types-utils/rectangle';
+import { RevRectangle } from '../../../common/internal-api';
+import { RevBehavioredColumnSettings } from '../../settings/internal-api';
 import { RevDatalessViewCell } from '../dataless/dataless-view-cell';
 import { RevSchemaField } from '../schema/schema-field';
-import { RevBehavioredColumnSettings } from '../settings/behaviored-column-settings';
 import { RevCellPossiblyPaintable } from './cell-possibly-paintable';
 import { RevDataServer } from './data-server';
 

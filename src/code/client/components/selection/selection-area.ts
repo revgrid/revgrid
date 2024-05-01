@@ -1,5 +1,4 @@
-import { RevUnreachableCaseError } from '../../types-utils/revgrid-error';
-import { RevSelectionAreaTypeId } from '../../types-utils/selection-area-type';
+import { RevSelectionAreaTypeId, RevUnreachableCaseError } from '../../../common/internal-api';
 import { RevFirstCornerArea } from './first-corner-area';
 
 /** @public */

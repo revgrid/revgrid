@@ -1,4 +1,5 @@
 import { Integer } from '@xilytix/sysutils';
+import { RevApiError, RevAssertError, RevClientObject, RevCssTypes, RevEnsureFullyInViewEnum, RevListChangedTypeId, RevPoint, RevRectangle, RevSelectionAreaType } from '../common/internal-api';
 import { RevBehaviorManager } from './behavior/behavior-manager';
 import { RevCellPropertiesBehavior } from './behavior/cell-properties-behavior';
 import { RevDataExtractBehavior } from './behavior/data-extract-behavior';
@@ -32,17 +33,7 @@ import { RevColumn, RevColumnAutoSizeableWidth } from './interfaces/dataless/col
 import { RevDatalessSubgrid } from './interfaces/dataless/dataless-subgrid';
 import { RevSchemaField } from './interfaces/schema/schema-field';
 import { RevSchemaServer } from './interfaces/schema/schema-server';
-import { RevBehavioredColumnSettings } from './interfaces/settings/behaviored-column-settings';
-import { RevBehavioredGridSettings } from './interfaces/settings/behaviored-grid-settings';
-import { RevColumnSettings } from './interfaces/settings/column-settings';
-import { RevClientObject } from './types-utils/client-object';
-import { RevCssTypes } from './types-utils/css-types';
-import { RevEnsureFullyInViewEnum } from './types-utils/ensure-fully-in-view';
-import { RevPoint } from './types-utils/point';
-import { RevRectangle } from './types-utils/rectangle';
-import { RevApiError, RevAssertError } from './types-utils/revgrid-error';
-import { RevSelectionAreaType } from './types-utils/selection-area-type';
-import { RevListChangedTypeId } from './types-utils/types';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevColumnSettings } from './settings/internal-api';
 import { RevUiManager } from './ui/ui-controller-manager';
 
 /** @public */

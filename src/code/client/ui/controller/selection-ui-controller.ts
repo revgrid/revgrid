@@ -1,17 +1,12 @@
 
+import { RevAssertError, RevModifierKey, RevSelectionAreaTypeId, RevStartLength, RevUnreachableCaseError } from '../../../common/internal-api';
 import { RevFocus } from '../../components/focus/focus';
 import { RevMouse } from '../../components/mouse/mouse';
 import { RevLinedHoverCell } from '../../interfaces/data/lined-hover-cell';
 import { RevSubgrid } from '../../interfaces/data/subgrid';
 import { RevViewCell } from '../../interfaces/data/view-cell';
 import { RevSchemaField } from '../../interfaces/schema/schema-field';
-import { RevBehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
-import { RevBehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
-import { RevGridSettings } from '../../interfaces/settings/grid-settings';
-import { RevModifierKey } from '../../types-utils/modifier-key';
-import { RevAssertError, RevUnreachableCaseError } from '../../types-utils/revgrid-error';
-import { RevSelectionAreaTypeId } from '../../types-utils/selection-area-type';
-import { RevStartLength } from '../../types-utils/start-length';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevGridSettings } from '../../settings/internal-api';
 import { RevUiController } from './ui-controller';
 
 /** @internal */

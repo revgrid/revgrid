@@ -1,3 +1,5 @@
+// (c) 2024 Xilytix Pty Ltd / Paul Klink
+
 /**
  * This object represents a single point in an abstract 2-dimensional matrix.
  *

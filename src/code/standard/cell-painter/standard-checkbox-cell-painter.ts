@@ -1,6 +1,7 @@
 
 import { IndexSignatureHack } from '@xilytix/sysutils';
-import { RevClientGrid, RevDataServer, RevDatalessViewCell, RevGridSettings, RevRectangle, RevSchemaField, revSafeConvertUnknownToBoolean } from '../../client/internal-api';
+import { RevClientGrid, RevDataServer, RevDatalessViewCell, RevGridSettings, RevSchemaField } from '../../client/internal-api';
+import { RevRectangle, revSafeConvertUnknownToBoolean } from '../../common/internal-api';
 import { RevStandardCheckboxPainter } from '../painters/internal-api';
 import { RevStandardBehavioredColumnSettings, RevStandardBehavioredGridSettings } from '../settings/internal-api';
 import { RevStandardCellPainter } from './standard-cell-painter';

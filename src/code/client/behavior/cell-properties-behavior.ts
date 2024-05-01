@@ -1,3 +1,4 @@
+import { RevClientObject } from '../../common/internal-api';
 import { RevColumnsManager } from '../components/column/columns-manager';
 import { RevSubgridsManager } from '../components/subgrid/subgrids-manager';
 import { RevViewCellImplementation } from '../components/view/view-cell-implementation';
@@ -8,11 +9,7 @@ import { RevSubgrid } from '../interfaces/data/subgrid';
 import { RevViewCell } from '../interfaces/data/view-cell';
 import { RevColumn } from '../interfaces/dataless/column';
 import { RevSchemaField } from '../interfaces/schema/schema-field';
-import { RevBehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
-import { RevBehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
-import { RevColumnSettings } from '../interfaces/settings/column-settings';
-import { CellMetaSettingsImplementation } from '../settings/cell-meta-settings-implementation';
-import { RevClientObject } from '../types-utils/client-object';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevColumnSettings } from '../settings/internal-api';
 
 export class RevCellPropertiesBehavior<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {
     constructor(
@@ -34,7 +31,7 @@ export class RevCellPropertiesBehavior<BGS extends RevBehavioredGridSettings, BC
     /** @internal */
     getCellPropertiesAccessor(column: RevColumn<BCS, SF>, rowIndex: number, subgrid: RevSubgrid<BCS, SF>): RevCellMetaSettings {
         const cellOwnProperties = this.getCellOwnProperties(column, rowIndex, subgrid);
-        return new CellMetaSettingsImplementation((cellOwnProperties ? cellOwnProperties : undefined), column.settings);
+        return new RevCellPropertiesBehavior.CellMetaSettingsImplementation((cellOwnProperties ? cellOwnProperties : undefined), column.settings);
     }
 
     /**
@@ -275,4 +272,27 @@ export namespace RevCellPropertiesBehavior {
         SF extends RevSchemaField
     > = (this: void, rowIndex: number, subgrid: RevSubgrid<BCS, SF>) => void;
 
+
+    export class CellMetaSettingsImplementation implements RevCellMetaSettings {
+        constructor(
+            private readonly _cellOwnProperties: RevMetaModel.CellOwnProperties | undefined,
+            private readonly _columnSettings: RevColumnSettings
+        ) {
+
+        }
+
+        get<T extends keyof RevColumnSettings>(key: T): RevColumnSettings[T];
+        get(key: string | number): RevMetaModel.CellOwnProperty;
+        get<T extends keyof RevColumnSettings>(key: string | number) {
+            // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+            let result: RevMetaModel.CellOwnProperty | undefined;
+            if (this._cellOwnProperties !== undefined) {
+                result = this._cellOwnProperties[key];
+            }
+            if (result === undefined) {
+                result = this._columnSettings[key as T];
+            }
+            return result;
+        }
+    }
 }

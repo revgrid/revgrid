@@ -1,12 +1,9 @@
+import { RevAssertError, RevClientObject, RevCssTypes } from '../../common/internal-api';
 import { RevDataServer } from '../interfaces/data/data-server';
 import { RevSubgrid } from '../interfaces/data/subgrid';
 import { RevSchemaField } from '../interfaces/schema/schema-field';
 import { RevSchemaServer } from '../interfaces/schema/schema-server';
-import { RevBehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
-import { RevBehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
-import { RevClientObject } from '../types-utils/client-object';
-import { RevCssTypes } from '../types-utils/css-types';
-import { RevAssertError } from '../types-utils/revgrid-error';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../settings/internal-api';
 import { RevCanvas } from './canvas/canvas';
 import { RevColumnsManager } from './column/columns-manager';
 import { RevFocus } from './focus/focus';

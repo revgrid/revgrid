@@ -1,3 +1,4 @@
+import { RevAssertError, RevClientObject } from '../../common/internal-api';
 import { RevCellPropertiesBehavior } from '../behavior/cell-properties-behavior';
 import { RevDataExtractBehavior } from '../behavior/data-extract-behavior';
 import { RevEventBehavior } from '../behavior/event-behavior';
@@ -16,10 +17,7 @@ import { RevSubgridsManager } from '../components/subgrid/subgrids-manager';
 import { RevViewLayout } from '../components/view/view-layout';
 import { RevLinedHoverCell } from '../interfaces/data/lined-hover-cell';
 import { RevSchemaField } from '../interfaces/schema/schema-field';
-import { RevBehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
-import { RevBehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
-import { RevClientObject } from '../types-utils/client-object';
-import { RevAssertError } from '../types-utils/revgrid-error';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../settings/internal-api';
 import { RevCellClickUiController } from './controller/cell-click-ui-controller';
 import { RevClipboardUiController } from './controller/clipboard-ui-controller';
 import { RevColumnMovingUiController } from './controller/column-moving-ui-controller';

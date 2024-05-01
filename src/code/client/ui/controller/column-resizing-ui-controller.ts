@@ -4,8 +4,7 @@ import { RevLinedHoverCell } from '../../interfaces/data/lined-hover-cell';
 import { RevViewCell } from '../../interfaces/data/view-cell';
 import { RevColumn, RevColumnAutoSizeableWidth } from '../../interfaces/dataless/column';
 import { RevSchemaField } from '../../interfaces/schema/schema-field';
-import { RevBehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
-import { RevBehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../../settings/internal-api';
 import { RevUiController } from './ui-controller';
 
 /** @internal */

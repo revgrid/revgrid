@@ -1,5 +1,6 @@
 
-import { RevCellPainter, RevDatalessViewCell, RevRectangle, RevSchemaField } from '../../client/internal-api';
+import { RevCellPainter, RevDatalessViewCell, RevSchemaField } from '../../client/internal-api';
+import { RevRectangle } from '../../common/internal-api';
 import { RevStandardBehavioredColumnSettings, RevStandardBehavioredGridSettings } from '../settings/internal-api';
 import { RevStandardCellPainter } from './standard-cell-painter';
 

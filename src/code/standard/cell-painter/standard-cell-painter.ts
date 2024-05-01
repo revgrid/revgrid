@@ -1,13 +1,12 @@
 import {
     RevBehavioredColumnSettings,
     RevBehavioredGridSettings,
-    RevCachedCanvasRenderingContext2D,
     RevClientGrid,
     RevDataServer,
     RevDatalessViewCell,
-    RevRectangle,
     RevSchemaField
 } from '../../client/internal-api';
+import { RevCachedCanvasRenderingContext2D, RevRectangle } from '../../common/internal-api';
 
 /** @public */
 export abstract class RevStandardCellPainter<

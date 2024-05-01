@@ -18,5 +18,6 @@
     { "path": "../../../record/tsconfig.json" },
     { "path": "../../../column-layout/tsconfig.json" },
     { "path": "../../../client/tsconfig.json" },
+    { "path": "../../../common/tsconfig.json" },
   ]
 }

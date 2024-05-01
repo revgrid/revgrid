@@ -1,3 +1,4 @@
+import { RevRectangle } from '../../../common/internal-api';
 import { RevMetaModel } from '../../interfaces/data/meta-model';
 import { RevSubgrid } from '../../interfaces/data/subgrid';
 import { RevViewCell } from '../../interfaces/data/view-cell';
@@ -5,8 +6,7 @@ import { RevViewLayoutRow } from '../../interfaces/data/view-layout-row';
 import { RevDatalessViewCell } from '../../interfaces/dataless/dataless-view-cell';
 import { RevViewLayoutColumn } from '../../interfaces/dataless/view-layout-column';
 import { RevSchemaField } from '../../interfaces/schema/schema-field';
-import { RevBehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
-import { RevRectangle } from '../../types-utils/rectangle';
+import { RevBehavioredColumnSettings } from '../../settings/internal-api';
 import { RevColumnsManager } from '../column/columns-manager';
 
 /** @internal */

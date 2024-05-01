@@ -1,9 +1,9 @@
+import { RevBehavioredColumnSettings } from '../../settings/internal-api';
 import { RevColumn } from '../dataless/column';
 import { RevDatalessSubgrid } from '../dataless/dataless-subgrid';
 import { RevDatalessViewCell } from '../dataless/dataless-view-cell';
 import { RevSchemaField } from '../schema/schema-field';
 import { RevSchemaServer } from '../schema/schema-server';
-import { RevBehavioredColumnSettings } from '../settings/behaviored-column-settings';
 import { RevCellPainter } from './cell-painter';
 import { RevDataServer } from './data-server';
 import { RevMetaModel } from './meta-model';

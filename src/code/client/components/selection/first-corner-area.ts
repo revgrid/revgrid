@@ -1,5 +1,4 @@
-import { RevInexclusiveArea } from '../../types-utils/inexclusive-area';
-import { RevPoint } from '../../types-utils/point';
+import { RevInexclusiveArea, RevPoint } from '../../../common/internal-api';
 
 /** @public */
 export interface RevFirstCornerArea extends RevInexclusiveArea {

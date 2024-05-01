@@ -1,5 +1,5 @@
 import { numberToPixels } from '@xilytix/sysutils';
-import { RevApiError } from '../../../client/internal-api';
+import { RevApiError } from '../../../common/internal-api';
 /** effectFunction
  * @remarks Element to perform transitions upon is `options.el` if defined or `this.el`.
  * @param {object} [options]

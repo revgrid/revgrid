@@ -1,10 +1,5 @@
-import {
-    RevAssertError,
-    RevBehavioredSettings,
-    RevGridSettingChangeInvalidateType,
-    RevGridSettingChangeInvalidateTypeId,
-    RevUnreachableCaseError
-} from '../../client/internal-api';
+import { RevBehavioredSettings, RevGridSettingChangeInvalidateType, RevGridSettingChangeInvalidateTypeId } from '../../client/internal-api';
+import { RevAssertError, RevUnreachableCaseError } from '../../common/internal-api';
 
 /** @public */
 export abstract class RevInMemoryBehavioredSettings implements RevBehavioredSettings {

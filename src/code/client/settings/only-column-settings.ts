@@ -1,3 +1,5 @@
+// (c) 2024 Xilytix Pty Ltd / Paul Klink
+
 import { RevOnlyGridSettings } from './only-grid-settings';
 
 /** @public */

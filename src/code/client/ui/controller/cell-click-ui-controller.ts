@@ -1,9 +1,8 @@
+import { RevAssertError } from '../../../common/internal-api';
 import { RevLinedHoverCell } from '../../interfaces/data/lined-hover-cell';
 import { RevViewCell } from '../../interfaces/data/view-cell';
 import { RevSchemaField } from '../../interfaces/schema/schema-field';
-import { RevBehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
-import { RevBehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
-import { RevAssertError } from '../../types-utils/revgrid-error';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../../settings/internal-api';
 import { RevUiController } from './ui-controller';
 
 /** @internal */

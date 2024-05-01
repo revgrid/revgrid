@@ -1,17 +1,11 @@
+import { RevAssertError, RevClientObject, RevEnsureFullyInView, RevEnsureFullyInViewEnum, RevSelectionAreaTypeId, RevStartLength } from '../../common/internal-api';
 import { RevFocus } from '../components/focus/focus';
 import { RevSelection } from '../components/selection/selection';
 import { RevViewLayout } from '../components/view/view-layout';
 import { RevSubgrid } from '../interfaces/data/subgrid';
 import { RevViewCell } from '../interfaces/data/view-cell';
 import { RevSchemaField } from '../interfaces/schema/schema-field';
-import { RevBehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
-import { RevBehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
-import { RevGridSettings } from '../interfaces/settings/grid-settings';
-import { RevClientObject } from '../types-utils/client-object';
-import { RevEnsureFullyInView, RevEnsureFullyInViewEnum } from '../types-utils/ensure-fully-in-view';
-import { RevAssertError } from '../types-utils/revgrid-error';
-import { RevSelectionAreaTypeId } from '../types-utils/selection-area-type';
-import { RevStartLength } from '../types-utils/start-length';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevGridSettings } from '../settings/internal-api';
 import { RevEventBehavior } from './event-behavior';
 
 export class RevFocusSelectBehavior<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {

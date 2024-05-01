@@ -1,4 +1,4 @@
-import { RevSelectionAreaTypeId } from '../../types-utils/selection-area-type';
+import { RevSelectionAreaTypeId } from '../../../common/internal-api';
 import { RevFirstCornerRectangle } from './first-corner-rectangle';
 import { RevSelectionArea } from './selection-area';
 

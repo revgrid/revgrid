@@ -1,3 +1,5 @@
+// (c) 2024 Xilytix Pty Ltd / Paul Klink
+
 /** @public */
 export namespace RevCssTypes {
     export const libraryName = 'revgrid';

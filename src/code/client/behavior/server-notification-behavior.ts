@@ -1,3 +1,4 @@
+import { RevClientObject } from '../../common/internal-api';
 import { RevColumnsManager } from '../components/column/columns-manager';
 import { RevFocus } from '../components/focus/focus';
 import { RevRenderer } from '../components/renderer/renderer';
@@ -8,9 +9,7 @@ import { RevViewLayout } from '../components/view/view-layout';
 import { RevDataServer } from '../interfaces/data/data-server';
 import { RevSchemaField } from '../interfaces/schema/schema-field';
 import { RevSchemaServer } from '../interfaces/schema/schema-server';
-import { RevBehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
-import { RevBehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
-import { RevClientObject } from '../types-utils/client-object';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../settings/internal-api';
 import { RevEventBehavior } from './event-behavior';
 import { RevReindexBehavior } from './reindex-behavior';
 

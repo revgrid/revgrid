@@ -1,4 +1,4 @@
-import { RevCssTypes } from './types-utils/css-types';
+import { RevCssTypes } from '../common/internal-api';
 
 /** @internal */
 export class RevIdGenerator {

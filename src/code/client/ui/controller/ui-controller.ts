@@ -1,4 +1,5 @@
 
+import { RevClientObject } from '../../../common/internal-api';
 import { RevCellPropertiesBehavior } from '../../behavior/cell-properties-behavior';
 import { RevDataExtractBehavior } from '../../behavior/data-extract-behavior';
 import { RevEventBehavior } from '../../behavior/event-behavior';
@@ -18,10 +19,7 @@ import { RevViewLayout } from '../../components/view/view-layout';
 import { RevLinedHoverCell } from '../../interfaces/data/lined-hover-cell';
 import { RevMainSubgrid } from '../../interfaces/data/main-subgrid';
 import { RevSchemaField } from '../../interfaces/schema/schema-field';
-import { RevBehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
-import { RevBehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
-import { RevGridSettings } from '../../interfaces/settings/grid-settings';
-import { RevClientObject } from '../../types-utils/client-object';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevGridSettings } from '../../settings/internal-api';
 import { RevUiControllerServices } from './common/ui-controller-services';
 import { RevUiControllerSharedState } from './common/ui-controller-shared-state';
 

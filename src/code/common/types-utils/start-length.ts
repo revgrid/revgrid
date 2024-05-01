@@ -1,8 +1,12 @@
+// (c) 2024 Xilytix Pty Ltd / Paul Klink
+
+/** @public */
 export interface RevStartLength {
     readonly start: number;
     readonly length: number;
 }
 
+/** @public */
 export namespace RevStartLength {
     export function createExclusiveFromFirstLast(first: number, last: number): RevStartLength {
         if (last >= first) {

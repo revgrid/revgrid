@@ -1,10 +1,9 @@
 
+import { RevRectangle } from '../../../common/internal-api';
 import { RevScrollDimension } from '../../components/view/scroll-dimension';
 import { RevLinedHoverCell } from '../../interfaces/data/lined-hover-cell';
 import { RevSchemaField } from '../../interfaces/schema/schema-field';
-import { RevBehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
-import { RevBehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
-import { RevRectangle } from '../../types-utils/rectangle';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../../settings/internal-api';
 import { RevUiController } from './ui-controller';
 
 /** @internal */

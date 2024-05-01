@@ -1,3 +1,4 @@
+import { RevAssertError, RevClientObject, RevInexclusiveRectangle, RevRectangle, RevUnreachableCaseError } from '../../../common/internal-api';
 import { RevDataServer } from '../../interfaces/data/data-server';
 import { RevLinedHoverCell } from '../../interfaces/data/lined-hover-cell';
 import { RevSubgrid } from '../../interfaces/data/subgrid';
@@ -6,12 +7,7 @@ import { RevViewLayoutRow } from '../../interfaces/data/view-layout-row';
 import { RevColumn } from '../../interfaces/dataless/column';
 import { RevViewLayoutColumn } from '../../interfaces/dataless/view-layout-column';
 import { RevSchemaField } from '../../interfaces/schema/schema-field';
-import { RevBehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
-import { RevBehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
-import { RevClientObject } from '../../types-utils/client-object';
-import { RevInexclusiveRectangle } from '../../types-utils/inexclusive-rectangle';
-import { RevRectangle } from '../../types-utils/rectangle';
-import { RevAssertError, RevUnreachableCaseError } from '../../types-utils/revgrid-error';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../../settings/internal-api';
 import { RevCanvas } from '../canvas/canvas';
 import { RevColumnsManager } from '../column/columns-manager';
 import { RevSubgridsManager } from '../subgrid/subgrids-manager';

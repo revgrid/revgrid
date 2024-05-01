@@ -4,9 +4,9 @@ import {
     RevClientGrid,
     RevDataServer,
     RevDatalessViewCell,
-    RevRectangle,
     RevSchemaField,
 } from '../../client/internal-api';
+import { RevRectangle } from '../../common/internal-api';
 import { RevStandardTextPainter } from '../painters/internal-api';
 import { RevStandardBehavioredColumnSettings, RevStandardBehavioredGridSettings } from '../settings/internal-api';
 import { RevStandardCellPainter } from './standard-cell-painter';
@@ -88,7 +88,7 @@ export class RevStandardAlphaTextCellPainter<
         const isMainSubgrid = subgrid.isMain;
 
         let hoverColor: string | undefined;
-        const hoverCell = this._grid.mouse.hoverCell;
+        const hoverCell = grid.mouse.hoverCell;
         const columnHovered =
             (hoverCell !== undefined) &&
             (hoverCell.viewLayoutColumn.activeColumnIndex === activeColumnIndex);

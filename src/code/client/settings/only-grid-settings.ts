@@ -1,6 +1,6 @@
-import { RevModifierKey } from '../../types-utils/modifier-key';
-import { RevRowOrColumnSelectionAreaType, RevSelectionAreaType } from '../../types-utils/selection-area-type';
-import { RevHorizontalWheelScrollingAllowedId } from '../../types-utils/types';
+// (c) 2024 Xilytix Pty Ltd / Paul Klink
+
+import { RevHorizontalWheelScrollingAllowedId, RevModifierKey, RevRowOrColumnSelectionAreaType, RevSelectionAreaType } from '../../common/internal-api';
 
 /** @public */
 export interface RevOnlyGridSettings {

@@ -1,11 +1,10 @@
+import { RevClientObject } from '../../common/internal-api';
 import { RevViewLayout } from '../components/view/view-layout';
 import { RevMetaModel } from '../interfaces/data/meta-model';
 import { RevSubgrid } from '../interfaces/data/subgrid';
 import { RevViewCell } from '../interfaces/data/view-cell';
 import { RevSchemaField } from '../interfaces/schema/schema-field';
-import { RevBehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
-import { RevBehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
-import { RevClientObject } from '../types-utils/client-object';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../settings/internal-api';
 
 export class RevRowPropertiesBehavior<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {
     constructor(

@@ -1,4 +1,4 @@
-import { RevAssertError } from '../../types-utils/revgrid-error';
+import { RevAssertError } from '../../../common/internal-api';
 import { RevViewLayout } from '../view/view-layout';
 import { RenderAction, RepaintViewAction } from './render-action';
 

@@ -1,3 +1,5 @@
+// (c) 2024 Xilytix Pty Ltd / Paul Klink
+
 /**
  * Will return null if conversion not possible
  * @public

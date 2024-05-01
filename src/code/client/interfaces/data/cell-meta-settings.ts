@@ -1,4 +1,4 @@
-import { RevColumnSettings } from '../settings/column-settings';
+import { RevColumnSettings } from '../../settings/internal-api';
 import { RevMetaModel } from './meta-model';
 
 export interface RevCellMetaSettings {

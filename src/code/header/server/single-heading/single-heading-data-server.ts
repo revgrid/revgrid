@@ -1,6 +1,7 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
-import { RevAssertError, RevDataServer } from '../../../client/internal-api';
+import { RevDataServer } from '../../../client/internal-api';
+import { RevAssertError } from '../../../common/internal-api';
 import { RevSingleHeadingSchemaField } from './single-heading-schema-field';
 
 /** @public */

@@ -1,3 +1,5 @@
+// (c) 2024 Xilytix Pty Ltd / Paul Klink
+
 import { RevSizeUnit, RevSizeUnitId } from './size-unit';
 import { revSplitStringAtFirstNonNumericChar } from './utils';
 

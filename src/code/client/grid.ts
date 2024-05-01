@@ -2,6 +2,7 @@
 
 import { Integer } from '@xilytix/sysutils';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { RevClientObject, RevEnsureFullyInViewEnum, RevPoint, RevRectangle, RevSelectionAreaType } from '../common/internal-api';
 import { RevBehaviorManager } from './behavior/behavior-manager';
 import { RevCanvas } from './components/canvas/canvas';
 import { RevColumnsManager } from './components/column/columns-manager';
@@ -25,14 +26,7 @@ import { RevColumn, RevColumnAutoSizeableWidth } from './interfaces/dataless/col
 import { RevDatalessSubgrid } from './interfaces/dataless/dataless-subgrid';
 import { RevSchemaField } from './interfaces/schema/schema-field';
 import { RevSchemaServer } from './interfaces/schema/schema-server';
-import { RevBehavioredColumnSettings } from './interfaces/settings/behaviored-column-settings';
-import { RevBehavioredGridSettings } from './interfaces/settings/behaviored-grid-settings';
-import { RevColumnSettings } from './interfaces/settings/column-settings';
-import { RevClientObject } from './types-utils/client-object';
-import { RevEnsureFullyInViewEnum } from './types-utils/ensure-fully-in-view';
-import { RevPoint } from './types-utils/point';
-import { RevRectangle } from './types-utils/rectangle';
-import { RevSelectionAreaType } from './types-utils/selection-area-type';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevColumnSettings } from './settings/internal-api';
 
 /** @public */
 export interface RevGrid<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevClientObject {

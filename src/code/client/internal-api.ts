@@ -36,25 +36,6 @@ export { RevDatalessViewLayoutRow } from './interfaces/dataless/dataless-view-la
 export { RevViewLayoutColumn } from './interfaces/dataless/view-layout-column';
 export { RevSchemaField } from './interfaces/schema/schema-field';
 export { RevSchemaServer, RevServerNotificationId, revInvalidServerNotificationId, revLowestValidServerNotificationId } from './interfaces/schema/schema-server';
-export { RevBehavioredColumnSettings } from './interfaces/settings/behaviored-column-settings';
-export { RevBehavioredGridSettings } from './interfaces/settings/behaviored-grid-settings';
-export { RevBehavioredSettings } from './interfaces/settings/behaviored-settings';
-export { RevColumnSettings } from './interfaces/settings/column-settings';
-export { RevGridSettingChangeInvalidateType, RevGridSettingChangeInvalidateTypeId, RevGridSettingChangeInvalidateTypeIds, revGridSettingChangeInvalidateTypeIds } from './interfaces/settings/grid-setting-change-invalidate-types';
-export { RevGridSettings } from './interfaces/settings/grid-settings';
-export { RevOnlyColumnSettings } from './interfaces/settings/only-column-settings';
-export { RevOnlyGridSettings } from './interfaces/settings/only-grid-settings';
-export { RevCachedCanvasRenderingContext2D } from './types-utils/cached-canvas-rendering-context-2d';
-export { RevClientObject } from './types-utils/client-object';
-export { RevCssTypes } from './types-utils/css-types';
-export { RevInexclusiveArea } from './types-utils/inexclusive-area';
-export { RevInexclusiveRectangle } from './types-utils/inexclusive-rectangle';
-export { RevModifierKey } from './types-utils/modifier-key';
-export { RevPartialPoint, RevPoint, RevWritablePoint } from './types-utils/point';
-export { RevRectangle } from './types-utils/rectangle';
-export * from './types-utils/revgrid-error';
-export * from './types-utils/selection-area-type';
-export * from './types-utils/types';
-export * from './types-utils/utils';
+export * from './settings/internal-api';
 export { RevUiController } from './ui/controller/ui-controller';
 

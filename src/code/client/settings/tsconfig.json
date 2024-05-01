@@ -2,16 +2,14 @@
   "extends": "../../tsconfig.code.json",
 
   "compilerOptions": {
-    "tsBuildInfoFile": "../../../../tsbuildinfo/code-grid-settings.tsbuildinfo"
+    "tsBuildInfoFile": "../../../../tsbuildinfo/code-client-settings.tsbuildinfo"
   },
 
   "include": [
     "*.ts"
-, "../interfaces/settings/default-grid-settings.ts"  ],
+  ],
 
   "references": [
-    { "path": "../interfaces/data/tsconfig.json" },
-    { "path": "../interfaces/settings/tsconfig.json" },
-    { "path": "../types-utils/tsconfig.json" }
+    { "path": "../../common/tsconfig.json" }
   ]
 }

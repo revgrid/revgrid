@@ -712,8 +712,6 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     readonly focus: RevFocus<BGS, BCS, SF>;
     // (undocumented)
     focusOnlySelectCell(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>, ensureFullyInView?: RevEnsureFullyInViewEnum): void;
-    // Warning: (ae-forgotten-export) The symbol "RevEnsureFullyInViewEnum" needs to be exported by the entry point public-api.d.ts
-    //
     // (undocumented)
     focusOnlySelectRectangle(inexclusiveX: Integer, inexclusiveY: Integer, width: Integer, height: Integer, subgrid?: RevSubgrid<BCS, SF>, ensureFullyInView?: RevEnsureFullyInViewEnum): void;
     // (undocumented)
@@ -2321,6 +2319,19 @@ export namespace RevDispatchableEvent {
         // (undocumented)
         export type MouseHoverCell = 'rev-click' | 'rev-dbl-click' | 'rev-pointer-up-cancel' | 'rev-pointer-down' | 'rev-pointer-move' | 'rev-pointer-enter' | 'rev-pointer-leave-out' | 'rev-wheel-move' | 'rev-context-menu' | 'rev-column-sort';
     }
+}
+
+// @public (undocumented)
+export type RevEnsureFullyInView = keyof typeof RevEnsureFullyInViewEnum;
+
+// @public (undocumented)
+export const enum RevEnsureFullyInViewEnum {
+    // (undocumented)
+    Always = "Always",
+    // (undocumented)
+    IfNotVisible = "IfNotVisible",
+    // (undocumented)
+    Never = "Never"
 }
 
 // @public (undocumented)
@@ -4575,6 +4586,19 @@ export namespace RevReferenceableDataSourcesService {
 }
 
 // @public (undocumented)
+export class RevRegistry<T> {
+    // (undocumented)
+    get all(): T[];
+    // (undocumented)
+    get(name: string): T | undefined;
+    // Warning: (tsdoc-param-tag-with-invalid-optional-name) The @param should not include a JSDoc-style optional name; it must not be enclosed in '[ ]' brackets.
+    // Warning: (tsdoc-param-tag-with-invalid-type) The @param block should not include a JSDoc-style '{type}'
+    // Warning: (tsdoc-param-tag-with-invalid-optional-name) The @param should not include a JSDoc-style optional name; it must not be enclosed in '[ ]' brackets.
+    // Warning: (tsdoc-escape-greater-than) The ">" character should be escaped using a backslash to avoid confusion with an HTML tag
+    register(name: string, item: T): T;
+}
+
+// @public (undocumented)
 export class RevRenderer<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {
     // @internal
     constructor(clientId: string, internalParent: RevClientObject,
@@ -5092,6 +5116,53 @@ export class RevSingleHeadingDataServer<SF extends RevSingleHeadingSchemaField> 
 export interface RevSingleHeadingSchemaField extends RevSchemaField {
     // (undocumented)
     heading: string;
+}
+
+// @public (undocumented)
+export type RevSizeUnit = typeof RevSizeUnit.pixel | typeof RevSizeUnit.percent | typeof RevSizeUnit.fractional | typeof RevSizeUnit.em;
+
+// @public (undocumented)
+export namespace RevSizeUnit {
+    const // (undocumented)
+    pixel = "px";
+    const // (undocumented)
+    percent = "%";
+    const // (undocumented)
+    fractional = "fr";
+    const // (undocumented)
+    em = "em";
+    // (undocumented)
+    export function format(value: RevSizeUnitId): RevSizeUnit;
+    // (undocumented)
+    export function tryParse(value: string): RevSizeUnitId | undefined;
+}
+
+// @public (undocumented)
+export const enum RevSizeUnitId {
+    // (undocumented)
+    Em = 3,
+    // (undocumented)
+    Fractional = 2,
+    // (undocumented)
+    Percent = 1,
+    // (undocumented)
+    Pixel = 0
+}
+
+// @public (undocumented)
+export interface RevSizeWithUnit {
+    // (undocumented)
+    size: number;
+    // (undocumented)
+    sizeUnit: RevSizeUnitId;
+}
+
+// @public (undocumented)
+export namespace RevSizeWithUnit {
+    // @internal (undocumented)
+    export function formatSize(size: number, sizeUnit: RevSizeUnitId): string;
+    // (undocumented)
+    export function tryParse(value: string): RevSizeWithUnit | undefined;
 }
 
 // @public (undocumented)
@@ -5890,6 +5961,22 @@ export class RevStandardToggleClickBoxCellEditor<BGS extends RevBehavioredGridSe
     processGridPointerMoveEvent(event: PointerEvent, viewCell: RevDatalessViewCell<BCS, SF>): RevCellEditor.PointerLocationInfo | undefined;
     // (undocumented)
     tryOpenCell(cell: RevDatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined): boolean;
+}
+
+// @public (undocumented)
+export interface RevStartLength {
+    // (undocumented)
+    readonly length: number;
+    // (undocumented)
+    readonly start: number;
+}
+
+// @public (undocumented)
+export namespace RevStartLength {
+    // (undocumented)
+    export function createExclusiveFromFirstLast(first: number, last: number): RevStartLength;
+    // (undocumented)
+    export function createFromExclusive(exclusive: RevStartLength): RevStartLength;
 }
 
 // @public (undocumented)

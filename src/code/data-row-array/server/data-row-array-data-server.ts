@@ -1,4 +1,5 @@
-import { RevAssertError, RevDataServer, RevSchemaField } from '../../client/internal-api';
+import { RevDataServer, RevSchemaField } from '../../client/internal-api';
+import { RevAssertError } from '../../common/internal-api';
 
 /** @public */
 export class RevDataRowArrayDataServer<SF extends RevSchemaField> implements RevDataServer<SF> {

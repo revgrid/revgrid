@@ -1,6 +1,4 @@
-import { RevInexclusiveRectangle } from '../../types-utils/inexclusive-rectangle';
-import { RevPoint } from '../../types-utils/point';
-import { RevUnreachableCaseError } from '../../types-utils/revgrid-error';
+import { RevInexclusiveRectangle, RevPoint, RevUnreachableCaseError } from '../../../common/internal-api';
 import { RevFirstCornerArea } from './first-corner-area';
 
 /** @public */

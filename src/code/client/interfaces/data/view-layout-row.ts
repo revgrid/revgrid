@@ -1,6 +1,6 @@
+import { RevBehavioredColumnSettings } from '../../settings/internal-api';
 import { RevDatalessViewLayoutRow } from '../dataless/dataless-view-layout-row';
 import { RevSchemaField } from '../schema/schema-field';
-import { RevBehavioredColumnSettings } from '../settings/behaviored-column-settings';
 import { RevSubgrid } from './subgrid';
 
 /** @public */

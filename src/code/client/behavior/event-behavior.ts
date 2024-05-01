@@ -1,3 +1,4 @@
+import { RevAssertError, RevClientObject, RevListChangedTypeId, RevPoint } from '../../common/internal-api';
 import { RevCanvas } from '../components/canvas/canvas';
 import { RevColumnsManager } from '../components/column/columns-manager';
 import { RevDispatchableEvent } from '../components/dispatchable-event/dispatchable-event';
@@ -12,12 +13,7 @@ import { RevLinedHoverCell } from '../interfaces/data/lined-hover-cell';
 import { RevViewCell } from '../interfaces/data/view-cell';
 import { RevColumn } from '../interfaces/dataless/column';
 import { RevSchemaField } from '../interfaces/schema/schema-field';
-import { RevBehavioredColumnSettings } from '../interfaces/settings/behaviored-column-settings';
-import { RevBehavioredGridSettings } from '../interfaces/settings/behaviored-grid-settings';
-import { RevClientObject } from '../types-utils/client-object';
-import { RevPoint } from '../types-utils/point';
-import { RevAssertError } from '../types-utils/revgrid-error';
-import { RevListChangedTypeId } from '../types-utils/types';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../settings/internal-api';
 
 /** @public */
 export class RevEventBehavior<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {

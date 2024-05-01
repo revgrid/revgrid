@@ -1,11 +1,9 @@
 
+import { RevPoint } from '../../../common/internal-api';
 import { RevLinedHoverCell } from '../../interfaces/data/lined-hover-cell';
 import { RevViewCell } from '../../interfaces/data/view-cell';
 import { RevSchemaField } from '../../interfaces/schema/schema-field';
-import { RevBehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
-import { RevBehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
-import { RevGridSettings } from '../../interfaces/settings/grid-settings';
-import { RevPoint } from '../../types-utils/point';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevGridSettings } from '../../settings/internal-api';
 import { RevUiController } from './ui-controller';
 
 /** @internal */

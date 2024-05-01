@@ -1,10 +1,5 @@
-import { RevBehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
-import { RevCachedCanvasRenderingContext2D } from '../../types-utils/cached-canvas-rendering-context-2d';
-import { RevClientObject } from '../../types-utils/client-object';
-import { RevCssTypes } from '../../types-utils/css-types';
-import { RevPoint } from '../../types-utils/point';
-import { RevRectangle } from '../../types-utils/rectangle';
-import { RevAssertError, RevUnreachableCaseError } from '../../types-utils/revgrid-error';
+import { RevAssertError, RevCachedCanvasRenderingContext2D, RevClientObject, RevCssTypes, RevPoint, RevRectangle, RevUnreachableCaseError } from '../../../common/internal-api';
+import { RevBehavioredGridSettings } from '../../settings/internal-api';
 
 /** @public */
 export class RevCanvas<BGS extends RevBehavioredGridSettings> implements RevClientObject {

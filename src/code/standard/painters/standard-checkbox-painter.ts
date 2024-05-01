@@ -1,10 +1,7 @@
 
 import { IndexSignatureHack } from '@xilytix/sysutils';
-import {
-    RevCachedCanvasRenderingContext2D,
-    RevGridSettings,
-    RevRectangle
-} from '../../client/internal-api';
+import { RevGridSettings } from '../../client/internal-api';
+import { RevCachedCanvasRenderingContext2D, RevRectangle } from '../../common/internal-api';
 
 /** @public */
 export class RevStandardCheckboxPainter {

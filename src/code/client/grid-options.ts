@@ -1,7 +1,6 @@
+import { RevCssTypes } from '../common/internal-api';
 import { RevSchemaField } from './interfaces/schema/schema-field';
-import { RevBehavioredColumnSettings } from './interfaces/settings/behaviored-column-settings';
-import { RevBehavioredGridSettings } from './interfaces/settings/behaviored-grid-settings';
-import { RevCssTypes } from './types-utils/css-types';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from './settings/internal-api';
 import { RevUiController } from './ui/controller/ui-controller';
 
 /** @public */

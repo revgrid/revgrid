@@ -2,8 +2,7 @@
 
 import { RevClientGrid } from './client-grid';
 import { RevSchemaField } from './interfaces/schema/schema-field';
-import { RevBehavioredColumnSettings } from './interfaces/settings/behaviored-column-settings';
-import { RevBehavioredGridSettings } from './interfaces/settings/behaviored-grid-settings';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from './settings/internal-api';
 
 /** @public */
 // eslint-disable-next-line @typescript-eslint/no-empty-interface

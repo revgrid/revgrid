@@ -1,16 +1,10 @@
 
+import { RevAssertError, RevClientObject, RevRectangle, RevSelectionAreaType, RevSelectionAreaTypeId, RevSelectionAreaTypeSpecifierId, RevUnreachableCaseError } from '../../../common/internal-api';
 import { RevDataServer } from '../../interfaces/data/data-server';
 import { RevSubgrid } from '../../interfaces/data/subgrid';
 import { RevDatalessSubgrid } from '../../interfaces/dataless/dataless-subgrid';
 import { RevSchemaField } from '../../interfaces/schema/schema-field';
-import { RevBehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
-import { RevBehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
-import { RevGridSettings } from '../../interfaces/settings/grid-settings';
-import { RevClientObject } from '../../types-utils/client-object';
-import { RevRectangle } from '../../types-utils/rectangle';
-import { RevAssertError, RevUnreachableCaseError } from '../../types-utils/revgrid-error';
-import { RevSelectionAreaType, RevSelectionAreaTypeId } from '../../types-utils/selection-area-type';
-import { RevSelectionAreaTypeSpecifierId } from '../../types-utils/types';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevGridSettings } from '../../settings/internal-api';
 import { RevColumnsManager } from '../column/columns-manager';
 import { RevFocus } from '../focus/focus';
 import { RevContiguousIndexRange } from './contiguous-index-range';

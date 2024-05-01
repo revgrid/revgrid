@@ -1,5 +1,6 @@
 import { UnreachableCaseError } from '@xilytix/sysutils';
-import { RevApiError, RevDataServer, RevListChangedTypeId } from '../../client/internal-api';
+import { RevDataServer } from '../../client/internal-api';
+import { RevApiError, RevListChangedTypeId } from '../../common/internal-api';
 import { RevRecord } from './record';
 import { RevRecordArrayUtil } from './record-array-utils';
 import { RevRecordAssertError } from './record-error';

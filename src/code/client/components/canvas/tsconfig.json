@@ -2,7 +2,7 @@
   "extends": "../../../tsconfig.code.json",
 
   "compilerOptions": {
-    "tsBuildInfoFile": "../../../../../tsbuildinfo/code-grid-components-canvas.tsbuildinfo"
+    "tsBuildInfoFile": "../../../../../tsbuildinfo/code-client-components-canvas.tsbuildinfo"
   },
 
   "include": [
@@ -11,6 +11,6 @@
 
   "references": [
     { "path": "../../settings/tsconfig.json" },
-    { "path": "../../types-utils/tsconfig.json" }
+    { "path": "../../../common/tsconfig.json" }
   ]
 }

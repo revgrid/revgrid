@@ -1,6 +1,7 @@
+// (c) 2024 Xilytix Pty Ltd / Paul Klink
+
 import { deepExtendValue } from '@xilytix/sysutils';
-import { RevModifierKey } from '../../types-utils/modifier-key';
-import { RevSelectionAreaTypeSpecifierId } from '../../types-utils/types';
+import { RevModifierKey, RevSelectionAreaTypeSpecifierId } from '../../common/internal-api';
 import { RevOnlyGridSettings } from './only-grid-settings';
 
 /** @public */

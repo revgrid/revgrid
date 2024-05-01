@@ -1,5 +1,4 @@
-import { RevInexclusiveRectangle } from '../../types-utils/inexclusive-rectangle';
-import { revCalculateNumberArrayUniqueCount } from '../../types-utils/utils';
+import { RevInexclusiveRectangle, revCalculateNumberArrayUniqueCount } from '../../../common/internal-api';
 import { RevSelectionAreaList } from './selection-area-list';
 import { RevSelectionRectangle } from './selection-rectangle';
 

@@ -1,6 +1,7 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
-import { RevApiError, RevAssertError, RevBehavioredColumnSettings, RevBehavioredGridSettings, RevClientGrid, RevDatalessSubgrid, RevGridDefinition, RevGridOptions, RevSubgrid } from '../../../client/internal-api';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevClientGrid, RevDatalessSubgrid, RevGridDefinition, RevGridOptions, RevSubgrid } from '../../../client/internal-api';
+import { RevApiError, RevAssertError } from '../../../common/internal-api';
 import { RevDataRowArrayDataServer, RevDataRowArrayGrid, RevDataRowArraySchemaServer } from '../../../data-row-array/internal-api';
 import { RevSingleHeadingDataServer } from '../../../header/internal-api';
 import { RevSourcedFieldGrid } from '../../sourced-field/internal-api';

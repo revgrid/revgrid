@@ -2,7 +2,7 @@
   "extends": "../../tsconfig.code.json",
 
   "compilerOptions": {
-    "tsBuildInfoFile": "../../../../tsbuildinfo/code-grid-types-utils.tsbuildinfo"
+    "tsBuildInfoFile": "../../../../tsbuildinfo/code-common-types-utils.tsbuildinfo"
   },
 
   "include": [

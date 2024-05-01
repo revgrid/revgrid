@@ -1,12 +1,10 @@
+import { RevAssertError, RevClientObject } from '../../../common/internal-api';
 import { RevDataServer } from '../../interfaces/data/data-server';
 import { RevMainSubgrid } from '../../interfaces/data/main-subgrid';
 import { RevMetaModel } from '../../interfaces/data/meta-model';
 import { RevSubgrid } from '../../interfaces/data/subgrid';
 import { RevSchemaField } from '../../interfaces/schema/schema-field';
-import { RevBehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
-import { RevGridSettings } from '../../interfaces/settings/grid-settings';
-import { RevClientObject } from '../../types-utils/client-object';
-import { RevAssertError } from '../../types-utils/revgrid-error';
+import { RevBehavioredColumnSettings, RevGridSettings } from '../../settings/internal-api';
 import { RevColumnsManager } from '../column/columns-manager';
 import { RevMainSubgridImplementation } from './main-subgrid-implementation';
 import { RevSubgridImplementation } from './subgrid-implementation';

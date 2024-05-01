@@ -1,8 +1,6 @@
+import { RevAssertError } from '../../../common/internal-api';
 import { RevSchemaField } from '../../interfaces/schema/schema-field';
-import { RevBehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
-import { RevBehavioredGridSettings } from '../../interfaces/settings/behaviored-grid-settings';
-import { RevGridSettings } from '../../interfaces/settings/grid-settings';
-import { RevAssertError } from '../../types-utils/revgrid-error';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevGridSettings } from '../../settings/internal-api';
 import { RevCanvas } from '../canvas/canvas';
 import { RevSubgridsManager } from '../subgrid/subgrids-manager';
 import { RevScrollDimension } from './scroll-dimension';

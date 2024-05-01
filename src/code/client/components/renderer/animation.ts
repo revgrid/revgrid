@@ -1,4 +1,4 @@
-import { RevAssertError } from '../../types-utils/revgrid-error';
+import { RevAssertError } from '../../../common/internal-api';
 import { RevAnimator } from './animator';
 
 export class RevAnimation {

@@ -2,7 +2,7 @@
   "extends": "../../../tsconfig.code.json",
 
   "compilerOptions": {
-    "tsBuildInfoFile": "../../../../../tsbuildinfo/code-grid-components-renderer.tsbuildinfo"
+    "tsBuildInfoFile": "../../../../../tsbuildinfo/code-client-components-renderer.tsbuildinfo"
   },
 
   "include": [
@@ -11,6 +11,6 @@
 
   "references": [
     { "path": "grid-painter/tsconfig.json" },
-    { "path": "../../types-utils/tsconfig.json" }
+    { "path": "../../../common/tsconfig.json" }
   ]
 }

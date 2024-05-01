@@ -1,5 +1,6 @@
 
-import { RevHorizontalWheelScrollingAllowedId, RevModifierKey, RevOnlyGridSettings } from '../../client/internal-api';
+import { RevOnlyGridSettings } from '../../client/internal-api';
+import { RevHorizontalWheelScrollingAllowedId, RevModifierKey } from '../../common/internal-api';
 
 /** @public */
 export const revDefaultOnlyGridSettings: RevOnlyGridSettings = {

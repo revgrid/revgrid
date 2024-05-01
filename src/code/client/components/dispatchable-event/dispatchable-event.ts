@@ -1,8 +1,8 @@
+import { RevPoint } from '../../../common/internal-api';
 import { RevLinedHoverCell } from '../../interfaces/data/lined-hover-cell';
 import { RevViewCell } from '../../interfaces/data/view-cell';
 import { RevSchemaField } from '../../interfaces/schema/schema-field';
-import { RevBehavioredColumnSettings } from '../../interfaces/settings/behaviored-column-settings';
-import { RevPoint } from '../../types-utils/point';
+import { RevBehavioredColumnSettings } from '../../settings/internal-api';
 import { RevScroller } from '../scroller/scroller';
 import { RevViewLayout } from '../view/view-layout';
 

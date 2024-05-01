@@ -1,3 +1,5 @@
+// (c) 2024 Xilytix Pty Ltd / Paul Klink
+
 import { RevRectangle } from './rectangle';
 import { RevAssertError } from './revgrid-error';
 

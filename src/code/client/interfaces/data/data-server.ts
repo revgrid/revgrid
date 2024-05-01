@@ -1,4 +1,4 @@
-import { RevRectangle } from '../../types-utils/rectangle';
+import { RevRectangle } from '../../../common/internal-api';
 import { RevSchemaField } from '../schema/schema-field';
 // import { Hypergrid } from '../Hypergrid';
 

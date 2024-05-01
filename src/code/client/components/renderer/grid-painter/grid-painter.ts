@@ -1,14 +1,10 @@
 import { getErrorMessage } from '@xilytix/sysutils';
+import { RevCachedCanvasRenderingContext2D, RevRectangle } from '../../../../common/internal-api';
 import { RevViewCell } from '../../../interfaces/data/view-cell';
 import { RevViewLayoutRow } from '../../../interfaces/data/view-layout-row';
 import { RevViewLayoutColumn } from '../../../interfaces/dataless/view-layout-column';
 import { RevSchemaField } from '../../../interfaces/schema/schema-field';
-import { RevBehavioredColumnSettings } from '../../../interfaces/settings/behaviored-column-settings';
-import { RevBehavioredGridSettings } from '../../../interfaces/settings/behaviored-grid-settings';
-import { RevGridSettings } from '../../../interfaces/settings/grid-settings';
-import { RevOnlyGridSettings } from '../../../interfaces/settings/only-grid-settings';
-import { RevCachedCanvasRenderingContext2D } from '../../../types-utils/cached-canvas-rendering-context-2d';
-import { RevRectangle } from '../../../types-utils/rectangle';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevGridSettings, RevOnlyGridSettings } from '../../../settings/internal-api';
 import { RevCanvas } from '../../canvas/canvas';
 import { RevFocus } from '../../focus/focus';
 import { RevMouse } from '../../mouse/mouse';
