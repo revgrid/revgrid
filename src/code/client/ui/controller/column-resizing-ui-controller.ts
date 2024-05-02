@@ -1,9 +1,9 @@
+import { RevSchemaField } from '../../../common/internal-api';
 import { RevEventBehavior } from '../../behavior/event-behavior';
 import { RevMouse } from '../../components/mouse/mouse';
 import { RevLinedHoverCell } from '../../interfaces/data/lined-hover-cell';
 import { RevViewCell } from '../../interfaces/data/view-cell';
 import { RevColumn, RevColumnAutoSizeableWidth } from '../../interfaces/dataless/column';
-import { RevSchemaField } from '../../interfaces/schema/schema-field';
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../../settings/internal-api';
 import { RevUiController } from './ui-controller';
 

@@ -1,4 +1,4 @@
-import { RevClientObject } from '../../common/internal-api';
+import { RevClientObject, RevSchemaField } from '../../common/internal-api';
 import { RevCanvas } from '../components/canvas/canvas';
 import { RevColumnsManager } from '../components/column/columns-manager';
 import { RevFocus } from '../components/focus/focus';
@@ -8,7 +8,6 @@ import { RevScroller } from '../components/scroller/scroller';
 import { RevSelection } from '../components/selection/selection';
 import { RevSubgridsManager } from '../components/subgrid/subgrids-manager';
 import { RevViewLayout } from '../components/view/view-layout';
-import { RevSchemaField } from '../interfaces/schema/schema-field';
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../settings/internal-api';
 import { RevCellPropertiesBehavior } from './cell-properties-behavior';
 import { RevDataExtractBehavior } from './data-extract-behavior';

@@ -1,10 +1,6 @@
-import { RevAssertError } from '../../../common/internal-api';
-import { RevDataServer } from '../../interfaces/data/data-server';
-import { RevMetaModel } from '../../interfaces/data/meta-model';
+import { RevAssertError, RevDataServer, RevMetaServer, RevSchemaField, RevSchemaServer } from '../../../common/internal-api';
 import { RevSubgrid } from '../../interfaces/data/subgrid';
 import { RevColumn } from '../../interfaces/dataless/column';
-import { RevSchemaField } from '../../interfaces/schema/schema-field';
-import { RevSchemaServer } from '../../interfaces/schema/schema-server';
 import { RevBehavioredColumnSettings, RevGridSettings } from '../../settings/internal-api';
 import { RevColumnsManager } from '../column/columns-manager';
 
@@ -27,7 +23,7 @@ export class RevSubgridImplementation<BCS extends RevBehavioredColumnSettings, S
     /** @internal */
     private _viewDataRowProxy: RevSubgridImplementation.ViewDataRowProxy<SF>; // used if RevDataServer.getRowProperties not implemented
     /** @internal */
-    private readonly _rowPropertiesPrototype: RevMetaModel.RowPropertiesPrototype | null;
+    private readonly _rowPropertiesPrototype: RevMetaServer.RowPropertiesPrototype | null;
 
     private _dataNotificationsClient: RevDataServer.NotificationsClient;
 
@@ -45,11 +41,11 @@ export class RevSubgridImplementation<BCS extends RevBehavioredColumnSettings, S
         readonly role: RevSubgrid.Role,
         readonly schemaServer: RevSchemaServer<SF>,
         readonly dataServer: RevDataServer<SF>,
-        readonly metaModel: RevMetaModel | undefined,
+        readonly metaServer: RevMetaServer | undefined,
         readonly selectable: boolean,
         readonly definitionDefaultRowHeight: number | undefined,
         readonly rowHeightsCanDiffer: boolean,
-        rowPropertiesPrototype: RevMetaModel.RowPropertiesPrototype | undefined,
+        rowPropertiesPrototype: RevMetaServer.RowPropertiesPrototype | undefined,
         public getCellPainterEventer: RevSubgrid.GetCellPainterEventer<BCS, SF>,
     ) {
         switch (role) {
@@ -144,13 +140,13 @@ export class RevSubgridImplementation<BCS extends RevBehavioredColumnSettings, S
     }
 
     getRowMetadata(rowIndex: number) {
-        if (this.metaModel === undefined) {
+        if (this.metaServer === undefined) {
             return undefined;
         } else {
-            if (this.metaModel.getRowMetadata === undefined) {
+            if (this.metaServer.getRowMetadata === undefined) {
                 return undefined;
             } else {
-                const metadata = this.metaModel.getRowMetadata(rowIndex);
+                const metadata = this.metaServer.getRowMetadata(rowIndex);
                 if (metadata === null) {
                     throw new RevAssertError('SGRMN99441'); // Row itself does not exist
                 } else {
@@ -164,10 +160,10 @@ export class RevSubgridImplementation<BCS extends RevBehavioredColumnSettings, S
         }
     }
 
-    setRowMetadata(rowIndex: number, newMetadata: RevMetaModel.RowMetadata | undefined) {
+    setRowMetadata(rowIndex: number, newMetadata: RevMetaServer.RowMetadata | undefined) {
         // eslint-disable-next-line @typescript-eslint/prefer-optional-chain
-        if (this.metaModel !== undefined && this.metaModel.setRowMetadata !== undefined) {
-            this.metaModel.setRowMetadata(rowIndex, newMetadata);
+        if (this.metaServer !== undefined && this.metaServer.setRowMetadata !== undefined) {
+            this.metaServer.setRowMetadata(rowIndex, newMetadata);
         }
     }
 
@@ -178,11 +174,11 @@ export class RevSubgridImplementation<BCS extends RevBehavioredColumnSettings, S
      * _(Required when 3rd param provided.)_
      * @returns The row properties object which will be one of:
      * * object - existing row properties object or new row properties object created from `prototype`; else
-     * * `false` - RevMetaModel get function not set up; else
+     * * `false` - RevMetaServer get function not set up; else
      * * `null` - row does not exist
      * * `undefined` - row exists but does not have any properties
      */
-    getRowProperties(rowIndex: number): RevMetaModel.RowProperties | undefined {
+    getRowProperties(rowIndex: number): RevMetaServer.RowProperties | undefined {
         const metadata = this.getRowMetadata(rowIndex);
         if (metadata === undefined) {
             return undefined;
@@ -191,7 +187,7 @@ export class RevSubgridImplementation<BCS extends RevBehavioredColumnSettings, S
         }
     }
 
-    setRowProperties(rowIndex: number, properties: RevMetaModel.RowProperties | undefined) {
+    setRowProperties(rowIndex: number, properties: RevMetaServer.RowProperties | undefined) {
         const metadata = this.getRowMetadata(rowIndex);
         return this.setRowMetadataRowProperties(rowIndex, metadata, properties);
         // if (metadata) {
@@ -205,7 +201,7 @@ export class RevSubgridImplementation<BCS extends RevBehavioredColumnSettings, S
         if (rowProps === undefined) {
             return undefined;
         } else {
-            return rowProps[key as keyof RevMetaModel.RowProperties];
+            return rowProps[key as keyof RevMetaServer.RowProperties];
         }
     }
 
@@ -286,31 +282,31 @@ export class RevSubgridImplementation<BCS extends RevBehavioredColumnSettings, S
     setRowProperty(y: number, key: string, isHeight: boolean, value: unknown) {
         let metadata = this.getRowMetadata(y);
         if (metadata === undefined) {
-            metadata = Object.create(this._rowPropertiesPrototype) as RevMetaModel.RowMetadata;
+            metadata = Object.create(this._rowPropertiesPrototype) as RevMetaServer.RowMetadata;
         }
-        let properties: RevMetaModel.RowProperties | undefined = metadata.__ROW;
+        let properties: RevMetaServer.RowProperties | undefined = metadata.__ROW;
 
         if (value !== undefined) {
             if (properties === undefined) {
-                const createdProperties = Object.create(this._rowPropertiesPrototype) as RevMetaModel.RowProperties | null;
+                const createdProperties = Object.create(this._rowPropertiesPrototype) as RevMetaServer.RowProperties | null;
                 if (createdProperties === null) {
                     throw new RevAssertError('RPBSRP99441');
                 } else {
                     properties = createdProperties;
                 }
             }
-            properties[key as keyof RevMetaModel.RowProperties] = value;
+            properties[key as keyof RevMetaServer.RowProperties] = value;
         } else {
             if (properties !== undefined) {
                 // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-                delete properties[(isHeight ? '_height' : key) as keyof RevMetaModel.RowProperties]; // If we keep this code, should not use dynamic delete
+                delete properties[(isHeight ? '_height' : key) as keyof RevMetaServer.RowProperties]; // If we keep this code, should not use dynamic delete
             }
         }
 
         return this.setRowMetadataRowProperties(y, metadata, properties);
     }
 
-    private setRowMetadataRowProperties(y: number, existingMetadata: RevMetaModel.RowMetadata | undefined, properties: RevMetaModel.RowProperties | undefined) {
+    private setRowMetadataRowProperties(y: number, existingMetadata: RevMetaServer.RowMetadata | undefined, properties: RevMetaServer.RowProperties | undefined) {
         if (existingMetadata === undefined) {
             // Row exists but does not yet have any Metadata
             if (properties !== undefined) {

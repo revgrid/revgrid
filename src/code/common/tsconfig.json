@@ -10,6 +10,7 @@
   ],
 
   "references": [
+    { "path": "./server-interfaces/tsconfig.json" },
     { "path": "./types-utils/tsconfig.json" },
   ]
 }

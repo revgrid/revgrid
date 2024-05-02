@@ -1,7 +1,6 @@
 // import { Column } from '../../interfaces/data/column';
-import { RevDataServer } from '../../interfaces/data/data-server';
+import { RevDataServer, RevSchemaField } from '../../../common/internal-api';
 import { RevColumn } from '../../interfaces/dataless/column';
-import { RevSchemaField } from '../../interfaces/schema/schema-field';
 import { RevBehavioredColumnSettings } from '../../settings/internal-api';
 
 /** @internal */

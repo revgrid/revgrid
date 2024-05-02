@@ -1,4 +1,4 @@
-import { RevAssertError, RevClientObject, RevListChangedTypeId, RevPoint } from '../../common/internal-api';
+import { RevAssertError, RevClientObject, RevDataServer, RevListChangedTypeId, RevPoint, RevSchemaField } from '../../common/internal-api';
 import { RevCanvas } from '../components/canvas/canvas';
 import { RevColumnsManager } from '../components/column/columns-manager';
 import { RevDispatchableEvent } from '../components/dispatchable-event/dispatchable-event';
@@ -8,11 +8,9 @@ import { RevRenderer } from '../components/renderer/renderer';
 import { RevScroller } from '../components/scroller/scroller';
 import { RevSelection } from '../components/selection/selection';
 import { RevViewLayout } from '../components/view/view-layout';
-import { RevDataServer } from '../interfaces/data/data-server';
 import { RevLinedHoverCell } from '../interfaces/data/lined-hover-cell';
 import { RevViewCell } from '../interfaces/data/view-cell';
 import { RevColumn } from '../interfaces/dataless/column';
-import { RevSchemaField } from '../interfaces/schema/schema-field';
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../settings/internal-api';
 
 /** @public */

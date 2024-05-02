@@ -1,5 +1,5 @@
-import { RevRectangle } from '../../../common/internal-api';
-import { RevSchemaField } from '../schema/schema-field';
+import { RevRectangle } from '../../types-utils/internal-api';
+import { RevSchemaField } from '../schema/internal-api';
 // import { Hypergrid } from '../Hypergrid';
 
 /**

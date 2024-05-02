@@ -1,5 +1,4 @@
-import { RevCssTypes } from '../common/internal-api';
-import { RevSchemaField } from './interfaces/schema/schema-field';
+import { RevCssTypes, RevSchemaField } from '../common/internal-api';
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from './settings/internal-api';
 import { RevUiController } from './ui/controller/ui-controller';
 

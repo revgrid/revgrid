@@ -1,10 +1,9 @@
-import { RevAssertError, RevClientObject, RevEnsureFullyInView, RevEnsureFullyInViewEnum, RevSelectionAreaTypeId, RevStartLength } from '../../common/internal-api';
+import { RevAssertError, RevClientObject, RevEnsureFullyInView, RevEnsureFullyInViewEnum, RevSchemaField, RevSelectionAreaTypeId, RevStartLength } from '../../common/internal-api';
 import { RevFocus } from '../components/focus/focus';
 import { RevSelection } from '../components/selection/selection';
 import { RevViewLayout } from '../components/view/view-layout';
 import { RevSubgrid } from '../interfaces/data/subgrid';
 import { RevViewCell } from '../interfaces/data/view-cell';
-import { RevSchemaField } from '../interfaces/schema/schema-field';
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevGridSettings } from '../settings/internal-api';
 import { RevEventBehavior } from './event-behavior';
 

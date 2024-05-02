@@ -1,8 +1,7 @@
+import { RevDataServer, RevSchemaField } from '../../../common/internal-api';
 import { RevBehavioredColumnSettings } from '../../settings/internal-api';
 import { RevDatalessViewCell } from '../dataless/dataless-view-cell';
 import { RevViewLayoutColumn } from '../dataless/view-layout-column';
-import { RevSchemaField } from '../schema/schema-field';
-import { RevDataServer } from './data-server';
 import { RevSubgrid } from './subgrid';
 import { RevViewLayoutRow } from './view-layout-row';
 

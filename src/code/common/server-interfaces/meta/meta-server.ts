@@ -1,5 +1,5 @@
 /** @public */
-export interface RevMetaModel {
+export interface RevMetaServer {
     /**
      * _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
      *
@@ -13,7 +13,7 @@ export interface RevMetaModel {
      *
      * @returns Metadata store object.
      */
-    getMetadataStore?(): RevMetaModel.RowMetadata[];
+    getMetadataStore?(): RevMetaServer.RowMetadata[];
 
 
     /**
@@ -29,7 +29,7 @@ export interface RevMetaModel {
      * * `undefined` - row found but no existing metadata; else
      * * `null`  - no such row
      */
-    getRowMetadata?(rowIndex: number): null | undefined | RevMetaModel.RowMetadata;
+    getRowMetadata?(rowIndex: number): null | undefined | RevMetaServer.RowMetadata;
 
     /**
      * _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
@@ -45,7 +45,7 @@ export interface RevMetaModel {
      * Hypergrid never calls `getMetadataStore`.
      * @param [newMetadataStore] - New metadata store object. Omitted on data model reset.
      */
-    setMetadataStore?(metadataStore?: RevMetaModel.RowMetadata[]): void;
+    setMetadataStore?(metadataStore?: RevMetaServer.RowMetadata[]): void;
 
     /**
      * _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
@@ -57,12 +57,12 @@ export interface RevMetaModel {
      * @param rowIndex - Row index.
      * @param newMetadata - When omitted, delete the row's metadata.
      */
-    setRowMetadata?(rowIndex: number, newMetadata?: RevMetaModel.RowMetadata): void;
+    setRowMetadata?(rowIndex: number, newMetadata?: RevMetaServer.RowMetadata): void;
 }
 
 /** @public */
-export namespace RevMetaModel {
-    export type Constructor = new () => RevMetaModel;
+export namespace RevMetaServer {
+    export type Constructor = new () => RevMetaServer;
 
     export interface HeightRowProperties {
         height?: number; // will use default height if undefined
@@ -91,7 +91,7 @@ export namespace RevMetaModel {
 
     export type RowMetadataPrototype = null;
 
-    export class DefaultRowProperties implements RevMetaModel.RowPropertiesPrototype {
+    export class DefaultRowProperties implements RevMetaServer.RowPropertiesPrototype {
         [key: string]: unknown;
 
         private _height: number | undefined;

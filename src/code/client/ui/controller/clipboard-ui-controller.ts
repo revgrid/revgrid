@@ -1,4 +1,4 @@
-import { RevSchemaField } from '../../interfaces/schema/schema-field';
+import { RevSchemaField } from '../../../common/internal-api';
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../../settings/internal-api';
 import { RevUiController } from './ui-controller';
 

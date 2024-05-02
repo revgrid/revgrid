@@ -2,7 +2,7 @@
 
 import { Integer } from '@xilytix/sysutils';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { RevClientObject, RevEnsureFullyInViewEnum, RevPoint, RevRectangle, RevSelectionAreaType } from '../common/internal-api';
+import { RevClientObject, RevDataServer, RevEnsureFullyInViewEnum, RevMetaServer, RevPoint, RevRectangle, RevSchemaField, RevSchemaServer, RevSelectionAreaType } from '../common/internal-api';
 import { RevBehaviorManager } from './behavior/behavior-manager';
 import { RevCanvas } from './components/canvas/canvas';
 import { RevColumnsManager } from './components/column/columns-manager';
@@ -16,16 +16,12 @@ import { RevSelection } from './components/selection/selection';
 import { RevSubgridsManager } from './components/subgrid/subgrids-manager';
 import { RevViewLayout } from './components/view/view-layout';
 import { RevCellMetaSettings } from './interfaces/data/cell-meta-settings';
-import { RevDataServer } from './interfaces/data/data-server';
 import { RevLinedHoverCell } from './interfaces/data/lined-hover-cell';
 import { RevMainSubgrid } from './interfaces/data/main-subgrid';
-import { RevMetaModel } from './interfaces/data/meta-model';
 import { RevSubgrid } from './interfaces/data/subgrid';
 import { RevViewCell } from './interfaces/data/view-cell';
 import { RevColumn, RevColumnAutoSizeableWidth } from './interfaces/dataless/column';
 import { RevDatalessSubgrid } from './interfaces/dataless/dataless-subgrid';
-import { RevSchemaField } from './interfaces/schema/schema-field';
-import { RevSchemaServer } from './interfaces/schema/schema-server';
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevColumnSettings } from './settings/internal-api';
 
 /** @public */
@@ -385,7 +381,7 @@ export interface RevGrid<BGS extends RevBehavioredGridSettings, BCS extends RevB
      * @returns The "own" properties of the cell at x,y in the grid. If the cell does not own a properties object, returns `undefined`.
      * @internal
      */
-    getCellOwnProperties(allXOrRenderedCell: Integer | RevViewCell<BCS, SF>, y?: Integer, subgrid?: RevSubgrid<BCS, SF>): RevMetaModel.CellOwnProperties | undefined;
+    getCellOwnProperties(allXOrRenderedCell: Integer | RevViewCell<BCS, SF>, y?: Integer, subgrid?: RevSubgrid<BCS, SF>): RevMetaServer.CellOwnProperties | undefined;
 
     /**
      * Get the properties object for cell.
@@ -398,14 +394,14 @@ export interface RevGrid<BGS extends RevBehavioredGridSettings, BCS extends RevB
      * @returns The properties of the cell at x,y in the grid or falsy if not available.
      * @internal
      */
-    getCellOwnPropertiesFromRenderedCell(renderedCell: RevViewCell<BCS, SF>): RevMetaModel.CellOwnProperties | false | null | undefined;
+    getCellOwnPropertiesFromRenderedCell(renderedCell: RevViewCell<BCS, SF>): RevMetaServer.CellOwnProperties | false | null | undefined;
 
     /** @internal */
     getCellProperties(allX: Integer, y: Integer, subgrid: RevSubgrid<BCS, SF>): RevCellMetaSettings;
 
     /** @internal */
     // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-    getCellOwnPropertyFromRenderedCell(renderedCell: RevViewCell<BCS, SF>, key: string): RevMetaModel.CellOwnProperty | undefined;
+    getCellOwnPropertyFromRenderedCell(renderedCell: RevViewCell<BCS, SF>, key: string): RevMetaServer.CellOwnProperty | undefined;
 
     /**
      * Return a specific cell property.
@@ -417,7 +413,7 @@ export interface RevGrid<BGS extends RevBehavioredGridSettings, BCS extends RevB
      * @returns The specified property for the cell at x,y in the grid.
      * @internal
      */
-    getCellProperty(allX: Integer, y: Integer, key: string | number, subgrid: RevSubgrid<BCS, SF>): RevMetaModel.CellOwnProperty;
+    getCellProperty(allX: Integer, y: Integer, key: string | number, subgrid: RevSubgrid<BCS, SF>): RevMetaServer.CellOwnProperty;
     /** @internal */
     getCellProperty<T extends keyof RevColumnSettings>(allX: Integer, y: Integer, key: T, subgrid: RevSubgrid<BCS, SF>): RevColumnSettings[T];
     /** @internal */
@@ -427,7 +423,7 @@ export interface RevGrid<BGS extends RevBehavioredGridSettings, BCS extends RevB
         key: string | T,
         subgrid: RevSubgrid<BCS, SF>
         // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-    ): RevMetaModel.CellOwnProperty | RevColumnSettings[T];
+    ): RevMetaServer.CellOwnProperty | RevColumnSettings[T];
 
     /**
      * update the data at point x, y with value
@@ -437,9 +433,9 @@ export interface RevGrid<BGS extends RevBehavioredGridSettings, BCS extends RevB
      * @param subgrid - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
      * @internal
      */
-    setCellOwnPropertiesUsingCellEvent(cell: RevViewCell<BCS, SF>, properties: RevMetaModel.CellOwnProperties): void;
+    setCellOwnPropertiesUsingCellEvent(cell: RevViewCell<BCS, SF>, properties: RevMetaServer.CellOwnProperties): void;
     /** @internal */
-    setCellOwnProperties(allX: Integer, y: Integer, properties: RevMetaModel.CellOwnProperties, subgrid: RevSubgrid<BCS, SF>): void;
+    setCellOwnProperties(allX: Integer, y: Integer, properties: RevMetaServer.CellOwnProperties, subgrid: RevSubgrid<BCS, SF>): void;
 
     /**
      * update the data at point x, y with value
@@ -449,9 +445,9 @@ export interface RevGrid<BGS extends RevBehavioredGridSettings, BCS extends RevB
      * @param subgrid - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
      * @internal
      */
-    addCellOwnPropertiesUsingCellEvent(cell: RevViewCell<BCS, SF>, properties: RevMetaModel.CellOwnProperties): void;
+    addCellOwnPropertiesUsingCellEvent(cell: RevViewCell<BCS, SF>, properties: RevMetaServer.CellOwnProperties): void;
     /** @internal */
-    addCellOwnProperties(allX: Integer, y: Integer, properties: RevMetaModel.CellOwnProperties, subgrid: RevSubgrid<BCS, SF>): void;
+    addCellOwnProperties(allX: Integer, y: Integer, properties: RevMetaServer.CellOwnProperties, subgrid: RevSubgrid<BCS, SF>): void;
 
     /**
      * Set a specific cell property.
@@ -468,18 +464,18 @@ export interface RevGrid<BGS extends RevBehavioredGridSettings, BCS extends RevB
      * @param subgrid - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
      * @internal
      */
-    setCellProperty(cell: RevViewCell<BCS, SF>, key: string, value: RevMetaModel.CellOwnProperty): RevMetaModel.CellOwnProperties | undefined;
+    setCellProperty(cell: RevViewCell<BCS, SF>, key: string, value: RevMetaServer.CellOwnProperty): RevMetaServer.CellOwnProperties | undefined;
     /** @internal */
-    setCellProperty(allX: Integer, dataY: Integer, key: string, value: RevMetaModel.CellOwnProperty, subgrid: RevSubgrid<BCS, SF>): RevMetaModel.CellOwnProperties | undefined;
+    setCellProperty(allX: Integer, dataY: Integer, key: string, value: RevMetaServer.CellOwnProperty, subgrid: RevSubgrid<BCS, SF>): RevMetaServer.CellOwnProperties | undefined;
     /** @internal */
     setCellProperty(
         allXOrCell: RevViewCell<BCS, SF> | number,
         yOrKey: string | number,
         // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-        keyOrValue: string | RevMetaModel.CellOwnProperty,
-        value?: RevMetaModel.CellOwnProperty,
+        keyOrValue: string | RevMetaServer.CellOwnProperty,
+        value?: RevMetaServer.CellOwnProperty,
         subgrid?: RevSubgrid<BCS, SF>
-    ): RevMetaModel.CellOwnProperties | undefined;
+    ): RevMetaServer.CellOwnProperties | undefined;
 
     // RevSelection
 

@@ -1,11 +1,9 @@
-import { RevRectangle } from '../../../common/internal-api';
-import { RevMetaModel } from '../../interfaces/data/meta-model';
+import { RevMetaServer, RevRectangle, RevSchemaField } from '../../../common/internal-api';
 import { RevSubgrid } from '../../interfaces/data/subgrid';
 import { RevViewCell } from '../../interfaces/data/view-cell';
 import { RevViewLayoutRow } from '../../interfaces/data/view-layout-row';
 import { RevDatalessViewCell } from '../../interfaces/dataless/dataless-view-cell';
 import { RevViewLayoutColumn } from '../../interfaces/dataless/view-layout-column';
-import { RevSchemaField } from '../../interfaces/schema/schema-field';
 import { RevBehavioredColumnSettings } from '../../settings/internal-api';
 import { RevColumnsManager } from '../column/columns-manager';
 
@@ -17,7 +15,7 @@ export class RevViewCellImplementation<BCS extends RevBehavioredColumnSettings, 
      */
     paintFingerprint: RevDatalessViewCell.PaintFingerprint | undefined;
     // own properties cache
-    cellOwnProperties: RevMetaModel.CellOwnProperties | undefined; // only get via RevCellPropertiesBehavior
+    cellOwnProperties: RevMetaServer.CellOwnProperties | undefined; // only get via RevCellPropertiesBehavior
 
     /** @internal */
     private _subgrid: RevSubgrid<BCS, SF>;
@@ -211,7 +209,7 @@ export class RevViewCellImplementation<BCS extends RevBehavioredColumnSettings, 
         // creates new object as needed
         const rowProperties = this.getRowProperties();
         if (rowProperties !== undefined) {
-            rowProperties[key as keyof RevMetaModel.RowProperties] = value; // todo: call `stateChanged()` after refac-as-flags
+            rowProperties[key as keyof RevMetaServer.RowProperties] = value; // todo: call `stateChanged()` after refac-as-flags
         }
     }
 

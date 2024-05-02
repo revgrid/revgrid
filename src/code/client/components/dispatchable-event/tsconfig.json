@@ -13,7 +13,6 @@
     { "path": "../scroller/tsconfig.json" },
     { "path": "../view/tsconfig.json" },
     { "path": "../../interfaces/data/tsconfig.json" },
-    { "path": "../../interfaces/schema/tsconfig.json" },
     { "path": "../../settings/tsconfig.json" },
     { "path": "../../../common/tsconfig.json" }
   ]

@@ -1,6 +1,6 @@
 import { Integer } from '@xilytix/sysutils';
+import { RevSchemaField } from '../../../common/internal-api';
 import { RevBehavioredColumnSettings } from '../../settings/internal-api';
-import { RevSchemaField } from '../schema/schema-field';
 import { RevColumn } from './column';
 
 /** @public */

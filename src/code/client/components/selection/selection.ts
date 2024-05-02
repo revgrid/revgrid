@@ -1,9 +1,7 @@
 
-import { RevAssertError, RevClientObject, RevRectangle, RevSelectionAreaType, RevSelectionAreaTypeId, RevSelectionAreaTypeSpecifierId, RevUnreachableCaseError } from '../../../common/internal-api';
-import { RevDataServer } from '../../interfaces/data/data-server';
+import { RevAssertError, RevClientObject, RevDataServer, RevRectangle, RevSchemaField, RevSelectionAreaType, RevSelectionAreaTypeId, RevSelectionAreaTypeSpecifierId, RevUnreachableCaseError } from '../../../common/internal-api';
 import { RevSubgrid } from '../../interfaces/data/subgrid';
 import { RevDatalessSubgrid } from '../../interfaces/dataless/dataless-subgrid';
-import { RevSchemaField } from '../../interfaces/schema/schema-field';
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevGridSettings } from '../../settings/internal-api';
 import { RevColumnsManager } from '../column/columns-manager';
 import { RevFocus } from '../focus/focus';

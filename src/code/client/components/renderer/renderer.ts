@@ -1,9 +1,7 @@
-import { RevAssertError, RevClientObject, RevUnreachableCaseError } from '../../../common/internal-api';
+import { RevAssertError, RevClientObject, RevSchemaField, RevServerNotificationId, RevUnreachableCaseError, revInvalidServerNotificationId, revLowestValidServerNotificationId } from '../../../common/internal-api';
 import { RevSelection } from '../../components/selection/selection';
 import { RevSubgrid } from '../../interfaces/data/subgrid';
 import { RevViewCell } from '../../interfaces/data/view-cell';
-import { RevSchemaField } from '../../interfaces/schema/schema-field';
-import { RevServerNotificationId, revInvalidServerNotificationId, revLowestValidServerNotificationId } from '../../interfaces/schema/schema-server';
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../../settings/internal-api';
 import { RevCanvas } from '../canvas/canvas';
 import { RevColumnsManager } from '../column/columns-manager';

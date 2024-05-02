@@ -1,4 +1,4 @@
-import { RevSchemaField } from '../../../interfaces/schema/schema-field';
+import { RevSchemaField } from '../../../../common/internal-api';
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevGridSettings } from '../../../settings/internal-api';
 import { RevCanvas } from '../../canvas/canvas';
 import { RevFocus } from '../../focus/focus';

@@ -1,5 +1,4 @@
-import { RevAssertError } from '../../../common/internal-api';
-import { RevSchemaField } from '../../interfaces/schema/schema-field';
+import { RevAssertError, RevSchemaField } from '../../../common/internal-api';
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevGridSettings } from '../../settings/internal-api';
 import { RevCanvas } from '../canvas/canvas';
 import { RevSubgridsManager } from '../subgrid/subgrids-manager';

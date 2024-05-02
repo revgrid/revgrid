@@ -1,8 +1,6 @@
 import { moveElementInArray } from '@xilytix/sysutils';
-import { RevApiError, RevAssertError, RevClientObject, RevListChangedEventer, RevListChangedTypeId, RevUiableListChangedEventHandler as UiableListChangedEventer } from '../../../common/internal-api';
+import { RevApiError, RevAssertError, RevClientObject, RevListChangedEventer, RevListChangedTypeId, RevSchemaField, RevSchemaServer, RevUiableListChangedEventHandler as UiableListChangedEventer } from '../../../common/internal-api';
 import { RevColumn, RevColumnAutoSizeableWidth } from '../../interfaces/dataless/column';
-import { RevSchemaField } from '../../interfaces/schema/schema-field';
-import { RevSchemaServer } from '../../interfaces/schema/schema-server';
 import { RevBehavioredColumnSettings, RevColumnSettings, RevGridSettings } from '../../settings/internal-api';
 import { RevColumnImplementation } from './column-implementation';
 

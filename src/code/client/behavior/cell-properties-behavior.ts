@@ -1,14 +1,12 @@
-import { RevClientObject } from '../../common/internal-api';
+import { RevClientObject, RevMetaServer, RevSchemaField } from '../../common/internal-api';
 import { RevColumnsManager } from '../components/column/columns-manager';
 import { RevSubgridsManager } from '../components/subgrid/subgrids-manager';
 import { RevViewCellImplementation } from '../components/view/view-cell-implementation';
 import { RevViewLayout } from '../components/view/view-layout';
 import { RevCellMetaSettings } from '../interfaces/data/cell-meta-settings';
-import { RevMetaModel } from '../interfaces/data/meta-model';
 import { RevSubgrid } from '../interfaces/data/subgrid';
 import { RevViewCell } from '../interfaces/data/view-cell';
 import { RevColumn } from '../interfaces/dataless/column';
-import { RevSchemaField } from '../interfaces/schema/schema-field';
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevColumnSettings } from '../settings/internal-api';
 
 export class RevCellPropertiesBehavior<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {
@@ -40,11 +38,11 @@ export class RevCellPropertiesBehavior<BGS extends RevBehavioredGridSettings, BC
      * @returns New cell properties object, based on column properties object, with `properties` copied to it.
      */
     /** @internal */
-    setCellOwnProperties(column: RevColumn<BCS, SF>, rowIndex: number, properties: RevMetaModel.CellOwnProperties | undefined, subgrid: RevSubgrid<BCS, SF>) {
+    setCellOwnProperties(column: RevColumn<BCS, SF>, rowIndex: number, properties: RevMetaServer.CellOwnProperties | undefined, subgrid: RevSubgrid<BCS, SF>) {
         let metadata = subgrid.getRowMetadata(rowIndex);
         if (properties === undefined) {
             if (metadata !== undefined) {
-                const key = column.field.name as keyof RevMetaModel.RowMetadata;
+                const key = column.field.name as keyof RevMetaServer.RowMetadata;
                 // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
                 delete metadata[key]; // If we keep this code, should not use dynamic delete
                 subgrid.setRowMetadata(rowIndex, metadata);
@@ -53,7 +51,7 @@ export class RevCellPropertiesBehavior<BGS extends RevBehavioredGridSettings, BC
             if (metadata === undefined) {
                 metadata = {};
             }
-            const key = column.field.name as keyof RevMetaModel.RowMetadata;
+            const key = column.field.name as keyof RevMetaServer.RowMetadata;
             metadata[key] = properties;
             subgrid.setRowMetadata(rowIndex, metadata);
         }
@@ -65,10 +63,10 @@ export class RevCellPropertiesBehavior<BGS extends RevBehavioredGridSettings, BC
      * @returns Cell's own properties object, which will be created by this call if it did not already exist.
      */
     /** @internal */
-    addCellOwnProperties(column: RevColumn<BCS, SF>, rowIndex: number, properties: RevMetaModel.CellOwnProperties, subgrid: RevSubgrid<BCS, SF>) {
-        const fieldKey = column.field.name as keyof RevMetaModel.RowMetadata;
+    addCellOwnProperties(column: RevColumn<BCS, SF>, rowIndex: number, properties: RevMetaServer.CellOwnProperties, subgrid: RevSubgrid<BCS, SF>) {
+        const fieldKey = column.field.name as keyof RevMetaServer.RowMetadata;
         let metadata = subgrid.getRowMetadata(rowIndex);
-        let existingProperties: RevMetaModel.CellOwnProperties | undefined;
+        let existingProperties: RevMetaServer.CellOwnProperties | undefined;
         if (metadata === undefined) {
             metadata = {};
         } else {
@@ -112,7 +110,7 @@ export class RevCellPropertiesBehavior<BGS extends RevBehavioredGridSettings, BC
         if (metadata === undefined) {
             return undefined;
         } else {
-            const key = column.field.name as keyof RevMetaModel.RowMetadata;
+            const key = column.field.name as keyof RevMetaServer.RowMetadata;
             return metadata[key];
         }
     }
@@ -133,7 +131,7 @@ export class RevCellPropertiesBehavior<BGS extends RevBehavioredGridSettings, BC
      * @returns The specified property for the cell at x,y in the grid.
      */
     /** @internal */
-    getCellProperty(column: RevColumn<BCS, SF>, rowIndex: number, key: string | number, subgrid: RevSubgrid<BCS, SF>): RevMetaModel.CellOwnProperty;
+    getCellProperty(column: RevColumn<BCS, SF>, rowIndex: number, key: string | number, subgrid: RevSubgrid<BCS, SF>): RevMetaServer.CellOwnProperty;
     getCellProperty<T extends keyof RevColumnSettings>(column: RevColumn<BCS, SF>, rowIndex: number, key: T, subgrid: RevSubgrid<BCS, SF>): RevColumnSettings[T];
     getCellProperty<T extends keyof RevColumnSettings>(
         column: RevColumn<BCS, SF>,
@@ -141,7 +139,7 @@ export class RevCellPropertiesBehavior<BGS extends RevBehavioredGridSettings, BC
         key: string | number | T,
         subgrid: RevSubgrid<BCS, SF>
         // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-    ): RevMetaModel.CellOwnProperty | RevColumnSettings[T] {
+    ): RevMetaServer.CellOwnProperty | RevColumnSettings[T] {
         const cellProperties = this.getCellPropertiesAccessor(column, rowIndex, subgrid);
         return cellProperties.get(key);
     }
@@ -161,10 +159,10 @@ export class RevCellPropertiesBehavior<BGS extends RevBehavioredGridSettings, BC
         optionalCell: RevViewCell<BCS, SF> | undefined,
     ) {
         let metadata = subgrid.getRowMetadata(rowIndex);
-        let properties: RevMetaModel.CellOwnProperties | undefined;
+        let properties: RevMetaServer.CellOwnProperties | undefined;
         if (value === undefined) {
             if (metadata !== undefined) {
-                const fieldKey = column.field.name as keyof RevMetaModel.RowMetadata;
+                const fieldKey = column.field.name as keyof RevMetaServer.RowMetadata;
                 properties = metadata[fieldKey];
                 if (properties !== undefined) {
                     // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
@@ -178,7 +176,7 @@ export class RevCellPropertiesBehavior<BGS extends RevBehavioredGridSettings, BC
             if (metadata === undefined) {
                 metadata = {};
             }
-            const fieldKey = column.field.name as keyof RevMetaModel.RowMetadata;
+            const fieldKey = column.field.name as keyof RevMetaServer.RowMetadata;
             properties = metadata[fieldKey];
             if (properties === undefined) {
                 properties = {}
@@ -239,7 +237,7 @@ export class RevCellPropertiesBehavior<BGS extends RevBehavioredGridSettings, BC
      * @param subgrid - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
      * @returns The properties of the cell at x,y in the grid or falsy if not available.
      */
-    getCellOwnPropertiesFromRenderedCell(renderedCell: RevViewCell<BCS, SF>): RevMetaModel.CellOwnProperties | false | null | undefined{
+    getCellOwnPropertiesFromRenderedCell(renderedCell: RevViewCell<BCS, SF>): RevMetaServer.CellOwnProperties | false | null | undefined{
         // do not use for get/set prop because may return null; instead use .getCellProperty('prop') or .properties.prop (preferred) to get, setCellProperty('prop', value) to set
         const viewCellImplementation = renderedCell as RevViewCellImplementation<BCS, SF>;
         let cellOwnProperties = viewCellImplementation.cellOwnProperties;
@@ -251,7 +249,7 @@ export class RevCellPropertiesBehavior<BGS extends RevBehavioredGridSettings, BC
     }
 
     // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-    getCellOwnPropertyFromRenderedCell(renderedCell: RevViewCell<BCS, SF>, key: string): RevMetaModel.CellOwnProperty | undefined {
+    getCellOwnPropertyFromRenderedCell(renderedCell: RevViewCell<BCS, SF>, key: string): RevMetaServer.CellOwnProperty | undefined {
         const cellOwnProperties = this.getCellOwnPropertiesFromRenderedCell(renderedCell);
         if (cellOwnProperties) {
             return cellOwnProperties[key];
@@ -266,7 +264,7 @@ export namespace RevCellPropertiesBehavior {
     export type GetRowMetadataEventer<
         BCS extends RevBehavioredColumnSettings,
         SF extends RevSchemaField
-    > = (this: void, rowIndex: number, subgrid: RevSubgrid<BCS, SF>) => RevMetaModel.RowMetadata | undefined;
+    > = (this: void, rowIndex: number, subgrid: RevSubgrid<BCS, SF>) => RevMetaServer.RowMetadata | undefined;
     export type SetRowMetadataEventer<
         BCS extends RevBehavioredColumnSettings,
         SF extends RevSchemaField
@@ -275,17 +273,17 @@ export namespace RevCellPropertiesBehavior {
 
     export class CellMetaSettingsImplementation implements RevCellMetaSettings {
         constructor(
-            private readonly _cellOwnProperties: RevMetaModel.CellOwnProperties | undefined,
+            private readonly _cellOwnProperties: RevMetaServer.CellOwnProperties | undefined,
             private readonly _columnSettings: RevColumnSettings
         ) {
 
         }
 
         get<T extends keyof RevColumnSettings>(key: T): RevColumnSettings[T];
-        get(key: string | number): RevMetaModel.CellOwnProperty;
+        get(key: string | number): RevMetaServer.CellOwnProperty;
         get<T extends keyof RevColumnSettings>(key: string | number) {
             // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-            let result: RevMetaModel.CellOwnProperty | undefined;
+            let result: RevMetaServer.CellOwnProperty | undefined;
             if (this._cellOwnProperties !== undefined) {
                 result = this._cellOwnProperties[key];
             }

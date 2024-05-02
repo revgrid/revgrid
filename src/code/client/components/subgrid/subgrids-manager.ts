@@ -1,9 +1,6 @@
-import { RevAssertError, RevClientObject } from '../../../common/internal-api';
-import { RevDataServer } from '../../interfaces/data/data-server';
+import { RevAssertError, RevClientObject, RevDataServer, RevMetaServer, RevSchemaField } from '../../../common/internal-api';
 import { RevMainSubgrid } from '../../interfaces/data/main-subgrid';
-import { RevMetaModel } from '../../interfaces/data/meta-model';
 import { RevSubgrid } from '../../interfaces/data/subgrid';
-import { RevSchemaField } from '../../interfaces/schema/schema-field';
 import { RevBehavioredColumnSettings, RevGridSettings } from '../../settings/internal-api';
 import { RevColumnsManager } from '../column/columns-manager';
 import { RevMainSubgridImplementation } from './main-subgrid-implementation';
@@ -108,9 +105,9 @@ export class RevSubgridsManager<BCS extends RevBehavioredColumnSettings, SF exte
         if (typeof dataServer === 'function') {
             dataServer = new dataServer();
         }
-        let metaModel = definition.metaModel;
-        if (typeof metaModel === 'function') {
-            metaModel = new metaModel();
+        let metaServer = definition.metaServer;
+        if (typeof metaServer === 'function') {
+            metaServer = new metaServer();
         }
 
         const rowHeightsCanDiffer = definition.rowPropertiesCanSpecifyRowHeight === true;
@@ -122,7 +119,7 @@ export class RevSubgridsManager<BCS extends RevBehavioredColumnSettings, SF exte
             subgridHandle,
             role,
             dataServer,
-            metaModel,
+            metaServer,
             selectable,
             definition.defaultRowHeight,
             rowHeightsCanDiffer,
@@ -137,10 +134,10 @@ export class RevSubgridsManager<BCS extends RevBehavioredColumnSettings, SF exte
      */
     private createSubgrid(
         subgridHandle: RevSubgridImplementation.Handle,
-        role: RevSubgrid.Role, dataServer: RevDataServer<SF>, metaModel: RevMetaModel | undefined,
+        role: RevSubgrid.Role, dataServer: RevDataServer<SF>, metaServer: RevMetaServer | undefined,
         selectable: boolean,
         defaultRowHeight: number | undefined, rowHeightsCanDiffer: boolean,
-        rowPropertiesPrototype: RevMetaModel.RowPropertiesPrototype | undefined,
+        rowPropertiesPrototype: RevMetaServer.RowPropertiesPrototype | undefined,
         getCellPainterEventer: RevSubgrid.GetCellPainterEventer<BCS, SF>,
     ) {
         let subgrid: RevSubgridImplementation<BCS, SF>;
@@ -152,7 +149,7 @@ export class RevSubgridsManager<BCS extends RevBehavioredColumnSettings, SF exte
                 role,
                 this._columnsManager.schemaServer,
                 dataServer,
-                metaModel,
+                metaServer,
                 selectable,
                 defaultRowHeight,
                 rowHeightsCanDiffer,
@@ -167,7 +164,7 @@ export class RevSubgridsManager<BCS extends RevBehavioredColumnSettings, SF exte
                 role,
                 this._columnsManager.schemaServer,
                 dataServer,
-                metaModel,
+                metaServer,
                 selectable,
                 defaultRowHeight,
                 rowHeightsCanDiffer,

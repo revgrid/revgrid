@@ -570,9 +570,9 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     // (undocumented)
     get activeColumnsViewWidth(): number;
     // @internal (undocumented)
-    addCellOwnProperties(allX: Integer, y: Integer, properties: RevMetaModel.CellOwnProperties, subgrid: RevSubgrid<BCS, SF>): void;
+    addCellOwnProperties(allX: Integer, y: Integer, properties: RevMetaServer.CellOwnProperties, subgrid: RevSubgrid<BCS, SF>): void;
     // @internal
-    addCellOwnPropertiesUsingCellEvent(cell: RevViewCell<BCS, SF>, properties: RevMetaModel.CellOwnProperties): void;
+    addCellOwnPropertiesUsingCellEvent(cell: RevViewCell<BCS, SF>, properties: RevMetaServer.CellOwnProperties): void;
     // (undocumented)
     addEventListener(eventName: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
     // (undocumented)
@@ -739,17 +739,17 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     // (undocumented)
     getBoundsOfCell(gridCell: RevPoint): RevRectangle;
     // @internal
-    getCellOwnProperties(allXOrRenderedCell: Integer | RevViewCell<BCS, SF>, y?: Integer, subgrid?: RevSubgrid<BCS, SF>): RevMetaModel.CellOwnProperties | undefined;
+    getCellOwnProperties(allXOrRenderedCell: Integer | RevViewCell<BCS, SF>, y?: Integer, subgrid?: RevSubgrid<BCS, SF>): RevMetaServer.CellOwnProperties | undefined;
     // @internal
-    getCellOwnPropertiesFromRenderedCell(renderedCell: RevViewCell<BCS, SF>): RevMetaModel.CellOwnProperties | false | null | undefined;
+    getCellOwnPropertiesFromRenderedCell(renderedCell: RevViewCell<BCS, SF>): RevMetaServer.CellOwnProperties | false | null | undefined;
     // @internal (undocumented)
-    getCellOwnPropertyFromRenderedCell(renderedCell: RevViewCell<BCS, SF>, key: string): RevMetaModel.CellOwnProperty | undefined;
+    getCellOwnPropertyFromRenderedCell(renderedCell: RevViewCell<BCS, SF>, key: string): RevMetaServer.CellOwnProperty | undefined;
     // Warning: (ae-forgotten-export) The symbol "RevCellMetaSettings" needs to be exported by the entry point public-api.d.ts
     //
     // @internal (undocumented)
     getCellProperties(allX: Integer, y: Integer, subgrid: RevSubgrid<BCS, SF>): RevCellMetaSettings;
     // @internal
-    getCellProperty(allX: Integer, y: Integer, key: string | number, subgrid: RevSubgrid<BCS, SF>): RevMetaModel.CellOwnProperty;
+    getCellProperty(allX: Integer, y: Integer, key: string | number, subgrid: RevSubgrid<BCS, SF>): RevMetaServer.CellOwnProperty;
     // @internal (undocumented)
     getCellProperty<T extends keyof RevColumnSettings>(allX: Integer, y: Integer, key: T, subgrid: RevSubgrid<BCS, SF>): RevColumnSettings[T];
     // (undocumented)
@@ -886,13 +886,13 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     setActiveColumnsAutoWidthSizing(widenOnly: boolean): void;
     setActiveColumnWidth(columnOrIndex: Integer | RevColumn<BCS, SF>, width: Integer, ui: boolean): void;
     // @internal (undocumented)
-    setCellOwnProperties(allX: Integer, y: Integer, properties: RevMetaModel.CellOwnProperties, subgrid: RevSubgrid<BCS, SF>): void;
+    setCellOwnProperties(allX: Integer, y: Integer, properties: RevMetaServer.CellOwnProperties, subgrid: RevSubgrid<BCS, SF>): void;
     // @internal
-    setCellOwnPropertiesUsingCellEvent(cell: RevViewCell<BCS, SF>, properties: RevMetaModel.CellOwnProperties): void;
+    setCellOwnPropertiesUsingCellEvent(cell: RevViewCell<BCS, SF>, properties: RevMetaServer.CellOwnProperties): void;
     // @internal
-    setCellProperty(cell: RevViewCell<BCS, SF>, key: string, value: RevMetaModel.CellOwnProperty): RevMetaModel.CellOwnProperties | undefined;
+    setCellProperty(cell: RevViewCell<BCS, SF>, key: string, value: RevMetaServer.CellOwnProperty): RevMetaServer.CellOwnProperties | undefined;
     // @internal (undocumented)
-    setCellProperty(allX: Integer, dataY: Integer, key: string, value: RevMetaModel.CellOwnProperty, subgrid: RevSubgrid<BCS, SF>): RevMetaModel.CellOwnProperties | undefined;
+    setCellProperty(allX: Integer, dataY: Integer, key: string, value: RevMetaServer.CellOwnProperty, subgrid: RevSubgrid<BCS, SF>): RevMetaServer.CellOwnProperties | undefined;
     // (undocumented)
     setColumnScrollAnchor(index: Integer, offset: Integer): boolean;
     // (undocumented)
@@ -3284,16 +3284,16 @@ export const revLowestValidServerNotificationId = 0;
 export type RevMainSubgrid<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> = RevSubgrid<BCS, SF>;
 
 // @public (undocumented)
-export interface RevMetaModel {
-    getMetadataStore?(): RevMetaModel.RowMetadata[];
-    getRowMetadata?(rowIndex: number): null | undefined | RevMetaModel.RowMetadata;
+export interface RevMetaServer {
+    getMetadataStore?(): RevMetaServer.RowMetadata[];
+    getRowMetadata?(rowIndex: number): null | undefined | RevMetaServer.RowMetadata;
     // Warning: (tsdoc-param-tag-with-invalid-optional-name) The @param should not include a JSDoc-style optional name; it must not be enclosed in '[ ]' brackets.
-    setMetadataStore?(metadataStore?: RevMetaModel.RowMetadata[]): void;
-    setRowMetadata?(rowIndex: number, newMetadata?: RevMetaModel.RowMetadata): void;
+    setMetadataStore?(metadataStore?: RevMetaServer.RowMetadata[]): void;
+    setRowMetadata?(rowIndex: number, newMetadata?: RevMetaServer.RowMetadata): void;
 }
 
 // @public (undocumented)
-export namespace RevMetaModel {
+export namespace RevMetaServer {
     // (undocumented)
     export type CellOwnProperties = Record<string, CellOwnProperty>;
     // (undocumented)
@@ -3304,9 +3304,9 @@ export namespace RevMetaModel {
     // (undocumented)
     export type CellOwnProperty = unknown;
     // (undocumented)
-    export type Constructor = new () => RevMetaModel;
+    export type Constructor = new () => RevMetaServer;
     // (undocumented)
-    export class DefaultRowProperties implements RevMetaModel.RowPropertiesPrototype {
+    export class DefaultRowProperties implements RevMetaServer.RowPropertiesPrototype {
         constructor(_heightChangedEventer: DefaultRowProperties.HeightChangedEventer);
         // (undocumented)
         [key: string]: unknown;
@@ -4119,7 +4119,7 @@ export namespace RevRecordGrid {
         // (undocumented)
         rowPropertiesCanSpecifyRowHeight?: boolean;
         // (undocumented)
-        rowPropertiesPrototype?: RevMetaModel.RowPropertiesPrototype;
+        rowPropertiesPrototype?: RevMetaServer.RowPropertiesPrototype;
         // (undocumented)
         selectable?: boolean;
     }
@@ -5998,9 +5998,9 @@ export interface RevSubgrid<BCS extends RevBehavioredColumnSettings, SF extends 
     // (undocumented)
     getRowHeight(rowIndex: number): number;
     // (undocumented)
-    getRowMetadata(rowIndex: number): RevMetaModel.RowMetadata | undefined;
+    getRowMetadata(rowIndex: number): RevMetaServer.RowMetadata | undefined;
     // (undocumented)
-    getRowProperties(rowIndex: number): RevMetaModel.RowProperties | undefined;
+    getRowProperties(rowIndex: number): RevMetaServer.RowProperties | undefined;
     // (undocumented)
     getRowProperty(rowIndex: number, key: string): unknown | undefined;
     // (undocumented)
@@ -6010,13 +6010,13 @@ export interface RevSubgrid<BCS extends RevBehavioredColumnSettings, SF extends 
     // (undocumented)
     getViewValueFromDataRowAtColumn(dataRow: RevDataServer.ViewRow, column: RevColumn<BCS, SF>): RevDataServer.ViewValue;
     // (undocumented)
-    readonly metaModel: RevMetaModel | undefined;
+    readonly metaServer: RevMetaServer | undefined;
     // (undocumented)
     readonly schemaServer: RevSchemaServer<SF>;
     // (undocumented)
-    setRowMetadata(rowIndex: number, newMetadata: RevMetaModel.RowMetadata | undefined): void;
+    setRowMetadata(rowIndex: number, newMetadata: RevMetaServer.RowMetadata | undefined): void;
     // (undocumented)
-    setRowProperties(rowIndex: number, properties: RevMetaModel.RowProperties | undefined): boolean;
+    setRowProperties(rowIndex: number, properties: RevMetaServer.RowProperties | undefined): boolean;
     // (undocumented)
     setRowProperty(y: number, key: string, isHeight: boolean, value: unknown): boolean;
     readonly viewRowCount: number;
@@ -6033,12 +6033,12 @@ export namespace RevSubgrid {
         // (undocumented)
         getCellPainterEventer: GetCellPainterEventer<BCS, SF>;
         // (undocumented)
-        metaModel?: RevMetaModel | RevMetaModel.Constructor;
+        metaServer?: RevMetaServer | RevMetaServer.Constructor;
         role?: RevDatalessSubgrid.Role;
         // (undocumented)
         rowPropertiesCanSpecifyRowHeight?: boolean;
         // (undocumented)
-        rowPropertiesPrototype?: RevMetaModel.RowPropertiesPrototype;
+        rowPropertiesPrototype?: RevMetaServer.RowPropertiesPrototype;
         // (undocumented)
         selectable?: boolean;
     }

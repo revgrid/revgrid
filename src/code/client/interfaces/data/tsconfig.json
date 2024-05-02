@@ -11,7 +11,6 @@
 
   "references": [
     { "path": "../dataless/tsconfig.json" },
-    { "path": "../schema/tsconfig.json" },
     { "path": "../../settings/tsconfig.json" },
     { "path": "../../../common/tsconfig.json" }
   ]

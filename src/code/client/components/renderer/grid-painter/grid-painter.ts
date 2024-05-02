@@ -1,9 +1,8 @@
 import { getErrorMessage } from '@xilytix/sysutils';
-import { RevCachedCanvasRenderingContext2D, RevRectangle } from '../../../../common/internal-api';
+import { RevCachedCanvasRenderingContext2D, RevRectangle, RevSchemaField } from '../../../../common/internal-api';
 import { RevViewCell } from '../../../interfaces/data/view-cell';
 import { RevViewLayoutRow } from '../../../interfaces/data/view-layout-row';
 import { RevViewLayoutColumn } from '../../../interfaces/dataless/view-layout-column';
-import { RevSchemaField } from '../../../interfaces/schema/schema-field';
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevGridSettings, RevOnlyGridSettings } from '../../../settings/internal-api';
 import { RevCanvas } from '../../canvas/canvas';
 import { RevFocus } from '../../focus/focus';

@@ -1,18 +1,15 @@
+import { RevDataServer, RevMetaServer, RevSchemaField, RevSchemaServer } from '../../../common/internal-api';
 import { RevBehavioredColumnSettings } from '../../settings/internal-api';
 import { RevColumn } from '../dataless/column';
 import { RevDatalessSubgrid } from '../dataless/dataless-subgrid';
 import { RevDatalessViewCell } from '../dataless/dataless-view-cell';
-import { RevSchemaField } from '../schema/schema-field';
-import { RevSchemaServer } from '../schema/schema-server';
 import { RevCellPainter } from './cell-painter';
-import { RevDataServer } from './data-server';
-import { RevMetaModel } from './meta-model';
 
 /** @public */
 export interface RevSubgrid<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevDatalessSubgrid {
     readonly schemaServer: RevSchemaServer<SF>;
     readonly dataServer: RevDataServer<SF>;
-    readonly metaModel: RevMetaModel | undefined;
+    readonly metaServer: RevMetaServer | undefined;
 
     /** Only valid if {@link RevSubgrid:interface.viewRowCount} > 0 */
     readonly firstViewRowIndex: number;
@@ -26,11 +23,11 @@ export interface RevSubgrid<BCS extends RevBehavioredColumnSettings, SF extends 
 
     getDefaultRowHeight(): number;
 
-    getRowMetadata(rowIndex: number): RevMetaModel.RowMetadata | undefined;
-    setRowMetadata(rowIndex: number, newMetadata: RevMetaModel.RowMetadata | undefined): void;
+    getRowMetadata(rowIndex: number): RevMetaServer.RowMetadata | undefined;
+    setRowMetadata(rowIndex: number, newMetadata: RevMetaServer.RowMetadata | undefined): void;
 
-    getRowProperties(rowIndex: number): RevMetaModel.RowProperties | undefined;
-    setRowProperties(rowIndex: number, properties: RevMetaModel.RowProperties | undefined): boolean;
+    getRowProperties(rowIndex: number): RevMetaServer.RowProperties | undefined;
+    setRowProperties(rowIndex: number, properties: RevMetaServer.RowProperties | undefined): boolean;
 
     // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
     getRowProperty(rowIndex: number, key: string): unknown | undefined;
@@ -59,11 +56,11 @@ export namespace RevSubgrid {
         /** defaults to main */
         role?: RevDatalessSubgrid.Role;
         dataServer: RevDataServer<SF> | RevDataServer.Constructor<SF>;
-        metaModel?: RevMetaModel | RevMetaModel.Constructor;
+        metaServer?: RevMetaServer | RevMetaServer.Constructor;
         selectable?: boolean;
         defaultRowHeight?: number;
         rowPropertiesCanSpecifyRowHeight?: boolean;
-        rowPropertiesPrototype?: RevMetaModel.RowPropertiesPrototype;
+        rowPropertiesPrototype?: RevMetaServer.RowPropertiesPrototype;
         getCellPainterEventer: GetCellPainterEventer<BCS, SF>;
     }
 }

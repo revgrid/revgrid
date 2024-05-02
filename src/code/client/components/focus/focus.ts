@@ -1,12 +1,10 @@
-import { RevAssertError, RevClientObject, RevPartialPoint, RevPoint, revCalculateAdjustmentForRangeMoved } from '../../../common/internal-api';
+import { RevAssertError, RevClientObject, RevDataServer, RevPartialPoint, RevPoint, RevSchemaField, revCalculateAdjustmentForRangeMoved } from '../../../common/internal-api';
 import { RevCellEditor } from '../../interfaces/data/cell-editor';
-import { RevDataServer } from '../../interfaces/data/data-server';
 import { RevMainSubgrid } from '../../interfaces/data/main-subgrid';
 import { RevSubgrid } from '../../interfaces/data/subgrid';
 import { RevViewCell } from '../../interfaces/data/view-cell';
 import { RevDatalessSubgrid } from '../../interfaces/dataless/dataless-subgrid';
 import { RevDatalessViewCell } from '../../interfaces/dataless/dataless-view-cell';
-import { RevSchemaField } from '../../interfaces/schema/schema-field';
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevGridSettings } from '../../settings/internal-api';
 import { RevCanvas } from '../canvas/canvas';
 import { RevColumnsManager } from '../column/columns-manager';

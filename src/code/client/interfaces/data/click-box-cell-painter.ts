@@ -1,7 +1,6 @@
-import { RevRectangle } from '../../../common/internal-api';
+import { RevRectangle, RevSchemaField } from '../../../common/internal-api';
 import { RevBehavioredColumnSettings } from '../../settings/internal-api';
 import { RevDatalessViewCell } from '../dataless/dataless-view-cell';
-import { RevSchemaField } from '../schema/schema-field';
 import { RevCellPainter } from './cell-painter';
 
 /** @public */

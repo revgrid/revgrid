@@ -1,6 +1,5 @@
-import { RevClientObject, RevPoint } from '../../../common/internal-api';
+import { RevClientObject, RevPoint, RevSchemaField } from '../../../common/internal-api';
 import { RevViewCell } from '../../interfaces/data/view-cell';
-import { RevSchemaField } from '../../interfaces/schema/schema-field';
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../../settings/internal-api';
 import { RevCanvas } from '../canvas/canvas';
 import { RevViewLayout } from '../view/view-layout';

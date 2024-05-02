@@ -1,5 +1,5 @@
+import { RevSchemaField } from '../../../common/internal-api';
 import { RevMainSubgrid } from '../../interfaces/data/main-subgrid';
-import { RevSchemaField } from '../../interfaces/schema/schema-field';
 import { RevBehavioredColumnSettings } from '../../settings/internal-api';
 import { RevSubgridImplementation } from './subgrid-implementation';
 

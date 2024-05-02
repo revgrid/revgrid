@@ -1,11 +1,10 @@
 
-import { RevAssertError, RevModifierKey, RevSelectionAreaTypeId, RevStartLength, RevUnreachableCaseError } from '../../../common/internal-api';
+import { RevAssertError, RevModifierKey, RevSchemaField, RevSelectionAreaTypeId, RevStartLength, RevUnreachableCaseError } from '../../../common/internal-api';
 import { RevFocus } from '../../components/focus/focus';
 import { RevMouse } from '../../components/mouse/mouse';
 import { RevLinedHoverCell } from '../../interfaces/data/lined-hover-cell';
 import { RevSubgrid } from '../../interfaces/data/subgrid';
 import { RevViewCell } from '../../interfaces/data/view-cell';
-import { RevSchemaField } from '../../interfaces/schema/schema-field';
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevGridSettings } from '../../settings/internal-api';
 import { RevUiController } from './ui-controller';
 

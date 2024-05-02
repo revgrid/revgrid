@@ -1,0 +1,16 @@
+{
+  "extends": "../../../tsconfig.code.json",
+
+  "compilerOptions": {
+    "tsBuildInfoFile": "../../../../../tsbuildinfo/code-common-server-interfaces-data.tsbuildinfo"
+  },
+
+  "include": [
+    "*.ts"
+  ],
+
+  "references": [
+    { "path": "../schema/tsconfig.json" },
+    { "path": "../../types-utils/tsconfig.json" },
+  ]
+}

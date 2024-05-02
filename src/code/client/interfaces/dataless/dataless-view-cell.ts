@@ -1,6 +1,5 @@
-import { RevRectangle } from '../../../common/internal-api';
+import { RevRectangle, RevSchemaField } from '../../../common/internal-api';
 import { RevBehavioredColumnSettings } from '../../settings/internal-api';
-import { RevSchemaField } from '../schema/schema-field';
 import { RevDatalessSubgrid } from './dataless-subgrid';
 import { RevDatalessViewLayoutRow } from './dataless-view-layout-row';
 import { RevViewLayoutColumn } from './view-layout-column';

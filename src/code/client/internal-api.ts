@@ -1,5 +1,9 @@
 // Public API
 
+export { RevMetaServer } from '../common/internal-api';
+export { RevDataServer } from '../common/server-interfaces/data/data-server';
+export { RevSchemaField } from '../common/server-interfaces/schema/schema-field';
+export { RevSchemaServer, RevServerNotificationId, revInvalidServerNotificationId, revLowestValidServerNotificationId } from '../common/server-interfaces/schema/schema-server';
 export { RevClientGrid } from './client-grid';
 export { RevCanvas } from './components/canvas/canvas';
 export { RevColumnsManager } from './components/column/columns-manager';
@@ -22,10 +26,8 @@ export { RevIClientGrid } from './i-client-grid';
 export { RevCellEditor } from './interfaces/data/cell-editor';
 export { RevCellPainter } from './interfaces/data/cell-painter';
 export { RevClickBoxCellPainter } from './interfaces/data/click-box-cell-painter';
-export { RevDataServer } from './interfaces/data/data-server';
 export { RevLinedHoverCell } from './interfaces/data/lined-hover-cell';
 export { RevMainSubgrid } from './interfaces/data/main-subgrid';
-export { RevMetaModel } from './interfaces/data/meta-model';
 export { RevSubgrid } from './interfaces/data/subgrid';
 export { RevViewCell } from './interfaces/data/view-cell';
 export { RevViewLayoutRow } from './interfaces/data/view-layout-row';
@@ -34,8 +36,6 @@ export { RevDatalessSubgrid } from './interfaces/dataless/dataless-subgrid';
 export { RevDatalessViewCell } from './interfaces/dataless/dataless-view-cell';
 export { RevDatalessViewLayoutRow } from './interfaces/dataless/dataless-view-layout-row';
 export { RevViewLayoutColumn } from './interfaces/dataless/view-layout-column';
-export { RevSchemaField } from './interfaces/schema/schema-field';
-export { RevSchemaServer, RevServerNotificationId, revInvalidServerNotificationId, revLowestValidServerNotificationId } from './interfaces/schema/schema-server';
 export * from './settings/internal-api';
 export { RevUiController } from './ui/controller/ui-controller';
 
