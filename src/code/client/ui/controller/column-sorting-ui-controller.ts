@@ -1,5 +1,5 @@
 import { RevSchemaField } from '../../../common/internal-api';
-import { RevLinedHoverCell } from '../../interfaces/data/lined-hover-cell';
+import { RevLinedHoverCell } from '../../interfaces/lined-hover-cell';
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../../settings/internal-api';
 import { RevUiController } from './ui-controller';
 

@@ -1,7 +1,8 @@
-import { RevCachedCanvasRenderingContext2D, RevSchemaField } from '../../../common/internal-api';
-import { RevBehavioredColumnSettings } from '../../settings/internal-api';
-import { RevDatalessViewCell } from '../dataless/dataless-view-cell';
+import { RevCachedCanvasRenderingContext2D, RevSchemaField } from '../../common/internal-api';
+import { RevBehavioredColumnSettings } from '../settings/internal-api';
+// eslint-disable-next-line import/no-cycle
 import { RevCellPossiblyPaintable } from './cell-possibly-paintable';
+import { RevViewCell } from './view-cell';
 
 /**
  * Implementations of `RevCellPainter` are used to render the 2D graphics context within the bound of a cell.
@@ -16,7 +17,7 @@ export interface RevCellPainter<BCS extends RevBehavioredColumnSettings, SF exte
      * An empty implementation of a cell renderer, see [the null object pattern](http://c2.com/cgi/wiki?NullObject).
      * @returns Preferred pixel width of content. The content may or may not be rendered at that width depending on whether or not `config.bounds` was respected and whether or not the grid renderer is using clipping. (Clipping is generally not used due to poor performance.)
      */
-    paint(cell: RevDatalessViewCell<BCS, SF>, prefillColor: string | undefined): number | undefined;
+    paint(cell: RevViewCell<BCS, SF>, prefillColor: string | undefined): number | undefined;
 
 }
 

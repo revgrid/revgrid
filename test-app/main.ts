@@ -4,8 +4,6 @@ import {
     InMemoryStandardBehavioredGridSettings,
     RevCellEditor,
     RevClientGrid,
-    RevDatalessSubgrid,
-    RevDatalessViewCell,
     RevDispatchableEvent,
     RevGridDefinition,
     RevSubgrid,
@@ -218,12 +216,12 @@ export class Main {
             schemaServer: this._schemaServer,
             subgrids: [
                 {
-                    role: RevDatalessSubgrid.RoleEnum.header,
+                    role: RevSubgrid.RoleEnum.header,
                     dataServer: this._headerDataServer,
                     getCellPainterEventer: (viewCell) => this.getHeaderCellPainter(viewCell),
                 },
                 {
-                    role: RevDatalessSubgrid.RoleEnum.main,
+                    role: RevSubgrid.RoleEnum.main,
                     dataServer: this._mainDataServer,
                     getCellPainterEventer: (viewCell) => this.getMainCellPainter(viewCell),
                 }
@@ -300,7 +298,7 @@ export class Main {
         return columnSettings;
     }
 
-    private getMainCellPainter(viewCell: RevDatalessViewCell<StandardBehavioredColumnSettings, AppSchemaField>) {
+    private getMainCellPainter(viewCell: RevViewCell<StandardBehavioredColumnSettings, AppSchemaField>) {
         let cellPainter: StandardCellPainter<
             StandardBehavioredGridSettings,
             StandardBehavioredColumnSettings,
@@ -315,7 +313,7 @@ export class Main {
         return cellPainter;
     }
 
-    private getHeaderCellPainter(viewCell: RevDatalessViewCell<StandardBehavioredColumnSettings, AppSchemaField>) {
+    private getHeaderCellPainter(viewCell: RevViewCell<StandardBehavioredColumnSettings, AppSchemaField>) {
         return this._headerCellPainter;
     }
 

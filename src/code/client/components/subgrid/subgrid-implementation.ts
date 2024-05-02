@@ -1,6 +1,6 @@
 import { RevAssertError, RevDataServer, RevMetaServer, RevSchemaField, RevSchemaServer } from '../../../common/internal-api';
-import { RevSubgrid } from '../../interfaces/data/subgrid';
-import { RevColumn } from '../../interfaces/dataless/column';
+import { RevColumn } from '../../interfaces/column';
+import { RevSubgrid } from '../../interfaces/subgrid';
 import { RevBehavioredColumnSettings, RevGridSettings } from '../../settings/internal-api';
 import { RevColumnsManager } from '../column/columns-manager';
 

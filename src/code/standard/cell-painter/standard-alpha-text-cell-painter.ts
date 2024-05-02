@@ -3,8 +3,8 @@ import { IndexSignatureHack, isArrayEqual } from '@xilytix/sysutils';
 import {
     RevClientGrid,
     RevDataServer,
-    RevDatalessViewCell,
     RevSchemaField,
+    RevViewCell,
 } from '../../client/internal-api';
 import { RevRectangle } from '../../common/internal-api';
 import { RevStandardTextPainter } from '../painters/internal-api';
@@ -36,7 +36,7 @@ export class RevStandardAlphaTextCellPainter<
         this._textPainter = new RevStandardTextPainter(this._renderingContext);
     }
 
-    override paint(cell: RevDatalessViewCell<BCS, SF>, prefillColor: string | undefined): number | undefined {
+    override paint(cell: RevViewCell<BCS, SF>, prefillColor: string | undefined): number | undefined {
         const grid = this._grid;
 
         const gridSettings = this._gridSettings;

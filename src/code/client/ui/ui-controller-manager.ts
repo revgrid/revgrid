@@ -15,7 +15,7 @@ import { RevScroller } from '../components/scroller/scroller';
 import { RevSelection } from '../components/selection/selection';
 import { RevSubgridsManager } from '../components/subgrid/subgrids-manager';
 import { RevViewLayout } from '../components/view/view-layout';
-import { RevLinedHoverCell } from '../interfaces/data/lined-hover-cell';
+import { RevLinedHoverCell } from '../interfaces/lined-hover-cell';
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../settings/internal-api';
 import { RevCellClickUiController } from './controller/cell-click-ui-controller';
 import { RevClipboardUiController } from './controller/clipboard-ui-controller';

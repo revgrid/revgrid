@@ -1,7 +1,7 @@
 import { RevAssertError, RevClientObject, RevDataServer, RevSchemaField, RevSelectionAreaTypeId, RevUnreachableCaseError } from '../../common/internal-api';
 import { RevColumnsManager } from '../components/column/columns-manager';
 import { RevSelection } from '../components/selection/selection';
-import { RevColumn } from '../interfaces/dataless/column';
+import { RevColumn } from '../interfaces/column';
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../settings/internal-api';
 
 /** @public */

@@ -1,10 +1,10 @@
 import { RevAssertError, RevClientObject, RevDataServer, RevInexclusiveRectangle, RevRectangle, RevSchemaField, RevUnreachableCaseError } from '../../../common/internal-api';
-import { RevLinedHoverCell } from '../../interfaces/data/lined-hover-cell';
-import { RevSubgrid } from '../../interfaces/data/subgrid';
-import { RevViewCell } from '../../interfaces/data/view-cell';
-import { RevViewLayoutRow } from '../../interfaces/data/view-layout-row';
-import { RevColumn } from '../../interfaces/dataless/column';
-import { RevViewLayoutColumn } from '../../interfaces/dataless/view-layout-column';
+import { RevColumn } from '../../interfaces/column';
+import { RevLinedHoverCell } from '../../interfaces/lined-hover-cell';
+import { RevSubgrid } from '../../interfaces/subgrid';
+import { RevViewCell } from '../../interfaces/view-cell';
+import { RevViewLayoutColumn } from '../../interfaces/view-layout-column';
+import { RevViewLayoutRow } from '../../interfaces/view-layout-row';
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../../settings/internal-api';
 import { RevCanvas } from '../canvas/canvas';
 import { RevColumnsManager } from '../column/columns-manager';

@@ -2,10 +2,9 @@ import {
     MultiHeadingDataRowArrayServerSet,
     MultiHeadingSchemaField,
     RevClientGrid,
-    RevDatalessSubgrid,
-    RevDatalessViewCell,
     RevLinedHoverCell,
     RevPoint,
+    RevViewCell,
     StandardAlphaTextCellPainter,
     StandardBehavioredColumnSettings,
     StandardBehavioredGridSettings,
@@ -64,12 +63,12 @@ export class DataRowArrayGrid extends RevClientGrid<
             schemaServer,
             subgrids: [
                 {
-                    role: RevDatalessSubgrid.RoleEnum.header,
+                    role: RevSubgrid.RoleEnum.header,
                     dataServer: headerDataServer,
                     getCellPainterEventer: (viewCell) => this.getHeaderCellPainter(viewCell),
                 },
                 {
-                    role: RevDatalessSubgrid.RoleEnum.main,
+                    role: RevSubgrid.RoleEnum.main,
                     dataServer: mainDataServer,
                     getCellPainterEventer: (viewCell) => this.getMainCellPainter(viewCell),
                 }
@@ -138,11 +137,11 @@ export class DataRowArrayGrid extends RevClientGrid<
         this._serverSet.setData(data, headerRowCount)
     }
 
-    private getHeaderCellPainter(_viewCell: RevDatalessViewCell<StandardBehavioredColumnSettings, MultiHeadingSchemaField>) {
+    private getHeaderCellPainter(_viewCell: RevViewCell<StandardBehavioredColumnSettings, MultiHeadingSchemaField>) {
         return this._headerCellPainter;
     }
 
-    private getMainCellPainter(_viewCell: RevDatalessViewCell<StandardBehavioredColumnSettings, MultiHeadingSchemaField>) {
+    private getMainCellPainter(_viewCell: RevViewCell<StandardBehavioredColumnSettings, MultiHeadingSchemaField>) {
         return this._textCellPainter;
     }
 }

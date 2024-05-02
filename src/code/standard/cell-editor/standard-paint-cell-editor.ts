@@ -1,4 +1,4 @@
-import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevCellPainter, RevClientGrid, RevDataServer, RevDatalessViewCell, RevSchemaField } from '../../client/internal-api';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevCellPainter, RevClientGrid, RevDataServer, RevSchemaField, RevViewCell } from '../../client/internal-api';
 import { RevStandardCellEditor } from './standard-cell-editor';
 
 /** @public */
@@ -11,7 +11,7 @@ export abstract class RevStandardPaintCellEditor<
         super(grid, dataServer);
     }
 
-    paint(cell: RevDatalessViewCell<BCS, SF>, prefillColor: string | undefined) {
+    paint(cell: RevViewCell<BCS, SF>, prefillColor: string | undefined) {
         return this._painter.paint(cell, prefillColor);
     }
 }

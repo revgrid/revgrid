@@ -1,4 +1,4 @@
-import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevCellEditor, RevClickBoxCellPainter, RevDatalessViewCell, RevSchemaField } from '../../client/internal-api';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevCellEditor, RevClickBoxCellPainter, RevSchemaField, RevViewCell } from '../../client/internal-api';
 import { RevRectangle } from '../../common/internal-api';
 import { RevStandardPaintCellEditor } from './standard-paint-cell-editor';
 
@@ -10,7 +10,7 @@ export class RevStandardToggleClickBoxCellEditor<
 > extends RevStandardPaintCellEditor<BGS, BCS, SF> {
     declare protected _painter: RevClickBoxCellPainter<BCS, SF>;
 
-    override tryOpenCell(cell: RevDatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined) {
+    override tryOpenCell(cell: RevViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined) {
         const dataServer = this._dataServer;
         if (dataServer.getEditValue === undefined || this.readonly) {
             return false;
@@ -43,7 +43,7 @@ export class RevStandardToggleClickBoxCellEditor<
         }
     }
 
-    processGridClickEvent(event: MouseEvent, viewCell: RevDatalessViewCell<BCS, SF>) {
+    processGridClickEvent(event: MouseEvent, viewCell: RevViewCell<BCS, SF>) {
         const boxBounds = this._painter.calculateClickBox(viewCell);
         if (boxBounds === undefined) {
             return false;
@@ -59,7 +59,7 @@ export class RevStandardToggleClickBoxCellEditor<
         }
     }
 
-    processGridPointerMoveEvent(event: PointerEvent, viewCell: RevDatalessViewCell<BCS, SF>): RevCellEditor.PointerLocationInfo | undefined {
+    processGridPointerMoveEvent(event: PointerEvent, viewCell: RevViewCell<BCS, SF>): RevCellEditor.PointerLocationInfo | undefined {
         const boxBounds = this._painter.calculateClickBox(viewCell);
         if (boxBounds === undefined) {
             return undefined;

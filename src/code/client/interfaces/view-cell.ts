@@ -1,14 +1,18 @@
-import { RevRectangle, RevSchemaField } from '../../../common/internal-api';
-import { RevBehavioredColumnSettings } from '../../settings/internal-api';
-import { RevDatalessSubgrid } from './dataless-subgrid';
-import { RevDatalessViewLayoutRow } from './dataless-view-layout-row';
+import { RevDataServer, RevRectangle, RevSchemaField } from '../../common/internal-api';
+import { RevBehavioredColumnSettings } from '../settings/internal-api';
+// eslint-disable-next-line import/no-cycle
+import { RevSubgrid } from './subgrid';
 import { RevViewLayoutColumn } from './view-layout-column';
+import { RevViewLayoutRow } from './view-layout-row';
 
 /** @public */
-export interface RevDatalessViewCell<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> {
+export interface RevViewCell<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> {
+
+    readonly viewValue: RevDataServer.ViewValue;
+
     readonly viewLayoutColumn: RevViewLayoutColumn<BCS, SF>;
-    readonly subgrid: RevDatalessSubgrid;
-    readonly viewLayoutRow: RevDatalessViewLayoutRow;
+    readonly subgrid: RevSubgrid<BCS, SF>;
+    readonly viewLayoutRow: RevViewLayoutRow<BCS, SF>;
 
     readonly bounds: RevRectangle;
     readonly columnSettings: BCS;
@@ -27,16 +31,16 @@ export interface RevDatalessViewCell<BCS extends RevBehavioredColumnSettings, SF
     readonly isFilter: boolean;
     readonly isSummary: boolean;
 
-    paintFingerprint: RevDatalessViewCell.PaintFingerprint | undefined;
+    paintFingerprint: RevViewCell.PaintFingerprint | undefined;
 
     clearCellOwnProperties(): void;
 }
 
 /** @public */
-export namespace RevDatalessViewCell {
+export namespace RevViewCell {
     export type PaintFingerprint = Record<string, unknown>;
 
-    export function sameByDataPoint<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField>(left: RevDatalessViewCell<BCS, SF>, right: RevDatalessViewCell<BCS, SF>) {
+    export function sameByDataPoint<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField>(left: RevViewCell<BCS, SF>, right: RevViewCell<BCS, SF>) {
         return (
             left.viewLayoutRow.subgridRowIndex === right.viewLayoutRow.subgridRowIndex &&
             left.viewLayoutColumn.column.field.index === right.viewLayoutColumn.column.field.index &&

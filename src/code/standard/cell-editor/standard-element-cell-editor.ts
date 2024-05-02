@@ -1,5 +1,5 @@
 import { numberToPixels } from '@xilytix/sysutils';
-import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevClientGrid, RevDataServer, RevDatalessViewCell, RevSchemaField } from '../../client/internal-api';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevClientGrid, RevDataServer, RevSchemaField, RevViewCell } from '../../client/internal-api';
 import { RevRectangle } from '../../common/internal-api';
 import { RevStandardCellEditor } from './standard-cell-editor';
 
@@ -18,7 +18,7 @@ export abstract class RevStandardElementCellEditor<
         element.style.visibility = 'hidden';
     }
 
-    override tryOpenCell(_viewCell: RevDatalessViewCell<BCS, SF>, _openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined) {
+    override tryOpenCell(_viewCell: RevViewCell<BCS, SF>, _openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined) {
         this._grid.canvas.hostElement.appendChild(this.element);
         return true;
     }

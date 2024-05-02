@@ -1,6 +1,6 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
-import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevClientGrid, RevDatalessSubgrid, RevGridDefinition, RevGridOptions, RevSubgrid } from '../../../client/internal-api';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevClientGrid, RevGridDefinition, RevGridOptions, RevSubgrid } from '../../../client/internal-api';
 import { RevApiError, RevAssertError } from '../../../common/internal-api';
 import { RevDataRowArrayDataServer, RevDataRowArrayGrid, RevDataRowArraySchemaServer } from '../../../data-row-array/internal-api';
 import { RevSingleHeadingDataServer } from '../../../header/internal-api';
@@ -33,12 +33,12 @@ export class RevSingleHeadingDataRowArraySourcedFieldGrid<
             schemaServer,
             subgrids: [
                 {
-                    role: RevDatalessSubgrid.Role.header,
+                    role: RevSubgrid.Role.header,
                     dataServer: headerDataServer,
                     getCellPainterEventer: getHeaderCellPainterEventer,
                 },
                 {
-                    role: RevDatalessSubgrid.Role.main,
+                    role: RevSubgrid.Role.main,
                     dataServer: mainDataServer,
                     getCellPainterEventer: getMainCellPainterEventer,
                 },

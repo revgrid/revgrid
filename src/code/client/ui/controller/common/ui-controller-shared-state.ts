@@ -1,4 +1,4 @@
-import { RevCellEditor } from '../../../interfaces/data/cell-editor';
+import { RevCellEditor } from '../../../interfaces/cell-editor';
 
 export interface RevUiControllerSharedState extends RevCellEditor.PointerLocationInfo {
     locationCursorName: string | undefined;

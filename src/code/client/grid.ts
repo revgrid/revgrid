@@ -15,13 +15,7 @@ import { RevLastSelectionArea } from './components/selection/last-selection-area
 import { RevSelection } from './components/selection/selection';
 import { RevSubgridsManager } from './components/subgrid/subgrids-manager';
 import { RevViewLayout } from './components/view/view-layout';
-import { RevCellMetaSettings } from './interfaces/data/cell-meta-settings';
-import { RevLinedHoverCell } from './interfaces/data/lined-hover-cell';
-import { RevMainSubgrid } from './interfaces/data/main-subgrid';
-import { RevSubgrid } from './interfaces/data/subgrid';
-import { RevViewCell } from './interfaces/data/view-cell';
-import { RevColumn, RevColumnAutoSizeableWidth } from './interfaces/dataless/column';
-import { RevDatalessSubgrid } from './interfaces/dataless/dataless-subgrid';
+import { RevCellMetaSettings, RevColumn, RevColumnAutoSizeableWidth, RevLinedHoverCell, RevMainSubgrid, RevSubgrid, RevViewCell } from './interfaces/internal-api';
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevColumnSettings } from './settings/internal-api';
 
 /** @public */
@@ -516,16 +510,16 @@ export interface RevGrid<BGS extends RevBehavioredGridSettings, BCS extends RevB
     isCellSelected(x: Integer, y: Integer, subgrid?: RevSubgrid<BCS, SF>): boolean;
 
     /** Returns undefined if not selected, false if selected with others, true if the only cell selected */
-    isOnlyThisCellSelected(x: Integer, y: Integer, subgrid?: RevDatalessSubgrid): boolean | undefined;
+    isOnlyThisCellSelected(x: Integer, y: Integer, subgrid?: RevSubgrid<BCS, SF>): boolean | undefined;
 
-    getOneCellSelectionAreaType(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid: RevDatalessSubgrid): RevSelectionAreaType | undefined;
+    getOneCellSelectionAreaType(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid: RevSubgrid<BCS, SF>): RevSelectionAreaType | undefined;
 
-    getAllCellSelectionAreaTypeIds(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid: RevDatalessSubgrid): RevSelectionAreaType[];
+    getAllCellSelectionAreaTypeIds(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid: RevSubgrid<BCS, SF>): RevSelectionAreaType[];
 
     isSelectedCellTheOnlySelectedCell(
         activeColumnIndex: Integer,
         subgridRowIndex: Integer,
-        datalessSubgrid: RevDatalessSubgrid,
+        subgrid: RevSubgrid<BCS, SF>,
         selectedType?: RevSelectionAreaType,
     ): boolean;
 

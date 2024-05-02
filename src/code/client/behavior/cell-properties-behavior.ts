@@ -3,10 +3,10 @@ import { RevColumnsManager } from '../components/column/columns-manager';
 import { RevSubgridsManager } from '../components/subgrid/subgrids-manager';
 import { RevViewCellImplementation } from '../components/view/view-cell-implementation';
 import { RevViewLayout } from '../components/view/view-layout';
-import { RevCellMetaSettings } from '../interfaces/data/cell-meta-settings';
-import { RevSubgrid } from '../interfaces/data/subgrid';
-import { RevViewCell } from '../interfaces/data/view-cell';
-import { RevColumn } from '../interfaces/dataless/column';
+import { RevCellMetaSettings } from '../interfaces/cell-meta-settings';
+import { RevColumn } from '../interfaces/column';
+import { RevSubgrid } from '../interfaces/subgrid';
+import { RevViewCell } from '../interfaces/view-cell';
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevColumnSettings } from '../settings/internal-api';
 
 export class RevCellPropertiesBehavior<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {

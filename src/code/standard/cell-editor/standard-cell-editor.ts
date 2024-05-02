@@ -1,4 +1,4 @@
-import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevCellEditor, RevClientGrid, RevDataServer, RevDatalessViewCell, RevFocus, RevSchemaField } from '../../client/internal-api';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevCellEditor, RevClientGrid, RevDataServer, RevFocus, RevSchemaField, RevViewCell } from '../../client/internal-api';
 
 /** @public */
 export abstract class RevStandardCellEditor<
@@ -22,7 +22,7 @@ export abstract class RevStandardCellEditor<
         this.setReadonly(value); // defer this to a method which can be safely overridden (cannot override a getter or setter in Javascript without overriding both)
     }
 
-    abstract tryOpenCell(viewCell: RevDatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined): boolean;
+    abstract tryOpenCell(viewCell: RevViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined): boolean;
     abstract closeCell(field: SF, subgridRowIndex: number, cancel: boolean): void;
 
     abstract processGridKeyDownEvent(event: KeyboardEvent, fromEditor: boolean, field: SF, subgridRowIndex: number): boolean;

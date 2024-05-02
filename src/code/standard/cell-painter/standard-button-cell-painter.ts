@@ -1,5 +1,5 @@
 
-import { RevCellPainter, RevDatalessViewCell, RevSchemaField } from '../../client/internal-api';
+import { RevCellPainter, RevSchemaField, RevViewCell } from '../../client/internal-api';
 import { RevRectangle } from '../../common/internal-api';
 import { RevStandardBehavioredColumnSettings, RevStandardBehavioredGridSettings } from '../settings/internal-api';
 import { RevStandardCellPainter } from './standard-cell-painter';
@@ -15,7 +15,7 @@ export class RevStandardButtonCellPainter<
 > extends RevStandardCellPainter<BGS, BCS, SF> {
     config: RevStandardButtonCellPainter.Config;
 
-    override paint(cell: RevDatalessViewCell<BCS, SF>, _prefillColor: string | undefined): number | undefined {
+    override paint(cell: RevViewCell<BCS, SF>, _prefillColor: string | undefined): number | undefined {
         const gc = this._renderingContext;
         const config = this.config;
 

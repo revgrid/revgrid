@@ -3,8 +3,8 @@ import {
     RevBehavioredGridSettings,
     RevClientGrid,
     RevDataServer,
-    RevDatalessViewCell,
-    RevSchemaField
+    RevSchemaField,
+    RevViewCell
 } from '../../client/internal-api';
 import { RevCachedCanvasRenderingContext2D, RevRectangle } from '../../common/internal-api';
 
@@ -26,7 +26,7 @@ export abstract class RevStandardCellPainter<
         this._renderingContext = grid.canvas.gc;
     }
 
-    abstract paint(cell: RevDatalessViewCell<BCS, SF>, prefillColor: string | undefined): number | undefined;
+    abstract paint(cell: RevViewCell<BCS, SF>, prefillColor: string | undefined): number | undefined;
 
     protected paintBackground(bounds: RevRectangle, backgroundColor: string) {
         const gc = this._renderingContext;

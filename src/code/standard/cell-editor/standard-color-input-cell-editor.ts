@@ -1,4 +1,4 @@
-import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevClientGrid, RevDataServer, RevDatalessViewCell, RevSchemaField } from '../../client/internal-api';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevClientGrid, RevDataServer, RevSchemaField, RevViewCell } from '../../client/internal-api';
 import { RevAssertError } from '../../common/internal-api';
 import { RevStandardInputElementCellEditor } from './standard-input-element-cell-editor';
 
@@ -13,7 +13,7 @@ export class RevStandardColorInputCellEditor<
         this.element.classList.add('revgrid-color-input-editor');
     }
 
-    override tryOpenCell(cell: RevDatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined) {
+    override tryOpenCell(cell: RevViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined) {
         const dataServer = this._dataServer;
         if (dataServer.getEditValue === undefined) {
             return false;

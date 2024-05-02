@@ -12,7 +12,7 @@
   "references": [
     { "path": "../focus/tsconfig.json" },
     { "path": "../column/tsconfig.json" },
-    { "path": "../../interfaces/data/tsconfig.json" },
+    { "path": "../../interfaces/tsconfig.json" },
     { "path": "../../settings/tsconfig.json" },
     { "path": "../../../common/tsconfig.json" },
   ]

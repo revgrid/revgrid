@@ -1,7 +1,6 @@
 
 import { RevAssertError, RevClientObject, RevDataServer, RevRectangle, RevSchemaField, RevSelectionAreaType, RevSelectionAreaTypeId, RevSelectionAreaTypeSpecifierId, RevUnreachableCaseError } from '../../../common/internal-api';
-import { RevSubgrid } from '../../interfaces/data/subgrid';
-import { RevDatalessSubgrid } from '../../interfaces/dataless/dataless-subgrid';
+import { RevSubgrid } from '../../interfaces/internal-api';
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevGridSettings } from '../../settings/internal-api';
 import { RevColumnsManager } from '../column/columns-manager';
 import { RevFocus } from '../focus/focus';
@@ -590,12 +589,12 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
         return this._columns.includesIndex(activeColumnIndex);
     }
 
-    isCellSelected(x: number, y: number, subgrid: RevDatalessSubgrid): boolean {
+    isCellSelected(x: number, y: number, subgrid: RevSubgrid<BCS, SF>): boolean {
         return this.getOneCellSelectionAreaTypeId(x, y, subgrid) !== undefined;
     }
 
     /** Returns undefined if not selected, false if selected with others, true if the only cell selected */
-    isOnlyThisCellSelected(x: number, y: number, subgrid: RevDatalessSubgrid): boolean | undefined {
+    isOnlyThisCellSelected(x: number, y: number, subgrid: RevSubgrid<BCS, SF>): boolean | undefined {
         const selectedType = this.getOneCellSelectionAreaTypeId(x, y, subgrid);
         if (selectedType === undefined) {
             return undefined;
@@ -604,7 +603,7 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
         }
     }
 
-    getOneCellSelectionAreaTypeId(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevDatalessSubgrid): RevSelectionAreaTypeId | undefined {
+    getOneCellSelectionAreaTypeId(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): RevSelectionAreaTypeId | undefined {
         if (subgrid !== this._subgrid) {
             return undefined;
         } else {
@@ -628,7 +627,7 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
         }
     }
 
-    getAllCellSelectionAreaTypeIds(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevDatalessSubgrid): RevSelectionAreaTypeId[] {
+    getAllCellSelectionAreaTypeIds(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): RevSelectionAreaTypeId[] {
         if (subgrid !== this._subgrid) {
             return [];
         } else {
@@ -652,11 +651,10 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
     isSelectedCellTheOnlySelectedCell(
         activeColumnIndex: number,
         subgridRowIndex: number,
-        datalessSubgrid: RevDatalessSubgrid,
+        subgrid: RevSubgrid<BCS, SF>, // assume this was previously checked by getCellSelectedType
         selectedTypeId: RevSelectionAreaTypeId
     ) {
         const activeColumnCount = this._columnsManager.activeColumnCount;
-        const subgrid = datalessSubgrid as RevSubgrid<BCS, SF>; // assume this was previously checked by getCellSelectedType
         const subgridRowCount = subgrid.getRowCount();
         switch (selectedTypeId) {
             case RevSelectionAreaTypeId.all:

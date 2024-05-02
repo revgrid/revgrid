@@ -1,10 +1,5 @@
 import { RevAssertError, RevClientObject, RevDataServer, RevPartialPoint, RevPoint, RevSchemaField, revCalculateAdjustmentForRangeMoved } from '../../../common/internal-api';
-import { RevCellEditor } from '../../interfaces/data/cell-editor';
-import { RevMainSubgrid } from '../../interfaces/data/main-subgrid';
-import { RevSubgrid } from '../../interfaces/data/subgrid';
-import { RevViewCell } from '../../interfaces/data/view-cell';
-import { RevDatalessSubgrid } from '../../interfaces/dataless/dataless-subgrid';
-import { RevDatalessViewCell } from '../../interfaces/dataless/dataless-view-cell';
+import { RevCellEditor, RevMainSubgrid, RevSubgrid, RevViewCell } from '../../interfaces/internal-api';
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevGridSettings } from '../../settings/internal-api';
 import { RevCanvas } from '../canvas/canvas';
 import { RevColumnsManager } from '../column/columns-manager';
@@ -321,11 +316,11 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
         return this._current !== undefined && mainSubgridRowIndex === this._current.y;
     }
 
-    isCellFocused(cell: RevDatalessViewCell<BCS, SF>) {
+    isCellFocused(cell: RevViewCell<BCS, SF>) {
         return cell === this._cell;
     }
 
-    isGridPointFocused(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevDatalessSubgrid) {
+    isGridPointFocused(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>) {
         return subgrid === this._mainSubgrid && this.isMainSubgridGridPointFocused(activeColumnIndex, subgridRowIndex);
     }
 

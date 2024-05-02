@@ -1,7 +1,7 @@
-import { RevDataServer, RevRectangle, RevSchemaField } from '../../../common/internal-api';
-import { RevBehavioredColumnSettings } from '../../settings/internal-api';
-import { RevDatalessViewCell } from '../dataless/dataless-view-cell';
+import { RevDataServer, RevRectangle, RevSchemaField } from '../../common/internal-api';
+import { RevBehavioredColumnSettings } from '../settings/internal-api';
 import { RevCellPossiblyPaintable } from './cell-possibly-paintable';
+import { RevViewCell } from './view-cell';
 
 /** @public */
 export interface RevCellEditor<
@@ -15,7 +15,7 @@ export interface RevCellEditor<
     readonly: boolean;
 
     /** Provide the initial data to the editor. This is done after all events have been subscribed to - so editor can start running */
-    tryOpenCell(viewCell: RevDatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined): boolean;
+    tryOpenCell(viewCell: RevViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined): boolean;
     /** Close the editor - returns data that was in editor or undefined if cancel specified */
     closeCell(field: SF, subgridRowIndex: number, cancel: boolean): void;
 
@@ -25,9 +25,9 @@ export interface RevCellEditor<
     /** See if the editor wants the key down event.  If fromEditor is true, then this editor generated the event in the first place */
     processGridKeyDownEvent(event: KeyboardEvent, fromEditor: boolean, field: SF, subgridRowIndex: number): boolean;
     /** See if the editor wants the mouse down event.  If fromEditor is true, then this editor generated the event in the first place */
-    processGridClickEvent?(event: MouseEvent, viewCell: RevDatalessViewCell<BCS, SF>): boolean;
+    processGridClickEvent?(event: MouseEvent, viewCell: RevViewCell<BCS, SF>): boolean;
     /** See if the editor wants the mouse move event.  If fromEditor is true, then this editor generated the event in the first place */
-    processGridPointerMoveEvent?(event: PointerEvent, viewCell: RevDatalessViewCell<BCS, SF>): RevCellEditor.PointerLocationInfo | undefined;
+    processGridPointerMoveEvent?(event: PointerEvent, viewCell: RevViewCell<BCS, SF>): RevCellEditor.PointerLocationInfo | undefined;
 
     /** Get latest data from data server */
     pullCellValueEventer?: RevCellEditor.PullCellValueEventer;

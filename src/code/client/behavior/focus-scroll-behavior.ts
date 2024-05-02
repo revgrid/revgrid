@@ -3,8 +3,8 @@ import { RevColumnsManager } from '../components/column/columns-manager';
 import { RevFocus } from '../components/focus/focus';
 import { RevSubgridsManager } from '../components/subgrid/subgrids-manager';
 import { RevViewLayout } from '../components/view/view-layout';
-import { RevMainSubgrid } from '../interfaces/data/main-subgrid';
-import { RevViewCell } from '../interfaces/data/view-cell';
+import { RevMainSubgrid } from '../interfaces/main-subgrid';
+import { RevViewCell } from '../interfaces/view-cell';
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevGridSettings } from '../settings/internal-api';
 
 export class RevFocusScrollBehavior<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {

@@ -1,6 +1,6 @@
 
 import { IndexSignatureHack } from '@xilytix/sysutils';
-import { RevClientGrid, RevDataServer, RevDatalessViewCell, RevGridSettings, RevSchemaField } from '../../client/internal-api';
+import { RevClientGrid, RevDataServer, RevGridSettings, RevSchemaField, RevViewCell } from '../../client/internal-api';
 import { RevRectangle, revSafeConvertUnknownToBoolean } from '../../common/internal-api';
 import { RevStandardCheckboxPainter } from '../painters/internal-api';
 import { RevStandardBehavioredColumnSettings, RevStandardBehavioredGridSettings } from '../settings/internal-api';
@@ -27,7 +27,7 @@ export class RevStandardCheckboxCellPainter<
         );
     }
 
-    override paint(cell: RevDatalessViewCell<BCS, SF>, prefillColor: string | undefined): number | undefined {
+    override paint(cell: RevViewCell<BCS, SF>, prefillColor: string | undefined): number | undefined {
         const columnSettings = cell.columnSettings;
         const bounds = cell.bounds;
         const field = cell.viewLayoutColumn.column.field;
@@ -101,7 +101,7 @@ export class RevStandardCheckboxCellPainter<
         }
     }
 
-    calculateClickBox(cell: RevDatalessViewCell<BCS, SF>): RevRectangle | undefined {
+    calculateClickBox(cell: RevViewCell<BCS, SF>): RevRectangle | undefined {
         const columnSettings = cell.columnSettings;
         const bounds = cell.bounds;
 

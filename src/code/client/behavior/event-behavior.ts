@@ -8,9 +8,9 @@ import { RevRenderer } from '../components/renderer/renderer';
 import { RevScroller } from '../components/scroller/scroller';
 import { RevSelection } from '../components/selection/selection';
 import { RevViewLayout } from '../components/view/view-layout';
-import { RevLinedHoverCell } from '../interfaces/data/lined-hover-cell';
-import { RevViewCell } from '../interfaces/data/view-cell';
-import { RevColumn } from '../interfaces/dataless/column';
+import { RevColumn } from '../interfaces/column';
+import { RevLinedHoverCell } from '../interfaces/lined-hover-cell';
+import { RevViewCell } from '../interfaces/view-cell';
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../settings/internal-api';
 
 /** @public */

@@ -1,9 +1,5 @@
 import { RevMetaServer, RevRectangle, RevSchemaField } from '../../../common/internal-api';
-import { RevSubgrid } from '../../interfaces/data/subgrid';
-import { RevViewCell } from '../../interfaces/data/view-cell';
-import { RevViewLayoutRow } from '../../interfaces/data/view-layout-row';
-import { RevDatalessViewCell } from '../../interfaces/dataless/dataless-view-cell';
-import { RevViewLayoutColumn } from '../../interfaces/dataless/view-layout-column';
+import { RevSubgrid, RevViewCell, RevViewLayoutColumn, RevViewLayoutRow } from '../../interfaces/internal-api';
 import { RevBehavioredColumnSettings } from '../../settings/internal-api';
 import { RevColumnsManager } from '../column/columns-manager';
 
@@ -13,7 +9,7 @@ export class RevViewCellImplementation<BCS extends RevBehavioredColumnSettings, 
      * cell does not need to be repainted
      * @internal
      */
-    paintFingerprint: RevDatalessViewCell.PaintFingerprint | undefined;
+    paintFingerprint: RevViewCell.PaintFingerprint | undefined;
     // own properties cache
     cellOwnProperties: RevMetaServer.CellOwnProperties | undefined; // only get via RevCellPropertiesBehavior
 

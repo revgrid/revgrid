@@ -2,8 +2,8 @@ import { RevAssertError, RevClientObject, RevEnsureFullyInView, RevEnsureFullyIn
 import { RevFocus } from '../components/focus/focus';
 import { RevSelection } from '../components/selection/selection';
 import { RevViewLayout } from '../components/view/view-layout';
-import { RevSubgrid } from '../interfaces/data/subgrid';
-import { RevViewCell } from '../interfaces/data/view-cell';
+import { RevSubgrid } from '../interfaces/subgrid';
+import { RevViewCell } from '../interfaces/view-cell';
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevGridSettings } from '../settings/internal-api';
 import { RevEventBehavior } from './event-behavior';
 

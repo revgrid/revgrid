@@ -22,13 +22,7 @@ import { RevGrid } from './grid';
 import { RevGridDefinition } from './grid-definition';
 import { RevGridOptions } from './grid-options';
 import { RevIdGenerator } from './id-generator';
-import { RevCellMetaSettings } from './interfaces/data/cell-meta-settings';
-import { RevLinedHoverCell } from './interfaces/data/lined-hover-cell';
-import { RevMainSubgrid } from './interfaces/data/main-subgrid';
-import { RevSubgrid } from './interfaces/data/subgrid';
-import { RevViewCell } from './interfaces/data/view-cell';
-import { RevColumn, RevColumnAutoSizeableWidth } from './interfaces/dataless/column';
-import { RevDatalessSubgrid } from './interfaces/dataless/dataless-subgrid';
+import { RevCellMetaSettings, RevColumn, RevColumnAutoSizeableWidth, RevLinedHoverCell, RevMainSubgrid, RevSubgrid, RevViewCell } from './interfaces/internal-api';
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevColumnSettings } from './settings/internal-api';
 import { RevUiManager } from './ui/ui-controller-manager';
 
@@ -1378,14 +1372,14 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     }
 
     /** Returns undefined if not selected, false if selected with others, true if the only cell selected */
-    isOnlyThisCellSelected(x: Integer, y: Integer, subgrid?: RevDatalessSubgrid): boolean | undefined {
+    isOnlyThisCellSelected(x: Integer, y: Integer, subgrid?: RevSubgrid<BCS, SF>): boolean | undefined {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
         return this.selection.isOnlyThisCellSelected(x, y, subgrid);
     }
 
-    getOneCellSelectionAreaType(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid: RevDatalessSubgrid): RevSelectionAreaType | undefined {
+    getOneCellSelectionAreaType(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid: RevSubgrid<BCS, SF>): RevSelectionAreaType | undefined {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
@@ -1398,7 +1392,7 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
         }
     }
 
-    getAllCellSelectionAreaTypeIds(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid: RevDatalessSubgrid): RevSelectionAreaType[] {
+    getAllCellSelectionAreaTypeIds(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid: RevSubgrid<BCS, SF>): RevSelectionAreaType[] {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
@@ -1409,11 +1403,11 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     isSelectedCellTheOnlySelectedCell(
         activeColumnIndex: Integer,
         subgridRowIndex: Integer,
-        datalessSubgrid: RevDatalessSubgrid,
+        subgrid: RevSubgrid<BCS, SF>,
         selectedType: RevSelectionAreaType = 'rectangle',
     ) {
         const selectedTypeId = RevSelectionAreaType.toId(selectedType);
-        return this.selection.isSelectedCellTheOnlySelectedCell(activeColumnIndex, subgridRowIndex, datalessSubgrid, selectedTypeId)
+        return this.selection.isSelectedCellTheOnlySelectedCell(activeColumnIndex, subgridRowIndex, subgrid, selectedTypeId)
     }
 
     areColumnsOrRowsSelected(includeAllAuto = true) {

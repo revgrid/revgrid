@@ -1,4 +1,4 @@
-import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevCellEditor, RevClientGrid, RevDataServer, RevDatalessViewCell, RevFocus, RevSchemaField } from '../../client/internal-api';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevCellEditor, RevClientGrid, RevDataServer, RevFocus, RevSchemaField, RevViewCell } from '../../client/internal-api';
 import { RevStandardElementCellEditor } from './standard-element-cell-editor';
 
 /** @public */
@@ -26,7 +26,7 @@ export abstract class RevStandardInputElementCellEditor<
         this.element.readOnly = value;
     }
 
-    override tryOpenCell(viewCell: RevDatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined) {
+    override tryOpenCell(viewCell: RevViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined) {
         const result = super.tryOpenCell(viewCell, openingKeyDownEvent, openingClickEvent);
         if (result) {
             this.element.addEventListener('keydown', this.keyDownEventer);

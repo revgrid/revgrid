@@ -1,8 +1,8 @@
 
 import { RevSchemaField } from '../../../common/internal-api';
 import { RevViewCellImplementation } from '../../components/view/view-cell-implementation';
-import { RevLinedHoverCell } from '../../interfaces/data/lined-hover-cell';
-import { RevViewCell } from '../../interfaces/data/view-cell';
+import { RevLinedHoverCell } from '../../interfaces/lined-hover-cell';
+import { RevViewCell } from '../../interfaces/view-cell';
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../../settings/internal-api';
 import { RevUiController } from './ui-controller';
 

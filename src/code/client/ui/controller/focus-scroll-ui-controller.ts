@@ -1,8 +1,8 @@
 import { RevAssertError, RevHorizontalWheelScrollingAllowedId, RevSchemaField, RevUnreachableCaseError } from '../../../common/internal-api';
 import { RevFocus } from '../../components/focus/focus';
 import { RevScroller } from '../../components/scroller/scroller';
-import { RevLinedHoverCell } from '../../interfaces/data/lined-hover-cell';
-import { RevViewCell } from '../../interfaces/data/view-cell';
+import { RevLinedHoverCell } from '../../interfaces/lined-hover-cell';
+import { RevViewCell } from '../../interfaces/view-cell';
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevGridSettings } from '../../settings/internal-api';
 import { RevUiController } from './ui-controller';
 

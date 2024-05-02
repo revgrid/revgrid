@@ -1,5 +1,5 @@
 
-import { RevDatalessViewCell, RevSchemaField } from '../../client/internal-api';
+import { RevSchemaField, RevViewCell } from '../../client/internal-api';
 import { RevStandardBehavioredColumnSettings, RevStandardBehavioredGridSettings } from '../settings/internal-api';
 import { RevStandardCellPainter } from './standard-cell-painter';
 
@@ -10,7 +10,7 @@ export class RevStandardTagCellPainter<
     SF extends RevSchemaField
 > extends RevStandardCellPainter<BGS, BCS, SF> {
 
-    override paint(_cell: RevDatalessViewCell<BCS, SF>, _prefillColor: string | undefined): number | undefined {
+    override paint(_cell: RevViewCell<BCS, SF>, _prefillColor: string | undefined): number | undefined {
         // const gc = this._renderingContext;
         // const tagbands: TagCellPainter.Tagband[] | undefined = undefined; // should be config.tagbands
         // if (tagbands) {

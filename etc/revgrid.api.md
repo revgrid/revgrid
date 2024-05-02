@@ -499,8 +499,6 @@ export namespace RevCanvas {
     canvasCssSuffix = "canvas";
 }
 
-// Warning: (ae-forgotten-export) The symbol "RevCellPossiblyPaintable" needs to be exported by the entry point public-api.d.ts
-//
 // @public (undocumented)
 export interface RevCellEditor<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevCellPossiblyPaintable<BCS, SF> {
     cellClosedEventer?: RevCellEditor.CellClosedEventer;
@@ -508,14 +506,14 @@ export interface RevCellEditor<BCS extends RevBehavioredColumnSettings, SF exten
     focus?(): void;
     invalidateValue?(): void;
     keyDownEventer?: RevCellEditor.KeyDownEventer;
-    processGridClickEvent?(event: MouseEvent, viewCell: RevDatalessViewCell<BCS, SF>): boolean;
+    processGridClickEvent?(event: MouseEvent, viewCell: RevViewCell<BCS, SF>): boolean;
     processGridKeyDownEvent(event: KeyboardEvent, fromEditor: boolean, field: SF, subgridRowIndex: number): boolean;
-    processGridPointerMoveEvent?(event: PointerEvent, viewCell: RevDatalessViewCell<BCS, SF>): RevCellEditor.PointerLocationInfo | undefined;
+    processGridPointerMoveEvent?(event: PointerEvent, viewCell: RevViewCell<BCS, SF>): RevCellEditor.PointerLocationInfo | undefined;
     pullCellValueEventer?: RevCellEditor.PullCellValueEventer;
     pushCellValueEventer?: RevCellEditor.PushCellValueEventer;
     readonly: boolean;
     setBounds?(bounds: RevRectangle | undefined): void;
-    tryOpenCell(viewCell: RevDatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined): boolean;
+    tryOpenCell(viewCell: RevViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined): boolean;
 }
 
 // @public (undocumented)
@@ -537,9 +535,17 @@ export namespace RevCellEditor {
     export type PushCellValueEventer = (this: void, value: RevDataServer.ViewValue) => void;
 }
 
+// @public (undocumented)
+export interface RevCellMetaSettings {
+    // (undocumented)
+    get<T extends keyof RevColumnSettings>(key: T): RevColumnSettings[T];
+    // (undocumented)
+    get(key: string | number): RevMetaServer.CellOwnProperty;
+}
+
 // @public
 export interface RevCellPainter<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevCellPossiblyPaintable<BCS, SF> {
-    paint(cell: RevDatalessViewCell<BCS, SF>, prefillColor: string | undefined): number | undefined;
+    paint(cell: RevViewCell<BCS, SF>, prefillColor: string | undefined): number | undefined;
 }
 
 // @public (undocumented)
@@ -548,9 +554,15 @@ export namespace RevCellPainter {
 }
 
 // @public (undocumented)
+export interface RevCellPossiblyPaintable<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> {
+    // (undocumented)
+    paint?(cell: RevViewCell<BCS, SF>, prefillColor: string | undefined): number | undefined;
+}
+
+// @public (undocumented)
 export interface RevClickBoxCellPainter<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevCellPainter<BCS, SF> {
     // (undocumented)
-    calculateClickBox(cell: RevDatalessViewCell<BCS, SF>): RevRectangle | undefined;
+    calculateClickBox(cell: RevViewCell<BCS, SF>): RevRectangle | undefined;
 }
 
 // Warning: (ae-forgotten-export) The symbol "RevGrid" needs to be exported by the entry point public-api.d.ts
@@ -733,7 +745,7 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     // (undocumented)
     getActiveColumnWidth(activeIndex: Integer): number;
     // (undocumented)
-    getAllCellSelectionAreaTypeIds(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid: RevDatalessSubgrid): RevSelectionAreaType[];
+    getAllCellSelectionAreaTypeIds(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid: RevSubgrid<BCS, SF>): RevSelectionAreaType[];
     // (undocumented)
     getAllColumn(allX: Integer): RevColumn<BCS, SF>;
     // (undocumented)
@@ -744,8 +756,6 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     getCellOwnPropertiesFromRenderedCell(renderedCell: RevViewCell<BCS, SF>): RevMetaServer.CellOwnProperties | false | null | undefined;
     // @internal (undocumented)
     getCellOwnPropertyFromRenderedCell(renderedCell: RevViewCell<BCS, SF>, key: string): RevMetaServer.CellOwnProperty | undefined;
-    // Warning: (ae-forgotten-export) The symbol "RevCellMetaSettings" needs to be exported by the entry point public-api.d.ts
-    //
     // @internal (undocumented)
     getCellProperties(allX: Integer, y: Integer, subgrid: RevSubgrid<BCS, SF>): RevCellMetaSettings;
     // @internal
@@ -759,7 +769,7 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     // (undocumented)
     getHiDPI(): number;
     // (undocumented)
-    getOneCellSelectionAreaType(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid: RevDatalessSubgrid): RevSelectionAreaType | undefined;
+    getOneCellSelectionAreaType(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid: RevSubgrid<BCS, SF>): RevSelectionAreaType | undefined;
     // (undocumented)
     getRenderedData(): RevDataServer.ViewValue[][];
     // (undocumented)
@@ -809,9 +819,9 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     isDataRowVisible(r: Integer, subgrid?: RevSubgrid<BCS, SF>): boolean;
     // (undocumented)
     isDataVisible(c: Integer, rn: Integer): boolean;
-    isOnlyThisCellSelected(x: Integer, y: Integer, subgrid?: RevDatalessSubgrid): boolean | undefined;
+    isOnlyThisCellSelected(x: Integer, y: Integer, subgrid?: RevSubgrid<BCS, SF>): boolean | undefined;
     // (undocumented)
-    isSelectedCellTheOnlySelectedCell(activeColumnIndex: Integer, subgridRowIndex: Integer, datalessSubgrid: RevDatalessSubgrid, selectedType?: RevSelectionAreaType): boolean;
+    isSelectedCellTheOnlySelectedCell(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid: RevSubgrid<BCS, SF>, selectedType?: RevSelectionAreaType): boolean;
     // (undocumented)
     readonly mainDataServer: RevDataServer<SF>;
     // (undocumented)
@@ -1583,116 +1593,6 @@ export namespace RevCssTypes {
         // (undocumented)
         sticky = "sticky"
     }
-}
-
-// @public (undocumented)
-export interface RevDatalessSubgrid {
-    // (undocumented)
-    readonly fixedRowCount: number;
-    // (undocumented)
-    readonly isFilter: boolean;
-    // (undocumented)
-    readonly isFooter: boolean;
-    // (undocumented)
-    readonly isHeader: boolean;
-    // (undocumented)
-    readonly isMain: boolean;
-    // (undocumented)
-    isRowFixed(rowIndex: number): boolean;
-    // (undocumented)
-    readonly isSummary: boolean;
-    // (undocumented)
-    readonly role: RevDatalessSubgrid.Role;
-    // (undocumented)
-    readonly rowHeightsCanDiffer: boolean;
-    // (undocumented)
-    readonly selectable: boolean;
-}
-
-// @public (undocumented)
-export namespace RevDatalessSubgrid {
-    // (undocumented)
-    export type Role = typeof Role.header | typeof Role.filter | typeof Role.main | typeof Role.summary | typeof Role.footer;
-    // (undocumented)
-    export namespace Role {
-        const // (undocumented)
-        header = "header";
-        const // (undocumented)
-        filter = "filter";
-        const // (undocumented)
-        main = "main";
-        const // (undocumented)
-        summary = "summary";
-        const // (undocumented)
-        footer = "footer";
-        const // (undocumented)
-        defaultRole = "main";
-        // (undocumented)
-        export function gridOrderCompare(left: Role | undefined, right: Role | undefined): number;
-    }
-}
-
-// @public (undocumented)
-export interface RevDatalessViewCell<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> {
-    // (undocumented)
-    readonly bounds: RevRectangle;
-    // (undocumented)
-    clearCellOwnProperties(): void;
-    // (undocumented)
-    readonly columnSettings: BCS;
-    // (undocumented)
-    readonly isCellVisible: boolean;
-    // (undocumented)
-    readonly isColumnFixed: boolean;
-    // (undocumented)
-    readonly isColumnVisible: boolean;
-    // (undocumented)
-    readonly isFilter: boolean;
-    // (undocumented)
-    readonly isFixed: boolean;
-    // (undocumented)
-    readonly isHeader: boolean;
-    // (undocumented)
-    readonly isHeaderOrRowFixed: boolean;
-    // (undocumented)
-    readonly isMain: boolean;
-    // (undocumented)
-    readonly isMainRow: boolean;
-    // (undocumented)
-    readonly isRowFixed: boolean;
-    // (undocumented)
-    readonly isRowVisible: boolean;
-    // (undocumented)
-    readonly isScrollable: boolean;
-    // (undocumented)
-    readonly isSummary: boolean;
-    // (undocumented)
-    paintFingerprint: RevDatalessViewCell.PaintFingerprint | undefined;
-    // (undocumented)
-    readonly subgrid: RevDatalessSubgrid;
-    // (undocumented)
-    readonly viewLayoutColumn: RevViewLayoutColumn<BCS, SF>;
-    // (undocumented)
-    readonly viewLayoutRow: RevDatalessViewLayoutRow;
-}
-
-// @public (undocumented)
-export namespace RevDatalessViewCell {
-    // (undocumented)
-    export type PaintFingerprint = Record<string, unknown>;
-    // (undocumented)
-    export function sameByDataPoint<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField>(left: RevDatalessViewCell<BCS, SF>, right: RevDatalessViewCell<BCS, SF>): boolean;
-}
-
-// @public (undocumented)
-export interface RevDatalessViewLayoutRow {
-    bottomPlus1: number;
-    height: number;
-    index: number;
-    // (undocumented)
-    subgrid: RevDatalessSubgrid;
-    subgridRowIndex: number;
-    top: number;
 }
 
 // @public (undocumented)
@@ -2489,9 +2389,9 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
     // (undocumented)
     isActiveColumnFocused(activeColumnIndex: number): boolean;
     // (undocumented)
-    isCellFocused(cell: RevDatalessViewCell<BCS, SF>): boolean;
+    isCellFocused(cell: RevViewCell<BCS, SF>): boolean;
     // (undocumented)
-    isGridPointFocused(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevDatalessSubgrid): boolean;
+    isGridPointFocused(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): boolean;
     // (undocumented)
     isMainSubgridGridPointFocused(activeColumnIndex: number, mainSubgridRowIndex: number): boolean;
     // (undocumented)
@@ -4888,7 +4788,7 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
     // (undocumented)
     getAllAutoRowIndices(): number[];
     // (undocumented)
-    getAllCellSelectionAreaTypeIds(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevDatalessSubgrid): RevSelectionAreaTypeId[];
+    getAllCellSelectionAreaTypeIds(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): RevSelectionAreaTypeId[];
     // (undocumented)
     getAreasCoveringCell(x: number, y: number, subgrid: RevSubgrid<BCS, SF> | undefined): RevSelectionArea[];
     // (undocumented)
@@ -4896,7 +4796,7 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
     // (undocumented)
     getLastRectangle(): RevSelectionRectangle | undefined;
     // (undocumented)
-    getOneCellSelectionAreaTypeId(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevDatalessSubgrid): RevSelectionAreaTypeId | undefined;
+    getOneCellSelectionAreaTypeId(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): RevSelectionAreaTypeId | undefined;
     // (undocumented)
     getRowCount(includeAllAuto: boolean): number;
     // (undocumented)
@@ -4910,14 +4810,15 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
     // (undocumented)
     readonly internalParent: RevClientObject;
     // (undocumented)
-    isCellSelected(x: number, y: number, subgrid: RevDatalessSubgrid): boolean;
+    isCellSelected(x: number, y: number, subgrid: RevSubgrid<BCS, SF>): boolean;
     // (undocumented)
     isColumnSelected(activeColumnIndex: number): boolean;
-    isOnlyThisCellSelected(x: number, y: number, subgrid: RevDatalessSubgrid): boolean | undefined;
+    isOnlyThisCellSelected(x: number, y: number, subgrid: RevSubgrid<BCS, SF>): boolean | undefined;
     // (undocumented)
     isPointInLastArea(x: number, y: number): boolean;
     // (undocumented)
-    isSelectedCellTheOnlySelectedCell(activeColumnIndex: number, subgridRowIndex: number, datalessSubgrid: RevDatalessSubgrid, selectedTypeId: RevSelectionAreaTypeId): boolean;
+    isSelectedCellTheOnlySelectedCell(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>, // assume this was previously checked by getCellSelectedType
+    selectedTypeId: RevSelectionAreaTypeId): boolean;
     // (undocumented)
     get lastArea(): RevLastSelectionArea | undefined;
     // (undocumented)
@@ -5309,7 +5210,7 @@ export interface RevSplitStringAtFirstNonNumericCharResult {
 export class RevStandardAlphaTextCellPainter<BGS extends RevStandardBehavioredGridSettings, BCS extends RevStandardBehavioredColumnSettings, SF extends RevSchemaField> extends RevStandardCellPainter<BGS, BCS, SF> {
     constructor(grid: RevClientGrid<BGS, BCS, SF>, dataServer: RevDataServer<SF>);
     // (undocumented)
-    paint(cell: RevDatalessViewCell<BCS, SF>, prefillColor: string | undefined): number | undefined;
+    paint(cell: RevViewCell<BCS, SF>, prefillColor: string | undefined): number | undefined;
 }
 
 // @public (undocumented)
@@ -5333,7 +5234,7 @@ export class RevStandardButtonCellPainter<BGS extends RevStandardBehavioredGridS
     // (undocumented)
     config: RevStandardButtonCellPainter.Config;
     // (undocumented)
-    paint(cell: RevDatalessViewCell<BCS, SF>, _prefillColor: string | undefined): number | undefined;
+    paint(cell: RevViewCell<BCS, SF>, _prefillColor: string | undefined): number | undefined;
 }
 
 // @public (undocumented)
@@ -5372,7 +5273,7 @@ export abstract class RevStandardCellEditor<BGS extends RevBehavioredGridSetting
     // (undocumented)
     protected setReadonly(value: boolean): void;
     // (undocumented)
-    abstract tryOpenCell(viewCell: RevDatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined): boolean;
+    abstract tryOpenCell(viewCell: RevViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined): boolean;
     // (undocumented)
     protected tryToggleBoolenValue(field: SF, subgridRowIndex: number): boolean;
 }
@@ -5387,7 +5288,7 @@ export abstract class RevStandardCellPainter<BGS extends RevBehavioredGridSettin
     // (undocumented)
     protected readonly _gridSettings: BGS;
     // (undocumented)
-    abstract paint(cell: RevDatalessViewCell<BCS, SF>, prefillColor: string | undefined): number | undefined;
+    abstract paint(cell: RevViewCell<BCS, SF>, prefillColor: string | undefined): number | undefined;
     // (undocumented)
     protected paintBackground(bounds: RevRectangle, backgroundColor: string): void;
     // (undocumented)
@@ -5400,9 +5301,9 @@ export abstract class RevStandardCellPainter<BGS extends RevBehavioredGridSettin
 export class RevStandardCheckboxCellPainter<BGS extends RevStandardBehavioredGridSettings, BCS extends RevStandardBehavioredColumnSettings, SF extends RevSchemaField> extends RevStandardCellPainter<BGS, BCS, SF> {
     constructor(grid: RevClientGrid<BGS, BCS, SF>, dataServer: RevDataServer<SF>, _editable: boolean);
     // (undocumented)
-    calculateClickBox(cell: RevDatalessViewCell<BCS, SF>): RevRectangle | undefined;
+    calculateClickBox(cell: RevViewCell<BCS, SF>): RevRectangle | undefined;
     // (undocumented)
-    paint(cell: RevDatalessViewCell<BCS, SF>, prefillColor: string | undefined): number | undefined;
+    paint(cell: RevViewCell<BCS, SF>, prefillColor: string | undefined): number | undefined;
 }
 
 // @public (undocumented)
@@ -5495,7 +5396,7 @@ export class RevStandardColorInputCellEditor<BGS extends RevBehavioredGridSettin
     // (undocumented)
     closeCell(field: SF, subgridRowIndex: number, cancel: boolean): void;
     // (undocumented)
-    tryOpenCell(cell: RevDatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined): boolean;
+    tryOpenCell(cell: RevViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined): boolean;
 }
 
 // @public (undocumented)
@@ -5508,7 +5409,7 @@ export class RevStandardDateInputCellEditor<BGS extends RevBehavioredGridSetting
     // (undocumented)
     closeCell(field: SF, subgridRowIndex: number, cancel: boolean): void;
     // (undocumented)
-    tryOpenCell(cell: RevDatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined): boolean;
+    tryOpenCell(cell: RevViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined): boolean;
 }
 
 // @public (undocumented)
@@ -5535,7 +5436,7 @@ export abstract class RevStandardElementCellEditor<BGS extends RevBehavioredGrid
     // (undocumented)
     setBounds(bounds: RevRectangle | undefined): void;
     // (undocumented)
-    tryOpenCell(_viewCell: RevDatalessViewCell<BCS, SF>, _openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined): boolean;
+    tryOpenCell(_viewCell: RevViewCell<BCS, SF>, _openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined): boolean;
 }
 
 // @public (undocumented)
@@ -5546,7 +5447,7 @@ export interface RevStandardGridSettings extends RevStandardOnlyGridSettings, Re
 export class RevStandardHeaderTextCellPainter<BGS extends RevStandardBehavioredGridSettings, BCS extends RevStandardBehavioredColumnSettings, SF extends RevSchemaField> extends RevStandardCellPainter<BGS, BCS, SF> {
     constructor(grid: RevClientGrid<BGS, BCS, SF>, dataServer: RevDataServer<SF>);
     // (undocumented)
-    paint(cell: RevDatalessViewCell<BCS, SF>, _prefillColor: string | undefined): number | undefined;
+    paint(cell: RevViewCell<BCS, SF>, _prefillColor: string | undefined): number | undefined;
 }
 
 // @public (undocumented)
@@ -5703,7 +5604,7 @@ export abstract class RevStandardInputElementCellEditor<BGS extends RevBehaviore
     // (undocumented)
     setReadonly(value: boolean): void;
     // (undocumented)
-    tryOpenCell(viewCell: RevDatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined): boolean;
+    tryOpenCell(viewCell: RevViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined): boolean;
 }
 
 // @public (undocumented)
@@ -5712,7 +5613,7 @@ export class RevStandardNumberInputCellEditor<BGS extends RevBehavioredGridSetti
     // (undocumented)
     closeCell(field: SF, subgridRowIndex: number, cancel: boolean): void;
     // (undocumented)
-    tryOpenCell(cell: RevDatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined): boolean;
+    tryOpenCell(cell: RevViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined): boolean;
 }
 
 // @public (undocumented)
@@ -5764,7 +5665,7 @@ export interface RevStandardOnlyGridSettings extends RevStandardTextPainter.Only
 export abstract class RevStandardPaintCellEditor<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevStandardCellEditor<BGS, BCS, SF> implements RevCellPainter<BCS, SF> {
     constructor(grid: RevClientGrid<BGS, BCS, SF>, dataServer: RevDataServer<SF>, _painter: RevCellPainter<BCS, SF>);
     // (undocumented)
-    paint(cell: RevDatalessViewCell<BCS, SF>, prefillColor: string | undefined): number | undefined;
+    paint(cell: RevViewCell<BCS, SF>, prefillColor: string | undefined): number | undefined;
     // (undocumented)
     protected readonly _painter: RevCellPainter<BCS, SF>;
 }
@@ -5775,7 +5676,7 @@ export class RevStandardRangeInputCellEditor<BGS extends RevBehavioredGridSettin
     // (undocumented)
     closeCell(field: SF, subgridRowIndex: number, cancel: boolean): void;
     // (undocumented)
-    tryOpenCell(cell: RevDatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined): boolean;
+    tryOpenCell(cell: RevViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined): boolean;
 }
 
 // @public (undocumented)
@@ -5789,7 +5690,7 @@ export class RevStandardSliderCellPainter<BGS extends RevStandardBehavioredGridS
     // (undocumented)
     config: RevStandardSliderCellPainter.Config;
     // (undocumented)
-    paint(_cell: RevDatalessViewCell<BCS, SF>, _prefillColor: string | undefined): number | undefined;
+    paint(_cell: RevViewCell<BCS, SF>, _prefillColor: string | undefined): number | undefined;
 }
 
 // @public (undocumented)
@@ -5814,7 +5715,7 @@ export class RevStandardSparkBarCellPainter<BGS extends RevStandardBehavioredGri
     // (undocumented)
     config: RevStandardSparkBarCellPainter.Config;
     // (undocumented)
-    paint(_cell: RevDatalessViewCell<BCS, SF>, _prefillColor: string | undefined): number | undefined;
+    paint(_cell: RevViewCell<BCS, SF>, _prefillColor: string | undefined): number | undefined;
 }
 
 // @public (undocumented)
@@ -5843,7 +5744,7 @@ export class RevStandardSparkLineCellPainter<BGS extends RevStandardBehavioredGr
     // (undocumented)
     config: RevStandardSparkLineCellPainter.Config;
     // (undocumented)
-    paint(_cell: RevDatalessViewCell<BCS, SF>, _prefillColor: string | undefined): number | undefined;
+    paint(_cell: RevViewCell<BCS, SF>, _prefillColor: string | undefined): number | undefined;
 }
 
 // @public (undocumented)
@@ -5872,7 +5773,7 @@ export namespace RevStandardSparkLineCellPainter {
 // @public (undocumented)
 export class RevStandardTagCellPainter<BGS extends RevStandardBehavioredGridSettings, BCS extends RevStandardBehavioredColumnSettings, SF extends RevSchemaField> extends RevStandardCellPainter<BGS, BCS, SF> {
     // (undocumented)
-    paint(_cell: RevDatalessViewCell<BCS, SF>, _prefillColor: string | undefined): number | undefined;
+    paint(_cell: RevViewCell<BCS, SF>, _prefillColor: string | undefined): number | undefined;
 }
 
 // @public (undocumented)
@@ -5894,7 +5795,7 @@ export class RevStandardTextInputCellEditor<BGS extends RevBehavioredGridSetting
     // (undocumented)
     closeCell(field: SF, subgridRowIndex: number, cancel: boolean): void;
     // (undocumented)
-    tryOpenCell(cell: RevDatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined): boolean;
+    tryOpenCell(cell: RevViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined): boolean;
 }
 
 // @public (undocumented)
@@ -5954,13 +5855,13 @@ export class RevStandardToggleClickBoxCellEditor<BGS extends RevBehavioredGridSe
     // (undocumented)
     protected _painter: RevClickBoxCellPainter<BCS, SF>;
     // (undocumented)
-    processGridClickEvent(event: MouseEvent, viewCell: RevDatalessViewCell<BCS, SF>): boolean;
+    processGridClickEvent(event: MouseEvent, viewCell: RevViewCell<BCS, SF>): boolean;
     // (undocumented)
     processGridKeyDownEvent(event: KeyboardEvent, _fromEditor: boolean, field: SF, subgridRowIndex: number): boolean;
     // (undocumented)
-    processGridPointerMoveEvent(event: PointerEvent, viewCell: RevDatalessViewCell<BCS, SF>): RevCellEditor.PointerLocationInfo | undefined;
+    processGridPointerMoveEvent(event: PointerEvent, viewCell: RevViewCell<BCS, SF>): RevCellEditor.PointerLocationInfo | undefined;
     // (undocumented)
-    tryOpenCell(cell: RevDatalessViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined): boolean;
+    tryOpenCell(cell: RevViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined): boolean;
 }
 
 // @public (undocumented)
@@ -5980,7 +5881,7 @@ export namespace RevStartLength {
 }
 
 // @public (undocumented)
-export interface RevSubgrid<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevDatalessSubgrid {
+export interface RevSubgrid<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> {
     // (undocumented)
     readonly dataServer: RevDataServer<SF>;
     // Warning: (tsdoc-escape-greater-than) The ">" character should be escaped using a backslash to avoid confusion with an HTML tag
@@ -5990,7 +5891,9 @@ export interface RevSubgrid<BCS extends RevBehavioredColumnSettings, SF extends 
     // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
     readonly firstViewRowIndex: number;
     // (undocumented)
-    getCellPainterEventer(viewCell: RevDatalessViewCell<BCS, SF>): RevCellPainter<BCS, SF>;
+    readonly fixedRowCount: number;
+    // (undocumented)
+    getCellPainterEventer(viewCell: RevViewCell<BCS, SF>): RevCellPainter<BCS, SF>;
     // (undocumented)
     getDefaultRowHeight(): number;
     // (undocumented)
@@ -6010,9 +5913,27 @@ export interface RevSubgrid<BCS extends RevBehavioredColumnSettings, SF extends 
     // (undocumented)
     getViewValueFromDataRowAtColumn(dataRow: RevDataServer.ViewRow, column: RevColumn<BCS, SF>): RevDataServer.ViewValue;
     // (undocumented)
+    readonly isFilter: boolean;
+    // (undocumented)
+    readonly isFooter: boolean;
+    // (undocumented)
+    readonly isHeader: boolean;
+    // (undocumented)
+    readonly isMain: boolean;
+    // (undocumented)
+    isRowFixed(rowIndex: number): boolean;
+    // (undocumented)
+    readonly isSummary: boolean;
+    // (undocumented)
     readonly metaServer: RevMetaServer | undefined;
     // (undocumented)
+    readonly role: RevSubgrid.Role;
+    // (undocumented)
+    readonly rowHeightsCanDiffer: boolean;
+    // (undocumented)
     readonly schemaServer: RevSchemaServer<SF>;
+    // (undocumented)
+    readonly selectable: boolean;
     // (undocumented)
     setRowMetadata(rowIndex: number, newMetadata: RevMetaServer.RowMetadata | undefined): void;
     // (undocumented)
@@ -6034,7 +5955,7 @@ export namespace RevSubgrid {
         getCellPainterEventer: GetCellPainterEventer<BCS, SF>;
         // (undocumented)
         metaServer?: RevMetaServer | RevMetaServer.Constructor;
-        role?: RevDatalessSubgrid.Role;
+        role?: RevSubgrid.Role;
         // (undocumented)
         rowPropertiesCanSpecifyRowHeight?: boolean;
         // (undocumented)
@@ -6042,9 +5963,27 @@ export namespace RevSubgrid {
         // (undocumented)
         selectable?: boolean;
     }
-    import Role = RevDatalessSubgrid.Role;
     // (undocumented)
-    export type GetCellPainterEventer<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> = (this: void, viewCell: RevDatalessViewCell<BCS, SF>) => RevCellPainter<BCS, SF>;
+    export type GetCellPainterEventer<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> = (this: void, viewCell: RevViewCell<BCS, SF>) => RevCellPainter<BCS, SF>;
+    // (undocumented)
+    export type Role = typeof Role.header | typeof Role.filter | typeof Role.main | typeof Role.summary | typeof Role.footer;
+    // (undocumented)
+    export namespace Role {
+        const // (undocumented)
+        header = "header";
+        const // (undocumented)
+        filter = "filter";
+        const // (undocumented)
+        main = "main";
+        const // (undocumented)
+        summary = "summary";
+        const // (undocumented)
+        footer = "footer";
+        const // (undocumented)
+        defaultRole = "main";
+        // (undocumented)
+        export function gridOrderCompare(left: Role | undefined, right: Role | undefined): number;
+    }
 }
 
 // @public (undocumented)
@@ -7052,7 +6991,41 @@ export class RevUnreachableCaseError extends UnreachableCaseInternalError {
 }
 
 // @public (undocumented)
-export interface RevViewCell<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevDatalessViewCell<BCS, SF> {
+export interface RevViewCell<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> {
+    // (undocumented)
+    readonly bounds: RevRectangle;
+    // (undocumented)
+    clearCellOwnProperties(): void;
+    // (undocumented)
+    readonly columnSettings: BCS;
+    // (undocumented)
+    readonly isCellVisible: boolean;
+    // (undocumented)
+    readonly isColumnFixed: boolean;
+    // (undocumented)
+    readonly isColumnVisible: boolean;
+    // (undocumented)
+    readonly isFilter: boolean;
+    // (undocumented)
+    readonly isFixed: boolean;
+    // (undocumented)
+    readonly isHeader: boolean;
+    // (undocumented)
+    readonly isHeaderOrRowFixed: boolean;
+    // (undocumented)
+    readonly isMain: boolean;
+    // (undocumented)
+    readonly isMainRow: boolean;
+    // (undocumented)
+    readonly isRowFixed: boolean;
+    // (undocumented)
+    readonly isRowVisible: boolean;
+    // (undocumented)
+    readonly isScrollable: boolean;
+    // (undocumented)
+    readonly isSummary: boolean;
+    // (undocumented)
+    paintFingerprint: RevViewCell.PaintFingerprint | undefined;
     // (undocumented)
     readonly subgrid: RevSubgrid<BCS, SF>;
     // (undocumented)
@@ -7065,7 +7038,10 @@ export interface RevViewCell<BCS extends RevBehavioredColumnSettings, SF extends
 
 // @public (undocumented)
 export namespace RevViewCell {
-    import sameByDataPoint = RevDatalessViewCell.sameByDataPoint;
+    // (undocumented)
+    export type PaintFingerprint = Record<string, unknown>;
+    // (undocumented)
+    export function sameByDataPoint<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField>(left: RevViewCell<BCS, SF>, right: RevViewCell<BCS, SF>): boolean;
 }
 
 // @public (undocumented)
@@ -7498,8 +7474,13 @@ export interface RevViewLayoutColumn<BCS extends RevBehavioredColumnSettings, SF
 }
 
 // @public (undocumented)
-export interface RevViewLayoutRow<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevDatalessViewLayoutRow {
+export interface RevViewLayoutRow<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> {
+    bottomPlus1: number;
+    height: number;
+    index: number;
     subgrid: RevSubgrid<BCS, SF>;
+    subgridRowIndex: number;
+    top: number;
 }
 
 // @public (undocumented)
