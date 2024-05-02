@@ -1,8 +1,8 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
 import { AssertInternalError, MultiEvent, UnreachableCaseError } from '@xilytix/sysutils';
-import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevClientGrid, RevColumn, RevColumnsManager, RevSchemaField } from '../client/internal-api';
-import { RevListChangedTypeId } from '../common/internal-api';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevClientGrid, RevColumn, RevColumnsManager } from '../client/internal-api';
+import { RevListChangedTypeId, RevSchemaField } from '../common/internal-api';
 import { RevColumnLayout, RevColumnLayoutDefinition } from './server/internal-api';
 
 /** @public */

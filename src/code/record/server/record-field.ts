@@ -1,4 +1,4 @@
-import { RevDataServer, RevSchemaField } from '../../client/internal-api';
+import { RevDataServer, RevSchemaField } from '../../common/internal-api';
 import { RevRecord } from './record';
 
 /** Provides access to a field

@@ -1,4 +1,4 @@
-import { RevDataServer } from '../../client/internal-api';
+import { RevDataServer } from '../../common/internal-api';
 import { RevRecord } from './record';
 import { RevRecordField } from './record-field';
 

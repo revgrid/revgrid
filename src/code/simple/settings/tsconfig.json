@@ -10,7 +10,7 @@
   ],
 
   "references": [
-    { "path": "../painters/tsconfig.json" },
+    { "path": "../../standard/tsconfig.json" },
     { "path": "../../cell-content/tsconfig.json" },
     { "path": "../../settings-implementations/tsconfig.json" },
     { "path": "../../client/tsconfig.json" },

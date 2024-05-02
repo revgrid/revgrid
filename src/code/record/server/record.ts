@@ -1,4 +1,4 @@
-import { RevDataServer } from '../../client/internal-api';
+import { RevDataServer } from '../../common/internal-api';
 // eslint-disable-next-line import/no-cycle
 import { RevRecordRow } from './record-row';
 

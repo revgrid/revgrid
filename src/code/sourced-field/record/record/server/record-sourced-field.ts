@@ -6,7 +6,7 @@ import {
     Integer
 } from '@xilytix/sysutils';
 import { RevTextFormattableValue } from '../../../../cell-content/client/internal-api';
-import { RevDataServer } from '../../../../client/internal-api';
+import { RevDataServer } from '../../../../common/internal-api';
 import { RevRecordField } from '../../../../record/server/internal-api';
 import { RevSourcedField } from '../../../sourced-field/server/internal-api';
 import { RevRecordSourcedFieldDefinition } from './definition/internal-api';

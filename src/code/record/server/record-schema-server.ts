@@ -1,5 +1,4 @@
-import { RevSchemaServer } from '../../client/internal-api';
-import { RevListChangedEventer, RevListChangedTypeId } from '../../common/internal-api';
+import { RevListChangedEventer, RevListChangedTypeId, RevSchemaServer } from '../../common/internal-api';
 import { RevRecordSchemaError, RevRecordUnexpectedUndefinedError } from './record-error';
 import { RevRecordField } from './record-field';
 import { RevRecordFieldIndex } from './record-types';

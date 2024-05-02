@@ -1,3 +1,5 @@
+// (c) 2024 Xilytix Pty Ltd / Paul Klink
+
 import { RevCssTypes, RevSchemaField } from '../common/internal-api';
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from './settings/internal-api';
 import { RevUiController } from './ui/controller/ui-controller';

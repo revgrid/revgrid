@@ -1,4 +1,5 @@
-import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevCellPainter, RevClientGrid, RevDataServer, RevSchemaField, RevViewCell } from '../../client/internal-api';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevCellPainter, RevClientGrid, RevViewCell } from '../../client/internal-api';
+import { RevDataServer, RevSchemaField } from '../../common/internal-api';
 import { RevStandardCellEditor } from './standard-cell-editor';
 
 /** @public */

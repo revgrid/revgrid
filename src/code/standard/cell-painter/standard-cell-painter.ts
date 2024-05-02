@@ -1,12 +1,5 @@
-import {
-    RevBehavioredColumnSettings,
-    RevBehavioredGridSettings,
-    RevClientGrid,
-    RevDataServer,
-    RevSchemaField,
-    RevViewCell
-} from '../../client/internal-api';
-import { RevCachedCanvasRenderingContext2D, RevRectangle } from '../../common/internal-api';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevClientGrid, RevViewCell } from '../../client/internal-api';
+import { RevCachedCanvasRenderingContext2D, RevDataServer, RevRectangle, RevSchemaField } from '../../common/internal-api';
 
 /** @public */
 export abstract class RevStandardCellPainter<

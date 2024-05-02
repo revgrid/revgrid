@@ -1,12 +1,15 @@
 
-import { RevSchemaField, RevViewCell } from '../../client/internal-api';
-import { RevStandardBehavioredColumnSettings, RevStandardBehavioredGridSettings } from '../settings/internal-api';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevViewCell } from '../../client/internal-api';
+import { RevSchemaField } from '../../common/internal-api';
 import { RevStandardCellPainter } from './standard-cell-painter';
 
-/** @public */
+/**
+ * Potential future
+ * @internal
+ */
 export class RevStandardTagCellPainter<
-    BGS extends RevStandardBehavioredGridSettings,
-    BCS extends RevStandardBehavioredColumnSettings,
+    BGS extends RevBehavioredGridSettings,
+    BCS extends RevBehavioredColumnSettings,
     SF extends RevSchemaField
 > extends RevStandardCellPainter<BGS, BCS, SF> {
 
@@ -38,7 +41,7 @@ export class RevStandardTagCellPainter<
     }
 }
 
-/** @public */
+/** @internal */
 export namespace RevStandardTagCellPainter {
     export const typeName = 'Tag';
 

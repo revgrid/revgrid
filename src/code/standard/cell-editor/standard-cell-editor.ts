@@ -1,4 +1,5 @@
-import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevCellEditor, RevClientGrid, RevDataServer, RevFocus, RevSchemaField, RevViewCell } from '../../client/internal-api';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevCellEditor, RevClientGrid, RevFocus, RevViewCell } from '../../client/internal-api';
+import { RevDataServer, RevSchemaField } from '../../common/internal-api';
 
 /** @public */
 export abstract class RevStandardCellEditor<

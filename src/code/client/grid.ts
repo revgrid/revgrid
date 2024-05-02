@@ -1,8 +1,10 @@
+// (c) 2024 Xilytix Pty Ltd / Paul Klink
+
 // Not used - see RevIClientGrid instead
 
 import { Integer } from '@xilytix/sysutils';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { RevClientObject, RevDataServer, RevEnsureFullyInViewEnum, RevMetaServer, RevPoint, RevRectangle, RevSchemaField, RevSchemaServer, RevSelectionAreaType } from '../common/internal-api';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { RevBehaviorManager } from './behavior/behavior-manager';
 import { RevCanvas } from './components/canvas/canvas';
 import { RevColumnsManager } from './components/column/columns-manager';

@@ -1,10 +1,10 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
 import { AssertInternalError, Integer } from '@xilytix/sysutils';
-import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevClientGrid, RevDataServer, RevGridDefinition, RevGridOptions, RevLinedHoverCell, RevMetaServer, RevViewCell } from '../client/internal-api';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevClientGrid, RevGridDefinition, RevGridOptions, RevLinedHoverCell, RevViewCell } from '../client/internal-api';
 import { RevColumnLayoutGrid } from '../column-layout/internal-api';
 import { RevColumnLayout } from '../column-layout/server/internal-api';
-import { RevApiError } from '../common/internal-api';
+import { RevApiError, RevDataServer, RevMetaServer } from '../common/internal-api';
 import {
     RevRecordDataServer,
     RevRecordField,

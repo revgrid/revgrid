@@ -1,9 +1,10 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
 import { Integer } from '@xilytix/sysutils';
-import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevClientGrid, RevDataServer, RevGridDefinition, RevGridOptions } from '../client/internal-api';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevClientGrid, RevGridDefinition, RevGridOptions } from '../client/internal-api';
 import { RevColumnLayoutGrid } from '../column-layout/internal-api';
 import { RevColumnLayout } from '../column-layout/server/internal-api';
+import { RevDataServer } from '../common/internal-api';
 import {
     RevDataRowArrayDataServer,
     RevDataRowArrayField,

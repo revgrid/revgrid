@@ -1,8 +1,8 @@
 import { RevHorizontalAlignId, RevTextTruncateTypeId } from '../../../cell-content/client/internal-api';
-import { RevStandardOnlyGridSettings } from '../../settings/internal-api';
+import { RevSimpleOnlyGridSettings } from '../../settings/internal-api';
 
 /** @public */
-export const revStandardDefaultOnlyGridSettings: RevStandardOnlyGridSettings = {
+export const revSimpleDefaultOnlyGridSettings: RevSimpleOnlyGridSettings = {
     cellPadding: 5,
     font: '13px Tahoma, Geneva, sans-serif',
     horizontalAlignId: RevHorizontalAlignId.Center,
@@ -19,8 +19,8 @@ export const revStandardDefaultOnlyGridSettings: RevStandardOnlyGridSettings = {
     columnHoverBackgroundColor: undefined,
 
     columnHeaderFont: undefined,
-    columnHeaderHorizontalAlignId: undefined,
-    columnHeaderHorizontalAlign: undefined,
+    columnHeaderHorizontalAlignId: RevHorizontalAlignId.Center,
+    columnHeaderHorizontalAlign: 'center',
     columnHeaderBackgroundColor: undefined,
     columnHeaderForegroundColor: undefined,
 

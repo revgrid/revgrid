@@ -1,6 +1,5 @@
 import { Integer } from '@xilytix/sysutils';
-import { RevSchemaField, RevSchemaServer } from '../../client/internal-api';
-import { RevApiError, RevAssertError } from '../../common/internal-api';
+import { RevApiError, RevAssertError, RevSchemaField, RevSchemaServer } from '../../common/internal-api';
 
 /** @public */
 export class RevDataRowArraySchemaServer<SF extends RevSchemaField> implements RevSchemaServer<SF> {

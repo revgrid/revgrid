@@ -1,13 +1,9 @@
 
 import { IndexSignatureHack } from '@xilytix/sysutils';
-import {
-    RevClientGrid,
-    RevDataServer,
-    RevSchemaField,
-    RevViewCell
-} from '../../client/internal-api';
+import { RevHorizontalAlignId } from '../../cell-content/client/internal-api';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevClientGrid, RevColumnSettings, RevGridSettings, RevViewCell } from '../../client/internal-api';
+import { RevDataServer, RevSchemaField } from '../../common/internal-api';
 import { RevStandardTextPainter } from '../painters/internal-api';
-import { RevStandardBehavioredColumnSettings, RevStandardBehavioredGridSettings } from '../settings/internal-api';
 import { RevStandardCellPainter } from './standard-cell-painter';
 
 /**
@@ -20,8 +16,8 @@ import { RevStandardCellPainter } from './standard-cell-painter';
  * @public
  */
 export class RevStandardHeaderTextCellPainter<
-    BGS extends RevStandardBehavioredGridSettings,
-    BCS extends RevStandardBehavioredColumnSettings,
+    BGS extends RevBehavioredGridSettings,
+    BCS extends RevStandardHeaderTextCellPainter.BehavioredColumnSettings,
     SF extends RevSchemaField
 > extends RevStandardCellPainter<BGS, BCS, SF> {
     private readonly _textPainter: RevStandardTextPainter;
@@ -83,10 +79,10 @@ export class RevStandardHeaderTextCellPainter<
         const columnHeaderBackgroundColor = columnSettings.columnHeaderBackgroundColor;
         const backgroundColor = columnHeaderBackgroundColor === undefined ? columnSettings.backgroundColor : columnHeaderBackgroundColor;
 
-        const fingerprint = cell.paintFingerprint as RevPaintFingerprint | undefined;
+        const fingerprint = cell.paintFingerprint as RevStandardHeaderTextCellPainter.RevPaintFingerprint | undefined;
 
         // return a fingerprint to save in View cell for future comparisons by partial renderer
-        const newFingerprint: RevPaintFingerprint = {
+        const newFingerprint: RevStandardHeaderTextCellPainter.RevPaintFingerprint = {
             value: valText,
             backgroundColor,
             textColor,
@@ -94,7 +90,7 @@ export class RevStandardHeaderTextCellPainter<
         };
         cell.paintFingerprint = newFingerprint; // supports partial render
 
-        if (fingerprint !== undefined && PaintFingerprint.same(newFingerprint, fingerprint)) {
+        if (fingerprint !== undefined && RevStandardHeaderTextCellPainter.PaintFingerprint.same(newFingerprint, fingerprint)) {
             return undefined;
         } else {
             const bounds = cell.bounds;
@@ -124,22 +120,45 @@ export class RevStandardHeaderTextCellPainter<
  * effect on `drawImage` in the case of SVGs on these browsers.
  */
 
-export interface RevPaintFingerprintInterface {
-    readonly value: string;
-    readonly backgroundColor: string;
-    readonly textColor: string;
-    readonly textFont: string;
-}
+/** @public */
+export namespace RevStandardHeaderTextCellPainter {
+    export interface OnlyColumnSettings {
+        cellPadding: number;
+        font: string;
+        readonly horizontalAlignId: RevHorizontalAlignId;
+        readonly columnHeaderHorizontalAlignId: RevHorizontalAlignId;
+        columnHeaderFont: string | undefined;
+        columnHeaderBackgroundColor: RevGridSettings.Color | undefined;
+        columnHeaderForegroundColor: RevGridSettings.Color | undefined;
+        columnHeaderSelectionFont: string | undefined;
+        columnHeaderSelectionForegroundColor: RevGridSettings.Color | undefined;
+    }
 
-export type RevPaintFingerprint = IndexSignatureHack<RevPaintFingerprintInterface>;
-export namespace PaintFingerprint {
-    export function same(left: RevPaintFingerprint, right: RevPaintFingerprint) {
-        return (
-            left.value === right.value &&
-            left.backgroundColor === right.backgroundColor &&
-            left.textColor === right.textColor &&
-            left.textFont === right.textFont
-        );
+    export interface ColumnSettings extends OnlyColumnSettings, RevStandardTextPainter.OnlyColumnSettings, RevColumnSettings {
+    }
+
+    export interface BehavioredColumnSettings extends ColumnSettings, RevBehavioredColumnSettings {
+        merge(settings: Partial<ColumnSettings>): boolean;
+        clone(): BehavioredColumnSettings;
+    }
+
+    export interface RevPaintFingerprintInterface {
+        readonly value: string;
+        readonly backgroundColor: string;
+        readonly textColor: string;
+        readonly textFont: string;
+    }
+
+    export type RevPaintFingerprint = IndexSignatureHack<RevPaintFingerprintInterface>;
+    export namespace PaintFingerprint {
+        export function same(left: RevPaintFingerprint, right: RevPaintFingerprint) {
+            return (
+                left.value === right.value &&
+                left.backgroundColor === right.backgroundColor &&
+                left.textColor === right.textColor &&
+                left.textFont === right.textFont
+            );
+        }
     }
 }
 

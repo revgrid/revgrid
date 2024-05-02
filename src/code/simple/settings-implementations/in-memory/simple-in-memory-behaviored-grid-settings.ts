@@ -1,33 +1,35 @@
 import { RevHorizontalAlign, RevHorizontalAlignId, RevTextTruncateType, RevTextTruncateTypeId } from '../../../cell-content/client/internal-api';
 import { RevGridSettings } from '../../../client/internal-api';
-import { RevInMemoryBehavioredColumnSettings } from '../../../settings-implementations/internal-api';
-import { RevStandardBehavioredColumnSettings, RevStandardColumnSettings, RevStandardGridSettings, RevStandardOnlyColumnSettings } from '../../settings/internal-api';
+import { RevInMemoryBehavioredGridSettings } from '../../../settings-implementations/internal-api';
+import { RevSimpleBehavioredGridSettings, RevSimpleGridSettings, RevSimpleOnlyGridSettings } from '../../settings/internal-api';
 
 /** @public */
-export class RevStandardInMemoryBehavioredColumnSettings extends RevInMemoryBehavioredColumnSettings implements RevStandardBehavioredColumnSettings {
-    declare gridSettings: RevStandardGridSettings;
+export class RevSimpleInMemoryBehavioredGridSettings extends RevInMemoryBehavioredGridSettings implements RevSimpleBehavioredGridSettings {
+    private _cellPadding: number;
+    private _cellFocusedBorderColor: RevGridSettings.Color | undefined;
+    private _cellHoverBackgroundColor: RevGridSettings.Color | undefined;
+    private _columnHoverBackgroundColor: RevGridSettings.Color | undefined;
+    private _columnHeaderFont: string | undefined;
+    private _columnHeaderHorizontalAlignId: RevHorizontalAlignId;
+    private _columnHeaderHorizontalAlign: RevHorizontalAlign;
+    private _columnHeaderBackgroundColor: RevGridSettings.Color | undefined;
+    private _columnHeaderForegroundColor: RevGridSettings.Color | undefined;
+    private _columnHeaderSelectionFont: string | undefined;
+    private _columnHeaderSelectionBackgroundColor: RevGridSettings.Color | undefined;
+    private _columnHeaderSelectionForegroundColor: RevGridSettings.Color | undefined;
+    private _rowHoverBackgroundColor: RevGridSettings.Color | undefined;
+    private _selectionFont: RevGridSettings.Color | undefined;
+    private _selectionBackgroundColor: RevGridSettings.Color | undefined;
+    private _selectionForegroundColor: RevGridSettings.Color | undefined;
+    private _font: string;
+    private _horizontalAlignId: RevHorizontalAlignId;
+    private _horizontalAlign: RevHorizontalAlign;
+    private _verticalOffset: number;
+    private _textTruncateTypeId: RevTextTruncateTypeId | undefined;
+    private _textTruncateType: RevTextTruncateType | undefined;
+    private _textStrikeThrough: boolean;
 
-    private _cellPadding: number | undefined;
-    private _cellFocusedBorderColor: RevGridSettings.Color | undefined | null;
-    private _cellHoverBackgroundColor: RevGridSettings.Color | undefined | null;
-    private _columnHoverBackgroundColor: RevGridSettings.Color | undefined | null;
-    private _columnHeaderFont: string | undefined | null;
-    private _columnHeaderHorizontalAlignId: RevHorizontalAlignId | undefined | null;
-    private _columnHeaderHorizontalAlign: RevHorizontalAlign | undefined | null;
-    private _columnHeaderBackgroundColor: RevGridSettings.Color | undefined | null;
-    private _columnHeaderForegroundColor: RevGridSettings.Color | undefined | null;
-    private _columnHeaderSelectionFont: string | undefined | null;
-    private _columnHeaderSelectionBackgroundColor: RevGridSettings.Color | undefined | null;
-    private _columnHeaderSelectionForegroundColor: RevGridSettings.Color | undefined | null;
-    private _font: string | undefined;
-    private _horizontalAlign: RevHorizontalAlign | undefined;
-    private _horizontalAlignId: RevHorizontalAlignId | undefined;
-    private _verticalOffset: number | undefined;
-    private _textTruncateTypeId: RevTextTruncateTypeId | undefined | null;
-    private _textTruncateType: RevTextTruncateType | undefined | null;
-    private _textStrikeThrough: boolean | undefined;
-
-    get cellPadding() { return this._cellPadding !== undefined ? this._cellPadding : this.gridSettings.cellPadding; }
+    get cellPadding() { return this._cellPadding; }
     set cellPadding(value: number) {
         if (value !== this._cellPadding) {
             this.beginChange();
@@ -36,206 +38,135 @@ export class RevStandardInMemoryBehavioredColumnSettings extends RevInMemoryBeha
             this.endChange();
         }
     }
-    get cellFocusedBorderColor() {
-        if (this._cellFocusedBorderColor === null) {
-            return undefined;
-        } else {
-            return this._cellFocusedBorderColor !== undefined ? this._cellFocusedBorderColor : this.gridSettings.cellFocusedBorderColor;
-        }
-    }
+    get cellFocusedBorderColor() { return this._cellFocusedBorderColor; }
     set cellFocusedBorderColor(value: RevGridSettings.Color | undefined) {
         if (value !== this._cellFocusedBorderColor) {
             this.beginChange();
-            if (value === undefined) {
-                this._cellHoverBackgroundColor = null;
-            } else {
-                this._cellFocusedBorderColor = value;
-            }
+            this._cellFocusedBorderColor = value;
             this.flagChangedViewRender();
             this.endChange();
         }
     }
-    get cellHoverBackgroundColor() {
-        if (this._cellHoverBackgroundColor === null) {
-            return undefined;
-        } else {
-            return this._cellHoverBackgroundColor !== undefined ? this._cellHoverBackgroundColor : this.gridSettings.cellHoverBackgroundColor;
-        }
-    }
+    get cellHoverBackgroundColor() { return this._cellHoverBackgroundColor; }
     set cellHoverBackgroundColor(value: RevGridSettings.Color | undefined) {
         if (value !== this._cellHoverBackgroundColor) {
             this.beginChange();
-            if (value === undefined) {
-                this._cellHoverBackgroundColor = null;
-            } else {
-                this._cellHoverBackgroundColor = value;
-            }
+            this._cellHoverBackgroundColor = value;
             this.flagChangedViewRender();
             this.endChange();
         }
     }
-    get columnHoverBackgroundColor() {
-        if (this._columnHoverBackgroundColor === null) {
-            return undefined;
-        } else {
-            return this._columnHoverBackgroundColor !== undefined ? this._columnHoverBackgroundColor : this.gridSettings.columnHoverBackgroundColor;
-        }
-    }
+    get columnHoverBackgroundColor() { return this._columnHoverBackgroundColor; }
     set columnHoverBackgroundColor(value: RevGridSettings.Color | undefined) {
         if (value !== this._columnHoverBackgroundColor) {
             this.beginChange();
-            if (value === undefined) {
-                this._columnHoverBackgroundColor = null;
-            } else {
-                this._columnHoverBackgroundColor = value;
-            }
+            this._columnHoverBackgroundColor = value;
             this.flagChangedViewRender();
             this.endChange();
         }
     }
-    get columnHeaderFont() {
-        if (this._columnHeaderFont === null) {
-            return undefined;
-        } else {
-            return this._columnHeaderFont !== undefined ? this._columnHeaderFont : this.gridSettings.columnHeaderFont;
-        }
-    }
+    get columnHeaderFont() { return this._columnHeaderFont; }
     set columnHeaderFont(value: string | undefined) {
         if (value !== this._columnHeaderFont) {
             this.beginChange();
-            if (value === undefined) {
-                this._columnHeaderFont = null;
-            } else {
-                this._columnHeaderFont = value;
-            }
+            this._columnHeaderFont = value;
             this.flagChangedViewRender();
             this.endChange();
         }
     }
-    get columnHeaderHorizontalAlignId() {
-        if (this._columnHeaderHorizontalAlignId === null) {
-            return undefined;
-        } else {
-            return this._columnHeaderHorizontalAlignId !== undefined ? this._columnHeaderHorizontalAlignId : this.gridSettings.columnHeaderHorizontalAlignId;
-        }
-    }
-    get columnHeaderHorizontalAlign() {
-        if (this._columnHeaderHorizontalAlign === null) {
-            return undefined;
-        } else {
-            return this._columnHeaderHorizontalAlign !== undefined ? this._columnHeaderHorizontalAlign : this.gridSettings.columnHeaderHorizontalAlign;
-        }
-    }
-    set columnHeaderHorizontalAlign(value: RevHorizontalAlign | undefined) {
+    get columnHeaderHorizontalAlignId() { return this._columnHeaderHorizontalAlignId; }
+    get columnHeaderHorizontalAlign() { return this._columnHeaderHorizontalAlign; }
+    set columnHeaderHorizontalAlign(value: RevHorizontalAlign) {
         if (value !== this._columnHeaderHorizontalAlign) {
             this.beginChange();
-            if (value === undefined) {
-                this._columnHeaderHorizontalAlign = null;
-                this._columnHeaderHorizontalAlignId = null;
-            } else {
-                this._columnHeaderHorizontalAlign = value;
-                this._columnHeaderHorizontalAlignId = RevHorizontalAlign.toId(value);
-            }
+            this._columnHeaderHorizontalAlign = value;
+            this._columnHeaderHorizontalAlignId = RevHorizontalAlign.toId(value);
             this.flagChangedViewRender();
             this.endChange();
         }
     }
-    get columnHeaderBackgroundColor() {
-        if (this._columnHeaderBackgroundColor === null) {
-            return undefined;
-        } else {
-            return this._columnHeaderBackgroundColor !== undefined ? this._columnHeaderBackgroundColor : this.gridSettings.columnHeaderBackgroundColor;
-        }
-    }
+    get columnHeaderBackgroundColor() { return this._columnHeaderBackgroundColor; }
     set columnHeaderBackgroundColor(value: RevGridSettings.Color | undefined) {
         if (value !== this._columnHeaderBackgroundColor) {
             this.beginChange();
-            if (value === undefined) {
-                this._columnHeaderBackgroundColor = null;
-            } else {
-                this._columnHeaderBackgroundColor = value;
-            }
+            this._columnHeaderBackgroundColor = value;
             this.flagChangedViewRender();
             this.endChange();
         }
     }
-    get columnHeaderForegroundColor() {
-        if (this._columnHeaderForegroundColor === null) {
-            return undefined;
-        } else {
-            return this._columnHeaderForegroundColor !== undefined ? this._columnHeaderForegroundColor : this.gridSettings.columnHeaderForegroundColor;
-        }
-    }
+    get columnHeaderForegroundColor() { return this._columnHeaderForegroundColor; }
     set columnHeaderForegroundColor(value: RevGridSettings.Color | undefined) {
         if (value !== this._columnHeaderForegroundColor) {
             this.beginChange();
-            if (value === undefined) {
-                this._columnHeaderForegroundColor = null;
-            } else {
-                this._columnHeaderForegroundColor = value;
-            }
+            this._columnHeaderForegroundColor = value;
             this.flagChangedViewRender();
             this.endChange();
         }
     }
-    get columnHeaderSelectionFont() {
-        if (this._columnHeaderSelectionFont === null) {
-            return undefined;
-        } else {
-            return this._columnHeaderSelectionFont !== undefined ? this._columnHeaderSelectionFont : this.gridSettings.columnHeaderSelectionFont;
-        }
-    }
+    get columnHeaderSelectionFont() { return this._columnHeaderSelectionFont; }
     set columnHeaderSelectionFont(value: string | undefined) {
         if (value !== this._columnHeaderSelectionFont) {
             this.beginChange();
-            if (value === undefined) {
-                this._columnHeaderSelectionFont = null;
-            } else {
-                this._columnHeaderSelectionFont = value;
-            }
+            this._columnHeaderSelectionFont = value;
             this.flagChangedViewRender();
             this.endChange();
         }
     }
-    get columnHeaderSelectionBackgroundColor() {
-        if (this._columnHeaderSelectionBackgroundColor === null) {
-            return undefined;
-        } else {
-            return this._columnHeaderSelectionBackgroundColor !== undefined ? this._columnHeaderSelectionBackgroundColor : this.gridSettings.columnHeaderSelectionBackgroundColor;
-        }
-    }
+    get columnHeaderSelectionBackgroundColor() { return this._columnHeaderSelectionBackgroundColor; }
     set columnHeaderSelectionBackgroundColor(value: RevGridSettings.Color | undefined) {
         if (value !== this._columnHeaderSelectionBackgroundColor) {
             this.beginChange();
-            if (value === undefined) {
-                this._columnHeaderSelectionBackgroundColor = null;
-            } else {
-                this._columnHeaderSelectionBackgroundColor = value;
-            }
+            this._columnHeaderSelectionBackgroundColor = value;
             this.flagChangedViewRender();
             this.endChange();
         }
     }
-    get columnHeaderSelectionForegroundColor() {
-        if (this._columnHeaderSelectionForegroundColor === null) {
-            return undefined;
-        } else {
-            return this._columnHeaderSelectionForegroundColor !== undefined ? this._columnHeaderSelectionForegroundColor : this.gridSettings.columnHeaderSelectionForegroundColor;
-        }
-    }
+    get columnHeaderSelectionForegroundColor() { return this._columnHeaderSelectionForegroundColor; }
     set columnHeaderSelectionForegroundColor(value: RevGridSettings.Color | undefined) {
         if (value !== this._columnHeaderSelectionForegroundColor) {
             this.beginChange();
-            if (value === undefined) {
-                this._columnHeaderSelectionForegroundColor = null;
-            } else {
-                this._columnHeaderSelectionForegroundColor = value;
-            }
+            this._columnHeaderSelectionForegroundColor = value;
             this.flagChangedViewRender();
             this.endChange();
         }
     }
-    get font() { return this._font !== undefined ? this._font : this.gridSettings.font; }
+    get rowHoverBackgroundColor() { return this._rowHoverBackgroundColor; }
+    set rowHoverBackgroundColor(value: RevGridSettings.Color | undefined) {
+        if (value !== this._rowHoverBackgroundColor) {
+            this.beginChange();
+            this._rowHoverBackgroundColor = value;
+            this.flagChangedViewRender();
+            this.endChange();
+        }
+    }
+    get selectionFont() { return this._selectionFont; }
+    set selectionFont(value: RevGridSettings.Color | undefined) {
+        if (value !== this._selectionFont) {
+            this.beginChange();
+            this._selectionFont = value;
+            this.flagChangedViewRender();
+            this.endChange();
+        }
+    }
+    get selectionBackgroundColor() { return this._selectionBackgroundColor; }
+    set selectionBackgroundColor(value: RevGridSettings.Color | undefined) {
+        if (value !== this._selectionBackgroundColor) {
+            this.beginChange();
+            this._selectionBackgroundColor = value;
+            this.flagChangedViewRender();
+            this.endChange();
+        }
+    }
+    get selectionForegroundColor() { return this._selectionForegroundColor; }
+    set selectionForegroundColor(value: RevGridSettings.Color | undefined) {
+        if (value !== this._selectionForegroundColor) {
+            this.beginChange();
+            this._selectionForegroundColor = value;
+            this.flagChangedViewRender();
+            this.endChange();
+        }
+    }
+    get font() { return this._font; }
     set font(value: string) {
         if (value !== this._font) {
             this.beginChange();
@@ -244,8 +175,8 @@ export class RevStandardInMemoryBehavioredColumnSettings extends RevInMemoryBeha
             this.endChange();
         }
     }
-    get horizontalAlignId() { return this._horizontalAlignId !== undefined ? this._horizontalAlignId : this.gridSettings.horizontalAlignId; }
-    get horizontalAlign() { return this._horizontalAlign !== undefined ? this._horizontalAlign : this.gridSettings.horizontalAlign; }
+    get horizontalAlignId() { return this._horizontalAlignId; }
+    get horizontalAlign() { return this._horizontalAlign; }
     set horizontalAlign(value: RevHorizontalAlign) {
         if (value !== this._horizontalAlign) {
             this.beginChange();
@@ -255,7 +186,7 @@ export class RevStandardInMemoryBehavioredColumnSettings extends RevInMemoryBeha
             this.endChange();
         }
     }
-    get verticalOffset() { return this._verticalOffset !== undefined ? this._verticalOffset : this.gridSettings.verticalOffset; }
+    get verticalOffset() { return this._verticalOffset; }
     set verticalOffset(value: number) {
         if (value !== this._verticalOffset) {
             this.beginChange();
@@ -264,35 +195,18 @@ export class RevStandardInMemoryBehavioredColumnSettings extends RevInMemoryBeha
             this.endChange();
         }
     }
-    get textTruncateTypeId() {
-        if (this._textTruncateTypeId === null) {
-            return undefined;
-        } else {
-            return this._textTruncateTypeId !== undefined ? this._textTruncateTypeId : this.gridSettings.textTruncateTypeId;
-        }
-    }
-    get textTruncateType() {
-        if (this._textTruncateType === null) {
-            return undefined;
-        } else {
-            return this._textTruncateType !== undefined ? this._textTruncateType : this.gridSettings.textTruncateType;
-        }
-    }
+    get textTruncateTypeId() { return this._textTruncateTypeId; }
+    get textTruncateType() { return this._textTruncateType; }
     set textTruncateType(value: RevTextTruncateType | undefined) {
         if (value !== this._textTruncateType) {
             this.beginChange();
-            if (value === undefined) {
-                this._textTruncateType = null;
-                this._textTruncateTypeId = null;
-            } else {
-                this._textTruncateType = value;
-                this._textTruncateTypeId = RevTextTruncateType.toId(value);
-            }
+            this._textTruncateType = value;
+            this._textTruncateTypeId = value === undefined ? undefined : RevTextTruncateType.toId(value);
             this.flagChangedViewRender();
             this.endChange();
         }
     }
-    get textStrikeThrough() { return this._textStrikeThrough !== undefined ? this._textStrikeThrough : this.gridSettings.textStrikeThrough; }
+    get textStrikeThrough() { return this._textStrikeThrough; }
     set textStrikeThrough(value: boolean) {
         if (value !== this._textStrikeThrough) {
             this.beginChange();
@@ -302,16 +216,16 @@ export class RevStandardInMemoryBehavioredColumnSettings extends RevInMemoryBeha
         }
     }
 
-    override merge(settings: Partial<RevStandardColumnSettings>) {
+    override merge(settings: Partial<RevSimpleGridSettings>) {
         this.beginChange();
 
         super.merge(settings);
 
-        const requiredSettings = settings as Required<RevStandardColumnSettings>; // since we only iterate over keys that exist we can assume that settings is not partial in the switch loop
+        const requiredSettings = settings as Required<RevSimpleGridSettings>; // since we only iterate over keys that exist we can assume that settings is not partial in the switch loop
         for (const key in settings) {
             // Use loop so that compiler will report error if any setting missing
-            const columnSettingsKey = key as keyof RevStandardOnlyColumnSettings;
-            switch (columnSettingsKey) {
+            const gridSettingsKey = key as keyof RevSimpleOnlyGridSettings;
+            switch (gridSettingsKey) {
                 case 'cellPadding':
                     if (this._cellPadding !== requiredSettings.cellPadding) {
                         this._cellPadding = requiredSettings.cellPadding;
@@ -343,7 +257,7 @@ export class RevStandardInMemoryBehavioredColumnSettings extends RevInMemoryBeha
                     }
                     break;
                 case 'columnHeaderHorizontalAlignId':
-                    break; // will always match columnHeaderHorizontalAlign
+                    break; // Always same as columnHeaderHorizontalAlign
                 case 'columnHeaderHorizontalAlign':
                     if (this._columnHeaderHorizontalAlign !== requiredSettings.columnHeaderHorizontalAlign) {
                         this._columnHeaderHorizontalAlignId = requiredSettings.columnHeaderHorizontalAlignId;
@@ -381,6 +295,30 @@ export class RevStandardInMemoryBehavioredColumnSettings extends RevInMemoryBeha
                         this.flagChangedViewRender();
                     }
                     break;
+                case 'rowHoverBackgroundColor':
+                    if (this._rowHoverBackgroundColor !== requiredSettings.rowHoverBackgroundColor) {
+                        this._rowHoverBackgroundColor = requiredSettings.rowHoverBackgroundColor;
+                        this.flagChangedViewRender();
+                    }
+                    break;
+                case 'selectionFont':
+                    if (this._selectionFont !== requiredSettings.selectionFont) {
+                        this._selectionFont = requiredSettings.selectionFont;
+                        this.flagChangedViewRender();
+                    }
+                    break;
+                case 'selectionBackgroundColor':
+                    if (this._selectionBackgroundColor !== requiredSettings.selectionBackgroundColor) {
+                        this._selectionBackgroundColor = requiredSettings.selectionBackgroundColor;
+                        this.flagChangedViewRender();
+                    }
+                    break;
+                case 'selectionForegroundColor':
+                    if (this._selectionForegroundColor !== requiredSettings.selectionForegroundColor) {
+                        this._selectionForegroundColor = requiredSettings.selectionForegroundColor;
+                        this.flagChangedViewRender();
+                    }
+                    break;
                 case 'font':
                     if (this._font !== requiredSettings.font) {
                         this._font = requiredSettings.font;
@@ -388,7 +326,7 @@ export class RevStandardInMemoryBehavioredColumnSettings extends RevInMemoryBeha
                     }
                     break;
                 case 'horizontalAlignId':
-                    break; // will always match horizontalAlign
+                    break; // Always same as columnHeaderHorizontalAlign
                 case 'horizontalAlign':
                     if (this._horizontalAlign !== requiredSettings.horizontalAlign) {
                         this._horizontalAlignId = requiredSettings.horizontalAlignId;
@@ -403,9 +341,9 @@ export class RevStandardInMemoryBehavioredColumnSettings extends RevInMemoryBeha
                     }
                     break;
                 case 'textTruncateTypeId':
-                    break; // will always match horizontalAlign
+                    break; // Always same as columnHeaderHorizontalAlign
                 case 'textTruncateType':
-                    if (this._textTruncateType !== requiredSettings.textTruncateType) {
+                    if (this._textTruncateType !== requiredSettings.textTruncateTypeId) {
                         this._textTruncateTypeId = requiredSettings.textTruncateTypeId;
                         this._textTruncateType = requiredSettings.textTruncateType;
                         this.flagChangedViewRender();
@@ -418,8 +356,9 @@ export class RevStandardInMemoryBehavioredColumnSettings extends RevInMemoryBeha
                     }
                     break;
 
-                default:
-                    columnSettingsKey satisfies never;
+                default: {
+                    gridSettingsKey satisfies never;
+                }
             }
         }
 
@@ -427,7 +366,7 @@ export class RevStandardInMemoryBehavioredColumnSettings extends RevInMemoryBeha
     }
 
     override clone() {
-        const copy = new RevStandardInMemoryBehavioredColumnSettings(this.gridSettings);
+        const copy = new RevSimpleInMemoryBehavioredGridSettings();
         copy.merge(this);
         return copy;
     }

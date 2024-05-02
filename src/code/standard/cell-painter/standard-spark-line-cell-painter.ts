@@ -1,7 +1,6 @@
 
-import { RevSchemaField, RevViewCell } from '../../client/internal-api';
-import { RevRectangle } from '../../common/internal-api';
-import { RevStandardBehavioredColumnSettings, RevStandardBehavioredGridSettings } from '../settings/internal-api';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevViewCell } from '../../client/internal-api';
+import { RevRectangle, RevSchemaField } from '../../common/internal-api';
 import { RevStandardCellPainter } from './standard-cell-painter';
 
 /**
@@ -10,8 +9,8 @@ import { RevStandardCellPainter } from './standard-cell-painter';
  * @public
  */
 export class RevStandardSparkLineCellPainter<
-    BGS extends RevStandardBehavioredGridSettings,
-    BCS extends RevStandardBehavioredColumnSettings,
+    BGS extends RevBehavioredGridSettings,
+    BCS extends RevBehavioredColumnSettings,
     SF extends RevSchemaField
 > extends RevStandardCellPainter<BGS, BCS, SF> {
     config: RevStandardSparkLineCellPainter.Config;

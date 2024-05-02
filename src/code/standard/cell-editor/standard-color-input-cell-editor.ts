@@ -1,5 +1,5 @@
-import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevClientGrid, RevDataServer, RevSchemaField, RevViewCell } from '../../client/internal-api';
-import { RevAssertError } from '../../common/internal-api';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevClientGrid, RevViewCell } from '../../client/internal-api';
+import { RevAssertError, RevDataServer, RevSchemaField } from '../../common/internal-api';
 import { RevStandardInputElementCellEditor } from './standard-input-element-cell-editor';
 
 /** @public */

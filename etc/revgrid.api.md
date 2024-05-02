@@ -2646,7 +2646,7 @@ export const enum RevHorizontalWheelScrollingAllowedId {
 }
 
 // @public (undocumented)
-export interface RevIClientGrid<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevClientGrid<BGS, BCS, SF> {
+export interface RevIColumnLayoutGrid<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevColumnLayoutGrid<BGS, BCS, SF> {
 }
 
 // @public (undocumented)
@@ -4958,6 +4958,263 @@ export class RevSelectionRectangle extends RevFirstCornerRectangle implements Re
 // @public (undocumented)
 export type RevServerNotificationId = number;
 
+// @public
+export class RevSimpleAlphaTextCellPainter<BGS extends RevSimpleBehavioredGridSettings, BCS extends RevSimpleBehavioredColumnSettings, SF extends RevSchemaField> extends RevStandardCellPainter<BGS, BCS, SF> {
+    constructor(grid: RevClientGrid<BGS, BCS, SF>, dataServer: RevDataServer<SF>);
+    // (undocumented)
+    paint(cell: RevViewCell<BCS, SF>, prefillColor: string | undefined): number | undefined;
+}
+
+// @public (undocumented)
+export namespace RevSimpleAlphaTextCellPainter {
+    // (undocumented)
+    export type RevPaintFingerprint = IndexSignatureHack<RevPaintFingerprintInterface>;
+    // (undocumented)
+    export interface RevPaintFingerprintInterface {
+        // (undocumented)
+        readonly borderColor: string | undefined;
+        // (undocumented)
+        readonly firstColorIsFill: boolean;
+        // (undocumented)
+        readonly layerColors: string[];
+        // (undocumented)
+        readonly textColor: string;
+        // (undocumented)
+        readonly textFont: string;
+        // (undocumented)
+        readonly value: string;
+    }
+}
+
+// @public (undocumented)
+export interface RevSimpleBehavioredColumnSettings extends RevSimpleColumnSettings, RevBehavioredColumnSettings {
+    // (undocumented)
+    clone(): RevSimpleBehavioredColumnSettings;
+    // (undocumented)
+    merge(settings: Partial<RevSimpleColumnSettings>): boolean;
+}
+
+// @public (undocumented)
+export interface RevSimpleBehavioredGridSettings extends RevSimpleGridSettings, RevBehavioredGridSettings {
+    // (undocumented)
+    clone(): RevSimpleBehavioredGridSettings;
+    // (undocumented)
+    merge(settings: Partial<RevSimpleGridSettings>): boolean;
+}
+
+// @public (undocumented)
+export class RevSimpleClientGrid<SF extends RevSchemaField> extends RevClientGrid<RevSimpleInMemoryBehavioredGridSettings, RevSimpleInMemoryBehavioredColumnSettings, SF> {
+}
+
+// @public (undocumented)
+export interface RevSimpleColumnSettings extends RevSimpleOnlyColumnSettings, RevColumnSettings {
+}
+
+// @public (undocumented)
+export const revSimpleDefaultColumnSettings: RevSimpleColumnSettings;
+
+// @public (undocumented)
+export const revSimpleDefaultGridSettings: RevSimpleGridSettings;
+
+// @public (undocumented)
+export const revSimpleDefaultOnlyColumnSettings: RevSimpleOnlyColumnSettings;
+
+// @public (undocumented)
+export const revSimpleDefaultOnlyGridSettings: RevSimpleOnlyGridSettings;
+
+// @public (undocumented)
+export interface RevSimpleGridSettings extends RevSimpleOnlyGridSettings, RevGridSettings {
+}
+
+// @public (undocumented)
+export class RevSimpleInMemoryBehavioredColumnSettings extends RevInMemoryBehavioredColumnSettings implements RevSimpleBehavioredColumnSettings, RevStandardCheckboxCellPainter.ColumnSettings, RevStandardHeaderTextCellPainter.ColumnSettings {
+    // (undocumented)
+    get cellFocusedBorderColor(): RevGridSettings.Color | undefined;
+    set cellFocusedBorderColor(value: RevGridSettings.Color | undefined);
+    // (undocumented)
+    get cellHoverBackgroundColor(): RevGridSettings.Color | undefined;
+    set cellHoverBackgroundColor(value: RevGridSettings.Color | undefined);
+    // (undocumented)
+    get cellPadding(): number;
+    set cellPadding(value: number);
+    // (undocumented)
+    clone(): RevSimpleInMemoryBehavioredColumnSettings;
+    // (undocumented)
+    get columnHeaderBackgroundColor(): RevGridSettings.Color | undefined;
+    set columnHeaderBackgroundColor(value: RevGridSettings.Color | undefined);
+    // (undocumented)
+    get columnHeaderFont(): string | undefined;
+    set columnHeaderFont(value: string | undefined);
+    // (undocumented)
+    get columnHeaderForegroundColor(): RevGridSettings.Color | undefined;
+    set columnHeaderForegroundColor(value: RevGridSettings.Color | undefined);
+    // (undocumented)
+    get columnHeaderHorizontalAlign(): RevHorizontalAlign;
+    set columnHeaderHorizontalAlign(value: RevHorizontalAlign);
+    // (undocumented)
+    get columnHeaderHorizontalAlignId(): RevHorizontalAlignId;
+    // (undocumented)
+    get columnHeaderSelectionBackgroundColor(): RevGridSettings.Color | undefined;
+    set columnHeaderSelectionBackgroundColor(value: RevGridSettings.Color | undefined);
+    // (undocumented)
+    get columnHeaderSelectionFont(): string | undefined;
+    set columnHeaderSelectionFont(value: string | undefined);
+    // (undocumented)
+    get columnHeaderSelectionForegroundColor(): RevGridSettings.Color | undefined;
+    set columnHeaderSelectionForegroundColor(value: RevGridSettings.Color | undefined);
+    // (undocumented)
+    get columnHoverBackgroundColor(): RevGridSettings.Color | undefined;
+    set columnHoverBackgroundColor(value: RevGridSettings.Color | undefined);
+    // (undocumented)
+    get font(): string;
+    set font(value: string);
+    // (undocumented)
+    gridSettings: RevSimpleGridSettings;
+    // (undocumented)
+    get horizontalAlign(): RevHorizontalAlign;
+    set horizontalAlign(value: RevHorizontalAlign);
+    // (undocumented)
+    get horizontalAlignId(): RevHorizontalAlignId;
+    // (undocumented)
+    merge(settings: Partial<RevSimpleColumnSettings>): boolean;
+    // (undocumented)
+    get textStrikeThrough(): boolean;
+    set textStrikeThrough(value: boolean);
+    // (undocumented)
+    get textTruncateType(): RevTextTruncateType | undefined;
+    set textTruncateType(value: RevTextTruncateType | undefined);
+    // (undocumented)
+    get textTruncateTypeId(): RevTextTruncateTypeId | undefined;
+    // (undocumented)
+    get verticalOffset(): number;
+    set verticalOffset(value: number);
+}
+
+// @public (undocumented)
+export class RevSimpleInMemoryBehavioredGridSettings extends RevInMemoryBehavioredGridSettings implements RevSimpleBehavioredGridSettings {
+    // (undocumented)
+    get cellFocusedBorderColor(): RevGridSettings.Color | undefined;
+    set cellFocusedBorderColor(value: RevGridSettings.Color | undefined);
+    // (undocumented)
+    get cellHoverBackgroundColor(): RevGridSettings.Color | undefined;
+    set cellHoverBackgroundColor(value: RevGridSettings.Color | undefined);
+    // (undocumented)
+    get cellPadding(): number;
+    set cellPadding(value: number);
+    // (undocumented)
+    clone(): RevSimpleInMemoryBehavioredGridSettings;
+    // (undocumented)
+    get columnHeaderBackgroundColor(): RevGridSettings.Color | undefined;
+    set columnHeaderBackgroundColor(value: RevGridSettings.Color | undefined);
+    // (undocumented)
+    get columnHeaderFont(): string | undefined;
+    set columnHeaderFont(value: string | undefined);
+    // (undocumented)
+    get columnHeaderForegroundColor(): RevGridSettings.Color | undefined;
+    set columnHeaderForegroundColor(value: RevGridSettings.Color | undefined);
+    // (undocumented)
+    get columnHeaderHorizontalAlign(): RevHorizontalAlign;
+    set columnHeaderHorizontalAlign(value: RevHorizontalAlign);
+    // (undocumented)
+    get columnHeaderHorizontalAlignId(): RevHorizontalAlignId;
+    // (undocumented)
+    get columnHeaderSelectionBackgroundColor(): RevGridSettings.Color | undefined;
+    set columnHeaderSelectionBackgroundColor(value: RevGridSettings.Color | undefined);
+    // (undocumented)
+    get columnHeaderSelectionFont(): string | undefined;
+    set columnHeaderSelectionFont(value: string | undefined);
+    // (undocumented)
+    get columnHeaderSelectionForegroundColor(): RevGridSettings.Color | undefined;
+    set columnHeaderSelectionForegroundColor(value: RevGridSettings.Color | undefined);
+    // (undocumented)
+    get columnHoverBackgroundColor(): RevGridSettings.Color | undefined;
+    set columnHoverBackgroundColor(value: RevGridSettings.Color | undefined);
+    // (undocumented)
+    get font(): string;
+    set font(value: string);
+    // (undocumented)
+    get horizontalAlign(): RevHorizontalAlign;
+    set horizontalAlign(value: RevHorizontalAlign);
+    // (undocumented)
+    get horizontalAlignId(): RevHorizontalAlignId;
+    // (undocumented)
+    merge(settings: Partial<RevSimpleGridSettings>): boolean;
+    // (undocumented)
+    get rowHoverBackgroundColor(): RevGridSettings.Color | undefined;
+    set rowHoverBackgroundColor(value: RevGridSettings.Color | undefined);
+    // (undocumented)
+    get selectionBackgroundColor(): RevGridSettings.Color | undefined;
+    set selectionBackgroundColor(value: RevGridSettings.Color | undefined);
+    // (undocumented)
+    get selectionFont(): RevGridSettings.Color | undefined;
+    set selectionFont(value: RevGridSettings.Color | undefined);
+    // (undocumented)
+    get selectionForegroundColor(): RevGridSettings.Color | undefined;
+    set selectionForegroundColor(value: RevGridSettings.Color | undefined);
+    // (undocumented)
+    get textStrikeThrough(): boolean;
+    set textStrikeThrough(value: boolean);
+    // (undocumented)
+    get textTruncateType(): RevTextTruncateType | undefined;
+    set textTruncateType(value: RevTextTruncateType | undefined);
+    // (undocumented)
+    get textTruncateTypeId(): RevTextTruncateTypeId | undefined;
+    // (undocumented)
+    get verticalOffset(): number;
+    set verticalOffset(value: number);
+}
+
+// @public (undocumented)
+export type RevSimpleOnlyColumnSettings = Pick<RevSimpleOnlyGridSettings, 'cellPadding' | 'cellFocusedBorderColor' | 'cellHoverBackgroundColor' | 'columnHoverBackgroundColor' | 'columnHeaderFont' | 'columnHeaderHorizontalAlignId' | 'columnHeaderHorizontalAlign' | 'columnHeaderBackgroundColor' | 'columnHeaderForegroundColor' | 'columnHeaderSelectionFont' | 'columnHeaderSelectionBackgroundColor' | 'columnHeaderSelectionForegroundColor' | 'font' | 'horizontalAlignId' | 'horizontalAlign' | 'verticalOffset' | 'textTruncateTypeId' | 'textTruncateType' | 'textStrikeThrough'>;
+
+// @public (undocumented)
+export interface RevSimpleOnlyGridSettings extends RevStandardTextPainter.OnlyColumnSettings {
+    // (undocumented)
+    cellFocusedBorderColor: RevGridSettings.Color | undefined;
+    // (undocumented)
+    cellHoverBackgroundColor: RevGridSettings.Color | undefined;
+    cellPadding: number;
+    // (undocumented)
+    columnHeaderBackgroundColor: RevGridSettings.Color | undefined;
+    // (undocumented)
+    columnHeaderFont: string | undefined;
+    // (undocumented)
+    columnHeaderForegroundColor: RevGridSettings.Color | undefined;
+    // (undocumented)
+    columnHeaderHorizontalAlign: RevHorizontalAlign;
+    // (undocumented)
+    readonly columnHeaderHorizontalAlignId: RevHorizontalAlignId;
+    // (undocumented)
+    columnHeaderSelectionBackgroundColor: RevGridSettings.Color | undefined;
+    columnHeaderSelectionFont: string | undefined;
+    // (undocumented)
+    columnHeaderSelectionForegroundColor: RevGridSettings.Color | undefined;
+    // (undocumented)
+    columnHoverBackgroundColor: RevGridSettings.Color | undefined;
+    // (undocumented)
+    font: string;
+    // (undocumented)
+    horizontalAlign: RevHorizontalAlign;
+    readonly horizontalAlignId: RevHorizontalAlignId;
+    // (undocumented)
+    rowHoverBackgroundColor: RevGridSettings.Color | undefined;
+    selectionBackgroundColor: RevGridSettings.Color | undefined;
+    selectionFont: RevGridSettings.Color | undefined;
+    selectionForegroundColor: RevGridSettings.Color | undefined;
+    textStrikeThrough: boolean;
+    // (undocumented)
+    textTruncateType: RevTextTruncateType | undefined;
+    // (undocumented)
+    readonly textTruncateTypeId: RevTextTruncateTypeId | undefined;
+    verticalOffset: number;
+}
+
+// @public (undocumented)
+export const revSimpleReadonlyDefaultBehavioredColumnSettings: Readonly<RevSimpleBehavioredColumnSettings>;
+
+// @public (undocumented)
+export const revSimpleReadonlyDefaultBehavioredGridSettings: Readonly<RevSimpleBehavioredGridSettings>;
+
 // @public (undocumented)
 export interface RevSingleHeadingDataRowArraySourcedField extends RevSourcedField, RevDataRowArrayField, RevSingleHeadingSchemaField {
 }
@@ -5170,7 +5427,7 @@ export namespace RevSourcedFieldDefinition {
 }
 
 // @public (undocumented)
-export interface RevSourcedFieldGrid<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSourcedField> extends RevIClientGrid<BGS, BCS, SF> {
+export interface RevSourcedFieldGrid<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSourcedField> extends RevIColumnLayoutGrid<BGS, BCS, SF> {
     // (undocumented)
     readonly allowedFields: readonly SF[] | undefined;
     // (undocumented)
@@ -5207,30 +5464,7 @@ export interface RevSplitStringAtFirstNonNumericCharResult {
 }
 
 // @public
-export class RevStandardAlphaTextCellPainter<BGS extends RevStandardBehavioredGridSettings, BCS extends RevStandardBehavioredColumnSettings, SF extends RevSchemaField> extends RevStandardCellPainter<BGS, BCS, SF> {
-    constructor(grid: RevClientGrid<BGS, BCS, SF>, dataServer: RevDataServer<SF>);
-    // (undocumented)
-    paint(cell: RevViewCell<BCS, SF>, prefillColor: string | undefined): number | undefined;
-}
-
-// @public (undocumented)
-export interface RevStandardBehavioredColumnSettings extends RevStandardColumnSettings, RevBehavioredColumnSettings {
-    // (undocumented)
-    clone(): RevStandardBehavioredColumnSettings;
-    // (undocumented)
-    merge(settings: Partial<RevStandardColumnSettings>): boolean;
-}
-
-// @public (undocumented)
-export interface RevStandardBehavioredGridSettings extends RevStandardGridSettings, RevBehavioredGridSettings {
-    // (undocumented)
-    clone(): RevStandardBehavioredGridSettings;
-    // (undocumented)
-    merge(settings: Partial<RevStandardGridSettings>): boolean;
-}
-
-// @public
-export class RevStandardButtonCellPainter<BGS extends RevStandardBehavioredGridSettings, BCS extends RevStandardBehavioredColumnSettings, SF extends RevSchemaField> extends RevStandardCellPainter<BGS, BCS, SF> {
+export class RevStandardButtonCellPainter<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevStandardCellPainter<BGS, BCS, SF> {
     // (undocumented)
     config: RevStandardButtonCellPainter.Config;
     // (undocumented)
@@ -5298,7 +5532,7 @@ export abstract class RevStandardCellPainter<BGS extends RevBehavioredGridSettin
 }
 
 // @public (undocumented)
-export class RevStandardCheckboxCellPainter<BGS extends RevStandardBehavioredGridSettings, BCS extends RevStandardBehavioredColumnSettings, SF extends RevSchemaField> extends RevStandardCellPainter<BGS, BCS, SF> {
+export class RevStandardCheckboxCellPainter<BGS extends RevBehavioredGridSettings, BCS extends RevStandardCheckboxCellPainter.BehavioredColumnSettings, SF extends RevSchemaField> extends RevStandardCellPainter<BGS, BCS, SF> {
     constructor(grid: RevClientGrid<BGS, BCS, SF>, dataServer: RevDataServer<SF>, _editable: boolean);
     // (undocumented)
     calculateClickBox(cell: RevViewCell<BCS, SF>): RevRectangle | undefined;
@@ -5310,6 +5544,25 @@ export class RevStandardCheckboxCellPainter<BGS extends RevStandardBehavioredGri
 export namespace RevStandardCheckboxCellPainter {
     const // (undocumented)
     typeName = "Checkbox";
+    // (undocumented)
+    export interface BehavioredColumnSettings extends ColumnSettings, RevBehavioredColumnSettings {
+        // (undocumented)
+        clone(): BehavioredColumnSettings;
+        // (undocumented)
+        merge(settings: Partial<ColumnSettings>): boolean;
+    }
+    // (undocumented)
+    export interface ColumnSettings extends OnlyColumnSettings, RevColumnSettings {
+    }
+    // (undocumented)
+    export interface OnlyColumnSettings {
+        // (undocumented)
+        cellFocusedBorderColor: RevGridSettings.Color | undefined;
+        // (undocumented)
+        cellPadding: number;
+        // (undocumented)
+        font: string;
+    }
     // (undocumented)
     export type PaintFingerprint = IndexSignatureHack<PaintFingerprintInterface>;
     // (undocumented)
@@ -5387,20 +5640,12 @@ export namespace RevStandardCheckboxPainter {
 }
 
 // @public (undocumented)
-export class RevStandardClientGrid extends RevClientGrid<RevStandardInMemoryBehavioredGridSettings, RevStandardInMemoryBehavioredColumnSettings, RevSchemaField> {
-}
-
-// @public (undocumented)
 export class RevStandardColorInputCellEditor<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevStandardInputElementCellEditor<BGS, BCS, SF> {
     constructor(grid: RevClientGrid<BGS, BCS, SF>, dataServer: RevDataServer<SF>);
     // (undocumented)
     closeCell(field: SF, subgridRowIndex: number, cancel: boolean): void;
     // (undocumented)
     tryOpenCell(cell: RevViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined): boolean;
-}
-
-// @public (undocumented)
-export interface RevStandardColumnSettings extends RevStandardOnlyColumnSettings, RevColumnSettings {
 }
 
 // @public (undocumented)
@@ -5411,18 +5656,6 @@ export class RevStandardDateInputCellEditor<BGS extends RevBehavioredGridSetting
     // (undocumented)
     tryOpenCell(cell: RevViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined): boolean;
 }
-
-// @public (undocumented)
-export const revStandardDefaultColumnSettings: RevStandardColumnSettings;
-
-// @public (undocumented)
-export const revStandardDefaultGridSettings: RevStandardGridSettings;
-
-// @public (undocumented)
-export const revStandardDefaultOnlyColumnSettings: RevStandardOnlyColumnSettings;
-
-// @public (undocumented)
-export const revStandardDefaultOnlyGridSettings: RevStandardOnlyGridSettings;
 
 // @public (undocumented)
 export abstract class RevStandardElementCellEditor<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevStandardCellEditor<BGS, BCS, SF> {
@@ -5439,153 +5672,64 @@ export abstract class RevStandardElementCellEditor<BGS extends RevBehavioredGrid
     tryOpenCell(_viewCell: RevViewCell<BCS, SF>, _openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined): boolean;
 }
 
-// @public (undocumented)
-export interface RevStandardGridSettings extends RevStandardOnlyGridSettings, RevGridSettings {
-}
-
 // @public
-export class RevStandardHeaderTextCellPainter<BGS extends RevStandardBehavioredGridSettings, BCS extends RevStandardBehavioredColumnSettings, SF extends RevSchemaField> extends RevStandardCellPainter<BGS, BCS, SF> {
+export class RevStandardHeaderTextCellPainter<BGS extends RevBehavioredGridSettings, BCS extends RevStandardHeaderTextCellPainter.BehavioredColumnSettings, SF extends RevSchemaField> extends RevStandardCellPainter<BGS, BCS, SF> {
     constructor(grid: RevClientGrid<BGS, BCS, SF>, dataServer: RevDataServer<SF>);
     // (undocumented)
     paint(cell: RevViewCell<BCS, SF>, _prefillColor: string | undefined): number | undefined;
 }
 
 // @public (undocumented)
-export class RevStandardInMemoryBehavioredColumnSettings extends RevInMemoryBehavioredColumnSettings implements RevStandardBehavioredColumnSettings {
+export namespace RevStandardHeaderTextCellPainter {
     // (undocumented)
-    get cellFocusedBorderColor(): RevGridSettings.Color | undefined;
-    set cellFocusedBorderColor(value: RevGridSettings.Color | undefined);
+    export interface BehavioredColumnSettings extends ColumnSettings, RevBehavioredColumnSettings {
+        // (undocumented)
+        clone(): BehavioredColumnSettings;
+        // (undocumented)
+        merge(settings: Partial<ColumnSettings>): boolean;
+    }
     // (undocumented)
-    get cellHoverBackgroundColor(): RevGridSettings.Color | undefined;
-    set cellHoverBackgroundColor(value: RevGridSettings.Color | undefined);
+    export interface ColumnSettings extends OnlyColumnSettings, RevStandardTextPainter.OnlyColumnSettings, RevColumnSettings {
+    }
     // (undocumented)
-    get cellPadding(): number;
-    set cellPadding(value: number);
+    export interface OnlyColumnSettings {
+        // (undocumented)
+        cellPadding: number;
+        // (undocumented)
+        columnHeaderBackgroundColor: RevGridSettings.Color | undefined;
+        // (undocumented)
+        columnHeaderFont: string | undefined;
+        // (undocumented)
+        columnHeaderForegroundColor: RevGridSettings.Color | undefined;
+        // (undocumented)
+        readonly columnHeaderHorizontalAlignId: RevHorizontalAlignId;
+        // (undocumented)
+        columnHeaderSelectionFont: string | undefined;
+        // (undocumented)
+        columnHeaderSelectionForegroundColor: RevGridSettings.Color | undefined;
+        // (undocumented)
+        font: string;
+        // (undocumented)
+        readonly horizontalAlignId: RevHorizontalAlignId;
+    }
     // (undocumented)
-    clone(): RevStandardInMemoryBehavioredColumnSettings;
+    export namespace PaintFingerprint {
+        // (undocumented)
+        export function same(left: RevPaintFingerprint, right: RevPaintFingerprint): boolean;
+    }
     // (undocumented)
-    get columnHeaderBackgroundColor(): RevGridSettings.Color | undefined;
-    set columnHeaderBackgroundColor(value: RevGridSettings.Color | undefined);
+    export type RevPaintFingerprint = IndexSignatureHack<RevPaintFingerprintInterface>;
     // (undocumented)
-    get columnHeaderFont(): string | undefined;
-    set columnHeaderFont(value: string | undefined);
-    // (undocumented)
-    get columnHeaderForegroundColor(): RevGridSettings.Color | undefined;
-    set columnHeaderForegroundColor(value: RevGridSettings.Color | undefined);
-    // (undocumented)
-    get columnHeaderHorizontalAlign(): RevHorizontalAlign | undefined;
-    set columnHeaderHorizontalAlign(value: RevHorizontalAlign | undefined);
-    // (undocumented)
-    get columnHeaderHorizontalAlignId(): RevHorizontalAlignId | undefined;
-    // (undocumented)
-    get columnHeaderSelectionBackgroundColor(): RevGridSettings.Color | undefined;
-    set columnHeaderSelectionBackgroundColor(value: RevGridSettings.Color | undefined);
-    // (undocumented)
-    get columnHeaderSelectionFont(): string | undefined;
-    set columnHeaderSelectionFont(value: string | undefined);
-    // (undocumented)
-    get columnHeaderSelectionForegroundColor(): RevGridSettings.Color | undefined;
-    set columnHeaderSelectionForegroundColor(value: RevGridSettings.Color | undefined);
-    // (undocumented)
-    get columnHoverBackgroundColor(): RevGridSettings.Color | undefined;
-    set columnHoverBackgroundColor(value: RevGridSettings.Color | undefined);
-    // (undocumented)
-    get font(): string;
-    set font(value: string);
-    // (undocumented)
-    gridSettings: RevStandardGridSettings;
-    // (undocumented)
-    get horizontalAlign(): RevHorizontalAlign;
-    set horizontalAlign(value: RevHorizontalAlign);
-    // (undocumented)
-    get horizontalAlignId(): RevHorizontalAlignId;
-    // (undocumented)
-    merge(settings: Partial<RevStandardColumnSettings>): boolean;
-    // (undocumented)
-    get textStrikeThrough(): boolean;
-    set textStrikeThrough(value: boolean);
-    // (undocumented)
-    get textTruncateType(): RevTextTruncateType | undefined;
-    set textTruncateType(value: RevTextTruncateType | undefined);
-    // (undocumented)
-    get textTruncateTypeId(): RevTextTruncateTypeId | undefined;
-    // (undocumented)
-    get verticalOffset(): number;
-    set verticalOffset(value: number);
-}
-
-// @public (undocumented)
-export class RevStandardInMemoryBehavioredGridSettings extends RevInMemoryBehavioredGridSettings implements RevStandardBehavioredGridSettings {
-    // (undocumented)
-    get cellFocusedBorderColor(): RevGridSettings.Color | undefined;
-    set cellFocusedBorderColor(value: RevGridSettings.Color | undefined);
-    // (undocumented)
-    get cellHoverBackgroundColor(): RevGridSettings.Color | undefined;
-    set cellHoverBackgroundColor(value: RevGridSettings.Color | undefined);
-    // (undocumented)
-    get cellPadding(): number;
-    set cellPadding(value: number);
-    // (undocumented)
-    clone(): RevStandardInMemoryBehavioredGridSettings;
-    // (undocumented)
-    get columnHeaderBackgroundColor(): RevGridSettings.Color | undefined;
-    set columnHeaderBackgroundColor(value: RevGridSettings.Color | undefined);
-    // (undocumented)
-    get columnHeaderFont(): string | undefined;
-    set columnHeaderFont(value: string | undefined);
-    // (undocumented)
-    get columnHeaderForegroundColor(): RevGridSettings.Color | undefined;
-    set columnHeaderForegroundColor(value: RevGridSettings.Color | undefined);
-    // (undocumented)
-    get columnHeaderHorizontalAlign(): RevHorizontalAlign | undefined;
-    set columnHeaderHorizontalAlign(value: RevHorizontalAlign | undefined);
-    // (undocumented)
-    get columnHeaderHorizontalAlignId(): RevHorizontalAlignId | undefined;
-    // (undocumented)
-    get columnHeaderSelectionBackgroundColor(): RevGridSettings.Color | undefined;
-    set columnHeaderSelectionBackgroundColor(value: RevGridSettings.Color | undefined);
-    // (undocumented)
-    get columnHeaderSelectionFont(): string | undefined;
-    set columnHeaderSelectionFont(value: string | undefined);
-    // (undocumented)
-    get columnHeaderSelectionForegroundColor(): RevGridSettings.Color | undefined;
-    set columnHeaderSelectionForegroundColor(value: RevGridSettings.Color | undefined);
-    // (undocumented)
-    get columnHoverBackgroundColor(): RevGridSettings.Color | undefined;
-    set columnHoverBackgroundColor(value: RevGridSettings.Color | undefined);
-    // (undocumented)
-    get font(): string;
-    set font(value: string);
-    // (undocumented)
-    get horizontalAlign(): RevHorizontalAlign;
-    set horizontalAlign(value: RevHorizontalAlign);
-    // (undocumented)
-    get horizontalAlignId(): RevHorizontalAlignId;
-    // (undocumented)
-    merge(settings: Partial<RevStandardGridSettings>): boolean;
-    // (undocumented)
-    get rowHoverBackgroundColor(): RevGridSettings.Color | undefined;
-    set rowHoverBackgroundColor(value: RevGridSettings.Color | undefined);
-    // (undocumented)
-    get selectionBackgroundColor(): RevGridSettings.Color | undefined;
-    set selectionBackgroundColor(value: RevGridSettings.Color | undefined);
-    // (undocumented)
-    get selectionFont(): RevGridSettings.Color | undefined;
-    set selectionFont(value: RevGridSettings.Color | undefined);
-    // (undocumented)
-    get selectionForegroundColor(): RevGridSettings.Color | undefined;
-    set selectionForegroundColor(value: RevGridSettings.Color | undefined);
-    // (undocumented)
-    get textStrikeThrough(): boolean;
-    set textStrikeThrough(value: boolean);
-    // (undocumented)
-    get textTruncateType(): RevTextTruncateType | undefined;
-    set textTruncateType(value: RevTextTruncateType | undefined);
-    // (undocumented)
-    get textTruncateTypeId(): RevTextTruncateTypeId | undefined;
-    // (undocumented)
-    get verticalOffset(): number;
-    set verticalOffset(value: number);
+    export interface RevPaintFingerprintInterface {
+        // (undocumented)
+        readonly backgroundColor: string;
+        // (undocumented)
+        readonly textColor: string;
+        // (undocumented)
+        readonly textFont: string;
+        // (undocumented)
+        readonly value: string;
+    }
 }
 
 // @public (undocumented)
@@ -5617,51 +5761,6 @@ export class RevStandardNumberInputCellEditor<BGS extends RevBehavioredGridSetti
 }
 
 // @public (undocumented)
-export type RevStandardOnlyColumnSettings = Pick<RevStandardOnlyGridSettings, 'cellPadding' | 'cellFocusedBorderColor' | 'cellHoverBackgroundColor' | 'columnHoverBackgroundColor' | 'columnHeaderFont' | 'columnHeaderHorizontalAlignId' | 'columnHeaderHorizontalAlign' | 'columnHeaderBackgroundColor' | 'columnHeaderForegroundColor' | 'columnHeaderSelectionFont' | 'columnHeaderSelectionBackgroundColor' | 'columnHeaderSelectionForegroundColor' | 'font' | 'horizontalAlignId' | 'horizontalAlign' | 'verticalOffset' | 'textTruncateTypeId' | 'textTruncateType' | 'textStrikeThrough'>;
-
-// @public (undocumented)
-export interface RevStandardOnlyGridSettings extends RevStandardTextPainter.OnlyColumnSettings {
-    // (undocumented)
-    cellFocusedBorderColor: RevGridSettings.Color | undefined;
-    // (undocumented)
-    cellHoverBackgroundColor: RevGridSettings.Color | undefined;
-    cellPadding: number;
-    // (undocumented)
-    columnHeaderBackgroundColor: RevGridSettings.Color | undefined;
-    // (undocumented)
-    columnHeaderFont: string | undefined;
-    // (undocumented)
-    columnHeaderForegroundColor: RevGridSettings.Color | undefined;
-    // (undocumented)
-    columnHeaderHorizontalAlign: RevHorizontalAlign | undefined;
-    // (undocumented)
-    readonly columnHeaderHorizontalAlignId: RevHorizontalAlignId | undefined;
-    // (undocumented)
-    columnHeaderSelectionBackgroundColor: RevGridSettings.Color | undefined;
-    columnHeaderSelectionFont: string | undefined;
-    // (undocumented)
-    columnHeaderSelectionForegroundColor: RevGridSettings.Color | undefined;
-    // (undocumented)
-    columnHoverBackgroundColor: RevGridSettings.Color | undefined;
-    // (undocumented)
-    font: string;
-    // (undocumented)
-    horizontalAlign: RevHorizontalAlign;
-    readonly horizontalAlignId: RevHorizontalAlignId;
-    // (undocumented)
-    rowHoverBackgroundColor: RevGridSettings.Color | undefined;
-    selectionBackgroundColor: RevGridSettings.Color | undefined;
-    selectionFont: RevGridSettings.Color | undefined;
-    selectionForegroundColor: RevGridSettings.Color | undefined;
-    textStrikeThrough: boolean;
-    // (undocumented)
-    textTruncateType: RevTextTruncateType | undefined;
-    // (undocumented)
-    readonly textTruncateTypeId: RevTextTruncateTypeId | undefined;
-    verticalOffset: number;
-}
-
-// @public (undocumented)
 export abstract class RevStandardPaintCellEditor<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevStandardCellEditor<BGS, BCS, SF> implements RevCellPainter<BCS, SF> {
     constructor(grid: RevClientGrid<BGS, BCS, SF>, dataServer: RevDataServer<SF>, _painter: RevCellPainter<BCS, SF>);
     // (undocumented)
@@ -5679,14 +5778,8 @@ export class RevStandardRangeInputCellEditor<BGS extends RevBehavioredGridSettin
     tryOpenCell(cell: RevViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined): boolean;
 }
 
-// @public (undocumented)
-export const revStandardReadonlyDefaultBehavioredColumnSettings: Readonly<RevStandardBehavioredColumnSettings>;
-
-// @public (undocumented)
-export const revStandardReadonlyDefaultBehavioredGridSettings: Readonly<RevStandardBehavioredGridSettings>;
-
 // @public
-export class RevStandardSliderCellPainter<BGS extends RevStandardBehavioredGridSettings, BCS extends RevStandardBehavioredColumnSettings, SF extends RevSchemaField> extends RevStandardCellPainter<BGS, BCS, SF> {
+export class RevStandardSliderCellPainter<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevStandardCellPainter<BGS, BCS, SF> {
     // (undocumented)
     config: RevStandardSliderCellPainter.Config;
     // (undocumented)
@@ -5711,7 +5804,7 @@ export namespace RevStandardSliderCellPainter {
 }
 
 // @public
-export class RevStandardSparkBarCellPainter<BGS extends RevStandardBehavioredGridSettings, BCS extends RevStandardBehavioredColumnSettings, SF extends RevSchemaField> extends RevStandardCellPainter<BGS, BCS, SF> {
+export class RevStandardSparkBarCellPainter<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevStandardCellPainter<BGS, BCS, SF> {
     // (undocumented)
     config: RevStandardSparkBarCellPainter.Config;
     // (undocumented)
@@ -5740,7 +5833,7 @@ export namespace RevStandardSparkBarCellPainter {
 }
 
 // @public
-export class RevStandardSparkLineCellPainter<BGS extends RevStandardBehavioredGridSettings, BCS extends RevStandardBehavioredColumnSettings, SF extends RevSchemaField> extends RevStandardCellPainter<BGS, BCS, SF> {
+export class RevStandardSparkLineCellPainter<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevStandardCellPainter<BGS, BCS, SF> {
     // (undocumented)
     config: RevStandardSparkLineCellPainter.Config;
     // (undocumented)
@@ -5770,13 +5863,15 @@ export namespace RevStandardSparkLineCellPainter {
     }
 }
 
-// @public (undocumented)
-export class RevStandardTagCellPainter<BGS extends RevStandardBehavioredGridSettings, BCS extends RevStandardBehavioredColumnSettings, SF extends RevSchemaField> extends RevStandardCellPainter<BGS, BCS, SF> {
+// Warning: (ae-internal-missing-underscore) The name "RevStandardTagCellPainter" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export class RevStandardTagCellPainter<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevStandardCellPainter<BGS, BCS, SF> {
     // (undocumented)
     paint(_cell: RevViewCell<BCS, SF>, _prefillColor: string | undefined): number | undefined;
 }
 
-// @public (undocumented)
+// @internal (undocumented)
 export namespace RevStandardTagCellPainter {
     const // (undocumented)
     typeName = "Tag";

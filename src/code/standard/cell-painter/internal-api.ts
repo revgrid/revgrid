@@ -1,4 +1,3 @@
-export { RevStandardAlphaTextCellPainter } from './standard-alpha-text-cell-painter';
 export { RevStandardButtonCellPainter } from './standard-button-cell-painter';
 export { RevStandardCellPainter } from './standard-cell-painter';
 export { RevStandardCheckboxCellPainter } from './standard-checkbox-cell-painter';

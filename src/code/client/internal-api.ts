@@ -1,9 +1,5 @@
-// Public API
+// (c) 2024 Xilytix Pty Ltd / Paul Klink
 
-export { RevMetaServer } from '../common/internal-api';
-export { RevDataServer } from '../common/server-interfaces/data/data-server';
-export { RevSchemaField } from '../common/server-interfaces/schema/schema-field';
-export { RevSchemaServer, RevServerNotificationId, revInvalidServerNotificationId, revLowestValidServerNotificationId } from '../common/server-interfaces/schema/schema-server';
 export { RevClientGrid } from './client-grid';
 export { RevCanvas } from './components/canvas/canvas';
 export { RevColumnsManager } from './components/column/columns-manager';
@@ -22,7 +18,6 @@ export { RevSubgridsManager } from './components/subgrid/subgrids-manager';
 export { RevViewLayout } from './components/view/view-layout';
 export { RevGridDefinition } from './grid-definition';
 export { RevGridOptions } from './grid-options';
-export { RevIClientGrid } from './i-client-grid';
 export * from './interfaces/internal-api';
 export * from './settings/internal-api';
 export { RevUiController } from './ui/controller/ui-controller';

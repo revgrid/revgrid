@@ -1,5 +1,5 @@
-import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevCellEditor, RevClickBoxCellPainter, RevSchemaField, RevViewCell } from '../../client/internal-api';
-import { RevRectangle } from '../../common/internal-api';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevCellEditor, RevClickBoxCellPainter, RevViewCell } from '../../client/internal-api';
+import { RevRectangle, RevSchemaField } from '../../common/internal-api';
 import { RevStandardPaintCellEditor } from './standard-paint-cell-editor';
 
 /** @public */

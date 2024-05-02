@@ -1,15 +1,10 @@
+// (c) 2024 Xilytix Pty Ltd / Paul Klink
 
 import { IndexSignatureHack, isArrayEqual } from '@xilytix/sysutils';
-import {
-    RevClientGrid,
-    RevDataServer,
-    RevSchemaField,
-    RevViewCell,
-} from '../../client/internal-api';
-import { RevRectangle } from '../../common/internal-api';
-import { RevStandardTextPainter } from '../painters/internal-api';
-import { RevStandardBehavioredColumnSettings, RevStandardBehavioredGridSettings } from '../settings/internal-api';
-import { RevStandardCellPainter } from './standard-cell-painter';
+import { RevClientGrid, RevViewCell } from '../../client/internal-api';
+import { RevDataServer, RevRectangle, RevSchemaField } from '../../common/internal-api';
+import { RevStandardCellPainter, RevStandardTextPainter } from '../../standard/internal-api';
+import { RevSimpleBehavioredColumnSettings, RevSimpleBehavioredGridSettings } from '../settings/internal-api';
 
 /**
  * A cell renderer for a text cell.
@@ -20,9 +15,9 @@ import { RevStandardCellPainter } from './standard-cell-painter';
  * Clipping bounds are not set here as this is also an expensive operation. Instead, we employ a number of strategies to truncate overflowing text and content.
  * @public
  */
-export class RevStandardAlphaTextCellPainter<
-    BGS extends RevStandardBehavioredGridSettings,
-    BCS extends RevStandardBehavioredColumnSettings,
+export class RevSimpleAlphaTextCellPainter<
+    BGS extends RevSimpleBehavioredGridSettings,
+    BCS extends RevSimpleBehavioredColumnSettings,
     SF extends RevSchemaField
 > extends RevStandardCellPainter<BGS, BCS, SF> {
     private readonly _textPainter: RevStandardTextPainter;
@@ -74,7 +69,7 @@ export class RevStandardAlphaTextCellPainter<
         const value = this._dataServer.getViewValue(cell.viewLayoutColumn.column.field, subgridRowIndex);
         const valText = value as string;
 
-        const fingerprint = cell.paintFingerprint as RevPaintFingerprint | undefined;
+        const fingerprint = cell.paintFingerprint as RevSimpleAlphaTextCellPainter.RevPaintFingerprint | undefined;
         let same: boolean;
         if (fingerprint === undefined) {
             same = false;
@@ -176,7 +171,7 @@ export class RevStandardAlphaTextCellPainter<
         same &&= fingerprint !== undefined && fingerprint.borderColor === borderColor;
 
         // return a fingerprint to save in View cell for future comparisons by partial renderer
-        const newFingerprint: RevPaintFingerprint = {
+        const newFingerprint: RevSimpleAlphaTextCellPainter.RevPaintFingerprint = {
             value: valText,
             textColor,
             textFont,
@@ -218,13 +213,16 @@ export class RevStandardAlphaTextCellPainter<
     }
 }
 
-export interface RevPaintFingerprintInterface {
-    readonly value: string;
-    readonly textColor: string;
-    readonly textFont: string;
-    readonly borderColor: string | undefined;
-    readonly firstColorIsFill: boolean;
-    readonly layerColors: string[];
-}
+/** @public */
+export namespace RevSimpleAlphaTextCellPainter {
+    export interface RevPaintFingerprintInterface {
+        readonly value: string;
+        readonly textColor: string;
+        readonly textFont: string;
+        readonly borderColor: string | undefined;
+        readonly firstColorIsFill: boolean;
+        readonly layerColors: string[];
+    }
 
-export type RevPaintFingerprint = IndexSignatureHack<RevPaintFingerprintInterface>;
+    export type RevPaintFingerprint = IndexSignatureHack<RevPaintFingerprintInterface>;
+}

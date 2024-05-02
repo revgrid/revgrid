@@ -1,15 +1,14 @@
 
 import { IndexSignatureHack } from '@xilytix/sysutils';
-import { RevClientGrid, RevDataServer, RevGridSettings, RevSchemaField, RevViewCell } from '../../client/internal-api';
-import { RevRectangle, revSafeConvertUnknownToBoolean } from '../../common/internal-api';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevClientGrid, RevColumnSettings, RevGridSettings, RevViewCell } from '../../client/internal-api';
+import { RevDataServer, RevRectangle, RevSchemaField, revSafeConvertUnknownToBoolean } from '../../common/internal-api';
 import { RevStandardCheckboxPainter } from '../painters/internal-api';
-import { RevStandardBehavioredColumnSettings, RevStandardBehavioredGridSettings } from '../settings/internal-api';
 import { RevStandardCellPainter } from './standard-cell-painter';
 
 /** @public */
 export class RevStandardCheckboxCellPainter<
-    BGS extends RevStandardBehavioredGridSettings,
-    BCS extends RevStandardBehavioredColumnSettings,
+    BGS extends RevBehavioredGridSettings,
+    BCS extends RevStandardCheckboxCellPainter.BehavioredColumnSettings,
     SF extends RevSchemaField
 > extends RevStandardCellPainter<BGS, BCS, SF
 > {
@@ -134,5 +133,19 @@ export namespace RevStandardCheckboxCellPainter {
                 RevStandardCheckboxPainter.PaintFingerprint.same(left, right)
             );
         }
+    }
+
+    export interface OnlyColumnSettings {
+        cellPadding: number;
+        font: string;
+        cellFocusedBorderColor: RevGridSettings.Color | undefined;
+    }
+
+    export interface ColumnSettings extends OnlyColumnSettings, RevColumnSettings {
+    }
+
+    export interface BehavioredColumnSettings extends ColumnSettings, RevBehavioredColumnSettings {
+        merge(settings: Partial<ColumnSettings>): boolean;
+        clone(): BehavioredColumnSettings;
     }
 }

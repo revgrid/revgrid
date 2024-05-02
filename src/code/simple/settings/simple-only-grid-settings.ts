@@ -1,9 +1,9 @@
 import { RevHorizontalAlign, RevHorizontalAlignId, RevTextTruncateType, RevTextTruncateTypeId } from '../../cell-content/client/internal-api';
 import { RevGridSettings } from '../../client/internal-api';
-import { RevStandardTextPainter } from '../painters/internal-api';
+import { RevStandardTextPainter } from '../../standard/painters/internal-api';
 
 /** @public */
-export interface RevStandardOnlyGridSettings extends RevStandardTextPainter.OnlyColumnSettings {
+export interface RevSimpleOnlyGridSettings extends RevStandardTextPainter.OnlyColumnSettings {
     /** Padding to left and right of cell content */
     cellPadding: number;
     cellFocusedBorderColor: RevGridSettings.Color | undefined;
@@ -12,8 +12,8 @@ export interface RevStandardOnlyGridSettings extends RevStandardTextPainter.Only
     columnHoverBackgroundColor: RevGridSettings.Color | undefined;
 
     columnHeaderFont: string | undefined;
-    readonly columnHeaderHorizontalAlignId: RevHorizontalAlignId | undefined;
-    columnHeaderHorizontalAlign: RevHorizontalAlign | undefined;
+    readonly columnHeaderHorizontalAlignId: RevHorizontalAlignId;
+    columnHeaderHorizontalAlign: RevHorizontalAlign;
     columnHeaderBackgroundColor: RevGridSettings.Color | undefined;
     columnHeaderForegroundColor: RevGridSettings.Color | undefined;
     /** Font style for selected columns' headers. */
