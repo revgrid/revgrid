@@ -103,10 +103,10 @@ export class RevTableGrid<
         gridHostElement: HTMLElement,
         definition: RevGridDefinition<BCS, RevRecordSourcedField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>>,
         settings: BGS,
-        customiseSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, RevRecordSourcedField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>>,
+        getSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, RevRecordSourcedField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>>,
         options?: RevGridOptions<BGS, BCS, RevRecordSourcedField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>>,
     ) {
-        super(gridHostElement, definition, settings, customiseSettingsForNewColumnEventer, options);
+        super(gridHostElement, definition, settings, getSettingsForNewColumnEventer, options);
 
         if (!(this.recordStore instanceof RevTableRecordStore)) {
             throw new RevApiError('TGC50112', 'RecordStore is not a subtype of RevTableRecordStore');

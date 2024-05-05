@@ -31,10 +31,10 @@ export class RevDataRowArrayGrid<
         gridHostElement: HTMLElement,
         definition: RevGridDefinition<BCS, SF>,
         settings: BGS,
-        customiseSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, SF>,
+        getSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, SF>,
         options?: RevGridOptions<BGS, BCS, SF>,
     ) {
-        super(gridHostElement, definition, settings, customiseSettingsForNewColumnEventer, options);
+        super(gridHostElement, definition, settings, getSettingsForNewColumnEventer, options);
 
         const subgridsManager = this.subgridsManager;
         const headerSubgrid = subgridsManager.headerSubgrid;

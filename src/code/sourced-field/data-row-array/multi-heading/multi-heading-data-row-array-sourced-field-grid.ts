@@ -1,6 +1,6 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
-import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevClientGrid, RevSubgrid, RevGridDefinition, RevGridOptions } from '../../../client/internal-api';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevClientGrid, RevGridDefinition, RevGridOptions, RevSubgrid } from '../../../client/internal-api';
 import { RevAssertError } from '../../../common/internal-api';
 import { RevDataRowArrayDataServer, RevDataRowArrayGrid, RevDataRowArraySchemaServer } from '../../../data-row-array/internal-api';
 import { RevMultiHeadingDataServer } from '../../../header/internal-api';
@@ -20,7 +20,7 @@ export class RevMultiHeadingDataRowArraySourcedFieldGrid<
         getHeaderCellPainterEventer: RevSubgrid.GetCellPainterEventer<BCS, SF>,
         getMainCellPainterEventer: RevSubgrid.GetCellPainterEventer<BCS, SF>,
         settings: BGS,
-        customiseSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, SF>,
+        getSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, SF>,
         /** @internal */
         private readonly _createFieldEventer: RevMultiHeadingDataRowArraySourcedFieldGrid.CreateFieldEventer<SF>,
         options?: RevGridOptions<BGS, BCS, SF>,
@@ -44,7 +44,7 @@ export class RevMultiHeadingDataRowArraySourcedFieldGrid<
                 },
             ],
         }
-        super(gridHostElement, definition, settings, customiseSettingsForNewColumnEventer, options);
+        super(gridHostElement, definition, settings, getSettingsForNewColumnEventer, options);
     }
 
     createAllowedSourcedFieldsColumnLayoutDefinition(allowedFields: readonly SF[]) {

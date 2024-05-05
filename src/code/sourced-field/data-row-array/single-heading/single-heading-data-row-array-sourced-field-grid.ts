@@ -20,7 +20,7 @@ export class RevSingleHeadingDataRowArraySourcedFieldGrid<
         getHeaderCellPainterEventer: RevSubgrid.GetCellPainterEventer<BCS, SF>,
         getMainCellPainterEventer: RevSubgrid.GetCellPainterEventer<BCS, SF>,
         settings: BGS,
-        customiseSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, SF>,
+        getSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, SF>,
         /** @internal */
         private readonly _createFieldEventer: RevSingleHeadingDataRowArraySourcedFieldGrid.CreateFieldEventer<SF>,
         options?: RevGridOptions<BGS, BCS, SF>,
@@ -44,7 +44,7 @@ export class RevSingleHeadingDataRowArraySourcedFieldGrid<
                 },
             ],
         }
-        super(gridHostElement, definition, settings, customiseSettingsForNewColumnEventer, options);
+        super(gridHostElement, definition, settings, getSettingsForNewColumnEventer, options);
     }
 
     createAllowedSourcedFieldsColumnLayoutDefinition(allowedFields: readonly SF[]) {

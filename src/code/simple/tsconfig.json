@@ -14,6 +14,7 @@
     { "path": "./cell-painter/tsconfig.json" },
     { "path": "./settings/tsconfig.json" },
     { "path": "../data-row-array/tsconfig.json" },
+    { "path": "../header/tsconfig.json" },
     { "path": "../client/tsconfig.json" },
   ]
 }
