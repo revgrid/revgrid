@@ -10,6 +10,7 @@
   ],
 
   "references": [
+    { "path": "./server/tsconfig.json" },
     { "path": "./cell-editor/tsconfig.json" },
     { "path": "./cell-painter/tsconfig.json" },
     { "path": "./painters/tsconfig.json" },

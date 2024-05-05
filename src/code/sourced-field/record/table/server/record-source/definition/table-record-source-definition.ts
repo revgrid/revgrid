@@ -4,13 +4,13 @@ import { JsonElement, Result } from '@xilytix/sysutils';
 import { RevColumnLayoutDefinition } from '../../../../../../column-layout/server/internal-api';
 import { RevSourcedField, RevSourcedFieldCustomHeadingsService } from '../../../../../sourced-field/server/internal-api';
 import { RevAllowedRecordSourcedField } from '../../../../record/server/internal-api';
-import { RevTableFieldSourceDefinitionCachingFactoryService } from '../../field-source/internal-api';
+import { RevTableFieldSourceDefinitionCachingFactory } from '../../field-source/internal-api';
 
 /** @public */
 export abstract class RevTableRecordSourceDefinition<TypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> {
     constructor(
-        private readonly _customHeadingsService: RevSourcedFieldCustomHeadingsService,
-        readonly tableFieldSourceDefinitionCachingFactoryService: RevTableFieldSourceDefinitionCachingFactoryService<
+        private readonly _customHeadingsService: RevSourcedFieldCustomHeadingsService | undefined,
+        readonly tableFieldSourceDefinitionCachingFactory: RevTableFieldSourceDefinitionCachingFactory<
             TableFieldSourceDefinitionTypeId,
             TextFormattableValueTypeId,
             TextFormattableValueAttributeTypeId
@@ -22,11 +22,11 @@ export abstract class RevTableRecordSourceDefinition<TypeId, TableFieldSourceDef
     }
 
     createAllowedFields(): readonly RevAllowedRecordSourcedField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>[] {
-        const tableFieldSourceDefinitionCachingFactoryService = this.tableFieldSourceDefinitionCachingFactoryService;
+        const tableFieldSourceDefinitionCachingFactory = this.tableFieldSourceDefinitionCachingFactory;
         const customHeadingsService = this._customHeadingsService;
         let result: RevAllowedRecordSourcedField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>[] = [];
         for (const allowedFieldSourceDefinitionTypeId of this.allowedFieldSourceDefinitionTypeIds) {
-            const fieldSourceDefinition = tableFieldSourceDefinitionCachingFactoryService.get(allowedFieldSourceDefinitionTypeId);
+            const fieldSourceDefinition = tableFieldSourceDefinitionCachingFactory.get(allowedFieldSourceDefinitionTypeId);
             const fieldCount = fieldSourceDefinition.fieldCount;
             const fieldDefinitions = fieldSourceDefinition.fieldDefinitions;
             const sourceAllowedFields = new Array<RevAllowedRecordSourcedField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>>(fieldCount);

@@ -93,12 +93,16 @@ export namespace RevSourcedField {
         }
     }
 
-    export function generateHeading(customHeadingsService: RevSourcedFieldCustomHeadingsService, fieldDefinition: RevSourcedFieldDefinition) {
-        const customHeading = customHeadingsService.tryGetFieldHeading(fieldDefinition.name, fieldDefinition.sourcelessName);
-        if (customHeading !== undefined) {
-            return customHeading;
-        } else {
+    export function generateHeading(customHeadingsService: RevSourcedFieldCustomHeadingsService | undefined, fieldDefinition: RevSourcedFieldDefinition) {
+        if (customHeadingsService === undefined) {
             return fieldDefinition.defaultHeading;
+        } else {
+            const customHeading = customHeadingsService.tryGetFieldHeading(fieldDefinition.name, fieldDefinition.sourcelessName);
+            if (customHeading !== undefined) {
+                return customHeading;
+            } else {
+                return fieldDefinition.defaultHeading;
+            }
         }
     }
 }

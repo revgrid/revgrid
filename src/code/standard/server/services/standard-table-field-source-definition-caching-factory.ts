@@ -1,11 +1,10 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
-import { RevColumnLayoutDefinition } from '../../../../../../column-layout/server/internal-api';
-import { RevTableFieldSourceDefinition } from './table-field-source-definition';
-import { RevTableFieldSourceDefinitionFactory } from './table-field-source-definition-factory';
+import { RevColumnLayoutDefinition } from '../../../column-layout/server/internal-api';
+import { RevTableFieldSourceDefinition, RevTableFieldSourceDefinitionFactory } from '../../../sourced-field/record/table/server/internal-api';
 
 /** @public */
-export class RevTableFieldSourceDefinitionCachingFactoryService<TypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> {
+export class RevStandardTableFieldSourceDefinitionCachingFactory<TypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> {
     private readonly _definitionsByTypeId = new Map<TypeId, RevTableFieldSourceDefinition<TypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>>();
     private readonly _definitionsByName = new Map<string, RevTableFieldSourceDefinition<TypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>>();
 

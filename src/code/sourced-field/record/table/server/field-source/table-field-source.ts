@@ -13,7 +13,7 @@ export class RevTableFieldSource<TypeId, TextFormattableValueTypeId, TextFormatt
 
     constructor(
         private readonly _textFormatterService: RevTextFormatterService<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>,
-        private readonly _customHeadingsService: RevSourcedFieldCustomHeadingsService,
+        private readonly _customHeadingsService: RevSourcedFieldCustomHeadingsService | undefined,
         public readonly definition: RevTableFieldSourceDefinition<TypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>,
         private _headingPrefix: string // This might be for call/put
     ) { }

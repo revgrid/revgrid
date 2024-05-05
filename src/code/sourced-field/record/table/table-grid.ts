@@ -5,7 +5,6 @@ import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevClientGrid, 
 import { RevColumnLayout, RevColumnLayoutOrReference, RevColumnLayoutOrReferenceDefinition, RevReferenceableColumnLayoutsService } from '../../../column-layout/internal-api';
 import { RevApiError } from '../../../common/internal-api';
 import { RevRecordGrid, RevRecordRowOrderDefinition } from '../../../record/internal-api';
-import { RevSourcedFieldCustomHeadingsService } from '../../sourced-field/internal-api';
 import { RevAllowedRecordSourcedFieldsColumnLayoutDefinition, RevRecordSourcedField, RevRecordSourcedFieldGrid } from '../record/internal-api';
 import {
     RevDataSource,
@@ -13,7 +12,7 @@ import {
     RevDataSourceOrReferenceDefinition,
     RevReferenceableDataSourcesService,
     RevTable,
-    RevTableFieldSourceDefinitionCachingFactoryService,
+    RevTableFieldSourceDefinitionCachingFactory,
     RevTableRecordDefinition,
     RevTableRecordSource,
     RevTableRecordSourceDefinition,
@@ -73,14 +72,13 @@ export class RevTableGrid<
     private _dataSourceColumnLayoutSetSubscriptionId: MultiEvent.SubscriptionId;
 
     constructor(
-        readonly gridFieldCustomHeadingsService: RevSourcedFieldCustomHeadingsService,
         private readonly _referenceableColumnLayoutsService: RevReferenceableColumnLayoutsService | undefined,
-        readonly tableFieldSourceDefinitionCachingFactoryService: RevTableFieldSourceDefinitionCachingFactoryService<
+        readonly tableFieldSourceDefinitionCachingFactory: RevTableFieldSourceDefinitionCachingFactory<
             TableFieldSourceDefinitionTypeId,
             TextFormattableValueTypeId,
             TextFormattableValueAttributeTypeId
         >,
-        readonly tableRecordSourceDefinitionFactoryService: RevTableRecordSourceDefinitionFromJsonFactory<
+        readonly tableRecordSourceDefinitionFactory: RevTableRecordSourceDefinitionFromJsonFactory<
             TableRecordSourceDefinitionTypeId,
             TableFieldSourceDefinitionTypeId,
             TextFormattableValueTypeId,
@@ -185,7 +183,7 @@ export class RevTableGrid<
         >(
             this._referenceableColumnLayoutsService,
             this._referenceableDataSourcesService,
-            this.tableFieldSourceDefinitionCachingFactoryService.definitionFactory,
+            this.tableFieldSourceDefinitionCachingFactory.definitionFactory,
             this._tableRecordSourceFactory,
             definition
         );

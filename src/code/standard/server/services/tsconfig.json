@@ -1,0 +1,16 @@
+{
+  "extends": "../../../tsconfig.code.json",
+
+  "compilerOptions": {
+    "tsBuildInfoFile": "../../../../../tsbuildinfo/code-standard-server-services.tsbuildinfo"
+  },
+
+  "include": [
+    "*.ts",
+  ],
+
+  "references": [
+    { "path": "../../../sourced-field/record/table/server/tsconfig.json" },
+    { "path": "../../../sourced-field/sourced-field/server/tsconfig.json" },
+  ]
+}

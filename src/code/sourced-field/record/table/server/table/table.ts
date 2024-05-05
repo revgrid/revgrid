@@ -1237,8 +1237,8 @@ export namespace RevTable {
 // export class OpenedTable extends Table {
 //     private opener: Table.Opener;
 
-//     constructor(tableDefinitionFactoryService: TableDefinitionFactory, opener: Table.Opener) {
-//         super(tableDefinitionFactoryService);
+//     constructor(tableDefinitionFactory: TableDefinitionFactory, opener: Table.Opener) {
+//         super(tableDefinitionFactory);
 
 //         this.opener = opener;
 //         this.openEvent = (recordDefinitionList) => this.opener.notifyTableOpen(recordDefinitionList);
