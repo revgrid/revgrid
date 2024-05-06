@@ -6,7 +6,7 @@ import {
 import { RevHorizontalAlignId } from '../../../cell-content/client/internal-api';
 import { RevSchemaField } from '../../../common/internal-api';
 import { RevSourcedFieldDefinition } from './definition/internal-api';
-import { RevSourcedFieldCustomHeadingsService } from './sourced-field-custom-headings-service';
+import { RevSourcedFieldCustomHeadings } from './sourced-field-custom-headings';
 
 /** @public */
 export interface RevSourcedField extends RevSchemaField {
@@ -93,11 +93,11 @@ export namespace RevSourcedField {
         }
     }
 
-    export function generateHeading(customHeadingsService: RevSourcedFieldCustomHeadingsService | undefined, fieldDefinition: RevSourcedFieldDefinition) {
-        if (customHeadingsService === undefined) {
+    export function generateHeading(customHeadings: RevSourcedFieldCustomHeadings | undefined, fieldDefinition: RevSourcedFieldDefinition) {
+        if (customHeadings === undefined) {
             return fieldDefinition.defaultHeading;
         } else {
-            const customHeading = customHeadingsService.tryGetFieldHeading(fieldDefinition.name, fieldDefinition.sourcelessName);
+            const customHeading = customHeadings.tryGetFieldHeading(fieldDefinition.name, fieldDefinition.sourcelessName);
             if (customHeading !== undefined) {
                 return customHeading;
             } else {

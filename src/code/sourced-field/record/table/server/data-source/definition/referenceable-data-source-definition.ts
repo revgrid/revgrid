@@ -58,7 +58,7 @@ export namespace RevReferenceableDataSourceDefinition {
     }
 
     export function tryCreateReferenceableFromJson<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>(
-        tableRecordSourceDefinitionFactory: RevTableRecordSourceDefinitionFromJsonFactory<
+        tableRecordSourceDefinitionFromJsonFactory: RevTableRecordSourceDefinitionFromJsonFactory<
             TableRecordSourceDefinitionTypeId,
             TableFieldSourceDefinitionTypeId,
             TextFormattableValueTypeId,
@@ -102,7 +102,7 @@ export namespace RevReferenceableDataSourceDefinition {
                 return new Err({ errorId, extra: undefined });
             } else {
                 const tableRecordSourceDefinitionResult = RevDataSourceDefinition.tryCreateTableRecordSourceDefinitionFromJson(
-                    tableRecordSourceDefinitionFactory,
+                    tableRecordSourceDefinitionFromJsonFactory,
                     element,
                 );
                 if (tableRecordSourceDefinitionResult.isErr()) {

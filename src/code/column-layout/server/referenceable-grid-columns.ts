@@ -5,6 +5,6 @@ import { RevReferenceableColumnLayoutDefinition } from './definition/internal-ap
 import { RevReferenceableColumnLayout } from './referenceable-column-layout';
 
 /** @public */
-export interface RevReferenceableColumnLayoutsService extends LockItemByKeyList<RevReferenceableColumnLayout> {
+export interface RevReferenceableColumnLayouts extends LockItemByKeyList<RevReferenceableColumnLayout> {
     getOrNew(definition: RevReferenceableColumnLayoutDefinition): RevReferenceableColumnLayout;
 }

@@ -4,7 +4,7 @@ import { RevColumnLayoutDefinition } from '../../../column-layout/server/interna
 import { RevTableFieldSourceDefinition, RevTableFieldSourceDefinitionFactory } from '../../../sourced-field/record/table/server/internal-api';
 
 /** @public */
-export class RevStandardTableFieldSourceDefinitionCachingFactory<TypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> {
+export class RevStandardTableFieldSourceDefinitionCachingFactoryService<TypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> {
     private readonly _definitionsByTypeId = new Map<TypeId, RevTableFieldSourceDefinition<TypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>>();
     private readonly _definitionsByName = new Map<string, RevTableFieldSourceDefinition<TypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>>();
 

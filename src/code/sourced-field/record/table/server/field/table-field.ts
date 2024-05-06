@@ -5,7 +5,7 @@ import {
     compareValue
 } from '@xilytix/sysutils';
 import { RevHorizontalAlignId, RevTextFormattableValue } from '../../../../../cell-content/client/internal-api';
-import { RevTextFormatterService } from '../../../../../cell-content/server/internal-api';
+import { RevTextFormatter } from '../../../../../cell-content/server/internal-api';
 import { RevSourcedFieldSourceDefinition } from '../../../../sourced-field/server/internal-api';
 import { RevRecordSourcedField, RevRecordSourcedFieldDefinition } from '../../../record/server/internal-api';
 import { RevGenericTableValue, RevTableValue, RevTableValuesRecord } from '../value/internal-api';
@@ -15,7 +15,7 @@ export abstract class RevTableField<TextFormattableValueTypeId, TextFormattableV
     private _valueTypeId: TextFormattableValueTypeId;
 
     constructor(
-        protected readonly textFormatter: RevTextFormatterService<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>,
+        protected readonly textFormatter: RevTextFormatter<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>,
         definition: RevTableField.Definition<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>,
         heading: string,
     ) {
@@ -102,7 +102,7 @@ export namespace RevTableField {
     }
 
     export type Constructor<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> = new(
-        textFormatter: RevTextFormatterService<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>,
+        textFormatter: RevTextFormatter<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>,
         definition: RevTableField.Definition<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>,
         heading: string,
         index: Integer,

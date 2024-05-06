@@ -6,7 +6,7 @@ import { RevReferenceableDataSourceDefinition } from './definition/internal-api'
 import { RevReferenceableDataSource } from './referenceable-data-source';
 
 /** @public */
-export interface RevReferenceableDataSourcesService<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>
+export interface RevReferenceableDataSources<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>
     extends LockItemByKeyList<
         RevReferenceableDataSource<
             Badness,
@@ -29,7 +29,7 @@ export interface RevReferenceableDataSourcesService<Badness, TableRecordSourceDe
     // checkPeriodicSaveRequired(nowTime: SysTick.Time): void;
 }
 /** @public */
-export namespace RevReferenceableDataSourcesService {
+export namespace RevReferenceableDataSources {
     // export type SaveRequiredEvent = (this: void) => void;
 
     // export const jsonTag_Root = 'Watchlists';

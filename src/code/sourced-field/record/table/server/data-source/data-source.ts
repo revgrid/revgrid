@@ -6,7 +6,7 @@ import {
     RevColumnLayoutOrReference,
     RevColumnLayoutOrReferenceDefinition,
     RevReferenceableColumnLayout,
-    RevReferenceableColumnLayoutsService
+    RevReferenceableColumnLayouts
 } from '../../../../../column-layout/server/internal-api';
 import { RevRecordRowOrderDefinition } from '../../../../../record/server/internal-api';
 import { RevSourcedFieldDefinition } from '../../../../sourced-field/server/internal-api';
@@ -58,7 +58,7 @@ export class RevDataSource<Badness, TableRecordSourceDefinitionTypeId, TableFiel
     private _columnLayoutSetMultiEvent = new MultiEvent<RevDataSource.GridColumnSetEventHandler>();
 
     constructor(
-        private readonly _referenceableColumnLayoutsService: RevReferenceableColumnLayoutsService | undefined,
+        private readonly _referenceableColumnLayouts: RevReferenceableColumnLayouts | undefined,
         private readonly _tableFieldSourceDefinitionFactory: RevTableFieldSourceDefinitionFactory<TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>,
         private readonly _tableRecordSourceFactory: RevTableRecordSourceFactory<
             Badness,
@@ -223,7 +223,7 @@ export class RevDataSource<Badness, TableRecordSourceDefinitionTypeId, TableFiel
         locker: LockOpenListItem.Locker
     ): Promise<Result<RevDataSource.LockedColumnLayouts, RevColumnLayoutOrReference.LockErrorIdPlusTryError>> {
         const columnLayoutOrReference = new RevColumnLayoutOrReference(
-            this._referenceableColumnLayoutsService,
+            this._referenceableColumnLayouts,
             columnLayoutOrReferenceDefinition
         );
         const columnLayoutOrReferenceLockResult = await columnLayoutOrReference.tryLock(locker);

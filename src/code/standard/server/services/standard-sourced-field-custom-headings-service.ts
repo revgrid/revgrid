@@ -1,10 +1,10 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
 import { JsonElement } from '@xilytix/sysutils';
-import { RevSourcedFieldCustomHeadingsService } from '../../../sourced-field/sourced-field/server/internal-api';
+import { RevSourcedFieldCustomHeadings } from '../../../sourced-field/sourced-field/server/internal-api';
 
 /** @public */
-export class RevStandardSourcedFieldCustomHeadingsService implements RevSourcedFieldCustomHeadingsService {
+export class RevStandardSourcedFieldCustomHeadingsService implements RevSourcedFieldCustomHeadings {
     // private cachedHeadingIniFile: TMemIniFile;
     // private headingIniFileCachingEnabled: boolean;
     private saveRequired = false;

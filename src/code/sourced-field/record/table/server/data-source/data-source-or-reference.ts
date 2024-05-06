@@ -1,7 +1,7 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
 import { AssertInternalError, Err, Guid, LockOpenListItem, Ok, Result, UnreachableCaseError } from '@xilytix/sysutils';
-import { RevReferenceableColumnLayoutsService } from '../../../../../column-layout/server/internal-api';
+import { RevReferenceableColumnLayouts } from '../../../../../column-layout/server/internal-api';
 import { RevApiError } from '../../../../../common/internal-api';
 import { RevRecordRowOrderDefinition } from '../../../../../record/server/internal-api';
 import { RevTableFieldSourceDefinitionFactory } from '../field-source/internal-api';
@@ -9,7 +9,7 @@ import { RevTableRecordSourceFactory } from '../record-source/internal-api';
 import { RevDataSource } from './data-source';
 import { RevDataSourceDefinition, RevDataSourceOrReferenceDefinition } from './definition/internal-api';
 import { RevReferenceableDataSource } from './referenceable-data-source';
-import { RevReferenceableDataSourcesService } from './referenceable-data-sources-service';
+import { RevReferenceableDataSources } from './referenceable-data-sources';
 
 /** @public */
 export class RevDataSourceOrReference<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> {
@@ -37,8 +37,8 @@ export class RevDataSourceOrReference<Badness, TableRecordSourceDefinitionTypeId
     > | undefined;
 
     constructor(
-        private readonly _referenceableColumnLayoutsService: RevReferenceableColumnLayoutsService | undefined,
-        private readonly _referenceableDataSourcesService: RevReferenceableDataSourcesService<
+        private readonly _referenceableColumnLayouts: RevReferenceableColumnLayouts | undefined,
+        private readonly _referenceableDataSources: RevReferenceableDataSources<
             Badness,
             TableRecordSourceDefinitionTypeId,
             TableFieldSourceDefinitionTypeId,
@@ -97,7 +97,7 @@ export class RevDataSourceOrReference<Badness, TableRecordSourceDefinitionTypeId
     async tryLock(locker: LockOpenListItem.Locker): Promise<Result<void, RevDataSourceOrReference.LockErrorIdPlusTryError>> {
         if (this._dataSourceDefinition !== undefined) {
             const dataSource = new RevDataSource<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>(
-                this._referenceableColumnLayoutsService,
+                this._referenceableColumnLayouts,
                 this._tableFieldSourceDefinitionFactory,
                 this._tableRecordSourceFactory,
                 this._dataSourceDefinition
@@ -114,7 +114,7 @@ export class RevDataSourceOrReference<Badness, TableRecordSourceDefinitionTypeId
             }
         } else {
             if (this._referenceId !== undefined) {
-                const referenceableDataSourcesService = this._referenceableDataSourcesService;
+                const referenceableDataSourcesService = this._referenceableDataSources;
                 if (referenceableDataSourcesService === undefined) {
                     throw new RevApiError('RDSORTL50721', 'Undefined ReferenceableDataSourcesService');
                 } else {
@@ -142,7 +142,7 @@ export class RevDataSourceOrReference<Badness, TableRecordSourceDefinitionTypeId
 
     unlock(locker: LockOpenListItem.Locker) {
         if (this._lockedReferenceableDataSource !== undefined) {
-            const referenceableDataSourcesService = this._referenceableDataSourcesService;
+            const referenceableDataSourcesService = this._referenceableDataSources;
             if (referenceableDataSourcesService === undefined) {
                 throw new RevApiError('RDSORU50721', 'Undefined ReferenceableDataSourcesService');
             } else {

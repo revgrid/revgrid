@@ -2,14 +2,14 @@
 
 import { JsonElement, Result } from '@xilytix/sysutils';
 import { RevColumnLayoutDefinition } from '../../../../../../column-layout/server/internal-api';
-import { RevSourcedField, RevSourcedFieldCustomHeadingsService } from '../../../../../sourced-field/server/internal-api';
+import { RevSourcedField, RevSourcedFieldCustomHeadings } from '../../../../../sourced-field/server/internal-api';
 import { RevAllowedRecordSourcedField } from '../../../../record/server/internal-api';
 import { RevTableFieldSourceDefinitionCachingFactory } from '../../field-source/internal-api';
 
 /** @public */
 export abstract class RevTableRecordSourceDefinition<TypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> {
     constructor(
-        private readonly _customHeadingsService: RevSourcedFieldCustomHeadingsService | undefined,
+        readonly customHeadings: RevSourcedFieldCustomHeadings | undefined,
         readonly tableFieldSourceDefinitionCachingFactory: RevTableFieldSourceDefinitionCachingFactory<
             TableFieldSourceDefinitionTypeId,
             TextFormattableValueTypeId,
@@ -23,7 +23,7 @@ export abstract class RevTableRecordSourceDefinition<TypeId, TableFieldSourceDef
 
     createAllowedFields(): readonly RevAllowedRecordSourcedField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>[] {
         const tableFieldSourceDefinitionCachingFactory = this.tableFieldSourceDefinitionCachingFactory;
-        const customHeadingsService = this._customHeadingsService;
+        const customHeadings = this.customHeadings;
         let result: RevAllowedRecordSourcedField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>[] = [];
         for (const allowedFieldSourceDefinitionTypeId of this.allowedFieldSourceDefinitionTypeIds) {
             const fieldSourceDefinition = tableFieldSourceDefinitionCachingFactory.get(allowedFieldSourceDefinitionTypeId);
@@ -32,7 +32,7 @@ export abstract class RevTableRecordSourceDefinition<TypeId, TableFieldSourceDef
             const sourceAllowedFields = new Array<RevAllowedRecordSourcedField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>>(fieldCount);
             for (let i = 0; i < fieldCount; i++) {
                 const fieldDefinition = fieldDefinitions[i];
-                const heading = RevSourcedField.generateHeading(customHeadingsService, fieldDefinition);
+                const heading = RevSourcedField.generateHeading(customHeadings, fieldDefinition);
 
                 sourceAllowedFields[i] = new RevAllowedRecordSourcedField(
                     fieldDefinition,

@@ -1345,7 +1345,7 @@ export class RevColumnLayoutGrid<BGS extends RevBehavioredGridSettings, BCS exte
 
 // @public (undocumented)
 export class RevColumnLayoutOrReference {
-    constructor(_referenceableColumnLayoutsService: RevReferenceableColumnLayoutsService | undefined, definition: RevColumnLayoutOrReferenceDefinition);
+    constructor(_referenceableColumnLayouts: RevReferenceableColumnLayouts | undefined, definition: RevColumnLayoutOrReferenceDefinition);
     // (undocumented)
     createDefinition(): RevColumnLayoutOrReferenceDefinition;
     // (undocumented)
@@ -1818,7 +1818,7 @@ export namespace RevDataServer {
 
 // @public (undocumented)
 export class RevDataSource<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> implements LockOpenListItem<RevDataSource<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, RevDataSource.LockErrorIdPlusTryError>, IndexedRecord {
-    constructor(_referenceableColumnLayoutsService: RevReferenceableColumnLayoutsService | undefined, _tableFieldSourceDefinitionFactory: RevTableFieldSourceDefinitionFactory<TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, _tableRecordSourceFactory: RevTableRecordSourceFactory<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, definition: RevDataSourceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, id?: Guid, mapKey?: MapKey);
+    constructor(_referenceableColumnLayouts: RevReferenceableColumnLayouts | undefined, _tableFieldSourceDefinitionFactory: RevTableFieldSourceDefinitionFactory<TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, _tableRecordSourceFactory: RevTableRecordSourceFactory<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, definition: RevDataSourceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, id?: Guid, mapKey?: MapKey);
     // (undocumented)
     closeLocked(opener: LockOpenListItem.Opener): void;
     // (undocumented)
@@ -1984,7 +1984,7 @@ export namespace RevDataSourceDefinition {
 
 // @public (undocumented)
 export class RevDataSourceOrReference<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> {
-    constructor(_referenceableColumnLayoutsService: RevReferenceableColumnLayoutsService | undefined, _referenceableDataSourcesService: RevReferenceableDataSourcesService<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> | undefined, _tableFieldSourceDefinitionFactory: RevTableFieldSourceDefinitionFactory<TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, _tableRecordSourceFactory: RevTableRecordSourceFactory<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, definition: RevDataSourceOrReferenceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>);
+    constructor(_referenceableColumnLayouts: RevReferenceableColumnLayouts | undefined, _referenceableDataSources: RevReferenceableDataSources<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> | undefined, _tableFieldSourceDefinitionFactory: RevTableFieldSourceDefinitionFactory<TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, _tableRecordSourceFactory: RevTableRecordSourceFactory<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, definition: RevDataSourceOrReferenceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>);
     // (undocumented)
     createDefinition(rowOrderDefinition: RevRecordRowOrderDefinition | undefined): RevDataSourceOrReferenceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>;
     // (undocumented)
@@ -2245,7 +2245,7 @@ export class RevFavouriteReferenceableColumnLayoutDefinition implements IndexedR
 }
 
 // @public (undocumented)
-export class RevFavouriteReferenceableColumnLayoutDefinitionsStoreService {
+export interface RevFavouriteReferenceableColumnLayoutDefinitionsStore {
     // (undocumented)
     name: string;
 }
@@ -4398,14 +4398,14 @@ export namespace RevReferenceableColumnLayoutDefinition {
 }
 
 // @public (undocumented)
-export interface RevReferenceableColumnLayoutsService extends LockItemByKeyList<RevReferenceableColumnLayout> {
+export interface RevReferenceableColumnLayouts extends LockItemByKeyList<RevReferenceableColumnLayout> {
     // (undocumented)
     getOrNew(definition: RevReferenceableColumnLayoutDefinition): RevReferenceableColumnLayout;
 }
 
 // @public (undocumented)
 export class RevReferenceableDataSource<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> extends RevDataSource<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> implements LockOpenListItem<RevReferenceableDataSource<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, RevDataSource.LockErrorIdPlusTryError>, IndexedRecord {
-    constructor(referenceableColumnLayoutsService: RevReferenceableColumnLayoutsService | undefined, tableFieldSourceDefinitionFactory: RevTableFieldSourceDefinitionFactory<TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, tableRecordSourceFactory: RevTableRecordSourceFactory<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, lockedDefinition: RevReferenceableDataSourceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, index: number);
+    constructor(referenceableColumnLayouts: RevReferenceableColumnLayouts | undefined, tableFieldSourceDefinitionFactory: RevTableFieldSourceDefinitionFactory<TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, tableRecordSourceFactory: RevTableRecordSourceFactory<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, lockedDefinition: RevReferenceableDataSourceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, index: number);
     // (undocumented)
     createDefinition(rowOrderDefinition: RevRecordRowOrderDefinition): RevReferenceableDataSourceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>;
     // (undocumented)
@@ -4461,7 +4461,7 @@ export namespace RevReferenceableDataSourceDefinition {
         name = "revName";
     }
     // (undocumented)
-    export function tryCreateReferenceableFromJson<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>(tableRecordSourceDefinitionFactory: RevTableRecordSourceDefinitionFromJsonFactory<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, element: JsonElement): Result<WithLayoutError<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, CreateReferenceableFromJsonErrorIdPlusExtra<CreateReferenceableFromJsonErrorId>>;
+    export function tryCreateReferenceableFromJson<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>(tableRecordSourceDefinitionFromJsonFactory: RevTableRecordSourceDefinitionFromJsonFactory<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, element: JsonElement): Result<WithLayoutError<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, CreateReferenceableFromJsonErrorIdPlusExtra<CreateReferenceableFromJsonErrorId>>;
     // (undocumented)
     export interface WithLayoutError<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> {
         // (undocumented)
@@ -4472,17 +4472,17 @@ export namespace RevReferenceableDataSourceDefinition {
 }
 
 // @public (undocumented)
-export interface RevReferenceableDataSourceDefinitionsStoreService {
+export interface RevReferenceableDataSourceDefinitionsStore {
 }
 
 // @public (undocumented)
-export interface RevReferenceableDataSourcesService<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> extends LockItemByKeyList<RevReferenceableDataSource<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, RevDataSource.LockErrorIdPlusTryError> {
+export interface RevReferenceableDataSources<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> extends LockItemByKeyList<RevReferenceableDataSource<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, RevDataSource.LockErrorIdPlusTryError> {
     // (undocumented)
     getOrNew(definition: RevReferenceableDataSourceDefinition<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>): RevReferenceableDataSource<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>;
 }
 
 // @public (undocumented)
-export namespace RevReferenceableDataSourcesService {
+export namespace RevReferenceableDataSources {
 }
 
 // @public (undocumented)
@@ -5364,11 +5364,11 @@ export namespace RevSourcedField {
         SourceName = 2
     }
     // (undocumented)
-    export function generateHeading(customHeadingsService: RevSourcedFieldCustomHeadingsService | undefined, fieldDefinition: RevSourcedFieldDefinition): string;
+    export function generateHeading(customHeadings: RevSourcedFieldCustomHeadings | undefined, fieldDefinition: RevSourcedFieldDefinition): string;
 }
 
 // @public (undocumented)
-export interface RevSourcedFieldCustomHeadingsService {
+export interface RevSourcedFieldCustomHeadings {
     // (undocumented)
     tryGetFieldHeading(sourceName: string, fieldName: string): string | undefined;
 }
@@ -5795,6 +5795,20 @@ export namespace RevStandardSliderCellPainter {
     }
 }
 
+// @public (undocumented)
+export class RevStandardSourcedFieldCustomHeadingsService implements RevSourcedFieldCustomHeadings {
+    // (undocumented)
+    checkSave(): void;
+    // (undocumented)
+    load(): void;
+    // (undocumented)
+    save(): void;
+    // (undocumented)
+    setFieldHeading(sourceName: string, fieldName: string, text: string): void;
+    // (undocumented)
+    tryGetFieldHeading(sourceName: string, fieldName: string): string | undefined;
+}
+
 // @public
 export class RevStandardSparkBarCellPainter<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevStandardCellPainter<BGS, BCS, SF> {
     // (undocumented)
@@ -5853,6 +5867,17 @@ export namespace RevStandardSparkLineCellPainter {
         // (undocumented)
         value: number[];
     }
+}
+
+// @public (undocumented)
+export class RevStandardTableFieldSourceDefinitionCachingFactoryService<TypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> {
+    constructor(definitionFactory: RevTableFieldSourceDefinitionFactory<TypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>);
+    // (undocumented)
+    createLayoutDefinition(fieldIds: RevTableFieldSourceDefinition.FieldId<TypeId>[]): RevColumnLayoutDefinition;
+    // (undocumented)
+    readonly definitionFactory: RevTableFieldSourceDefinitionFactory<TypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>;
+    // (undocumented)
+    get(typeId: TypeId): RevTableFieldSourceDefinition<TypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>;
 }
 
 // Warning: (ae-internal-missing-underscore) The name "RevStandardTagCellPainter" should be prefixed with an underscore because the declaration is marked as @internal
@@ -6359,7 +6384,7 @@ export namespace RevTable {
 
 // @public (undocumented)
 export abstract class RevTableField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> extends RevRecordSourcedField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> {
-    constructor(textFormatter: RevTextFormatterService<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, definition: RevTableField.Definition<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, heading: string);
+    constructor(textFormatter: RevTextFormatter<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, definition: RevTableField.Definition<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, heading: string);
     // (undocumented)
     compare(left: RevTableValuesRecord<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, right: RevTableValuesRecord<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>): number;
     // (undocumented)
@@ -6373,7 +6398,7 @@ export abstract class RevTableField<TextFormattableValueTypeId, TextFormattableV
     // (undocumented)
     protected setValueTypeId(value: TextFormattableValueTypeId): void;
     // (undocumented)
-    protected readonly textFormatter: RevTextFormatterService<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>;
+    protected readonly textFormatter: RevTextFormatter<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>;
     // (undocumented)
     get valueTypeId(): TextFormattableValueTypeId;
 }
@@ -6381,7 +6406,7 @@ export abstract class RevTableField<TextFormattableValueTypeId, TextFormattableV
 // @public (undocumented)
 export namespace RevTableField {
     // (undocumented)
-    export type Constructor<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> = new (textFormatter: RevTextFormatterService<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, definition: RevTableField.Definition<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, heading: string, index: Integer) => RevTableField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>;
+    export type Constructor<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> = new (textFormatter: RevTextFormatter<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, definition: RevTableField.Definition<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, heading: string, index: Integer) => RevTableField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>;
     // (undocumented)
     export class Definition<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> extends RevRecordSourcedFieldDefinition {
         constructor(sourceDefinition: RevSourcedFieldSourceDefinition, sourcelessName: string, defaultHeading: string, defaultTextAlignId: RevHorizontalAlignId, gridFieldConstructor: RevTableField.Constructor<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, gridValueConstructor: RevTableValue.Constructor<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>);
@@ -6394,7 +6419,7 @@ export namespace RevTableField {
 
 // @public (undocumented)
 export class RevTableFieldSource<TypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> {
-    constructor(_textFormatterService: RevTextFormatterService<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, _customHeadingsService: RevSourcedFieldCustomHeadingsService | undefined, definition: RevTableFieldSourceDefinition<TypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, _headingPrefix: string);
+    constructor(_textFormatter: RevTextFormatter<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, _customHeadings: RevSourcedFieldCustomHeadings | undefined, definition: RevTableFieldSourceDefinition<TypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, _headingPrefix: string);
     // (undocumented)
     createTableFields(): RevTableField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>[];
     // (undocumented)
@@ -6476,7 +6501,7 @@ export interface RevTableFieldSourceDefinitionFactory<TypeId, TextFormattableVal
 
 // @public (undocumented)
 export class RevTableGrid<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId, BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings> extends RevRecordSourcedFieldGrid<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId, BGS, BCS, RevRecordSourcedField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>> {
-    constructor(_referenceableColumnLayoutsService: RevReferenceableColumnLayoutsService | undefined, tableFieldSourceDefinitionCachingFactory: RevTableFieldSourceDefinitionCachingFactory<TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, tableRecordSourceDefinitionFactory: RevTableRecordSourceDefinitionFromJsonFactory<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, _referenceableDataSourcesService: RevReferenceableDataSourcesService<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> | undefined, _tableRecordSourceFactory: RevTableRecordSourceFactory<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, gridHostElement: HTMLElement, definition: RevGridDefinition<BCS, RevRecordSourcedField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>>, settings: BGS, getSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, RevRecordSourcedField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>>, options?: RevGridOptions<BGS, BCS, RevRecordSourcedField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>>);
+    constructor(_referenceableColumnLayouts: RevReferenceableColumnLayouts | undefined, tableFieldSourceDefinitionCachingFactory: RevTableFieldSourceDefinitionCachingFactory<TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, tableRecordSourceDefinitionFromJsonFactory: RevTableRecordSourceDefinitionFromJsonFactory<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, _referenceableDataSources: RevReferenceableDataSources<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> | undefined, _tableRecordSourceFactory: RevTableRecordSourceFactory<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, gridHostElement: HTMLElement, definition: RevGridDefinition<BCS, RevRecordSourcedField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>>, settings: BGS, getSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, RevRecordSourcedField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>>, options?: RevGridOptions<BGS, BCS, RevRecordSourcedField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>>);
     // (undocumented)
     applyColumnLayoutOrReferenceDefinition(definition: RevColumnLayoutOrReferenceDefinition): void;
     // (undocumented)
@@ -6522,7 +6547,7 @@ export class RevTableGrid<Badness, TableRecordSourceDefinitionTypeId, TableField
     // (undocumented)
     readonly tableFieldSourceDefinitionCachingFactory: RevTableFieldSourceDefinitionCachingFactory<TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>;
     // (undocumented)
-    readonly tableRecordSourceDefinitionFactory: RevTableRecordSourceDefinitionFromJsonFactory<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>;
+    readonly tableRecordSourceDefinitionFromJsonFactory: RevTableRecordSourceDefinitionFromJsonFactory<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>;
     // (undocumented)
     tryOpenColumnLayoutOrReferenceDefinition(columnLayoutOrReferenceDefinition: RevColumnLayoutOrReferenceDefinition): Promise<Result<void, RevColumnLayoutOrReference.LockErrorIdPlusTryError>>;
     // (undocumented)
@@ -6593,7 +6618,7 @@ export namespace RevTableRecordDefinition {
 
 // @public (undocumented)
 export abstract class RevTableRecordSource<Badness, TypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> implements CorrectnessState<Badness> {
-    constructor(_textFormatterService: RevTextFormatterService<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, _customHeadingsService: RevSourcedFieldCustomHeadingsService | undefined, _tableFieldSourceDefinitionCachingFactory: RevTableFieldSourceDefinitionCachingFactory<TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, _correctnessState: CorrectnessState<Badness>, definition: RevTableRecordSourceDefinition<TypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, allowedFieldSourceDefinitionTypeIds: readonly TableFieldSourceDefinitionTypeId[]);
+    constructor(textFormatter: RevTextFormatter<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, customHeadings: RevSourcedFieldCustomHeadings | undefined, tableFieldSourceDefinitionCachingFactory: RevTableFieldSourceDefinitionCachingFactory<TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, _correctnessState: CorrectnessState<Badness>, definition: RevTableRecordSourceDefinition<TypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, allowedFieldSourceDefinitionTypeIds: readonly TableFieldSourceDefinitionTypeId[]);
     // (undocumented)
     get activeFieldSources(): readonly RevTableFieldSource<TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>[];
     // (undocumented)
@@ -6621,7 +6646,7 @@ export abstract class RevTableRecordSource<Badness, TypeId, TableFieldSourceDefi
     // (undocumented)
     abstract createTableRecord(recordIndex: Integer, eventHandlers: RevTableRecord.EventHandlers): RevTableRecord<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>;
     // (undocumented)
-    protected readonly _customHeadingsService: RevSourcedFieldCustomHeadingsService | undefined;
+    readonly customHeadings: RevSourcedFieldCustomHeadings | undefined;
     // (undocumented)
     protected readonly definition: RevTableRecordSourceDefinition<TypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>;
     // (undocumented)
@@ -6663,7 +6688,9 @@ export abstract class RevTableRecordSource<Badness, TypeId, TableFieldSourceDefi
     // (undocumented)
     subscribeUsableChangedEvent(handler: CorrectnessState.UsableChangedEventHandler): MultiEvent.SubscriptionId;
     // (undocumented)
-    protected readonly _tableFieldSourceDefinitionCachingFactory: RevTableFieldSourceDefinitionCachingFactory<TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>;
+    readonly tableFieldSourceDefinitionCachingFactory: RevTableFieldSourceDefinitionCachingFactory<TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>;
+    // (undocumented)
+    readonly textFormatter: RevTextFormatter<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>;
     // (undocumented)
     tryLock(_locker: NamedLocker): Promise<Result<void>>;
     // (undocumented)
@@ -6700,13 +6727,15 @@ export namespace RevTableRecordSource {
 
 // @public (undocumented)
 export abstract class RevTableRecordSourceDefinition<TypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> {
-    constructor(_customHeadingsService: RevSourcedFieldCustomHeadingsService | undefined, tableFieldSourceDefinitionCachingFactory: RevTableFieldSourceDefinitionCachingFactory<TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, typeId: TypeId, name: string, allowedFieldSourceDefinitionTypeIds: readonly TableFieldSourceDefinitionTypeId[]);
+    constructor(customHeadings: RevSourcedFieldCustomHeadings | undefined, tableFieldSourceDefinitionCachingFactory: RevTableFieldSourceDefinitionCachingFactory<TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, typeId: TypeId, name: string, allowedFieldSourceDefinitionTypeIds: readonly TableFieldSourceDefinitionTypeId[]);
     // (undocumented)
     readonly allowedFieldSourceDefinitionTypeIds: readonly TableFieldSourceDefinitionTypeId[];
     // (undocumented)
     createAllowedFields(): readonly RevAllowedRecordSourcedField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>[];
     // (undocumented)
     abstract createDefaultLayoutDefinition(): RevColumnLayoutDefinition;
+    // (undocumented)
+    readonly customHeadings: RevSourcedFieldCustomHeadings | undefined;
     // (undocumented)
     readonly name: string;
     // (undocumented)
@@ -6900,7 +6929,7 @@ export namespace RevTextFormattableValue {
 }
 
 // @public (undocumented)
-export interface RevTextFormatterService<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> {
+export interface RevTextFormatter<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> {
     // (undocumented)
     format(value: RevTextFormattableValue<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>): string;
 }

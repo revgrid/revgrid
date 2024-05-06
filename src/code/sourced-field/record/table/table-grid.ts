@@ -2,7 +2,7 @@
 
 import { AssertInternalError, CorrectnessState, Integer, LockOpenListItem, MultiEvent, Ok, Result } from '@xilytix/sysutils';
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevClientGrid, RevGridDefinition, RevGridOptions } from '../../../client/internal-api';
-import { RevColumnLayout, RevColumnLayoutOrReference, RevColumnLayoutOrReferenceDefinition, RevReferenceableColumnLayoutsService } from '../../../column-layout/internal-api';
+import { RevColumnLayout, RevColumnLayoutOrReference, RevColumnLayoutOrReferenceDefinition, RevReferenceableColumnLayouts } from '../../../column-layout/internal-api';
 import { RevApiError } from '../../../common/internal-api';
 import { RevRecordGrid, RevRecordRowOrderDefinition } from '../../../record/internal-api';
 import { RevAllowedRecordSourcedFieldsColumnLayoutDefinition, RevRecordSourcedField, RevRecordSourcedFieldGrid } from '../record/internal-api';
@@ -10,7 +10,7 @@ import {
     RevDataSource,
     RevDataSourceOrReference,
     RevDataSourceOrReferenceDefinition,
-    RevReferenceableDataSourcesService,
+    RevReferenceableDataSources,
     RevTable,
     RevTableFieldSourceDefinitionCachingFactory,
     RevTableRecordDefinition,
@@ -72,19 +72,19 @@ export class RevTableGrid<
     private _dataSourceColumnLayoutSetSubscriptionId: MultiEvent.SubscriptionId;
 
     constructor(
-        private readonly _referenceableColumnLayoutsService: RevReferenceableColumnLayoutsService | undefined,
+        private readonly _referenceableColumnLayouts: RevReferenceableColumnLayouts | undefined,
         readonly tableFieldSourceDefinitionCachingFactory: RevTableFieldSourceDefinitionCachingFactory<
             TableFieldSourceDefinitionTypeId,
             TextFormattableValueTypeId,
             TextFormattableValueAttributeTypeId
         >,
-        readonly tableRecordSourceDefinitionFactory: RevTableRecordSourceDefinitionFromJsonFactory<
+        readonly tableRecordSourceDefinitionFromJsonFactory: RevTableRecordSourceDefinitionFromJsonFactory<
             TableRecordSourceDefinitionTypeId,
             TableFieldSourceDefinitionTypeId,
             TextFormattableValueTypeId,
             TextFormattableValueAttributeTypeId
         >,
-        private readonly _referenceableDataSourcesService: RevReferenceableDataSourcesService<
+        private readonly _referenceableDataSources: RevReferenceableDataSources<
             Badness,
             TableRecordSourceDefinitionTypeId,
             TableFieldSourceDefinitionTypeId,
@@ -181,8 +181,8 @@ export class RevTableGrid<
             TextFormattableValueTypeId,
             TextFormattableValueAttributeTypeId
         >(
-            this._referenceableColumnLayoutsService,
-            this._referenceableDataSourcesService,
+            this._referenceableColumnLayouts,
+            this._referenceableDataSources,
             this.tableFieldSourceDefinitionCachingFactory.definitionFactory,
             this._tableRecordSourceFactory,
             definition

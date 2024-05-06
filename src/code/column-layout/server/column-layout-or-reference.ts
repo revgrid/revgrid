@@ -8,7 +8,7 @@ import {
     RevColumnLayoutOrReferenceDefinition
 } from './definition/internal-api';
 import { RevReferenceableColumnLayout } from './referenceable-column-layout';
-import { RevReferenceableColumnLayoutsService } from './referenceable-grid-columns-service';
+import { RevReferenceableColumnLayouts } from './referenceable-grid-columns';
 
 /** @public */
 export class RevColumnLayoutOrReference {
@@ -19,7 +19,7 @@ export class RevColumnLayoutOrReference {
     private _lockedReferenceableColumnLayout: RevReferenceableColumnLayout | undefined;
 
     constructor(
-        private readonly _referenceableColumnLayoutsService: RevReferenceableColumnLayoutsService | undefined,
+        private readonly _referenceableColumnLayouts: RevReferenceableColumnLayouts | undefined,
         definition: RevColumnLayoutOrReferenceDefinition,
     ) {
         if (definition.referenceId !== undefined) {
@@ -74,7 +74,7 @@ export class RevColumnLayoutOrReference {
             );
         } else {
             if (this._referenceId !== undefined) {
-                const referenceableColumnLayoutsService = this._referenceableColumnLayoutsService;
+                const referenceableColumnLayoutsService = this._referenceableColumnLayouts;
                 if (referenceableColumnLayoutsService === undefined) {
                     throw new RevApiError('RCLORTL50113', 'Undefined referenceableColumnLayoutsService');
                 } else {
@@ -113,7 +113,7 @@ export class RevColumnLayoutOrReference {
         } else {
             this._lockedColumnLayout = undefined;
             if (this._lockedReferenceableColumnLayout !== undefined) {
-                const referenceableColumnLayoutsService = this._referenceableColumnLayoutsService;
+                const referenceableColumnLayoutsService = this._referenceableColumnLayouts;
                 if (referenceableColumnLayoutsService === undefined) {
                     throw new RevApiError('RCLORUS50113', 'Undefined referenceableColumnLayoutsService');
                 } else {

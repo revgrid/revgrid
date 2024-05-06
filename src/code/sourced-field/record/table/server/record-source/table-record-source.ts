@@ -11,8 +11,8 @@ import {
     Result,
     UsableListChangeTypeId,
 } from '@xilytix/sysutils';
-import { RevTextFormatterService } from '../../../../../cell-content/server/internal-api';
-import { RevSourcedFieldCustomHeadingsService } from '../../../../sourced-field/server/internal-api';
+import { RevTextFormatter } from '../../../../../cell-content/server/internal-api';
+import { RevSourcedFieldCustomHeadings } from '../../../../sourced-field/server/internal-api';
 import { RevAllowedRecordSourcedField } from '../../../record/server/internal-api';
 import { RevTableFieldSource, RevTableFieldSourceDefinitionCachingFactory } from '../field-source/internal-api';
 import { RevTableField } from '../field/internal-api';
@@ -32,9 +32,9 @@ export abstract class RevTableRecordSource<Badness, TypeId, TableFieldSourceDefi
     private _afterRecDefinitionChangeMultiEvent = new MultiEvent<RevTableRecordSource.RecDefinitionChangeEventHandler>();
 
     constructor(
-        private readonly _textFormatterService: RevTextFormatterService<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>,
-        protected readonly _customHeadingsService: RevSourcedFieldCustomHeadingsService | undefined,
-        protected readonly _tableFieldSourceDefinitionCachingFactory: RevTableFieldSourceDefinitionCachingFactory<
+        readonly textFormatter: RevTextFormatter<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>,
+        readonly customHeadings: RevSourcedFieldCustomHeadings | undefined,
+        readonly tableFieldSourceDefinitionCachingFactory: RevTableFieldSourceDefinitionCachingFactory<
             TableFieldSourceDefinitionTypeId,
             TextFormattableValueTypeId,
             TextFormattableValueAttributeTypeId
@@ -232,8 +232,8 @@ export abstract class RevTableRecordSource<Badness, TypeId, TableFieldSourceDefi
         fieldSourceTypeId: TableFieldSourceDefinitionTypeId,
         fieldCount: Integer
     ): RevTableFieldSource<TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> {
-        const definition = this._tableFieldSourceDefinitionCachingFactory.get(fieldSourceTypeId);
-        const source = new RevTableFieldSource(this._textFormatterService, this._customHeadingsService, definition, '');
+        const definition = this.tableFieldSourceDefinitionCachingFactory.get(fieldSourceTypeId);
+        const source = new RevTableFieldSource(this.textFormatter, this.customHeadings, definition, '');
         source.fieldIndexOffset = fieldCount;
         source.nextFieldIndexOffset = source.fieldIndexOffset + source.fieldCount;
         return source;
