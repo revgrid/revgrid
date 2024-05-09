@@ -1,0 +1,12 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "tsconfig": "./src/code/tsconfig.json",
+  "entryPoints": ["./src/code/public-api.ts"],
+  "excludeInternal": true,
+  "out": "doc",
+  "readme": "README.md",
+  "includeVersion": true,
+  "excludePrivate": true,
+  "excludeProtected": true,
+  "disableSources": true,
+}
