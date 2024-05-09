@@ -6191,6 +6191,23 @@ export namespace RevSubgridsManager {
 }
 
 // @public (undocumented)
+export class RevSymbolClientGrid extends RevClientGrid<RevInMemoryBehavioredGridSettings, RevInMemoryBehavioredColumnSettings, RevSchemaField> {
+}
+
+// @public (undocumented)
+export type RevSymbolGridDefinition = RevGridDefinition<RevInMemoryBehavioredColumnSettings, RevSchemaField>;
+
+// @public (undocumented)
+export type RevSymbolGridOptions = RevGridOptions<RevInMemoryBehavioredGridSettings, RevInMemoryBehavioredColumnSettings, RevSchemaField>;
+
+// @public (undocumented)
+export class RevSymbolTableGrid extends RevTableGrid<object, symbol, symbol, symbol, symbol, RevInMemoryBehavioredGridSettings, RevInMemoryBehavioredColumnSettings> {
+}
+
+// @public (undocumented)
+export type RevSymbolViewCell = RevViewCell<RevInMemoryBehavioredColumnSettings, RevSchemaField>;
+
+// @public (undocumented)
 export class RevTable<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> {
     constructor(recordSource: RevTableRecordSource<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, _correctnessState: CorrectnessState<Badness>, initialActiveFieldSources: readonly TableFieldSourceDefinitionTypeId[]);
     // (undocumented)
