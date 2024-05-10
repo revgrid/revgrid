@@ -1,12 +1,12 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
 import { RevDataRowArrayField } from '../../../../data-row-array/server/internal-api';
-import { RevSingleHeadingSchemaField } from '../../../../header/server/internal-api';
+import { RevSingleHeadingField } from '../../../../header/server/internal-api';
 import { RevSourcedField } from '../../../sourced-field/server/internal-api';
 import { RevSingleHeadingDataRowArraySourcedFieldDefinition } from './definition/internal-api';
 
 /** @public */
-export interface RevSingleHeadingDataRowArraySourcedField extends RevSourcedField, RevDataRowArrayField, RevSingleHeadingSchemaField {
+export interface RevSingleHeadingDataRowArraySourcedField extends RevSourcedField, RevDataRowArrayField, RevSingleHeadingField {
 }
 
 /** @public */

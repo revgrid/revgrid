@@ -3,6 +3,6 @@
 import { RevSchemaField } from '../../../common/internal-api';
 
 /** @public */
-export interface RevSingleHeadingSchemaField extends RevSchemaField {
-    heading: string;
+export interface RevMultiHeadingField extends RevSchemaField {
+    headings: string[];
 }

@@ -3320,7 +3320,7 @@ export namespace RevMouse {
 }
 
 // @public (undocumented)
-export class RevMultiHeadingDataRowArraySourcedField implements RevSourcedField, RevDataRowArrayField, RevMultiHeadingSchemaField {
+export class RevMultiHeadingDataRowArraySourcedField implements RevSourcedField, RevDataRowArrayField, RevMultiHeadingField {
     constructor(definition: RevMultiHeadingDataRowArraySourcedFieldDefinition, heading?: string, headings?: string[]);
     // (undocumented)
     readonly definition: RevMultiHeadingDataRowArraySourcedFieldDefinition;
@@ -3366,7 +3366,7 @@ export namespace RevMultiHeadingDataRowArraySourcedFieldGrid {
 }
 
 // @public (undocumented)
-export class RevMultiHeadingDataServer<SF extends RevMultiHeadingSchemaField> implements RevDataServer<SF> {
+export class RevMultiHeadingDataServer<SF extends RevMultiHeadingField> implements RevDataServer<SF> {
     // (undocumented)
     getRowCount(): number;
     // (undocumented)
@@ -3380,7 +3380,7 @@ export class RevMultiHeadingDataServer<SF extends RevMultiHeadingSchemaField> im
 }
 
 // @public (undocumented)
-export interface RevMultiHeadingSchemaField extends RevSchemaField {
+export interface RevMultiHeadingField extends RevSchemaField {
     // (undocumented)
     headings: string[];
 }
@@ -5218,7 +5218,7 @@ export const revSimpleReadonlyDefaultBehavioredColumnSettings: Readonly<RevSimpl
 export const revSimpleReadonlyDefaultBehavioredGridSettings: Readonly<RevSimpleBehavioredGridSettings>;
 
 // @public (undocumented)
-export interface RevSingleHeadingDataRowArraySourcedField extends RevSourcedField, RevDataRowArrayField, RevSingleHeadingSchemaField {
+export interface RevSingleHeadingDataRowArraySourcedField extends RevSourcedField, RevDataRowArrayField, RevSingleHeadingField {
 }
 
 // @public (undocumented)
@@ -5257,7 +5257,7 @@ export namespace RevSingleHeadingDataRowArraySourcedFieldGrid {
 }
 
 // @public (undocumented)
-export class RevSingleHeadingDataServer<SF extends RevSingleHeadingSchemaField> implements RevDataServer<SF> {
+export class RevSingleHeadingDataServer<SF extends RevSingleHeadingField> implements RevDataServer<SF> {
     // (undocumented)
     getRowCount(): number;
     // (undocumented)
@@ -5273,7 +5273,7 @@ export class RevSingleHeadingDataServer<SF extends RevSingleHeadingSchemaField> 
 }
 
 // @public (undocumented)
-export interface RevSingleHeadingSchemaField extends RevSchemaField {
+export interface RevSingleHeadingField extends RevSchemaField {
     // (undocumented)
     heading: string;
 }

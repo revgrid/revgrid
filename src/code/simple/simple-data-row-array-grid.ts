@@ -2,7 +2,7 @@
 
 import { RevGridDefinition, RevGridOptions, RevSubgrid, RevViewCell } from '../client/internal-api';
 import { RevDataRowArrayDataServer, RevDataRowArrayGrid, RevDataRowArraySchemaServer } from '../data-row-array/internal-api';
-import { RevSingleHeadingDataServer, RevSingleHeadingSchemaField } from '../header/internal-api';
+import { RevSingleHeadingDataServer, RevSingleHeadingField } from '../header/internal-api';
 import { RevStandardHeaderTextCellPainter } from '../standard/internal-api';
 import { RevSimpleAlphaTextCellPainter } from './cell-painter/internal-api';
 import { RevSimpleInMemoryBehavioredGridSettings, revSimpleReadonlyDefaultBehavioredColumnSettings } from './settings-implementations/internal-api';
@@ -12,30 +12,30 @@ import { RevSimpleBehavioredColumnSettings, RevSimpleBehavioredGridSettings } fr
 export class RevSimpleDataRowArrayGrid extends RevDataRowArrayGrid<
     RevSimpleBehavioredGridSettings,
     RevSimpleBehavioredColumnSettings,
-    RevSingleHeadingSchemaField
+    RevSingleHeadingField
 > {
     private readonly _headerCellPainter: RevStandardHeaderTextCellPainter<
         RevSimpleBehavioredGridSettings,
         RevSimpleBehavioredColumnSettings,
-        RevSingleHeadingSchemaField
+        RevSingleHeadingField
     >;
     private readonly _textCellPainter: RevSimpleAlphaTextCellPainter<
         RevSimpleBehavioredGridSettings,
         RevSimpleBehavioredColumnSettings,
-        RevSingleHeadingSchemaField
+        RevSingleHeadingField
     >;
 
 
     constructor(
         gridHostElement: HTMLElement,
         settings?: RevSimpleInMemoryBehavioredGridSettings,
-        options?: RevGridOptions<RevSimpleBehavioredGridSettings, RevSimpleBehavioredColumnSettings, RevSingleHeadingSchemaField>,
+        options?: RevGridOptions<RevSimpleBehavioredGridSettings, RevSimpleBehavioredColumnSettings, RevSingleHeadingField>,
     ) {
-        const schemaServer = new RevDataRowArraySchemaServer<RevSingleHeadingSchemaField>();
-        const mainDataServer = new RevDataRowArrayDataServer<RevSingleHeadingSchemaField>();
-        const headerDataServer = new RevSingleHeadingDataServer<RevSingleHeadingSchemaField>();
+        const schemaServer = new RevDataRowArraySchemaServer<RevSingleHeadingField>();
+        const mainDataServer = new RevDataRowArrayDataServer<RevSingleHeadingField>();
+        const headerDataServer = new RevSingleHeadingDataServer<RevSingleHeadingField>();
 
-        const definition: RevGridDefinition<RevSimpleBehavioredColumnSettings, RevSingleHeadingSchemaField> = {
+        const definition: RevGridDefinition<RevSimpleBehavioredColumnSettings, RevSingleHeadingField> = {
             schemaServer,
             subgrids: [
                 {
@@ -63,11 +63,11 @@ export class RevSimpleDataRowArrayGrid extends RevDataRowArrayGrid<
         this._textCellPainter = new RevSimpleAlphaTextCellPainter(this, mainDataServer);
     }
 
-    private getHeaderCellPainter(_viewCell: RevViewCell<RevSimpleBehavioredColumnSettings, RevSingleHeadingSchemaField>) {
+    private getHeaderCellPainter(_viewCell: RevViewCell<RevSimpleBehavioredColumnSettings, RevSingleHeadingField>) {
         return this._headerCellPainter;
     }
 
-    private getMainCellPainter(_viewCell: RevViewCell<RevSimpleBehavioredColumnSettings, RevSingleHeadingSchemaField>) {
+    private getMainCellPainter(_viewCell: RevViewCell<RevSimpleBehavioredColumnSettings, RevSingleHeadingField>) {
         return this._textCellPainter;
     }
 }

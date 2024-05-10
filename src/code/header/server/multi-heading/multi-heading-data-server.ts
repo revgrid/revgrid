@@ -1,10 +1,10 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
 import { RevAssertError, RevDataServer } from '../../../common/internal-api';
-import { RevMultiHeadingSchemaField } from './multi-heading-schema-field';
+import { RevMultiHeadingField } from './multi-heading-field';
 
 /** @public */
-export class RevMultiHeadingDataServer<SF extends RevMultiHeadingSchemaField> implements RevDataServer<SF> {
+export class RevMultiHeadingDataServer<SF extends RevMultiHeadingField> implements RevDataServer<SF> {
     private _rowCount = 0;
     private _callbackListeners: RevDataServer.NotificationsClient[] = [];
 
