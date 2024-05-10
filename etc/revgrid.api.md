@@ -1004,11 +1004,9 @@ export namespace RevClientGrid {
     idGenerator: RevIdGenerator;
 }
 
-// @public (undocumented)
+// @public
 export interface RevClientObject {
-    // (undocumented)
     clientId: string;
-    // (undocumented)
     internalParent: RevClientObject | undefined;
 }
 
@@ -4577,11 +4575,15 @@ export type RevRowOrColumnSelectionAreaType = keyof RevRowOrColumnSelectionAreaT
 // @public
 export function revSafeConvertUnknownToBoolean(value: unknown): boolean | null | undefined;
 
-// @public (undocumented)
+// Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
+// Warning: (tsdoc-reference-missing-dot) Expecting a period before the next component of a declaration reference
+// Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
+//
+// @public
 export interface RevSchemaField {
-    // (undocumented)
+    // Warning: (tsdoc-reference-missing-dot) Expecting a period before the next component of a declaration reference
+    // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
     index: number;
-    // (undocumented)
     readonly name: string;
 }
 
