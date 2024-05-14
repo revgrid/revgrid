@@ -35,7 +35,7 @@ export class RevStandardTextPainter {
         } else {
             let halignOffset = leftPadding;
             let valignOffset = columnSettings.verticalOffset;
-            const textHeight = gc.getTextHeight(font).height;
+            const textHeight = gc.getFontHeight().height;
 
             switch (horizontalAlignId) {
                 case RevHorizontalAlignId.Right:
@@ -201,7 +201,7 @@ export class RevStandardTextPainter {
 
     protected underline(text: string, font: string, x: number, y: number, thickness: number) {
         const gc = this._renderingContext;
-        const textHeight = gc.getTextHeight(font).height;
+        const textHeight = gc.getFontHeight().height;
         const textWidth = gc.getTextWidth(text);
 
         switch (gc.cache.textAlign) {

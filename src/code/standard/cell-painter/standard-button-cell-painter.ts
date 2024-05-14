@@ -45,7 +45,7 @@ export class RevStandardButtonCellPainter<
         RevCellPainter.roundRect(gc, x, y, width, height, radius, arcGradient !== undefined, true);
 
         const ox = (width - gc.getTextWidth(val)) / 2;
-        const oy = (height - gc.getTextHeight(gc.cache.font).descent) / 2;
+        const oy = (height - gc.getFontHeight().descent) / 2;
 
         // draw the text
         gc.cache.textBaseline = 'middle';

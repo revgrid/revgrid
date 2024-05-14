@@ -3,15 +3,27 @@
 import { RevRectangle } from './rectangle';
 import { RevAssertError } from './revgrid-error';
 
-/** @public */
+/**
+ * A wrapper around CanvasRenderingContext2D which accesses values from CanvasRenderingContext2D from a cache.
+ * @remarks
+ * Supports saving and restoring by pushing and popping cached values onto/from a stack.
+ * Cache also stores the width and height of strings so that these widths and heights can be re-used without needing to be constantly recalculated
+ */
 export class RevCachedCanvasRenderingContext2D {
     /** @internal */
     private readonly _conditionalsStack: RevCachedCanvasRenderingContext2D.ConditionalsStack = [];
-    /** @internal */
+    /**
+     * A map of a map of character widths (value) for fonts (key)
+     * @internal
+     */
     private _fontTextWidthMap: RevCachedCanvasRenderingContext2D.FontTextWidthMap = new Map<string, RevCachedCanvasRenderingContext2D.TextWidthMap>;
-    /** @internal */
-    private _fontTextHeightMap: RevCachedCanvasRenderingContext2D.FontTextHeightMap = new Map<string, RevCachedCanvasRenderingContext2D.TextHeightMap>;
+    /**
+     * A map of a map of character heights (value) for fonts (key)
+     * @internal
+     */
+    private _fontTextHeightDefaultAndMap: RevCachedCanvasRenderingContext2D.FontTextHeightMap = new Map<string, RevCachedCanvasRenderingContext2D.TextHeightDefaultAndMap>;
 
+    /** Cache of CanvasRenderingContext2D values*/
     readonly cache: RevCachedCanvasRenderingContext2D.Cache;
 
     /** @internal */
@@ -107,14 +119,6 @@ export class RevCachedCanvasRenderingContext2D {
         this.canvasRenderingContext2D.quadraticCurveTo(cpx, cpy, x, y);
     }
 
-    // clearFill: typeof CanvasRenderingContext2DEx.clearFill;
-    // alpha: typeof CanvasRenderingContext2DEx.alpha;
-    // getTextWidth: typeof CanvasRenderingContext2DEx.getTextWidth;
-    // getTextWidthTruncated: typeof CanvasRenderingContext2DEx.getTextWidthTruncated;
-    // getTextHeight: typeof CanvasRenderingContext2DEx.getTextHeight;
-    // clipSave: typeof CanvasRenderingContext2DEx.clipSave;
-    // clipRestore: typeof CanvasRenderingContext2DEx.clipRestore;
-
     clearFillRect(x: number, y: number, width: number, height: number, color: string) {
         const a = this.alpha(color);
         if (a < 1) {
@@ -153,6 +157,10 @@ export class RevCachedCanvasRenderingContext2D {
         return result;
     }
 
+    /**
+     * Gets a map of the width (value) of characters (key) for a particular font
+     * @param - the name of the font
+    */
     getTextWidthMap(font: string) {
         let textWidthMap = this._fontTextWidthMap.get(font);
         if (textWidthMap === undefined) {
@@ -163,9 +171,13 @@ export class RevCachedCanvasRenderingContext2D {
     }
 
     /**
-     * Accumulates width of string in pixels, character by character, by chaching character widths and reusing those values when previously cached.
+     * Gets the width of a string using the current font.
+     * @remarks
+     * Calculates the width of a string in pixels by adding the widths of each character in the string.  The widths of each character is either obtained from a map or (if not in map) calculated using
+     * `measureText()` and stored in map.
      *
-     * NOTE: There is a minor measuring error when taking the sum of the pixel widths of individual characters that make up a string vs. the pixel width of the string taken as a whole. This is possibly due to kerning or rounding. The error is typically about 0.1%.
+     * NOTE: There is a minor measuring error when taking the sum of the pixel widths of individual characters that make up a string vs. the pixel width of the string taken as a whole.
+     * This is possibly due to kerning or rounding. The error is typically about 0.1%.
      * @param text - Text to measure.
      * @returns Width of string in pixels.
      */
@@ -189,6 +201,12 @@ export class RevCachedCanvasRenderingContext2D {
         return textWidth;
     }
 
+    /**
+     * Gets the width in pixels of a character using the current font.
+     * @remarks
+     * @param char - Character whose width is wanted.
+     * @returns Width of character in pixels.
+     */
     getCharWidth(char: string) {
         const font = this.cache.font;
         const textWidthMap = this.getTextWidthMap(font);
@@ -202,6 +220,11 @@ export class RevCachedCanvasRenderingContext2D {
         return charWidth;
     }
 
+    /**
+     * Gets the width in pixels of the character `m` using the current font.
+     * @remarks
+     * @returns Width of `m` in pixels.
+     */
     getEmWidth() {
         let emWidth = this.cache.emWidth;
         if (emWidth === undefined) {
@@ -211,15 +234,16 @@ export class RevCachedCanvasRenderingContext2D {
         return emWidth;
     }
 
-    getTextHeight(text: string) {
-        const font = this.cache.font;
-        let textHeightMap = this._fontTextHeightMap.get(font);
-        if (textHeightMap === undefined) {
-            textHeightMap = new Map<string, RevCachedCanvasRenderingContext2D.TextHeight>();
-            this._fontTextHeightMap.set(font, textHeightMap);
-        }
+    /**
+     * Gets the height, ascent and descent in pixels of a text string using the current font.
+     * @param text - string whose height is to be obtained.
+     * @returns A TextHeight interface with height, ascent and descent of string.
+     */
+    getTextHeight(text: string): RevCachedCanvasRenderingContext2D.TextHeight {
+        const textHeightDefaultAndMap = this.getCurrentFontTextHeightDefaultAndMap();
 
-        let textHeight = textHeightMap.get(text);
+        const map = textHeightDefaultAndMap.map;
+        let textHeight = map.get(text);
         if (textHeight === undefined) {
             const textMetrics = this.measureText(text);
             const ascent = textMetrics.actualBoundingBoxAscent;
@@ -229,12 +253,32 @@ export class RevCachedCanvasRenderingContext2D {
                 descent,
                 height: ascent + descent,
             }
-            textHeightMap.set(text, textHeight);
+            map.set(text, textHeight);
         }
 
         return textHeight;
     }
 
+    /**
+     * Gets the height, ascent and descent in pixels of the current font.
+     * @returns A TextHeight interface with height, ascent and descent encompassing the main characters in the font.
+     */
+    getFontHeight() {
+        const textHeightDefaultAndMap = this.getCurrentFontTextHeightDefaultAndMap();
+        return textHeightDefaultAndMap.default;
+    }
+
+    /**
+     * Conditionally clip a region
+     * @remarks
+     * The conditional paramater indicates whether a region is to be clipped.  If so, then the cache is saved to the stack.
+     * Always call a matching {@link clipRestore} to unwind this {@link clipSave} even if conditional was false
+     * @param conditional - if true, save cache to stack and clip region
+     * @param x - left of region
+     * @param y - top of region
+     * @param width - width of region
+     * @param height - height of region
+     */
     clipSave(conditional: boolean, x: number, y: number, width: number, height: number) {
         this._conditionalsStack.push(conditional);
         if (conditional) {
@@ -245,16 +289,46 @@ export class RevCachedCanvasRenderingContext2D {
         }
     }
 
+    /**
+     * Unwind a previous {@link clipSave} and pop cache stack if necessary
+     */
     clipRestore() {
         if (this._conditionalsStack.pop()) {
             this.cache.restore(); // Remove clip region
         }
     }
+
+    /** @internal */
+    private getCurrentFontTextHeightDefaultAndMap() {
+        const font = this.cache.font;
+        let textHeightDefaultAndMap = this._fontTextHeightDefaultAndMap.get(font);
+        if (textHeightDefaultAndMap === undefined) {
+            const map = new Map<string, RevCachedCanvasRenderingContext2D.TextHeight>();
+            textHeightDefaultAndMap = {
+                default: this.calculateTextHeight(RevCachedCanvasRenderingContext2D.fontMainCharacters),
+                map,
+            }
+            this._fontTextHeightDefaultAndMap.set(font, textHeightDefaultAndMap);
+        }
+        return textHeightDefaultAndMap;
+    }
+
+    /** @internal */
+    private calculateTextHeight(text: string): RevCachedCanvasRenderingContext2D.TextHeight {
+        const textMetrics = this.measureText(text);
+        const ascent = textMetrics.actualBoundingBoxAscent;
+        const descent = textMetrics.actualBoundingBoxDescent;
+        return {
+            ascent,
+            descent,
+            height: ascent + descent,
+        }
+    }
 }
 
-/** @public */
 export namespace RevCachedCanvasRenderingContext2D {
     export const ALPHA_REGEX = /^(transparent|((RGB|HSL)A\(.*,\s*([\d.]+)\)))$/i
+    export const fontMainCharacters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
 
     export type TextWidthMap = Map<string, number>;
     export type FontTextWidthMap = Map<string, TextWidthMap>;
@@ -265,7 +339,11 @@ export namespace RevCachedCanvasRenderingContext2D {
         descent: number;
     }
     export type TextHeightMap = Map<string, TextHeight>;
-    export type FontTextHeightMap = Map<string, TextHeightMap>;
+    export interface TextHeightDefaultAndMap {
+        default: TextHeight;
+        map: TextHeightMap;
+    }
+    export type FontTextHeightMap = Map<string, TextHeightDefaultAndMap>;
 
     export interface TruncatedTextWidth {
         /** `undefined` if it fits; truncated version of provided `string` if it does not. */
@@ -274,15 +352,16 @@ export namespace RevCachedCanvasRenderingContext2D {
         textWidth: number
     }
 
-    export type Conditional = boolean | undefined;
-    export type ConditionalsStack = Conditional[];
+    export type ConditionalsStack = boolean[];
 
     export class Cache implements Cache.Values {
         values: Cache.Values = {} as Cache.Values;
         valuesStack = new Array<Cache.Values>();
 
         /** @internal */
-        constructor(private readonly _canvasRenderingContext2D: CanvasRenderingContext2D) {
+        constructor(
+            /** @internal */
+            private readonly _canvasRenderingContext2D: CanvasRenderingContext2D) {
         }
 
         get lineDash() {
@@ -596,9 +675,6 @@ export namespace RevCachedCanvasRenderingContext2D {
             lineJoin: CanvasLineJoin;
             lineWidth: number | undefined;
             miterLimit: number | undefined;
-            // mozImageSmoothingEnabled: boolean;
-            // msFillRule: CanvasFillRule;
-            // oImageSmoothingEnabled: boolean;
             shadowBlur: number | undefined;
             shadowColor: string | undefined;
             shadowOffsetX: number | undefined;
