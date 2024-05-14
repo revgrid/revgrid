@@ -146,8 +146,9 @@ export class RevInexclusiveRectangle implements RevInexclusiveArea {
     }
 
     /**
-     * @returns `true` iff given `point` entirely contained within this rect.
-     * @param pointOrRect - The point or rect to test for containment.
+     * Tests whether this rectangle contains a point
+     * @returns true if point is within rectangle
+     * @param point - The point or rect to test for containment.
      */
     containsPoint(point: RevPoint): boolean {
         return this.containsXY(point.x, point.y);

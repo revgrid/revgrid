@@ -11,7 +11,7 @@ export const enum RevSelectionAreaTypeId {
 }
 
 /** @public */
-type RevSelectionAreaTypeObject = typeof RevSelectionAreaTypeId;
+export type RevSelectionAreaTypeObject = typeof RevSelectionAreaTypeId;
 
 /** @public */
 export type RevSelectionAreaType = keyof RevSelectionAreaTypeObject;
@@ -50,7 +50,7 @@ export namespace RevSelectionAreaType {
 }
 
 /** @public */
-type RevRowOrColumnSelectionAreaTypeObject = Pick<RevSelectionAreaTypeObject, 'row' | 'column'>;
+export type RevRowOrColumnSelectionAreaTypeObject = Pick<RevSelectionAreaTypeObject, 'row' | 'column'>;
 
 /** @public */
 export type RevRowOrColumnSelectionAreaType = keyof RevRowOrColumnSelectionAreaTypeObject;

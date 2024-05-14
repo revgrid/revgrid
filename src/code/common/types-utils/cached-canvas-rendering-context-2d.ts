@@ -159,7 +159,7 @@ export class RevCachedCanvasRenderingContext2D {
 
     /**
      * Gets a map of the width (value) of characters (key) for a particular font
-     * @param - the name of the font
+     * @param font - the name of the font
     */
     getTextWidthMap(font: string) {
         let textWidthMap = this._fontTextWidthMap.get(font);

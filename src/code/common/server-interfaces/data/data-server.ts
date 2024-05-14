@@ -12,18 +12,18 @@ import { RevSchemaField } from '../schema/internal-api';
  /** @public */
 export interface RevDataServer<SF extends RevSchemaField> {
     /**
-     * _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
-     * If your data model does not implement this method, {@link Local#resetDataModel} adds the default implementation from [polyfills.js](https://github.com/fin-hypergrid/core/tree/master/src/behaviors/Local/polyfills.js). If your data model does implement it, it should also implement the sister methods {@link RevDataServer#dispatchEvent dispatchEvent}, {@link RevDataServer#removeListener removeListener}, and {@link RevDataServer#removeAllListeners removeAllListeners}, because they all work together and you don't want to mix native implementations with polyfills.
-     *
-     * Hypergrid calls this method subscribe to data model events. The data model calls its own implementation of `dispatchEvent` to publish events to subscribers.
-     *
-     * Both the `addListener` polyfill as well as `datasaur-base`'s implementation service multiple listeners for the use case of multiple grid instances all using the same data model instance. To support this use case, your data model should service multiple listeners as well. (Doing so also lets the application add its own listener(s) to the data model.)
-     *
-     * Function is called addDataCallbackListener instead of addCallBackListener so that one class can implement both DataModel and RevSchemaServer.
-     *
-     * @param client - A reference to a function bound to a grid instance. The function is called whenever the data model calls its {@link RevDataServer#dispatchEvent} method. The handler thus receives all data model events (in `event.type).
+     * Subscribe to data notifications from the server.
+     * @param client - An interface with callbacks used to notify the grid of changes to data.
      */
     subscribeDataNotifications(client: RevDataServer.NotificationsClient): void;
+
+    /**
+     * Unsubscribe from data notifications.
+     * @remarks
+     * Unsubscribe is optional as it is not required when the client and server are closely bound together and destroyed at the same time.
+     * @param client - A reference to the handler originally provided to {@link RevDataServer#subscribeDataNotifications}.
+     */
+    unsubscribeDataNotifications?(client: RevDataServer.NotificationsClient): void;
 
     /**
      * Removed dispatchEvent! Does not make sense for DataModel to receive these events - just emit them. Maybe this was for some type of chaining.  Needs to be revisited in this case
@@ -103,20 +103,6 @@ export interface RevDataServer<SF extends RevSchemaField> {
 
     /**
      * _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
-     * If your data model does not implement this method, {@link Local#resetDataModel} adds the default implementation from [polyfills.js](https://github.com/fin-hypergrid/core/tree/master/src/behaviors/Local/polyfills.js). If your data model does implement it, it should also implement the sister methods {@link RevDataServer#addListener addListener}, {@link RevDataServer#dispatchEvent dispatchEvent}, and {@link RevDataServer#removeAllListeners removeAllListeners}, because they all work together and you don't want to mix native implementations with polyfills.
-     *
-     * Detaches the data model from a particular grid instance.
-     *
-     * This method is called by {@link Hypergrid#desctruct} to clean up memory.
-     * Note: `destruct` is not called automatically by Hypergrid; applications must call it explicitly when disposing of a grid.
-     *
-     * @param client - A reference to the handler originally provided to {@link RevDataServer#addListener}.
-     */
-    // removeListener?(listener: RevDataServer.EventListener): void;
-    unsubscribeDataNotifications?(client: RevDataServer.NotificationsClient): void;
-
-    /**
-     * _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
      *
      * @param data - An array of congruent raw data objects.
      * @param schema - Ordered array of column schema.
@@ -158,12 +144,8 @@ export namespace RevDataServer {
     export type Constructor<SF extends RevSchemaField> = new () => RevDataServer<SF>;
 
     /**
-     * Besides `type`, your event object can contain other event details.
-     *
-     * After calling the internal handler found in [src/behaviors/Local/events.js](https://github.com/fin-hypergrid/core/tree/master/src/behaviors/Local/events.js) matching the event name, Hypergrid then creates a {@link https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent `CustomEvent`} with the same name, sets its `detail` property to this object, and dispatches to the `<canvas>` element — to be picked up by any listeners previously attached with {@link Hypergrid#addEventListener}.
-     * @param event.type - Event string (name).
+     * Interface specifying callbacks from server which are used to advise client that server data has changed
      */
-
     export interface NotificationsClient {
         beginChange: (this: void) => void;
         endChange: (this: void) => void;
@@ -180,22 +162,24 @@ export namespace RevDataServer {
         invalidateCell: (this: void, fieldIndex: number, rowIndex: number) => void;
 
         /**
-         * The data models should trigger this event immediately before data model remaps the rows.
-         * Hypergrid responds by saving the underlying row indices of currently selected rows — before triggering a grid event using the same event string, which applications can listen for using {@link Hypergrid#addEventListener addEventListener}:
-         * ```js
-         * grid.addEventListener('rev-data-prereindex', myHandlerFunction);
-         * ```
-         * This event is not cancelable.
+         * Notifies that ordering of data rows in server is about to change.
+         * @remarks
+         * When client receives this notification, it saves focus and selection to a temporary location.
+         * Typically this notification is called before rows are sorted or filtered on the server.
+         * This callback will always be followed by the {@link postReindex} callback.
          */
         preReindex: (this: void) => void;
         /**
-         * The data models should trigger this event immediately after data model remaps the rows.
-         * Hypergrid responds by reselecting the remaining rows matching the indices previously saved in the `data-prereindex` event, and then calling {@link Hypergrid#behaviorShapeChanged grid.behaviorShapeChanged()} — before triggering a grid event using the same event string, which applications can listen for using {@link Hypergrid#addEventListener addEventListener}:
-         * ```js
-         * grid.addEventListener('rev-data-postreindex', myHandlerFunction);
-         * ```
-         * This event is not cancelable.
+         * Notifies that ordering of data rows in server is has changed.
+         * @remarks
+         * This callback always be follows by the {@link preReindex} callback.
+         * When client receives this notification, it restores the focus and selection from the stash of these saved to a temporary location.
+         * Typically this notification is called after rows are sorted or filtered on the server.
          */
-        postReindex: (this: void, allRowsKept: boolean) => void;
+        postReindex: (
+            this: void,
+            /** True if all rows are kept (eg. rows were not discarded due to server filtering) */
+            allRowsKept: boolean
+        ) => void;
     }
 }

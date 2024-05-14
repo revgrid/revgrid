@@ -23,9 +23,7 @@ export namespace RevSelectionRange {
     }
 
     /**
-     * @private
-     * @function overlaps
-     * @returns {boolean} `true` iff `range1` overlaps `range2`
+     * @returns `true` iff `range1` overlaps `range2`
      * Comparison operator that determines if given ranges overlap with one another.
      * @remarks Both parameters are assumed to be _ordered_ arrays.
      *

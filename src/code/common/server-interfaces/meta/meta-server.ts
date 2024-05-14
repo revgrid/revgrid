@@ -1,15 +1,8 @@
 /** @public */
 export interface RevMetaServer {
     /**
-     * _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
-     *
      * Get the metadata store. The precise type of this object is implementation-dependent so not defined here.
-     *
-     * `datasaur-base` supplies fallback implementations of this method as well as {@link DataModel#setMetadataStore} which merely get and set `this.metadata` in support of {@link DataModel#getRowMetadata} and {@link DataModel#setRowMetadata}.
-     *
-     * Custom data models are not required to implement them if they don't need them.
-     *
-     * Hypergrid never calls `getMetadataStore` itself. If implemented, Hypergrid does make a single call to `setMetadataStore` when data model is reset (see {@link Local#resetDataModel}) with no arguments.
+     * Hypergrid never calls `getMetadataStore` itself. If implemented, Hypergrid does make a single call to `setMetadataStore` when data model is reset with no arguments.
      *
      * @returns Metadata store object.
      */
@@ -36,14 +29,10 @@ export interface RevMetaServer {
      *
      * Set the metadata store. The precise type of this object is implementation-dependent, so not defined here.
      *
-     * `datasaur-base` supplies fallback implementations of this method as well as {@link DataModel#getMetadataStore} which merely set and get `this.metadata` in support of {@link DataModel#setRowMetadata} and {@link DataModel#getRowMetadata}.
-     *
-     * Custom data models are not required to implement them if they don't need them.
-     *
-     * If implemented, Hypergrid makes a single call to `setMetadataStore` when data model is reset (see {@link Local#resetDataModel}) with no arguments. Therefore this method needs to expect a no-arg overload and handle it appropriately.
+     * If implemented, Hypergrid makes a single call to `setMetadataStore` when data model is reset with no arguments. Therefore this method needs to expect a no-arg overload and handle it appropriately.
      *
      * Hypergrid never calls `getMetadataStore`.
-     * @param [newMetadataStore] - New metadata store object. Omitted on data model reset.
+     * @param metadataStore - New metadata store object. Omitted on data model reset.
      */
     setMetadataStore?(metadataStore?: RevMetaServer.RowMetadata[]): void;
 

@@ -1,5 +1,19 @@
 import { RevContiguousIndexRange } from './contiguous-index-range';
 
+/**
+ * This object models selection of "cells" within an abstract single-dimensional matrix.
+ *
+ * @remarks
+ * Disjoint selections can be built with calls to the following methods:
+ * {@link RevContiguousIndexRangeList#add|add(exclusiveStart, stop)} - Add a range to the matrix.
+ *
+ * {@link RevContiguousIndexRangeList#clear|clear()} the matrix
+ *
+ * Internally, the selection is run-length-encoded. It is therefore a "sparse" matrix
+ * with undefined bounds. A single data property called `selection` is an array that
+ * contains all the "ranges" of selected cells albeit in no particular order.
+ * This property should not normally need to be accessed directly.
+ */
 export class RevContiguousIndexRangeList {
     // Ranges do not overlap, do not abut, and are ordered by start
     readonly ranges = new Array<RevContiguousIndexRange>(0);

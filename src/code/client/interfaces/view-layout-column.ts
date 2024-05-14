@@ -5,9 +5,9 @@ import { RevColumn } from './column';
 
 /** @public */
 export interface RevViewLayoutColumn<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> {
-    /** A back reference to the element's array index in {@link ViewLayout#columns}. */
+    /** A back reference to the element's array index in {@link RevViewLayout#columns}. */
     index: Integer;
-    /** Dereferences {@link Behavior#columns}, the subset of _active_ columns, specifying which column to show in that position. */
+    /** Active index of column */
     activeColumnIndex: Integer;
     column: RevColumn<BCS, SF>;
     /** Pixel coordinate of the left edge of this column, rounded to nearest integer. */

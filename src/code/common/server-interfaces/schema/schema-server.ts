@@ -7,9 +7,9 @@ export interface RevSchemaServer<SF extends RevSchemaField> {
     unsubscribeSchemaNotifications?(client: RevSchemaServer.NotificationsClient<SF>): void;
 
     /**
-     * Get list of columns. The order of the columns in the list defines the column indexes.
-     *
-     * On initial call and again whenever the schema changes, the data model must dispatch the `hypegrid-schema-loaded` event, which tells Hypergrid to {@link module:schema.decorate decorate} the schema and recreate the column objects.
+     * Get list of fields.
+     * @remarks
+     * The order of these fields defines the orders of columns in {@link RevClientGrid.fieldColumns}.
      */
     getFields(): readonly SF[];
 }
@@ -19,17 +19,16 @@ export namespace RevSchemaServer {
     export interface NotificationsClient<SF extends RevSchemaField> {
         beginChange: (this: void) => void;
         endChange: (this: void) => void;
-        /**
-         * The data models should trigger this event on a schema change, typically from setSchema, or wherever schema is initialized. Hypergrid responds by normalizing and decorating the schema object and recreating the grid's column objects — before triggering a grid event using the same event string, which applications can listen for using {@link Hypergrid#addEventListener addEventListener}:
-         * ```js
-         * grid.addEventListener('rev-schema-loaded', myHandlerFunction);
-         * ```
-         * This event is not cancelable.
-         */
+        /** Notifies that one or more fields have been inserted into the schema */
         fieldsInserted: (this: void, fieldIndex: number, fieldCount: number) => void;
+        /** Notifies that one or more fields have been deleted from the schema */
         fieldsDeleted: (this: void, fieldIndex: number, fieldCount: number) => void;
         allFieldsDeleted: (this: void) => void;
-        /** Try to use columnsInserted, columnsDeleted, allColumnsDeleted instead of schemaChanged. These provide better optimisations and control of selection. */
+        /**
+         * Notifies schema has changed.
+         * @remarks
+         * Try to use {@link fieldsInserted}, {@link fieldsDeleted}, {@link allFieldsDeleted} callbacks instead of {@link schemaChanged} callback. These provide better optimisations and control of selection.
+         */
         schemaChanged: (this: void) => void;
         getActiveSchemaFields: (this: void) => readonly SF[];
     }

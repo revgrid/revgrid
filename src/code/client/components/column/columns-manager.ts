@@ -41,6 +41,16 @@ export class RevColumnsManager<BCS extends RevBehavioredColumnSettings, SF exten
     get activeColumnCount() { return this._activeColumns.length; }
 
     /** @internal */
+    get fieldColumns(): readonly RevColumn<BCS, SF>[] {
+        return this._fieldColumns;
+    }
+
+    /** @internal */
+    get activeColumns(): readonly RevColumn<BCS, SF>[] {
+        return this._activeColumns;
+    }
+
+    /** @internal */
     addBeforeCreateColumnsListener(listener: RevColumnsManager.BeforeCreateColumnsListener) {
         this._beforeCreateColumnsListeners.push(listener);
     }
@@ -544,16 +554,6 @@ export class RevColumnsManager<BCS extends RevBehavioredColumnSettings, SF exten
             }
         }
         return autoWidened;
-    }
-
-    /** @internal */
-    get fieldColumns(): readonly RevColumn<BCS, SF>[] {
-        return this._fieldColumns;
-    }
-
-    /** @internal */
-    get activeColumns(): readonly RevColumn<BCS, SF>[] {
-        return this._activeColumns;
     }
 
     /** @internal */

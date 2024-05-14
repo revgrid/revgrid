@@ -5,7 +5,7 @@ import { RevSubgrid } from './subgrid';
 
 /** @public */
 export interface RevViewLayoutRow<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> {
-    /** A back reference to the element's array index in {@link ViewLayout#rows}. */
+    /** A back reference to the element's array index in {@link RevViewLayout#rows}. */
     index: number;
     /** Local vertical row coordinate within the subgrid to which the row belongs. */
     subgridRowIndex: number;

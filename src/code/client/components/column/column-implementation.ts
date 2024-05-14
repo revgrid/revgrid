@@ -157,6 +157,7 @@ export class RevColumnImplementation<BCS extends RevBehavioredColumnSettings, SF
     }
 }
 
+/** @internal */
 export namespace RevColumnImplementation {
     export type WidthChangedEventer<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> = (this: void, column: RevColumnImplementation<BCS, SF>, ui: boolean) => void;
     export type HorizontalViewLayoutInvalidatedEventer = (this: void) => void;

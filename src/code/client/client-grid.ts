@@ -20,7 +20,6 @@ import { RevScroller } from './components/scroller/scroller';
 import { RevSelection } from './components/selection/selection';
 import { RevSubgridsManager } from './components/subgrid/subgrids-manager';
 import { RevViewLayout } from './components/view/view-layout';
-import { RevGrid } from './grid';
 import { RevGridDefinition } from './grid-definition';
 import { RevGridOptions } from './grid-options';
 import { RevIdGenerator } from './id-generator';
@@ -29,7 +28,7 @@ import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevColumnSettin
 import { RevUiManager } from './ui/ui-controller-manager';
 
 /** @public */
-export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevGrid<BGS, BCS, SF> {
+export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> {
     readonly id: string;
     readonly clientId: string;
     readonly internalParent: RevClientObject | undefined = undefined;
@@ -214,7 +213,7 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
 
     /**
      * Be a responsible citizen and call this function on instance disposal!
-     * If multiple grids are used in an application (simultaneously or not), then {@link (RevClientGrid:class).destroy} must be called otherwise
+     * If multiple grids are used in an application (simultaneously or not), then {@link destroy} must be called otherwise
      * canvase paint loop will continue to run
      */
     destroy() {
@@ -241,10 +240,7 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     }
 
     /**
-     * Clear out all state settings, data (rows), and schema (columns) of a grid instance.
-     * @param options
-     * @param options.subgrids - Consumed by {@link RevBehaviorManager#reset}.
-     * If omitted, previously established subgrids list is reused.
+     * Reset all components, resize and invalidate all
      */
     reset() {
         this._componentsManager.reset();
@@ -364,12 +360,12 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
      * @param rowIndex - The data row index.
      * @returns The given row is visible.
      */
-    isDataRowVisible(r: Integer, subgrid?: RevSubgrid<BCS, SF>) {
+    isDataRowVisible(rowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>) {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
 
-        return this.viewLayout.isDataRowVisible(r, subgrid);
+        return this.viewLayout.isDataRowVisible(rowIndex, subgrid);
     }
 
     /**
@@ -382,8 +378,9 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     }
 
     /**
-     * Answer which data cell is under a pixel value mouse point.
-     * @param offset - The mouse point to interrogate.
+     * Find cell under offset position in canvas
+     * @param offsetX - X offset canvas position
+     * @param offsetY - Y offset canvas position
      */
     findLinedHoverCellAtCanvasOffset(offsetX: Integer, offsetY: Integer) {
         return this.viewLayout.findLinedHoverCellAtCanvasOffset(offsetX, offsetY);
@@ -435,38 +432,47 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
      *
      * @remarks Adds one or several columns to the "active" column list.
      *
-     * @param isActiveColumnIndexes - Which list `columnIndexes` refers to:
-     * * `true` - The active column list. This can only move columns around within the active column list; it cannot add inactive columns (because it can only refer to columns in the active column list).
-     * * `false` - The full column list (as per column schema array). This inserts columns from the "inactive" column list, moving columns that are already active.
-     *
-     * @param columnIndexes - Column index(es) into list as determined by `isActiveColumnIndexes`. One of:
-     * * **Scalar column index** - Adds single column at insertion point.
-     * * **Array of column indexes** - Adds multiple consecutive columns at insertion point.
+     * @param fieldColumnIndexes - Column index(es) into list as determined by `isActiveColumnIndexes`. One of:
+     * **Scalar column index** - Adds single column at insertion point.
+     * **Array of column indexes** - Adds multiple consecutive columns at insertion point.
      *
      * This required parameter is promoted left one arg position when `isActiveColumnIndexes` omitted in which case it will be allColumnIndexes
      *
      * @param insertIndex - Insertion point, _i.e.,_ the element to insert before. A negative values skips the reinsert. Default is to insert new columns at end of active column list.
-     *
-     * _Promoted left one arg position when `isActiveColumnIndexes` omitted._
-     *
      * @param allowDuplicateColumns - Unless true, already visible columns are removed first.
-     *
-     * _Promoted left one arg position when `isActiveColumnIndexes` omitted + one position when `referenceIndex` omitted._
      */
     showHideColumns(
         /** A column index or array of field indices which are to be shown or hidden */
-        fieldColumnIndexes: Integer | number[],
+        fieldColumnIndexes: Integer | Integer[],
         /** Set to undefined to add new active columns at end of list.  Set to -1 to hide specified columns */
         insertIndex?: Integer,
         /** If true, then if an existing column is already visible, it will not be removed and duplicates of that column will be present. Default: false */
         allowDuplicateColumns?: boolean,
         /** Whether this was instigated by a UI action. Default: true */
         ui?: boolean): void;
+    /**
+     * Show inactive column(s) or move active column(s).
+     *
+     * @remarks Adds one or several columns to the "active" column list.
+     *
+     * @param indexesAreActive - Which list `columnIndexes` refers to:
+     * * `true` - The active column list. This can only move columns around within the active column list; it cannot add inactive columns (because it can only refer to columns in the active column list).
+     * * `false` - The full column list (as per column schema array). This inserts columns from the "inactive" column list, moving columns that are already active.
+     *
+     * @param fieldColumnIndexes - Column index(es) into list as determined by `isActiveColumnIndexes`. One of:
+     * * **Scalar column index** - Adds single column at insertion point.
+     * * **Array of column indexes** - Adds multiple consecutive columns at insertion point.
+     *
+     * This required parameter is promoted left one arg position when `isActiveColumnIndexes` omitted in which case it will be allColumnIndexes
+     *
+     * @param insertIndex - Insertion point, _i.e.,_ the element to insert before. A negative values skips the reinsert. Default is to insert new columns at end of active column list.
+     * @param allowDuplicateColumns - Unless true, already visible columns are removed first.
+     */
     showHideColumns(
         /** If true, then column indices specify active column indices.  Otherwise field column indices */
         indexesAreActive: boolean,
         /** A column index or array of indices.  If undefined then all of the columns as per isActiveColumnIndexes */
-        columnIndexes?: Integer | number[],
+        fieldColumnIndexes?: Integer | Integer[],
         /** Set to undefined to add new active columns at end of list.  Set to -1 to hide specified columns */
         insertIndex?: Integer,
         /** If true, then if an existing column is already visible, it will not be removed and duplicates of that column will be present. Default: false */
@@ -475,14 +481,14 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
         ui?: boolean,
     ): void;
     showHideColumns(
-        fieldColumnIndexesOrIndexesAreActive: boolean | number | number[],
-        insertIndexOrColumnIndexes?: Integer | number[],
-        allowDuplicateColumnsOrInsertIndex?: boolean | number,
+        fieldColumnIndexesOrIndexesAreActive: boolean | Integer | Integer[],
+        insertIndexOrColumnIndexes?: Integer | Integer[],
+        allowDuplicateColumnsOrInsertIndex?: boolean | Integer,
         uiOrAllowDuplicateColumns?: boolean,
         ui = true
     ): void {
         let indexesAreActive: boolean;
-        let columnIndexOrIndices: Integer | number[] | undefined;
+        let columnIndexOrIndices: Integer | Integer[] | undefined;
         let insertIndex: Integer | undefined;
         let allowDuplicateColumns: boolean;
 
@@ -630,9 +636,10 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
 
     /**
      * Set the width of the given column.
-     * @param columnIndex - The untranslated column index.
+     * @param columnOrIndex - Column or index of active column whose width is to be set.
      * @param width - The width in pixels.
-     * @returns column if width changed otherwise undefined
+     * @param ui - Whether this was instigated by a UI action
+     * @returns true if column width was changed
      */
     setActiveColumnWidth(columnOrIndex: Integer | RevColumn<BCS, SF>, width: Integer, ui: boolean) {
         let column: RevColumn<BCS, SF>
@@ -646,7 +653,7 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
             column = columnOrIndex;
         }
 
-        column.setWidth(width, ui);
+        return column.setWidth(width, ui);
     }
 
     setColumnWidths(columnWidths: RevColumnAutoSizeableWidth<BCS, SF>[]) {
@@ -1139,7 +1146,7 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
      * @internal
      */
     getCellOwnPropertiesFromRenderedCell(renderedCell: RevViewCell<BCS, SF>): RevMetaServer.CellOwnProperties | false | null | undefined{
-        return this._cellPropertiesBehavior.getCellOwnPropertiesFromRenderedCell(renderedCell);
+        return this._cellPropertiesBehavior.getCellOwnPropertiesFromViewCell(renderedCell);
     }
 
     /** @internal */
@@ -1151,7 +1158,7 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     /** @internal */
     // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
     getCellOwnPropertyFromRenderedCell(renderedCell: RevViewCell<BCS, SF>, key: string): RevMetaServer.CellOwnProperty | undefined {
-        return this._cellPropertiesBehavior.getCellOwnPropertyFromRenderedCell(renderedCell, key);
+        return this._cellPropertiesBehavior.getCellOwnPropertyFromViewCell(renderedCell, key);
     }
 
     /**

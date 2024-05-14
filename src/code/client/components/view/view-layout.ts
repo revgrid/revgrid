@@ -26,33 +26,10 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
     /** @internal */
     cellPoolComputedEventerForMouse: RevViewLayout.CellPoolComputedEventer;
 
-    /**
-     * Represents the ordered set of visible columns. Array size is always the exact number of visible columns, the last of which may only be partially visible.
-     *
-     * This sequence of elements' `columnIndex` values assumes one of three patterns. Which pattern is base on the following two questions:
-     * * Are there "fixed" columns on the left?
-     * * Is the grid horizontally scrolled?
-     *
-     * The set of `columnIndex` values consists of:
-     * 1. The first element will be -1 if the row handle column is being rendered.
-     * 2. A zero-based list of consecutive of integers representing the fixed columns (if any).
-     * 3. An n-based list of consecutive of integers representing the scrollable columns (where n = number of fixed columns + the number of columns scrolled off to the left).
-     * @internal
-    */
+    /** @internal */
     private readonly _columns = new RevViewLayout.ViewLayoutColumnArray<BCS, SF>();
 
-    /**
-     * Represents the ordered set of visible rows. Array size is always the exact number of visible rows.
-     *
-     * The sequence of elements' `rowIndex` values is local to each subgrid.
-     * * **For each non-scrollable subgrid:** The sequence is a zero-based list of consecutive integers.
-     * * **For the scrollable subgrid:**
-     *   1. A zero-based list of consecutive of integers representing the fixed rows (if any).
-     *   2. An n-based list of consecutive of integers representing the scrollable rows (where n = number of fixed rows + the number of rows scrolled off the top).
-     *
-     * Note that non-scrollable subgrids can come both before _and_ after the scrollable subgrid.
-     * @internal
-     */
+    /** @internal */
     private readonly _rows = new RevViewLayout.ViewLayoutRowArray<BCS, SF>();
 
     /** @internal */
@@ -1080,9 +1057,10 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
 
 
     /**
-     * Answer specific data cell coordinates given mouse coordinates in pixels.
-     * @param point
-     * @returns Cell coordinates or undefined
+     * Get cell at offset position on canvas.
+     * @param canvasXOffset - x position on canvas.
+     * @param canvasYOffset - y position on canvas.
+     * @returns Cell at co-ordinate or undefined if none.
      */
     findLinedHoverCellAtCanvasOffset(canvasXOffset: number, canvasYOffset: number): RevLinedHoverCell<BCS, SF> | undefined {
         this.ensureComputedOutsideAnimationFrame();

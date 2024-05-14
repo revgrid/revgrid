@@ -26,14 +26,10 @@ export class RevRowPropertiesBehavior<BGS extends RevBehavioredGridSettings, BCS
 
     /**
      * Reset the row properties in its entirety to the given row properties object.
-     * @param yOrCellEvent - Data row index local to `dataModel`; or a `CellEvent` object.
+     * @param rowIndex - Data row index local to `dataModel`.
      * @param properties - The new row properties object. If `undefined`, this call is a no-op.
      * @param subgrid - This is the subgrid. You only need to provide the subgrid when it is not the data subgrid _and_ you did not give a `CellEvent` object in the first param (which already knows what subgrid it's in).
      */
-    setRowPropertiesUsingCell(cell: RevViewCell<BCS, SF>, properties: RevMetaServer.RowProperties | undefined) {
-        this.setRowProperties(cell.viewLayoutRow.subgridRowIndex, properties, cell.subgrid)
-    }
-
     setRowProperties(rowIndex: number, properties: RevMetaServer.RowProperties | undefined, subgrid: RevSubgrid<BCS, SF>): void {
         const setSucceeded = subgrid.setRowProperties(rowIndex, properties);
         if (setSucceeded) {
@@ -41,24 +37,28 @@ export class RevRowPropertiesBehavior<BGS extends RevBehavioredGridSettings, BCS
         }
     }
 
-    /**
-     * Sets a single row property on a specific individual row.
-     * @param yOrCellEvent - Data row index local to `dataModel`; or a `CellEvent` object.
-     * @param key - The property name.
-     * @param value - The new property value.
-     * @param dataModel - This is the subgrid. You only need to provide the subgrid when it is not the data subgrid _and_ you did not give a `CellEvent` object in the first param (which already knows what subgrid it's in).
-     */
-
-    setRowPropertyUsingCell(cell: RevViewCell<BCS, SF>, key: string, value: unknown) {
-        this.setRowProperty(cell.viewLayoutRow.subgridRowIndex, key, value, cell.subgrid);
+    setRowPropertiesUsingCell(cell: RevViewCell<BCS, SF>, properties: RevMetaServer.RowProperties | undefined) {
+        this.setRowProperties(cell.viewLayoutRow.subgridRowIndex, properties, cell.subgrid)
     }
 
+
+    /**
+     * Sets a single row property on a specific individual row.
+     * @param y - Data row index local to `dataModel`.
+     * @param key - The property name.
+     * @param value - The new property value.
+     * @param subgrid - This is the subgrid. You only need to provide the subgrid when it is not the data subgrid _and_ you did not give a `CellEvent` object in the first param (which already knows what subgrid it's in).
+     */
     setRowProperty(y: number, key: string, value: unknown, subgrid: RevSubgrid<BCS, SF>) {
         const isHeight = (key === 'height');
         const setSucceeded = subgrid.setRowProperty(y, key, isHeight, value);
         if (setSucceeded) {
             this._viewLayout.invalidateHorizontalAll(isHeight);
         }
+    }
+
+    setRowPropertyUsingCell(cell: RevViewCell<BCS, SF>, key: string, value: unknown) {
+        this.setRowProperty(cell.viewLayoutRow.subgridRowIndex, key, value, cell.subgrid);
     }
 
     // addRowPropertiesUsingCellEvent(cellEvent: CellEvent, properties: RevMetaServer.RowProperties | undefined, rowProps?: RevMetaServer.RowProperties) {

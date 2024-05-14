@@ -231,26 +231,24 @@ export class RevCellPropertiesBehavior<BGS extends RevBehavioredGridSettings, BC
      * Get the properties object for cell.
      * @remarks This is the cell's own properties object if found else the column object.
      *
-     * If you are seeking a single specific property, consider calling {@link Behavior#getCellProperty} instead.
-     * @param xOrCellEvent - Data x coordinate or CellEvent.
-     * @param y - Grid row coordinate. _Omit when `xOrCellEvent` is a `CellEvent`._
-     * @param subgrid - For use only when `xOrCellEvent` is _not_ a `CellEvent`: Provide a subgrid.
+     * If you are seeking a single specific property, consider calling {@link RevCellPropertiesBehavior#getCellProperty} instead.
+     * @param viewCell - RevViewCell representing cell.
      * @returns The properties of the cell at x,y in the grid or falsy if not available.
      */
-    getCellOwnPropertiesFromRenderedCell(renderedCell: RevViewCell<BCS, SF>): RevMetaServer.CellOwnProperties | false | null | undefined{
+    getCellOwnPropertiesFromViewCell(viewCell: RevViewCell<BCS, SF>): RevMetaServer.CellOwnProperties | false | null | undefined{
         // do not use for get/set prop because may return null; instead use .getCellProperty('prop') or .properties.prop (preferred) to get, setCellProperty('prop', value) to set
-        const viewCellImplementation = renderedCell as RevViewCellImplementation<BCS, SF>;
+        const viewCellImplementation = viewCell as RevViewCellImplementation<BCS, SF>;
         let cellOwnProperties = viewCellImplementation.cellOwnProperties;
         if (cellOwnProperties === undefined) {
-            cellOwnProperties = this.getCellOwnProperties(renderedCell.viewLayoutColumn.column, renderedCell.viewLayoutRow.subgridRowIndex, renderedCell.subgrid);
+            cellOwnProperties = this.getCellOwnProperties(viewCell.viewLayoutColumn.column, viewCell.viewLayoutRow.subgridRowIndex, viewCell.subgrid);
             viewCellImplementation.cellOwnProperties = cellOwnProperties;
         }
         return cellOwnProperties;
     }
 
     // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-    getCellOwnPropertyFromRenderedCell(renderedCell: RevViewCell<BCS, SF>, key: string): RevMetaServer.CellOwnProperty | undefined {
-        const cellOwnProperties = this.getCellOwnPropertiesFromRenderedCell(renderedCell);
+    getCellOwnPropertyFromViewCell(viewCell: RevViewCell<BCS, SF>, key: string): RevMetaServer.CellOwnProperty | undefined {
+        const cellOwnProperties = this.getCellOwnPropertiesFromViewCell(viewCell);
         if (cellOwnProperties) {
             return cellOwnProperties[key];
         } else {

@@ -19,7 +19,7 @@ export namespace RevRecord {
      */
     export type BoundRows = Record<symbol, RevRecordRow | undefined>;
 
-    export function getBoundRow(record: RevRecord, rowKey: symbol) {
+    export function getBoundRow(record: RevRecord, rowKey: symbol): RevRecordRow | undefined {
         const boundRows = record.__rows;
         if (boundRows === undefined) {
             return undefined;
@@ -28,7 +28,7 @@ export namespace RevRecord {
         }
     }
 
-    export function takeBoundRow(record: RevRecord, rowKey: symbol) {
+    export function takeBoundRow(record: RevRecord, rowKey: symbol): RevRecordRow | undefined {
         const boundRows = record.__rows;
         if (boundRows === undefined) {
             return undefined;

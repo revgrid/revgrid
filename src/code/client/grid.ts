@@ -4,8 +4,6 @@
 
 import { Integer } from '@xilytix/sysutils';
 import { RevClientObject, RevDataServer, RevEnsureFullyInViewEnum, RevMetaServer, RevPoint, RevRectangle, RevSchemaField, RevSchemaServer, RevSelectionAreaType } from '../common/internal-api';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { RevBehaviorManager } from './behavior/behavior-manager';
 import { RevCanvas } from './components/canvas/canvas';
 import { RevColumnsManager } from './components/column/columns-manager';
 import { RevFocus } from './components/focus/focus';
