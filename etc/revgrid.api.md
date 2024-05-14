@@ -22,27 +22,6 @@ import { UnreachableCaseInternalError } from '@xilytix/sysutils';
 import { UsableListChangeTypeId } from '@xilytix/sysutils';
 
 // @public (undocumented)
-export interface RenderAction {
-    // (undocumented)
-    type: RenderAction.TypeId;
-}
-
-// @public (undocumented)
-export namespace RenderAction {
-    // (undocumented)
-    export const enum TypeId {
-        // (undocumented)
-        PaintAll = 0
-    }
-}
-
-// @public (undocumented)
-export interface RepaintViewAction extends RenderAction {
-    // (undocumented)
-    type: RenderAction.TypeId.PaintAll;
-}
-
-// @public (undocumented)
 export class RevAllowedMultiHeadingDataRowArraySourcedFieldsColumnLayoutDefinition extends RevColumnLayoutDefinition implements RevAllowedSourcedFieldsColumnLayoutDefinition {
     constructor(columns: readonly RevColumnLayoutDefinition.Column[], allowedFields: readonly RevMultiHeadingDataRowArraySourcedField[], fixedColumnCount: Integer);
     // (undocumented)
@@ -5774,6 +5753,21 @@ export class RevReindexBehavior<BGS extends RevBehavioredGridSettings, BCS exten
     unstash(allRowsKept: boolean): void;
 }
 
+// @public (undocumented)
+export interface RevRenderAction {
+    // (undocumented)
+    type: RevRenderAction.TypeId;
+}
+
+// @public (undocumented)
+export namespace RevRenderAction {
+    // (undocumented)
+    export const enum TypeId {
+        // (undocumented)
+        PaintAll = 0
+    }
+}
+
 // Warning: (ae-internal-missing-underscore) The name "RevRenderActioner" should be prefixed with an underscore because the declaration is marked as @internal
 //
 // @internal (undocumented)
@@ -5806,7 +5800,7 @@ export class RevRenderActionQueue {
     // (undocumented)
     processViewLayoutInvalidateAction(_invalidateAction: RevViewLayout.InvalidateAction): void;
     // (undocumented)
-    takeActions(): RenderAction[];
+    takeActions(): RevRenderAction[];
 }
 
 // @public (undocumented)
@@ -5878,6 +5872,12 @@ export namespace RevRenderer {
     export type RenderedEventer = (this: void) => void;
     // @internal (undocumented)
     export type WaitModelRenderedResolve = (this: void, id: RevServerNotificationId) => void;
+}
+
+// @public (undocumented)
+export interface RevRepaintViewAction extends RevRenderAction {
+    // (undocumented)
+    type: RevRenderAction.TypeId.PaintAll;
 }
 
 // @public (undocumented)

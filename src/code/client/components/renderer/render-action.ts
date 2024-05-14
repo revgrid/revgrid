@@ -1,12 +1,12 @@
-export interface RenderAction {
-    type: RenderAction.TypeId;
+export interface RevRenderAction {
+    type: RevRenderAction.TypeId;
 }
 
-export interface RepaintViewAction extends RenderAction {
-    type: RenderAction.TypeId.PaintAll;
+export interface RevRepaintViewAction extends RevRenderAction {
+    type: RevRenderAction.TypeId.PaintAll;
 }
 
-export namespace RenderAction {
+export namespace RevRenderAction {
     export const enum TypeId {
         PaintAll,
     }

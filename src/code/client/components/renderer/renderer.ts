@@ -14,8 +14,8 @@ import { RevAnimator } from './animator';
 import { RevByColumnsAndRowsGridPainter } from './grid-painter/by-columns-and-rows-grid-painter';
 import { RevGridPainter } from './grid-painter/grid-painter';
 import { RevGridPainterRepository } from './grid-painter/grid-painter-repository';
-import { RenderAction } from './render-action';
 import { RevRenderActionQueue } from './render-action-queue';
+import { RevRenderAction } from './render-action';
 
 /** @public */
 export class RevRenderer<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {
@@ -357,7 +357,7 @@ export class RevRenderer<BGS extends RevBehavioredGridSettings, BCS extends RevB
                 for (let i = 0; i < actionsCount; i++) {
                     const action = renderActions[i];
                     switch (action.type) {
-                        case RenderAction.TypeId.PaintAll: {
+                        case RevRenderAction.TypeId.PaintAll: {
                             this.paintAll();
                             break;
                         }

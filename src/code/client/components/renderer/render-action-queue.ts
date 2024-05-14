@@ -1,10 +1,10 @@
 import { RevAssertError } from '../../../common/internal-api';
 import { RevViewLayout } from '../view/view-layout';
-import { RenderAction, RepaintViewAction } from './render-action';
+import { RevRenderAction, RevRepaintViewAction } from './render-action';
 
 /** @internal */
 export class RevRenderActionQueue {
-    private _queuedActions: RenderAction[] = [];
+    private _queuedActions: RevRenderAction[] = [];
     private _actionsQueuedEvented = false;
     private _beginChangeCount = 0;
 
@@ -99,8 +99,8 @@ export class RevRenderActionQueue {
     private queuePaintAllAction() {
         if (this._queuedActions.length === 0) {
             // currently only support paint all
-            const action: RepaintViewAction = {
-                type: RenderAction.TypeId.PaintAll,
+            const action: RevRepaintViewAction = {
+                type: RevRenderAction.TypeId.PaintAll,
             };
             this._queuedActions.push(action);
         }
