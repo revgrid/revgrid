@@ -1,16 +1,11 @@
 import { RevRectangle } from '../../types-utils/internal-api';
 import { RevSchemaField } from '../schema/internal-api';
-// import { Hypergrid } from '../Hypergrid';
 
-/**
- * Hypergrid 3 data models have a minimal required interface, as outlined on the [Data Model API](https://github.com/fin-hypergrid/core/wiki/Data-Model-API) wiki page.
- *
- * #### TL;DR
- * The minimum interface is an object with just three methods: {@link RevDataServer#getRowCount getRowCount()} {@link RevDataServer#getSchema getSchema()} and {@link RevDataServer#getViewValue getValue(x, y)}.
- */
-
- /** @public */
-export interface RevDataServer<SF extends RevSchemaField> {
+/** Interface used by client to get data from a server */
+export interface RevDataServer<
+    /** Type used to specify a field the rows of data */
+    SF extends RevSchemaField
+> {
     /**
      * Subscribe to data notifications from the server.
      * @param client - An interface with callbacks used to notify the grid of changes to data.
@@ -26,26 +21,10 @@ export interface RevDataServer<SF extends RevSchemaField> {
     unsubscribeDataNotifications?(client: RevDataServer.NotificationsClient): void;
 
     /**
-     * Removed dispatchEvent! Does not make sense for DataModel to receive these events - just emit them. Maybe this was for some type of chaining.  Needs to be revisited in this case
-     * @remarks _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
-     * If your data model does not implement this method, {@link Local#resetDataModel} adds the default implementation from [polyfills.js](https://github.com/fin-hypergrid/core/tree/master/src/behaviors/Local/polyfills.js). If your data model does implement it, it should also implement the sister methods {@link RevDataServer#addListener addListener}, {@link RevDataServer#removeListener removeListener}, and {@link RevDataServer#removeAllListeners removeAllListeners}, because they all work together and you don't want to mix native implementations with polyfills.
-     *
-     * If `addListener` is not implemented, Hypergrid falls back to a simpler approach, injecting its own implementation of `dispatchEvent`, bound to the grid instance, into the data model. If the data model already has such an implementation, the assumption is that it was injected by another grid instance using the same data model. The newly injected implementation will call the original injected implementation, thus creating a chain. This is an inferior approach because grids cannot easily unsubscribe themselves. Applications can remove all subscribers in the chain by deleting the implementation of `dispatchEvent` (the end of the chain) from the data model.
-     */
-    // dispatchEvent?(nameOrEvent: RevDataServer.EventName | RevDataServer.Event): void;
-    /**
-     * Characters that can be used to construct cell values representing drill downs in a tree structure.
-     *
-     * A specialized cell renderer is often employed to produce better results using graphics instead of characters.
-     */
-    // drillDownCharMap?: RevDataServer.DrillDownCharMap;
-
-    /**
-     * Prefetch data
-     * @remarks _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
-     *
-     * Tells dataModel what cells will be needed by subsequent calls to {@link RevDataServer#getViewValue getValue()}. This helps remote or virtualized data models fetch and cache data. If your data model doesn't need to know this, don't implement it.
-     * #### Parameters:
+     * @hidden
+     * Used to Prefetch data
+     * @remarks
+     * Tells dataModel what cells will be needed by subsequent calls to {@link RevDataServer#getViewValue}. This helps remote or virtualized data models fetch and cache data. If your data model doesn't need to know this, don't implement it.
      * @param rectangles - Unordered list of rectangular regions of cells to fetch in a single (atomic) operation.
      * @param callback - Optional callback. If provided, implementation calls it with `false` on success (requested data fully fetched) or `true` on failure.
      */
@@ -71,7 +50,8 @@ export interface RevDataServer<SF extends RevSchemaField> {
     getViewRow?(rowIndex: number): RevDataServer.ViewRow;
 
     /**
-     * @returns The number of data rows currently contained in the model.
+     * The current count of rows data in the server.
+     * @returns Number of data rows.
      */
     getRowCount(): number;
 
@@ -88,12 +68,33 @@ export interface RevDataServer<SF extends RevSchemaField> {
     getRowIndexFromId?(rowId: unknown): number | undefined;
 
     /**
-     * Get a cell's value given its column & row indexes.
-     * @returns The member with the given schema field from the data row with the given `rowIndex`.
+     * Get a field's value at the specified row in a format suitable for display.
+     * @remarks
+     * The core of the client does not need to know the type of the return value.  {@link getViewValue}() is called by the `Cell Painter` associated with the cell/subgrid.
+     * The cell painter expects a certain type of view value and casts the result accordingly.
+     * @returns The value of the field at the specified row.
      */
-    getViewValue(field: SF, rowIndex: number): RevDataServer.ViewValue;
+    getViewValue(
+        /** The field from which to get the value */
+        field: SF,
+        /** The index of the row from which to get the value */
+        rowIndex: number
+    ): RevDataServer.ViewValue;
 
-    getEditValue?(field: SF, rowIndex: number): RevDataServer.EditValue;
+    /**
+     * Get a field's value at the specified row in a format suitable for editing.
+     * @remarks
+     * This function only needs to be implemented if cells can be edited.  See {@link RevCellEditor:interface} for more information about editing data.
+     * The core of the client does not need to know the type of the return value.  {@link getEditValue}() is called by the `Cell Editor` associated with the cell.
+     * A cell editor expects a certain type of view value and casts the result accordingly.
+     * @returns The value of the field at the specified row.
+     */
+    getEditValue?(
+        /** The field from which to get the value */
+        field: SF,
+        /** The index of the row from which to get the value */
+        rowIndex: number
+    ): RevDataServer.EditValue;
     /**
      * _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
      *
@@ -124,8 +125,6 @@ export interface RevDataServer<SF extends RevSchemaField> {
     getTitleText?(field: SF, rowIndex: number): string;
 }
 
-
-/** @public */
 export namespace RevDataServer {
 
     export type ViewValue = unknown; // Value displayed in grid

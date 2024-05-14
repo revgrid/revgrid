@@ -2264,14 +2264,17 @@ export class RevDataRowArraySchemaServer<SF extends RevSchemaField> implements R
     unsubscribeSchemaNotifications(listener: RevSchemaServer.NotificationsClient<SF>): void;
 }
 
-// @public (undocumented)
-export interface RevDataServer<SF extends RevSchemaField> {
-    // Warning: (tsdoc-reference-missing-dot) Expecting a period before the next component of a declaration reference
+// @public
+export interface RevDataServer<
+/** Type used to specify a field the rows of data */
+SF extends RevSchemaField> {
+    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@hidden" is not defined in this configuration
     fetchViewData?(rectangles: readonly RevRectangle[], callback?: (failure: boolean) => void): void;
     getCursorName?(field: SF, rowIndex: number): string;
-    // (undocumented)
-    getEditValue?(field: SF, rowIndex: number): RevDataServer.EditValue;
-    // (undocumented)
+    // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
+    getEditValue?(
+    field: SF,
+    rowIndex: number): RevDataServer.EditValue;
     getRowCount(): number;
     getRowIdFromIndex?(rowIndex: number): unknown;
     // (undocumented)
@@ -2281,7 +2284,9 @@ export interface RevDataServer<SF extends RevSchemaField> {
     // Warning: (tsdoc-escape-right-brace) The "}" character should be escaped using a backslash to avoid confusion with a TSDoc inline tag
     // Warning: (tsdoc-malformed-inline-tag) Expecting a TSDoc tag starting with "{@"
     getViewRow?(rowIndex: number): RevDataServer.ViewRow;
-    getViewValue(field: SF, rowIndex: number): RevDataServer.ViewValue;
+    getViewValue(
+    field: SF,
+    rowIndex: number): RevDataServer.ViewValue;
     setEditValue?(field: SF, rowIndex: number, value: RevDataServer.EditValue): void;
     setViewRow?(rowIndex: number, dataRow?: RevDataServer.ViewRow): void;
     subscribeDataNotifications(client: RevDataServer.NotificationsClient): void;
