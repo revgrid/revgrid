@@ -8,7 +8,7 @@ export interface RevRecordDefinition {
 }
 
 /** @public */
-export namespace RevTableRecordDefinition {
+export namespace RevRecordDefinition {
     export function same(left: RevRecordDefinition, right: RevRecordDefinition) {
         return left.mapKey === right.mapKey;
     }
