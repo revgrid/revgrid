@@ -9,4 +9,5 @@
   "excludePrivate": true,
   "excludeProtected": true,
   "disableSources": true,
+  "plugin": ["typedoc-plugin-markdown"],
 }
