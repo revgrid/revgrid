@@ -14,25 +14,17 @@ import { RevGridPainter } from './grid-painter';
  *
  * Partial render is supported only by those cells whose cell renderer supports it by returning before rendering (based on `config.snapshot`).
  *
- * #### On reset
- *
- * Defers to {@link RevViewLayout#paintCellsByColumnsAndRows|paintCellsByColumnsAndRows}, which clears the canvas, draws the grid, and draws the grid lines.
- *
  * #### On the next call (after reset)
  *
- * Each cell is drawn redrawn only when its appearance changes. This determination is made by the cell renderer by comparing with (and maintaining) `config.snapshot`. See {@link SimpleCell} for a sample implementation.
+ * Each cell is drawn redrawn only when its appearance changes. This determination is made by the cell renderer by comparing with (and maintaining) `config.snapshot`. See XXX for a sample implementation.
  *
  * `try...catch` surrounds each cell paint in case a cell renderer throws an error.
  * The error message is error-logged to console AND displayed in cell.
  *
  * #### On subsequent calls
  *
- * Iterates through each cell, calling `_paintCell` with `undefined` prefill color. This signifies partial render to the {@link SimpleCell} cell renderer, which only renders the cell when it's text, font, or colors have changed.
+ * Iterates through each cell, calling `_paintCell` with `undefined` prefill color. This signifies partial render to the XXX cell renderer, which only renders the cell when it's text, font, or colors have changed.
  *
- * Each cell to be rendered is described by a {@link CellEvent} object. For performance reasons, to avoid constantly instantiating these objects, we maintain a pool of these. When the grid shape changes, we reset their coordinates by setting {@link CellEvent#reset|reset} on each.
- *
- * See also the discussion of clipping in {@link RevViewLayout#paintCellsByColumns|paintCellsByColumns}.
- * @this {RevViewLayout}
  * @param {RevCanvas.CanvasRenderingContext2DEx} gc TODO need to remove any type
  */
 export class RevAsNeededGridPainter<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevGridPainter<BGS, BCS, SF> {
@@ -59,7 +51,6 @@ export class RevAsNeededGridPainter<BGS extends RevBehavioredGridSettings, BCS e
             repaintAllRequiredEventer,
             RevAsNeededGridPainter.key,
             RevAsNeededGridPainter.partial,
-            undefined
         );
     }
 

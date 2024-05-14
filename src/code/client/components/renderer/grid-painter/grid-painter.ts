@@ -12,12 +12,9 @@ import { RevSubgridsManager } from '../../subgrid/subgrids-manager';
 import { RevViewLayout } from '../../view/view-layout';
 
 export abstract class RevGridPainter<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> {
-    protected _renderingContext: RevCachedCanvasRenderingContext2D;
+    protected readonly _renderingContext: RevCachedCanvasRenderingContext2D;
 
     private _columnBundles = new Array<RevGridPainter.ColumnBundle | undefined>();
-
-    reset = false;
-    rebundle: boolean | undefined;
 
     private _columnRebundlingRequired = false;
     private _columnBundlesComputationId = -1;
@@ -33,12 +30,8 @@ export abstract class RevGridPainter<BGS extends RevBehavioredGridSettings, BCS 
         protected readonly repaintAllRequiredEventer: RevGridPainter.RepaintAllRequiredEventer,
         public readonly key: string,
         public readonly partial: boolean,
-        initialRebundle: boolean | undefined,
     ) {
         this._renderingContext = this.canvas.gc;
-        if (initialRebundle !== undefined) {
-            this.rebundle = initialRebundle;
-        }
     }
 
     flagColumnRebundlingRequired() {

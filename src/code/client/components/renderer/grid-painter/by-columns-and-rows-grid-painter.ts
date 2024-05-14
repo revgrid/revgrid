@@ -21,9 +21,6 @@ import { RevGridPainter } from './grid-painter';
  * `try...catch` surrounds each cell paint in case a cell renderer throws an error.
  * The error message is error-logged to console AND displayed in cell.
  *
- * Each cell to be rendered is described by a {@link CellEvent} object. For performance reasons, to avoid constantly instantiating these objects, we maintain a pool of these. When the grid shape changes, we reset their coordinates by setting {@link CellEvent#reset|reset} on each.
- *
- * See also the discussion of clipping in {@link RevViewLayout#paintCellsByColumns|paintCellsByColumns}.
  */
 export class RevByColumnsAndRowsGridPainter<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevGridPainter<BGS, BCS, SF> {
     constructor(
@@ -47,7 +44,6 @@ export class RevByColumnsAndRowsGridPainter<BGS extends RevBehavioredGridSetting
             repaintAllRequiredEventer,
             RevByColumnsAndRowsGridPainter.key,
             false,
-            RevByColumnsAndRowsGridPainter.initialRebundle
         );
     }
 
@@ -156,5 +152,4 @@ export class RevByColumnsAndRowsGridPainter<BGS extends RevBehavioredGridSetting
 
 export namespace RevByColumnsAndRowsGridPainter {
     export const key = 'by-columns-and-rows';
-    export const initialRebundle = true; // see rebundleGridRenderers
 }

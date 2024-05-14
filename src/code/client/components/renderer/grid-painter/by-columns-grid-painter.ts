@@ -19,11 +19,9 @@ import { RevGridPainter } from './grid-painter';
  * `try...catch` surrounds each cell paint in case a cell renderer throws an error.
  * The error message is error-logged to console AND displayed in cell.
  *
- * Each cell to be rendered is described by a {@link CellEvent} object. For performance reasons, to avoid constantly instantiating these objects, we maintain a pool of these. When the grid shape changes, we reset their coordinates by setting {@link CellEvent#reset|reset} on each.
- *
  * **Regading clipping.** The reason for clipping is to prevent text from overflowing into the next column. However there is a serious performance cost.
  *
- * For performance reasons {@link RevViewLayout#_paintCell|_paintCell} does not set up a clipping region for each cell. However, iff grid property `columnClip` is truthy, this grid renderer will set up a clipping region to prevent text overflow to right. If `columnClip` is `null`, a clipping region will only be set up on the last column. Otherwise, there will be no clipping region.
+ * For performance reasons do not set up a clipping region for each cell. However, iff grid property `columnClip` is truthy, this grid renderer will set up a clipping region to prevent text overflow to right. If `columnClip` is `null`, a clipping region will only be set up on the last column. Otherwise, there will be no clipping region.
  *
  * The idea of clipping just the last column is because in addition to the optional graphics clipping, we also clip ("truncate") text. Text can be truncated conservatively so it will never overflow. The problem with this is that characters vanish as they hit the right cell boundary, which may or may be obvious depending on font size. Alternatively, text can be truncated so that the overflow will be a maximum of 1 character. This allows partial characters to be rendered. But this is where graphics clipping is required.
  *
@@ -54,7 +52,6 @@ export class RevByColumnsGridPainter<BGS extends RevBehavioredGridSettings, BCS 
             repaintAllRequiredEventer,
             RevByColumnsGridPainter.key,
             false,
-            RevByColumnsGridPainter.initialRebundle
         );
     }
 
@@ -146,5 +143,4 @@ export class RevByColumnsGridPainter<BGS extends RevBehavioredGridSettings, BCS 
 
 export namespace RevByColumnsGridPainter {
     export const key = 'by-columns';
-    export const initialRebundle = true; // see rebundleGridRenderers
 }
