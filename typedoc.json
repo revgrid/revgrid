@@ -3,11 +3,19 @@
   "tsconfig": "./src/code/tsconfig.json",
   "entryPoints": ["./src/code/public-api.ts"],
   "excludeInternal": true,
-  "out": "doc",
+  "out": "../xilytix-website/content/revgrid/doc",
   "readme": "README.md",
   "includeVersion": true,
   "excludePrivate": true,
   "excludeProtected": true,
   "disableSources": true,
-  "plugin": ["typedoc-plugin-markdown"],
+  "plugin": ["typedoc-plugin-markdown", "typedoc-plugin-frontmatter"],
+  "frontmatterGlobals": {
+    "layout": "docs",
+    "sidebar": false
+  },
+  "frontmatterCommentTags": ["author", "description"],
+  "mergeReadme": true,
+  "expandObjects": true,
+  "expandParameters": true,
 }
