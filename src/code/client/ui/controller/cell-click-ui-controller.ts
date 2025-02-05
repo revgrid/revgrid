@@ -10,7 +10,7 @@ export class RevCellClickUiController<BGS extends RevBehavioredGridSettings, BCS
     readonly typeName = RevCellClickUiController.typeName;
 
     override handlePointerMove(event: PointerEvent, cell: RevLinedHoverCell<BCS, SF> | null | undefined) {
-        const sharedState = this.sharedState;
+        const sharedState = this._sharedState;
         if (sharedState.locationCursorName === undefined) {
             if (cell === null) {
                 cell = this.tryGetHoverCellFromMouseEvent(event);
@@ -120,8 +120,8 @@ export class RevCellClickUiController<BGS extends RevBehavioredGridSettings, BCS
         // STEP 5: Decorate the link as "visited"
         if (result) {
             const column = viewCell.viewLayoutColumn.column;
-            this.cellPropertiesBehavior.setCellProperty(column, rowIndex, 'linkColor', RevCellClickUiController.linkVisitedColor, subgrid, viewCell);
-            this.renderer.invalidateViewCell(viewCell);
+            this._cellPropertiesBehavior.setCellProperty(column, rowIndex, 'linkColor', RevCellClickUiController.linkVisitedColor, subgrid, viewCell);
+            this._renderer.invalidateViewCell(viewCell);
         }
 
         return result;

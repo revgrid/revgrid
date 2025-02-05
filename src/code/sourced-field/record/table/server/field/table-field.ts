@@ -15,7 +15,7 @@ export abstract class RevTableField<TextFormattableValueTypeId, TextFormattableV
     private _valueTypeId: TextFormattableValueTypeId;
 
     constructor(
-        protected readonly textFormatter: RevTextFormatter<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>,
+        protected readonly _textFormatter: RevTextFormatter<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>,
         definition: RevTableField.Definition<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>,
         heading: string,
     ) {

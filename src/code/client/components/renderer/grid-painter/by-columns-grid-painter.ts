@@ -57,7 +57,7 @@ export class RevByColumnsGridPainter<BGS extends RevBehavioredGridSettings, BCS 
 
     paintCells() {
         const gc = this._renderingContext;
-        const viewLayout = this.viewLayout;
+        const viewLayout = this._viewLayout;
         const viewLayoutColumns = viewLayout.columns;
         const viewLayoutRows = viewLayout.rows;
         const columnCount = viewLayoutColumns.length;
@@ -77,12 +77,12 @@ export class RevByColumnsGridPainter<BGS extends RevBehavioredGridSettings, BCS 
         const viewWidth = lastVisibleColumnRight - firstVisibleColumnLeft;
         const viewHeight = rowCount !== 0 ? viewLayoutRows[rowCount - 1].bottomPlus1 : 0;
 
-        const canvasBounds = this.canvas.flooredBounds;
+        const canvasBounds = this._canvas.flooredBounds;
         gc.clearRect(0, 0, canvasBounds.width, canvasBounds.height);
 
         if (!columnCount || !rowCount) { return; }
 
-        const gridProps = this.gridSettings;
+        const gridProps = this._gridSettings;
         const gridPrefillColor = gridProps.backgroundColor;
         if (gc.alpha(gridPrefillColor) > 0) {
             gc.cache.fillStyle = gridPrefillColor;

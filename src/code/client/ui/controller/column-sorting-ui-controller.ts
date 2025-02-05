@@ -39,7 +39,7 @@ export class RevColumnSortingUiController<BGS extends RevBehavioredGridSettings,
     }
 
     override handlePointerMove(event: PointerEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined) {
-        const sharedState = this.sharedState;
+        const sharedState = this._sharedState;
         if (sharedState.locationCursorName === undefined) {
             if (hoverCell === null) {
                 hoverCell = this.tryGetHoverCellFromMouseEvent(event);
@@ -49,8 +49,8 @@ export class RevColumnSortingUiController<BGS extends RevBehavioredGridSettings,
                 if (viewCell.isHeaderOrRowFixed) {
                     const columnSettings = viewCell.columnSettings;
                     if (columnSettings.sortOnClick || columnSettings.sortOnDoubleClick) {
-                        sharedState.locationCursorName = this.gridSettings.columnSortPossibleCursorName;
-                        sharedState.locationTitleText = this.gridSettings.columnSortPossibleTitleText;
+                        sharedState.locationCursorName = this._gridSettings.columnSortPossibleCursorName;
+                        sharedState.locationTitleText = this._gridSettings.columnSortPossibleTitleText;
                     }
                 }
             }
@@ -69,7 +69,7 @@ export class RevColumnSortingUiController<BGS extends RevBehavioredGridSettings,
                 viewCell.isHeaderOrRowFixed &&
                 (dblClick ? columnSettings.sortOnDoubleClick : columnSettings.sortOnClick)
             ) {
-                this.eventBehavior.processColumnSortEvent(event, viewCell);
+                this._eventBehavior.processColumnSortEvent(event, viewCell);
                 return true;
             } else {
                 return false;

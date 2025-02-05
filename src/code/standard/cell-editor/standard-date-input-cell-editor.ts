@@ -10,7 +10,7 @@ export class RevStandardDateInputCellEditor<
 > extends RevStandardInputElementCellEditor<BGS, BCS, SF> {
     constructor(grid: RevClientGrid<BGS, BCS, SF>, dataServer: RevDataServer<SF>) {
         super(grid, dataServer, 'date');
-        this.element.classList.add('revgrid-date-input-editor');
+        this._element.classList.add('revgrid-date-input-editor');
     }
 
     override tryOpenCell(cell: RevViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined) {
@@ -32,14 +32,14 @@ export class RevStandardDateInputCellEditor<
             if (result) {
                 if (key !== undefined) {
                     // was opened by keyboard
-                    this.element.value = key;
+                    this._element.value = key;
                 } else {
                     // was not opened by keyboard
                     const value = dataServer.getEditValue(cell.viewLayoutColumn.column.field, cell.viewLayoutRow.subgridRowIndex);
                     if (Object.prototype.toString.call(value) !== '[object Date]') {
                         throw new RevAssertError('STIETO41112', typeof value);
                     } else {
-                        this.element.valueAsDate = (value as Date);
+                        this._element.valueAsDate = (value as Date);
                         this.selectAll();
                     }
                 }
@@ -51,7 +51,7 @@ export class RevStandardDateInputCellEditor<
 
     override closeCell(field: SF, subgridRowIndex: number, cancel: boolean) {
         if (!cancel && !this.readonly && this._dataServer.setEditValue !== undefined) {
-            this._dataServer.setEditValue(field, subgridRowIndex, this.element.valueAsDate);
+            this._dataServer.setEditValue(field, subgridRowIndex, this._element.valueAsDate);
         }
         super.closeCell(field, subgridRowIndex, cancel);
     }

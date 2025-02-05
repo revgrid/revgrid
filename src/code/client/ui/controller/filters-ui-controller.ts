@@ -90,13 +90,13 @@ export class RevFiltersUiController<BGS extends RevBehavioredGridSettings, BCS e
         let gridX = cellEvent.viewLayoutColumn.index;
         const gridY = cellEvent.viewLayoutRow.index;
         const originX = gridX;
-        const C = this.viewLayout.columns.length;
+        const C = this._viewLayout.columns.length;
 
-        const moveDownCellEvent = new RevViewCellImplementation(this.columnsManager); // redefine so we don't reset the original below
+        const moveDownCellEvent = new RevViewCellImplementation(this._columnsManager); // redefine so we don't reset the original below
 
         while (
             (gridX = (gridX + deltaX + C) % C) !== originX &&
-            moveDownCellEvent.resetGridXY(this.viewLayout.columns[gridX], this.viewLayout.getVisibleRow(gridY))
+            moveDownCellEvent.resetGridXY(this._viewLayout.columns[gridX], this._viewLayout.getVisibleRow(gridY))
         ) {
             if (moveDownCellEvent.columnSettings.filterable) {
                 // Select previous or next filterable column's filter cell
@@ -113,8 +113,8 @@ export class RevFiltersUiController<BGS extends RevBehavioredGridSettings, BCS e
         const gridX = cellEvent.viewLayoutColumn.index;
 
         // Select first visible grid cell of this column
-        this.focusSelectBehavior.onlySelectViewCell(gridX, this.subgridsManager.calculatePreMainRowCount());
-        this.canvas.takeFocus();
+        this._focusSelectBehavior.onlySelectViewCell(gridX, this._subgridsManager.calculatePreMainRowCount());
+        this._canvas.takeFocus();
     }
 
 }

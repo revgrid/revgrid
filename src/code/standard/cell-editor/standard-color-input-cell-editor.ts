@@ -10,7 +10,7 @@ export class RevStandardColorInputCellEditor<
 > extends RevStandardInputElementCellEditor<BGS, BCS, SF> {
     constructor(grid: RevClientGrid<BGS, BCS, SF>, dataServer: RevDataServer<SF>) {
         super(grid, dataServer, 'color');
-        this.element.classList.add('revgrid-color-input-editor');
+        this._element.classList.add('revgrid-color-input-editor');
     }
 
     override tryOpenCell(cell: RevViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined) {
@@ -32,14 +32,14 @@ export class RevStandardColorInputCellEditor<
             if (result) {
                 if (key !== undefined) {
                     // was opened by keyboard
-                    this.element.value = key;
+                    this._element.value = key;
                 } else {
                     // was not opened by keyboard
                     const value = dataServer.getEditValue(cell.viewLayoutColumn.column.field, cell.viewLayoutRow.subgridRowIndex);
                     if (typeof value !== 'string') {
                         throw new RevAssertError('STIETO41112', typeof value);
                     } else {
-                        this.element.value = value;
+                        this._element.value = value;
                         this.selectAll();
                     }
                 }
@@ -51,7 +51,7 @@ export class RevStandardColorInputCellEditor<
 
     override closeCell(field: SF, subgridRowIndex: number, cancel: boolean) {
         if (!cancel && !this.readonly && this._dataServer.setEditValue !== undefined) {
-            this._dataServer.setEditValue(field, subgridRowIndex, this.element.value);
+            this._dataServer.setEditValue(field, subgridRowIndex, this._element.value);
         }
         super.closeCell(field, subgridRowIndex, cancel);
     }

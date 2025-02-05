@@ -50,7 +50,7 @@ export class RevByColumnsDiscreteGridPainter<BGS extends RevBehavioredGridSettin
 
     paintCells() {
         const gc = this._renderingContext;
-        const viewLayout = this.viewLayout;
+        const viewLayout = this._viewLayout;
         const viewLayoutColumns = viewLayout.columns;
         const columnCount = viewLayoutColumns.length;
         const viewLayoutRows = viewLayout.rows;
@@ -69,7 +69,7 @@ export class RevByColumnsDiscreteGridPainter<BGS extends RevBehavioredGridSettin
         // }
         const viewHeight = rowCount !== 0 ? viewLayoutRows[rowCount - 1].bottomPlus1 : 0;
 
-        const canvasBounds = this.canvas.flooredBounds;
+        const canvasBounds = this._canvas.flooredBounds;
         gc.clearRect(0, 0, canvasBounds.width, canvasBounds.height);
 
         if (!columnCount || !rowCount) { return; }

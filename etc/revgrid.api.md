@@ -3456,27 +3456,27 @@ export interface RevGridOptions<BGS extends RevBehavioredGridSettings, BCS exten
 
 // @public (undocumented)
 export abstract class RevGridPainter<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> {
-    constructor(gridSettings: RevGridSettings, canvas: RevCanvas<BGS>, subgridsManager: RevSubgridsManager<BCS, SF>, viewLayout: RevViewLayout<BGS, BCS, SF>, focus: RevFocus<BGS, BCS, SF>, selection: RevSelection<BGS, BCS, SF>, mouse: RevMouse<BGS, BCS, SF>, repaintAllRequiredEventer: RevGridPainter.RepaintAllRequiredEventer, key: string, partial: boolean);
+    constructor(_gridSettings: RevGridSettings, _canvas: RevCanvas<BGS>, _subgridsManager: RevSubgridsManager<BCS, SF>, _viewLayout: RevViewLayout<BGS, BCS, SF>, _focus: RevFocus<BGS, BCS, SF>, _selection: RevSelection<BGS, BCS, SF>, _mouse: RevMouse<BGS, BCS, SF>, _repaintAllRequiredEventer: RevGridPainter.RepaintAllRequiredEventer, key: string, partial: boolean);
     // (undocumented)
     calculateLastSelectionBounds(): RevRectangle | undefined;
     // (undocumented)
-    protected readonly canvas: RevCanvas<BGS>;
+    protected readonly _canvas: RevCanvas<BGS>;
     // (undocumented)
     checkPaintLastSelection(): void;
     // (undocumented)
     flagColumnRebundlingRequired(): void;
     // (undocumented)
-    protected readonly focus: RevFocus<BGS, BCS, SF>;
+    protected readonly _focus: RevFocus<BGS, BCS, SF>;
     // (undocumented)
     getColumnBundles(viewLayoutColumns: RevViewLayoutColumn<BCS, SF>[]): (RevGridPainter.ColumnBundle | undefined)[];
     // (undocumented)
-    protected readonly gridSettings: RevGridSettings;
+    protected readonly _gridSettings: RevGridSettings;
     // (undocumented)
     protected isRowStriped(subgridRowIndex: number): boolean;
     // (undocumented)
     readonly key: string;
     // (undocumented)
-    protected readonly mouse: RevMouse<BGS, BCS, SF>;
+    protected readonly _mouse: RevMouse<BGS, BCS, SF>;
     // (undocumented)
     protected paintCell(viewCell: RevViewCell<BCS, SF>, prefillColor: string | undefined): number | undefined;
     // (undocumented)
@@ -3489,15 +3489,15 @@ export abstract class RevGridPainter<BGS extends RevBehavioredGridSettings, BCS 
     // (undocumented)
     protected readonly _renderingContext: RevCachedCanvasRenderingContext2D;
     // (undocumented)
-    protected readonly repaintAllRequiredEventer: RevGridPainter.RepaintAllRequiredEventer;
+    protected readonly _repaintAllRequiredEventer: RevGridPainter.RepaintAllRequiredEventer;
     // (undocumented)
-    protected readonly selection: RevSelection<BGS, BCS, SF>;
+    protected readonly _selection: RevSelection<BGS, BCS, SF>;
     // (undocumented)
     protected stripeRows(stripeColor: RevOnlyGridSettings.Color, left: number, width: number): void;
     // (undocumented)
-    protected readonly subgridsManager: RevSubgridsManager<BCS, SF>;
+    protected readonly _subgridsManager: RevSubgridsManager<BCS, SF>;
     // (undocumented)
-    protected readonly viewLayout: RevViewLayout<BGS, BCS, SF>;
+    protected readonly _viewLayout: RevViewLayout<BGS, BCS, SF>;
 }
 
 // @public (undocumented)
@@ -7297,7 +7297,7 @@ export abstract class RevStandardElementCellEditor<BGS extends RevBehavioredGrid
     // (undocumented)
     closeCell(_schemaColumn: SF, _subgridRowIndex: number, _cancel: boolean): void;
     // (undocumented)
-    protected readonly element: HTMLElement;
+    protected readonly _element: HTMLElement;
     // (undocumented)
     focus(): void;
     // (undocumented)
@@ -7372,7 +7372,7 @@ export abstract class RevStandardInputElementCellEditor<BGS extends RevBehaviore
     // (undocumented)
     closeCell(field: SF, subgridRowIndex: number, cancel: boolean): void;
     // (undocumented)
-    protected readonly element: HTMLInputElement;
+    protected readonly _element: HTMLInputElement;
     // (undocumented)
     keyDownEventer: RevCellEditor.KeyDownEventer;
     // (undocumented)
@@ -8159,7 +8159,7 @@ export namespace RevTable {
 
 // @public (undocumented)
 export abstract class RevTableField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> extends RevRecordSourcedField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> {
-    constructor(textFormatter: RevTextFormatter<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, definition: RevTableField.Definition<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, heading: string);
+    constructor(_textFormatter: RevTextFormatter<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, definition: RevTableField.Definition<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, heading: string);
     // (undocumented)
     compare(left: RevTableValuesRecord<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, right: RevTableValuesRecord<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>): number;
     // (undocumented)
@@ -8173,7 +8173,7 @@ export abstract class RevTableField<TextFormattableValueTypeId, TextFormattableV
     // (undocumented)
     protected setValueTypeId(value: TextFormattableValueTypeId): void;
     // (undocumented)
-    protected readonly textFormatter: RevTextFormatter<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>;
+    protected readonly _textFormatter: RevTextFormatter<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>;
     // (undocumented)
     get valueTypeId(): TextFormattableValueTypeId;
 }
@@ -8582,13 +8582,21 @@ export class RevTableRecordStore<Badness, TableRecordSourceDefinitionTypeId, Tab
 // @public (undocumented)
 export abstract class RevTableValue<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> {
     // (undocumented)
+    addOrRemoveRenderAttribute(value: RevTextFormattableValue.Attribute<TextFormattableValueAttributeTypeId>, add: boolean): void;
+    // (undocumented)
     addRenderAttribute(value: RevTextFormattableValue.Attribute<TextFormattableValueAttributeTypeId>): void;
     // (undocumented)
     clearRendering(): void;
     // (undocumented)
     protected abstract createTextFormattableValue(): RevTextFormattableValue<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>;
     // (undocumented)
+    hasRenderAttribute(value: RevTextFormattableValue.Attribute<TextFormattableValueAttributeTypeId>): boolean;
+    // (undocumented)
     abstract isUndefined(): boolean;
+    // (undocumented)
+    removeRenderAttribute(value: RevTextFormattableValue.Attribute<TextFormattableValueAttributeTypeId>): void;
+    // (undocumented)
+    setRenderAttributes(value: readonly RevTextFormattableValue.Attribute<TextFormattableValueAttributeTypeId>[]): void;
     // (undocumented)
     get textFormattableValue(): RevTextFormattableValue<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>;
 }
@@ -8687,9 +8695,15 @@ export interface RevTextFormattableValue<TypeId, AttributeTypeId> {
     // (undocumented)
     addAttribute(value: RevTextFormattableValue.Attribute<AttributeTypeId>): void;
     // (undocumented)
+    addOrRemoveAttribute(value: RevTextFormattableValue.Attribute<AttributeTypeId>, add: boolean): void;
+    // (undocumented)
     readonly attributes: readonly RevTextFormattableValue.Attribute<AttributeTypeId>[];
     // (undocumented)
+    hasAttribute(value: RevTextFormattableValue.Attribute<AttributeTypeId>): boolean;
+    // (undocumented)
     isUndefined(): boolean;
+    // (undocumented)
+    removeAttribute(value: RevTextFormattableValue.Attribute<AttributeTypeId>): void;
     // (undocumented)
     setAttributes(value: RevTextFormattableValue.Attribute<AttributeTypeId>[]): void;
     // (undocumented)
@@ -8783,27 +8797,27 @@ export abstract class RevUiController<BGS extends RevBehavioredGridSettings, BCS
     constructor(services: RevUiControllerServices<BGS, BCS, SF>);
     attachChain(): void;
     // (undocumented)
-    protected readonly canvas: RevCanvas<BGS>;
+    protected readonly _canvas: RevCanvas<BGS>;
     // (undocumented)
-    protected readonly cellPropertiesBehavior: RevCellPropertiesBehavior<BGS, BCS, SF>;
+    protected readonly _cellPropertiesBehavior: RevCellPropertiesBehavior<BGS, BCS, SF>;
     // (undocumented)
     readonly clientId: string;
     // (undocumented)
-    protected readonly columnsManager: RevColumnsManager<BCS, SF>;
+    protected readonly _columnsManager: RevColumnsManager<BCS, SF>;
     // (undocumented)
-    protected readonly dataExtractBehavior: RevDataExtractBehavior<BGS, BCS, SF>;
+    protected readonly _dataExtractBehavior: RevDataExtractBehavior<BGS, BCS, SF>;
     detachChain(): void;
     detached: RevUiController<BGS, BCS, SF> | undefined;
     // (undocumented)
-    protected readonly eventBehavior: RevEventBehavior<BGS, BCS, SF>;
+    protected readonly _eventBehavior: RevEventBehavior<BGS, BCS, SF>;
     // (undocumented)
-    protected readonly focus: RevFocus<BGS, BCS, SF>;
+    protected readonly _focus: RevFocus<BGS, BCS, SF>;
     // (undocumented)
-    protected readonly focusScrollBehavior: RevFocusScrollBehavior<BGS, BCS, SF>;
+    protected readonly _focusScrollBehavior: RevFocusScrollBehavior<BGS, BCS, SF>;
     // (undocumented)
-    protected readonly focusSelectBehavior: RevFocusSelectBehavior<BGS, BCS, SF>;
+    protected readonly _focusSelectBehavior: RevFocusSelectBehavior<BGS, BCS, SF>;
     // (undocumented)
-    protected readonly gridSettings: RevGridSettings;
+    protected readonly _gridSettings: RevGridSettings;
     // @internal (undocumented)
     handleClick(event: MouseEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined): RevLinedHoverCell<BCS, SF> | null | undefined;
     // @internal (undocumented)
@@ -8845,39 +8859,39 @@ export abstract class RevUiController<BGS extends RevBehavioredGridSettings, BCS
     // @internal (undocumented)
     handleWheelMove(event: WheelEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined): RevLinedHoverCell<BCS, SF> | null | undefined;
     // (undocumented)
-    protected readonly horizontalScroller: RevScroller<BGS, BCS, SF>;
+    protected readonly _horizontalScroller: RevScroller<BGS, BCS, SF>;
     // (undocumented)
-    protected readonly hostElement: HTMLElement;
+    protected readonly _hostElement: HTMLElement;
     // @internal (undocumented)
     initialise(): void;
     // (undocumented)
     readonly internalParent: RevClientObject;
     // (undocumented)
-    protected readonly mainSubgrid: RevMainSubgrid<BCS, SF>;
+    protected readonly _mainSubgrid: RevMainSubgrid<BCS, SF>;
     // (undocumented)
-    protected readonly mouse: RevMouse<BGS, BCS, SF>;
+    protected readonly _mouse: RevMouse<BGS, BCS, SF>;
     next: RevUiController<BGS, BCS, SF> | undefined;
     // (undocumented)
-    protected readonly reindexBehavior: RevReindexBehavior<BGS, BCS, SF>;
+    protected readonly _reindexBehavior: RevReindexBehavior<BGS, BCS, SF>;
     // (undocumented)
-    protected readonly renderer: RevRenderer<BGS, BCS, SF>;
+    protected readonly _renderer: RevRenderer<BGS, BCS, SF>;
     // (undocumented)
-    protected readonly rowPropertiesBehavior: RevRowPropertiesBehavior<BGS, BCS, SF>;
+    protected readonly _rowPropertiesBehavior: RevRowPropertiesBehavior<BGS, BCS, SF>;
     // (undocumented)
-    protected readonly selection: RevSelection<BGS, BCS, SF>;
+    protected readonly _selection: RevSelection<BGS, BCS, SF>;
     setNext(nextFeature: RevUiController<BGS, BCS, SF>): void;
     // (undocumented)
-    protected readonly sharedState: RevUiControllerSharedState;
+    protected readonly _sharedState: RevUiControllerSharedState;
     // (undocumented)
-    protected readonly subgridsManager: RevSubgridsManager<BCS, SF>;
+    protected readonly _subgridsManager: RevSubgridsManager<BCS, SF>;
     // @internal (undocumented)
     protected tryGetHoverCellFromMouseEvent(event: MouseEvent): RevLinedHoverCell<BCS, SF> | undefined;
     // (undocumented)
     abstract readonly typeName: string;
     // (undocumented)
-    protected readonly verticalScroller: RevScroller<BGS, BCS, SF>;
+    protected readonly _verticalScroller: RevScroller<BGS, BCS, SF>;
     // (undocumented)
-    protected readonly viewLayout: RevViewLayout<BGS, BCS, SF>;
+    protected readonly _viewLayout: RevViewLayout<BGS, BCS, SF>;
 }
 
 // @public (undocumented)

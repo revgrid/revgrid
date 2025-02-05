@@ -20,11 +20,11 @@ export class RevHoverUiController<BGS extends RevBehavioredGridSettings, BCS ext
             hoverCell = this.tryGetHoverCellFromMouseEvent(event);
         }
         const viewCell = this.getViewCellFromHoverCell(hoverCell);
-        this.mouse.setMouseCanvasOffset(canvasOffsetPoint, viewCell);
+        this._mouse.setMouseCanvasOffset(canvasOffsetPoint, viewCell);
 
-        if (RevGridSettings.isShowScrollerThumbOnMouseMoveModifierKeyDownInEvent(this.gridSettings, event)) {
-            this.horizontalScroller.temporarilyGiveThumbFullVisibility(RevHoverUiController.temporaryThumbFullVisibilityTimePeriod);
-            this.verticalScroller.temporarilyGiveThumbFullVisibility(RevHoverUiController.temporaryThumbFullVisibilityTimePeriod);
+        if (RevGridSettings.isShowScrollerThumbOnMouseMoveModifierKeyDownInEvent(this._gridSettings, event)) {
+            this._horizontalScroller.temporarilyGiveThumbFullVisibility(RevHoverUiController.temporaryThumbFullVisibilityTimePeriod);
+            this._verticalScroller.temporarilyGiveThumbFullVisibility(RevHoverUiController.temporaryThumbFullVisibilityTimePeriod);
         }
         return super.handlePointerMove(event, hoverCell);
     }
@@ -39,12 +39,12 @@ export class RevHoverUiController<BGS extends RevBehavioredGridSettings, BCS ext
             hoverCell = this.tryGetHoverCellFromMouseEvent(event);
         }
         const viewCell = this.getViewCellFromHoverCell(hoverCell);
-        this.mouse.setMouseCanvasOffset(canvasOffsetPoint, viewCell);
+        this._mouse.setMouseCanvasOffset(canvasOffsetPoint, viewCell);
         return super.handlePointerEnter(event, hoverCell);
     }
 
     override handlePointerLeaveOut(event: PointerEvent, cell: RevLinedHoverCell<BCS, SF> | null | undefined) {
-        this.mouse.setMouseCanvasOffset(undefined, undefined);
+        this._mouse.setMouseCanvasOffset(undefined, undefined);
         return super.handlePointerLeaveOut(event, cell);
     }
 

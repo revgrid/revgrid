@@ -48,8 +48,8 @@ export class RevByColumnsAndRowsGridPainter<BGS extends RevBehavioredGridSetting
     }
 
     paintCells() {
-        const gridSettings = this.gridSettings;
-        const viewLayout = this.viewLayout;
+        const gridSettings = this._gridSettings;
+        const viewLayout = this._viewLayout;
         const viewLayoutColumns = viewLayout.columns;
         const columnCount = viewLayoutColumns.length;
         const viewLayoutRows = viewLayout.rows;
@@ -71,7 +71,7 @@ export class RevByColumnsAndRowsGridPainter<BGS extends RevBehavioredGridSetting
             const viewWidth = lastVisibleColumnRightPlus1 - firstVisibleColumnLeft;
             const viewHeight = viewLayoutRows[rowCount - 1].bottomPlus1;
 
-            const canvasBounds = this.canvas.flooredBounds;
+            const canvasBounds = this._canvas.flooredBounds;
             gc.clearRect(0, 0, canvasBounds.width, canvasBounds.height);
 
             if (!columnCount || !rowCount) { return; }

@@ -30,7 +30,7 @@ export class RevRowResizingUiController<BGS extends RevBehavioredGridSettings, B
      * return the grids x,y scroll value
      */
     getScrollValue(): number {
-        return this.viewLayout.rowScrollAnchorIndex;
+        return this._viewLayout.rowScrollAnchorIndex;
     }
 
     /**
@@ -47,7 +47,7 @@ export class RevRowResizingUiController<BGS extends RevBehavioredGridSettings, B
      * @param value - the width/height to set to
      */
     private setAreaSize(index: number, value: number, subgrid: RevSubgrid<BCS, SF>) {
-        this.rowPropertiesBehavior.setRowHeight(index, value, subgrid);
+        this._rowPropertiesBehavior.setRowHeight(index, value, subgrid);
     }
 
     // isEnabled(grid: Hypergrid): boolean {

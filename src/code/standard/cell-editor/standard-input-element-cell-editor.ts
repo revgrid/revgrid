@@ -10,7 +10,7 @@ export abstract class RevStandardInputElementCellEditor<
 > extends RevStandardElementCellEditor<BGS, BCS, SF> {
     keyDownEventer: RevCellEditor.KeyDownEventer;
 
-    declare protected readonly element: HTMLInputElement;
+    declare protected readonly _element: HTMLInputElement;
 
     constructor(grid: RevClientGrid<BGS, BCS, SF>, dataServer: RevDataServer<SF>, inputType: string) {
         const element = document.createElement('input');
@@ -24,19 +24,19 @@ export abstract class RevStandardInputElementCellEditor<
 
     override setReadonly(value: boolean) {
         super.setReadonly(value);
-        this.element.readOnly = value;
+        this._element.readOnly = value;
     }
 
     override tryOpenCell(viewCell: RevViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined) {
         const result = super.tryOpenCell(viewCell, openingKeyDownEvent, openingClickEvent);
         if (result) {
-            this.element.addEventListener('keydown', this.keyDownEventer);
+            this._element.addEventListener('keydown', this.keyDownEventer);
         }
         return result;
     }
 
     override closeCell(field: SF, subgridRowIndex: number, cancel: boolean) {
-        this.element.removeEventListener('keydown', this.keyDownEventer);
+        this._element.removeEventListener('keydown', this.keyDownEventer);
         super.closeCell(field, subgridRowIndex, cancel);
     }
 
@@ -51,7 +51,7 @@ export abstract class RevStandardInputElementCellEditor<
     }
 
     selectAll() {
-        this.element.setSelectionRange(0, this.element.value.length);
+        this._element.setSelectionRange(0, this._element.value.length);
     }
 
     private canConsumeKey(key: string) {

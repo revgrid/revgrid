@@ -20,18 +20,18 @@ export abstract class RevGridPainter<BGS extends RevBehavioredGridSettings, BCS 
     private _columnBundlesComputationId = -1;
 
     constructor(
-        protected readonly gridSettings: RevGridSettings,
-        protected readonly canvas: RevCanvas<BGS>,
-        protected readonly subgridsManager: RevSubgridsManager<BCS, SF>,
-        protected readonly viewLayout: RevViewLayout<BGS, BCS, SF>,
-        protected readonly focus: RevFocus<BGS, BCS, SF>,
-        protected readonly selection: RevSelection<BGS, BCS, SF>,
-        protected readonly mouse: RevMouse<BGS, BCS, SF>,
-        protected readonly repaintAllRequiredEventer: RevGridPainter.RepaintAllRequiredEventer,
+        protected readonly _gridSettings: RevGridSettings,
+        protected readonly _canvas: RevCanvas<BGS>,
+        protected readonly _subgridsManager: RevSubgridsManager<BCS, SF>,
+        protected readonly _viewLayout: RevViewLayout<BGS, BCS, SF>,
+        protected readonly _focus: RevFocus<BGS, BCS, SF>,
+        protected readonly _selection: RevSelection<BGS, BCS, SF>,
+        protected readonly _mouse: RevMouse<BGS, BCS, SF>,
+        protected readonly _repaintAllRequiredEventer: RevGridPainter.RepaintAllRequiredEventer,
         public readonly key: string,
         public readonly partial: boolean,
     ) {
-        this._renderingContext = this.canvas.gc;
+        this._renderingContext = this._canvas.gc;
     }
 
     flagColumnRebundlingRequired() {
@@ -39,10 +39,10 @@ export abstract class RevGridPainter<BGS extends RevBehavioredGridSettings, BCS 
     }
 
     getColumnBundles(viewLayoutColumns: RevViewLayoutColumn<BCS, SF>[]) {
-        if (this._columnBundlesComputationId !== this.viewLayout.rowsColumnsComputationId || this._columnRebundlingRequired) {
+        if (this._columnBundlesComputationId !== this._viewLayout.rowsColumnsComputationId || this._columnRebundlingRequired) {
             this._columnBundles = this.calculateColumnBundles(viewLayoutColumns);
 
-            this._columnBundlesComputationId = this.viewLayout.rowsColumnsComputationId;
+            this._columnBundlesComputationId = this._viewLayout.rowsColumnsComputationId;
             this._columnRebundlingRequired = false;
         }
         return this._columnBundles;
@@ -54,7 +54,7 @@ export abstract class RevGridPainter<BGS extends RevBehavioredGridSettings, BCS 
         viewCell: RevViewCell<BCS, SF>,
         prefillColor: string | undefined,
     ): number | undefined {
-        const focus = this.focus;
+        const focus = this._focus;
         const focusCell = focus.cell;
         if (focusCell === viewCell) { // does cell have focus
             const editor = focus.editor;
@@ -92,14 +92,14 @@ export abstract class RevGridPainter<BGS extends RevBehavioredGridSettings, BCS 
      * We opted to not paint borders for each cell as that was extremely expensive. Instead we draw grid lines here.
      */
     paintGridlines() {
-        const viewLayoutColumns = this.viewLayout.columns;
+        const viewLayoutColumns = this._viewLayout.columns;
         const columnCount = viewLayoutColumns.length;
-        const viewLayoutRows = this.viewLayout.rows;
+        const viewLayoutRows = this._viewLayout.rows;
         const rowCount = viewLayoutRows.length;
 
         if (columnCount > 0 && rowCount > 0) {
             const gc = this._renderingContext;
-            const gridSettings = this.gridSettings;
+            const gridSettings = this._gridSettings;
             const lastColumnIndex = columnCount - 1;
             const lastRowIndex = rowCount - 1;
             const firstVisibleColumnLeft = viewLayoutColumns[0].left;
@@ -117,7 +117,7 @@ export abstract class RevGridPainter<BGS extends RevBehavioredGridSettings, BCS 
                 if (!gridSettings.visibleVerticalGridLinesDrawnInFixedAndPreMainOnly) {
                     bottomPlus1 = viewHeight;
                 } else {
-                    const preMainPlusFixedRowCount = this.subgridsManager.calculatePreMainPlusFixedRowCount();
+                    const preMainPlusFixedRowCount = this._subgridsManager.calculatePreMainPlusFixedRowCount();
                     if (preMainPlusFixedRowCount > 0) {
                         const lastPreMainOrFixedRow = viewLayoutRows[preMainPlusFixedRowCount - 1]; // any header rows?
                         bottomPlus1 = lastPreMainOrFixedRow.bottomPlus1;
@@ -194,7 +194,7 @@ export abstract class RevGridPainter<BGS extends RevBehavioredGridSettings, BCS 
     }
 
     checkPaintLastSelection() {
-        const gridSettings = this.gridSettings;
+        const gridSettings = this._gridSettings;
         let selectionRegionOverlayColor = gridSettings.selectionRegionOverlayColor;
         let selectionRegionOutlineColor = gridSettings.selectionRegionOutlineColor;
 
@@ -245,8 +245,8 @@ export abstract class RevGridPainter<BGS extends RevBehavioredGridSettings, BCS 
     }
 
     calculateLastSelectionBounds(): RevRectangle | undefined {
-        const columns = this.viewLayout.columns;
-        const rows = this.viewLayout.rows;
+        const columns = this._viewLayout.columns;
+        const rows = this._viewLayout.rows;
         const columnCount = columns.length;
         const rowCount = rows.length;
 
@@ -255,21 +255,21 @@ export abstract class RevGridPainter<BGS extends RevBehavioredGridSettings, BCS 
             return undefined;
         }
 
-        const gridProps = this.gridSettings;
-        const selection = this.selection;
+        const gridProps = this._gridSettings;
+        const selection = this._selection;
 
         const selectionArea = selection.lastArea;
 
         if (selectionArea === undefined) {
             return undefined; // no selection
         } else {
-            const firstScrollableColumnIndex = this.viewLayout.firstScrollableColumnIndex;
-            const firstScrollableRowIndex = this.viewLayout.firstScrollableRowIndex;
+            const firstScrollableColumnIndex = this._viewLayout.firstScrollableColumnIndex;
+            const firstScrollableRowIndex = this._viewLayout.firstScrollableRowIndex;
             if (firstScrollableColumnIndex === undefined || firstScrollableRowIndex === undefined) {
                 // selection needs scrollable data
                 return undefined;
             } else {
-                const preMainRowCount = this.viewLayout.preMainRowCount;
+                const preMainRowCount = this._viewLayout.preMainRowCount;
 
                 let vc: RevViewLayoutColumn<BCS, SF>;
                 let vr: RevViewLayoutRow<BCS, SF>;
@@ -340,7 +340,7 @@ export abstract class RevGridPainter<BGS extends RevBehavioredGridSettings, BCS 
 
     protected stripeRows(stripeColor: RevOnlyGridSettings.Color, left: number, width: number) {
         const gc = this._renderingContext;
-        const rows = this.viewLayout.rows;
+        const rows = this._viewLayout.rows;
         const rowCount = rows.length;
         for (let i = 0; i < rowCount; i++) {
             const row = rows[i];
@@ -356,7 +356,7 @@ export abstract class RevGridPainter<BGS extends RevBehavioredGridSettings, BCS 
     }
 
     private calculateColumnBundles(viewLayoutColumns: RevViewLayoutColumn<BCS, SF>[]): RevGridPainter.ColumnBundle[] {
-        const gridSettings = this.gridSettings;
+        const gridSettings = this._gridSettings;
         const columnCount = viewLayoutColumns.length;
 
         const bundles = new Array<RevGridPainter.ColumnBundle>(columnCount); // max size

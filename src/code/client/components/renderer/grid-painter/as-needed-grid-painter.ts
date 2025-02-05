@@ -55,7 +55,7 @@ export class RevAsNeededGridPainter<BGS extends RevBehavioredGridSettings, BCS e
     }
 
     paintCells() {
-        const viewLayout = this.viewLayout;
+        const viewLayout = this._viewLayout;
         const viewLayoutColumns = viewLayout.columns;
         const columnCount = viewLayoutColumns.length;
         const viewLayoutRows = viewLayout.rows;

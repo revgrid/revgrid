@@ -31,61 +31,61 @@ export abstract class RevUiController<BGS extends RevBehavioredGridSettings, BCS
 
     abstract readonly typeName: string;
 
-    protected readonly sharedState: RevUiControllerSharedState;
-    protected readonly hostElement: HTMLElement;
+    protected readonly _sharedState: RevUiControllerSharedState;
+    protected readonly _hostElement: HTMLElement;
 
-    protected readonly gridSettings: RevGridSettings;
-    protected readonly canvas: RevCanvas<BGS>;
-    protected readonly selection: RevSelection<BGS, BCS, SF>;
-    protected readonly focus: RevFocus<BGS, BCS, SF>;
-    protected readonly columnsManager: RevColumnsManager<BCS, SF>;
-    protected readonly subgridsManager: RevSubgridsManager<BCS, SF>;
-    protected readonly viewLayout: RevViewLayout<BGS, BCS, SF>;
-    protected readonly renderer: RevRenderer<BGS, BCS, SF>;
-    protected readonly reindexBehavior: RevReindexBehavior<BGS, BCS, SF>;
+    protected readonly _gridSettings: RevGridSettings;
+    protected readonly _canvas: RevCanvas<BGS>;
+    protected readonly _selection: RevSelection<BGS, BCS, SF>;
+    protected readonly _focus: RevFocus<BGS, BCS, SF>;
+    protected readonly _columnsManager: RevColumnsManager<BCS, SF>;
+    protected readonly _subgridsManager: RevSubgridsManager<BCS, SF>;
+    protected readonly _viewLayout: RevViewLayout<BGS, BCS, SF>;
+    protected readonly _renderer: RevRenderer<BGS, BCS, SF>;
+    protected readonly _reindexBehavior: RevReindexBehavior<BGS, BCS, SF>;
 
-    protected readonly mouse: RevMouse<BGS, BCS, SF>;
-    protected readonly horizontalScroller: RevScroller<BGS, BCS, SF>;
-    protected readonly verticalScroller: RevScroller<BGS, BCS, SF>;
+    protected readonly _mouse: RevMouse<BGS, BCS, SF>;
+    protected readonly _horizontalScroller: RevScroller<BGS, BCS, SF>;
+    protected readonly _verticalScroller: RevScroller<BGS, BCS, SF>;
 
-    protected readonly focusScrollBehavior: RevFocusScrollBehavior<BGS, BCS, SF>;
-    protected readonly focusSelectBehavior: RevFocusSelectBehavior<BGS, BCS, SF>;
-    protected readonly rowPropertiesBehavior: RevRowPropertiesBehavior<BGS, BCS, SF>;
-    protected readonly cellPropertiesBehavior: RevCellPropertiesBehavior<BGS, BCS, SF>;
-    protected readonly dataExtractBehavior: RevDataExtractBehavior<BGS, BCS, SF>;
-    protected readonly eventBehavior: RevEventBehavior<BGS, BCS, SF>;
+    protected readonly _focusScrollBehavior: RevFocusScrollBehavior<BGS, BCS, SF>;
+    protected readonly _focusSelectBehavior: RevFocusSelectBehavior<BGS, BCS, SF>;
+    protected readonly _rowPropertiesBehavior: RevRowPropertiesBehavior<BGS, BCS, SF>;
+    protected readonly _cellPropertiesBehavior: RevCellPropertiesBehavior<BGS, BCS, SF>;
+    protected readonly _dataExtractBehavior: RevDataExtractBehavior<BGS, BCS, SF>;
+    protected readonly _eventBehavior: RevEventBehavior<BGS, BCS, SF>;
 
-    protected readonly mainSubgrid: RevMainSubgrid<BCS, SF>;
+    protected readonly _mainSubgrid: RevMainSubgrid<BCS, SF>;
 
     constructor(services: RevUiControllerServices<BGS, BCS, SF>) {
         this.clientId = services.clientId;
         this.internalParent = services.internalParent;
 
-        this.sharedState = services.sharedState;
-        this.hostElement = services.hostElement;
+        this._sharedState = services.sharedState;
+        this._hostElement = services.hostElement;
 
-        this.gridSettings = services.gridSettings;
-        this.canvas = services.canvas;
-        this.selection = services.selection;
-        this.focus = services.focus;
-        this.columnsManager = services.columnsManager;
-        this.subgridsManager = services.subgridsManager;
-        this.viewLayout = services.viewLayout;
-        this.renderer = services.renderer;
-        this.reindexBehavior = services.reindexBehavior;
+        this._gridSettings = services.gridSettings;
+        this._canvas = services.canvas;
+        this._selection = services.selection;
+        this._focus = services.focus;
+        this._columnsManager = services.columnsManager;
+        this._subgridsManager = services.subgridsManager;
+        this._viewLayout = services.viewLayout;
+        this._renderer = services.renderer;
+        this._reindexBehavior = services.reindexBehavior;
 
-        this.mouse = services.mouse;
-        this.horizontalScroller = services.horizontalScroller;
-        this.verticalScroller = services.verticalScroller;
+        this._mouse = services.mouse;
+        this._horizontalScroller = services.horizontalScroller;
+        this._verticalScroller = services.verticalScroller;
 
-        this.focusScrollBehavior = services.focusScrollBehavior;
-        this.focusSelectBehavior = services.focusSelectBehavior;
-        this.rowPropertiesBehavior = services.rowPropertiesBehavior;
-        this.cellPropertiesBehavior = services.cellPropertiesBehavior;
-        this.dataExtractBehavior = services.dataExtractBehavior;
-        this.eventBehavior = services.eventBehavior;
+        this._focusScrollBehavior = services.focusScrollBehavior;
+        this._focusSelectBehavior = services.focusSelectBehavior;
+        this._rowPropertiesBehavior = services.rowPropertiesBehavior;
+        this._cellPropertiesBehavior = services.cellPropertiesBehavior;
+        this._dataExtractBehavior = services.dataExtractBehavior;
+        this._eventBehavior = services.eventBehavior;
 
-        this.mainSubgrid = this.subgridsManager.mainSubgrid;
+        this._mainSubgrid = this._subgridsManager.mainSubgrid;
     }
 
     /**
@@ -303,7 +303,7 @@ export abstract class RevUiController<BGS extends RevBehavioredGridSettings, BCS
 
     /** @internal */
     protected tryGetHoverCellFromMouseEvent(event: MouseEvent): RevLinedHoverCell<BCS, SF> | undefined {
-        return this.viewLayout.findLinedHoverCellAtCanvasOffset(event.offsetX, event.offsetY);
+        return this._viewLayout.findLinedHoverCellAtCanvasOffset(event.offsetX, event.offsetY);
     }
 }
 

@@ -10,7 +10,7 @@ export class RevStandardRangeInputCellEditor<
 > extends RevStandardInputElementCellEditor<BGS, BCS, SF> {
     constructor(grid: RevClientGrid<BGS, BCS, SF>, dataServer: RevDataServer<SF>) {
         super(grid, dataServer, 'range');
-        this.element.classList.add('revgrid-range-input-editor');
+        this._element.classList.add('revgrid-range-input-editor');
     }
 
     override tryOpenCell(cell: RevViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined) {
@@ -32,14 +32,14 @@ export class RevStandardRangeInputCellEditor<
             if (result) {
                 if (key !== undefined) {
                     // was opened by keyboard
-                    this.element.value = key;
+                    this._element.value = key;
                 } else {
                     // was not opened by keyboard
                     const value = dataServer.getEditValue(cell.viewLayoutColumn.column.field, cell.viewLayoutRow.subgridRowIndex);
                     if (typeof value !== 'number') {
                         throw new RevAssertError('SRIETO41112', typeof value);
                     } else {
-                        this.element.valueAsNumber = value;
+                        this._element.valueAsNumber = value;
                         this.selectAll();
                     }
                 }
@@ -51,7 +51,7 @@ export class RevStandardRangeInputCellEditor<
 
     override closeCell(field: SF, subgridRowIndex: number, cancel: boolean) {
         if (!cancel && !this.readonly && this._dataServer.setEditValue !== undefined) {
-            this._dataServer.setEditValue(field, subgridRowIndex, this.element.valueAsNumber);
+            this._dataServer.setEditValue(field, subgridRowIndex, this._element.valueAsNumber);
         }
         super.closeCell(field, subgridRowIndex, cancel);
     }

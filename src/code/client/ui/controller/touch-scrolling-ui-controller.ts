@@ -40,8 +40,8 @@ export class RevTouchScrollingUiController<BGS extends RevBehavioredGridSettings
             const xOffset = (lastTouch.x - currentTouch.x) / lastTouch.width;
             const yOffset = (lastTouch.y - currentTouch.y) / lastTouch.height;
 
-            this.viewLayout.scrollHorizontalViewportBy(xOffset);
-            this.viewLayout.scrollVerticalViewportBy(yOffset);
+            this._viewLayout.scrollHorizontalViewportBy(xOffset);
+            this._viewLayout.scrollVerticalViewportBy(yOffset);
 
             if (touchCount >= RevTouchScrollingUiController.MAX_TOUCHES) {
                 this.touches.shift();
@@ -71,8 +71,8 @@ export class RevTouchScrollingUiController<BGS extends RevBehavioredGridSettings
 
     private getTouchedBounds(eventDetail: TouchEvent) {
         const firstTouch = eventDetail.touches[0];
-        const canvasFirstTouchOffsetPoint = this.canvas.getOffsetPoint(firstTouch);
-        const cell = this.viewLayout.findLinedHoverCellAtCanvasOffset(canvasFirstTouchOffsetPoint.x, canvasFirstTouchOffsetPoint.y);
+        const canvasFirstTouchOffsetPoint = this._canvas.getOffsetPoint(firstTouch);
+        const cell = this._viewLayout.findLinedHoverCellAtCanvasOffset(canvasFirstTouchOffsetPoint.x, canvasFirstTouchOffsetPoint.y);
         if (cell === undefined) {
             return undefined;
         } else {
@@ -85,13 +85,13 @@ export class RevTouchScrollingUiController<BGS extends RevBehavioredGridSettings
     private decelerateY(startTouch: RevTouchScrollingUiController.TouchedBounds, endTouch: RevTouchScrollingUiController.TouchedBounds) {
         const offset = endTouch.y - startTouch.y;
         const timeOffset = endTouch.timestamp - startTouch.timestamp;
-        this.decelerate(this.viewLayout.verticalScrollDimension, offset, timeOffset);
+        this.decelerate(this._viewLayout.verticalScrollDimension, offset, timeOffset);
     }
 
     private decelerateX(startTouch: RevTouchScrollingUiController.TouchedBounds, endTouch: RevTouchScrollingUiController.TouchedBounds) {
         const offset = endTouch.x - startTouch.x;
         const timeOffset = endTouch.timestamp - startTouch.timestamp;
-        this.decelerate(this.viewLayout.horizontalScrollDimension, offset, timeOffset);
+        this.decelerate(this._viewLayout.horizontalScrollDimension, offset, timeOffset);
     }
 
     private decelerate(scrollDimension: RevScrollDimension<BGS>, offset: number, timeOffset: number) {
@@ -108,9 +108,9 @@ export class RevTouchScrollingUiController<BGS extends RevBehavioredGridSettings
             if (viewportStart !== undefined) {
                 const delta = this.getDelta(velocity);
                 const newViewportStart = viewportStart + (dir * delta);
-                this.viewLayout.setVerticalViewportStart(newViewportStart);
+                this._viewLayout.setVerticalViewportStart(newViewportStart);
 
-                if (newViewportStart > this.viewLayout.verticalScrollDimension.finish || newViewportStart < 0) {
+                if (newViewportStart > this._viewLayout.verticalScrollDimension.finish || newViewportStart < 0) {
                     return;
                 }
 

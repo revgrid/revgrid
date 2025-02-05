@@ -33,7 +33,7 @@ export class RevColumnResizingUiController<BGS extends RevBehavioredGridSettings
         } else {
             const mouseValue = event.offsetX;
             let delta: number;
-            if (this.gridSettings.gridRightAligned) {
+            if (this._gridSettings.gridRightAligned) {
                 delta = this._dragStart - mouseValue;
             } else {
                 delta = mouseValue - this._dragStart;
@@ -56,7 +56,7 @@ export class RevColumnResizingUiController<BGS extends RevBehavioredGridSettings
                         { column: this._dragColumn, width: dragWidth },
                         { column: this._inPlaceAdjacentColumn, width: inPlaceAdjacentWidth },
                     ];
-                    this.columnsManager.setColumnWidths(columnWidths, true);
+                    this._columnsManager.setColumnWidths(columnWidths, true);
                 }
             }
             return hoverCell;
@@ -80,11 +80,11 @@ export class RevColumnResizingUiController<BGS extends RevBehavioredGridSettings
                 if (nearGridLine === RevColumnResizingUiController.NearGridLine.neither) {
                     return super.handlePointerDragStart(event, hoverCell);
                 } else {
-                    const viewLayoutColumnCount = this.viewLayout.columns.length;
+                    const viewLayoutColumnCount = this._viewLayout.columns.length;
                     let vc = viewCell.viewLayoutColumn;
                     let vcIndex = vc.index;
 
-                    const gridRightBottomAligned = this.gridSettings.gridRightAligned;
+                    const gridRightBottomAligned = this._gridSettings.gridRightAligned;
                     if (!gridRightBottomAligned) {
                         if (nearGridLine === RevColumnResizingUiController.NearGridLine.left) {
                             vcIndex--;
@@ -92,7 +92,7 @@ export class RevColumnResizingUiController<BGS extends RevBehavioredGridSettings
                                 // can't drag left-most column boundary
                                 return super.handlePointerDragStart(event, hoverCell);
                             } else {
-                                vc = this.viewLayout.columns[vcIndex];
+                                vc = this._viewLayout.columns[vcIndex];
                                 this._dragColumn = vc.column;
                                 this._dragStartWidth = vc.width;
                             }
@@ -107,7 +107,7 @@ export class RevColumnResizingUiController<BGS extends RevBehavioredGridSettings
                                 // can't drag right-most column boundary
                                 return super.handlePointerDragStart(event, hoverCell);
                             } else {
-                                vc = this.viewLayout.columns[vcIndex];
+                                vc = this._viewLayout.columns[vcIndex];
                                 this._dragColumn = vc.column;
                                 this._dragStartWidth = vc.width;
                             }
@@ -164,13 +164,13 @@ export class RevColumnResizingUiController<BGS extends RevBehavioredGridSettings
                         if (!gridRightBottomAligned) {
                             vcIndex++;
                             if (vcIndex < viewLayoutColumnCount) {
-                                vc = this.viewLayout.columns[vcIndex];
+                                vc = this._viewLayout.columns[vcIndex];
                                 column = vc.column;
                             }
                         } else {
                             vcIndex--;
                             if (vcIndex >= 0) {
-                                vc = this.viewLayout.columns[vcIndex];
+                                vc = this._viewLayout.columns[vcIndex];
                                 column = vc.column;
                             }
                         }
@@ -208,7 +208,7 @@ export class RevColumnResizingUiController<BGS extends RevBehavioredGridSettings
 
     override handlePointerMove(event: PointerEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined) {
         if (this._dragColumn === undefined) {
-            if (this.sharedState.locationCursorName === undefined) {
+            if (this._sharedState.locationCursorName === undefined) {
                 if (hoverCell === null) {
                     hoverCell = this.tryGetHoverCellFromMouseEvent(event);
                 }
@@ -237,19 +237,19 @@ export class RevColumnResizingUiController<BGS extends RevBehavioredGridSettings
                     return super.handleDblClick(event, hoverCell);
                 } else {
                     let viewLayoutColumn = viewCell.viewLayoutColumn;
-                    if (this.gridSettings.gridRightAligned) {
+                    if (this._gridSettings.gridRightAligned) {
                         if (nearGridLine === RevColumnResizingUiController.NearGridLine.right) {
                             // always work on the column to the right of the near grid line
                             const columnIndex = viewLayoutColumn.index;
                             // columnIndex cannot be for last column as right grid line of last column cannot be near grid line
-                            viewLayoutColumn = this.viewLayout.columns[columnIndex + 1];
+                            viewLayoutColumn = this._viewLayout.columns[columnIndex + 1];
                         }
                     } else {
                         if (nearGridLine === RevColumnResizingUiController.NearGridLine.left) {
                             // always work on the column to the left of the near grid line
                             const columnIndex = viewLayoutColumn.index;
                             // columnIndex cannot be for first column as left grid line of first column cannot be near grid line
-                            viewLayoutColumn = this.viewLayout.columns[columnIndex - 1];
+                            viewLayoutColumn = this._viewLayout.columns[columnIndex - 1];
                         }
                     }
                     const column = viewLayoutColumn.column;
@@ -271,7 +271,7 @@ export class RevColumnResizingUiController<BGS extends RevBehavioredGridSettings
                     }
 
                     // location may no longer be valid
-                    const sharedState = this.sharedState;
+                    const sharedState = this._sharedState;
                     sharedState.locationCursorName = undefined;
                     sharedState.locationTitleText = undefined;
 
@@ -293,9 +293,9 @@ export class RevColumnResizingUiController<BGS extends RevBehavioredGridSettings
         const cellLeftOffset = canvasOffsetX - cellLeft;
         const cellRightOffset = cellLeft + cellBounds.width - canvasOffsetX - 1;
 
-        const emWidth = this.canvas.gc.getEmWidth();
+        const emWidth = this._canvas.gc.getEmWidth();
         const tolerance = Math.ceil(emWidth / 3);
-        if (!this.gridSettings.gridRightAligned) {
+        if (!this._gridSettings.gridRightAligned) {
             if (cellLeftOffset < cellRightOffset && cell.viewLayoutColumn.index !== 0) {
                 if (cellLeftOffset < tolerance) {
                     return RevColumnResizingUiController.NearGridLine.left;
@@ -311,7 +311,7 @@ export class RevColumnResizingUiController<BGS extends RevBehavioredGridSettings
                 }
             }
         } else {
-            const lastViewColumnIndex = this.viewLayout.columns.length - 1;
+            const lastViewColumnIndex = this._viewLayout.columns.length - 1;
             if (cellRightOffset < cellLeftOffset && cell.viewLayoutColumn.index !== lastViewColumnIndex) {
                 if (cellRightOffset < tolerance) {
                     return RevColumnResizingUiController.NearGridLine.right;
@@ -331,11 +331,11 @@ export class RevColumnResizingUiController<BGS extends RevBehavioredGridSettings
 
     private setMouseDragging(active: boolean) {
         if (active) {
-            this.mouse.setActiveDragType(RevMouse.DragType.columnResizing);
-            this.mouse.setOperation(this.gridSettings.columnResizeDragActiveCursorName, this.gridSettings.columnResizeDragActiveTitleText);
+            this._mouse.setActiveDragType(RevMouse.DragType.columnResizing);
+            this._mouse.setOperation(this._gridSettings.columnResizeDragActiveCursorName, this._gridSettings.columnResizeDragActiveTitleText);
         } else {
-            this.mouse.setActiveDragType(undefined);
-            this.mouse.setOperation(undefined, undefined);
+            this._mouse.setActiveDragType(undefined);
+            this._mouse.setOperation(undefined, undefined);
         }
     }
 
@@ -347,9 +347,9 @@ export class RevColumnResizingUiController<BGS extends RevBehavioredGridSettings
             cell.isHeader &&
             this.calculateNearGridLine(canvasOffsetX, cell) !== RevColumnResizingUiController.NearGridLine.neither
         ) {
-            const sharedState = this.sharedState;
-            sharedState.locationCursorName = this.gridSettings.columnResizeDragPossibleCursorName;
-            sharedState.locationTitleText = this.gridSettings.columnResizeDragPossibleTitleText;
+            const sharedState = this._sharedState;
+            sharedState.locationCursorName = this._gridSettings.columnResizeDragPossibleCursorName;
+            sharedState.locationTitleText = this._gridSettings.columnResizeDragPossibleTitleText;
         }
     }
 }

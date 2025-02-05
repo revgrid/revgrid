@@ -48,9 +48,9 @@ export class RevByRowsGridPainter<BGS extends RevBehavioredGridSettings, BCS ext
 
     paintCells() {
         const gc = this._renderingContext;
-        const gridSettings = this.gridSettings;
+        const gridSettings = this._gridSettings;
         const gridPrefillColor = gridSettings.backgroundColor;
-        const viewLayout = this.viewLayout;
+        const viewLayout = this._viewLayout;
         const viewLayoutColumns = viewLayout.columns;
         const columnCount = viewLayoutColumns.length;
         const viewLayoutRows = viewLayout.rows;
@@ -75,7 +75,7 @@ export class RevByRowsGridPainter<BGS extends RevBehavioredGridSettings, BCS ext
         const lineColor = gridSettings.horizontalGridLinesColor;
         const drawLines = gridSettings.horizontalGridLinesVisible && lineWidth > 0;
 
-        const canvasBounds = this.canvas.flooredBounds;
+        const canvasBounds = this._canvas.flooredBounds;
         gc.clearRect(0, 0, canvasBounds.width, canvasBounds.height);
 
         if (!columnCount || !rowCount) { return; }

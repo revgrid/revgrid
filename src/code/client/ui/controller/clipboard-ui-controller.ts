@@ -10,7 +10,7 @@ export class RevClipboardUiController<BGS extends RevBehavioredGridSettings, BCS
         eventDetail.preventDefault();
         const clipboardData = eventDetail.clipboardData;
         if (clipboardData !== null) {
-            const csvData = this.dataExtractBehavior.getSelectionAsTSV();
+            const csvData = this._dataExtractBehavior.getSelectionAsTSV();
             clipboardData.setData('text/plain', csvData);
         }
     }
