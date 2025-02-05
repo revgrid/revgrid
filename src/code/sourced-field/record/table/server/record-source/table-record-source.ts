@@ -39,8 +39,8 @@ export abstract class RevTableRecordSource<Badness, TypeId, TableFieldSourceDefi
             TextFormattableValueTypeId,
             TextFormattableValueAttributeTypeId
         >,
-        private readonly _correctnessState: CorrectnessState<Badness>,
-        protected readonly definition: RevTableRecordSourceDefinition<TypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>,
+        protected readonly _correctnessState: CorrectnessState<Badness>,
+        protected readonly _definition: RevTableRecordSourceDefinition<TypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>,
         readonly allowedFieldSourceDefinitionTypeIds: readonly TableFieldSourceDefinitionTypeId[],
     ) {
     }
@@ -89,7 +89,7 @@ export abstract class RevTableRecordSource<Badness, TypeId, TableFieldSourceDefi
     }
 
     createAllowedFields(): readonly RevAllowedRecordSourcedField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>[] {
-        return this.definition.createAllowedFields();
+        return this._definition.createAllowedFields();
     }
 
     // get changeDefinitionOrderAllowed(): boolean { return this._changeDefinitionOrderAllowed; }
