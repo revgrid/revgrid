@@ -8393,7 +8393,7 @@ export namespace RevTableRecordDefinition {
 
 // @public (undocumented)
 export abstract class RevTableRecordSource<Badness, TypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> implements CorrectnessState<Badness> {
-    constructor(textFormatter: RevTextFormatter<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, customHeadings: RevSourcedFieldCustomHeadings | undefined, tableFieldSourceDefinitionCachingFactory: RevTableFieldSourceDefinitionCachingFactory<TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, _correctnessState: CorrectnessState<Badness>, definition: RevTableRecordSourceDefinition<TypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, allowedFieldSourceDefinitionTypeIds: readonly TableFieldSourceDefinitionTypeId[]);
+    constructor(textFormatter: RevTextFormatter<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, customHeadings: RevSourcedFieldCustomHeadings | undefined, tableFieldSourceDefinitionCachingFactory: RevTableFieldSourceDefinitionCachingFactory<TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, _correctnessState: CorrectnessState<Badness>, _definition: RevTableRecordSourceDefinition<TypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, allowedFieldSourceDefinitionTypeIds: readonly TableFieldSourceDefinitionTypeId[]);
     // (undocumented)
     get activeFieldSources(): readonly RevTableFieldSource<TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>[];
     // (undocumented)
@@ -8409,6 +8409,8 @@ export abstract class RevTableRecordSource<Badness, TypeId, TableFieldSourceDefi
     // (undocumented)
     closeLocked(_opener: NamedOpener): void;
     // (undocumented)
+    protected readonly _correctnessState: CorrectnessState<Badness>;
+    // (undocumented)
     get count(): Integer;
     // (undocumented)
     createAllowedFields(): readonly RevAllowedRecordSourcedField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>[];
@@ -8423,7 +8425,7 @@ export abstract class RevTableRecordSource<Badness, TypeId, TableFieldSourceDefi
     // (undocumented)
     readonly customHeadings: RevSourcedFieldCustomHeadings | undefined;
     // (undocumented)
-    protected readonly definition: RevTableRecordSourceDefinition<TypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>;
+    protected readonly _definition: RevTableRecordSourceDefinition<TypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>;
     // (undocumented)
     get fields(): readonly RevTableField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>[];
     // (undocumented)
