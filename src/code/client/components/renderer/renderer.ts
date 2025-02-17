@@ -14,8 +14,8 @@ import { RevAnimator } from './animator';
 import { RevByColumnsAndRowsGridPainter } from './grid-painter/by-columns-and-rows-grid-painter';
 import { RevGridPainter } from './grid-painter/grid-painter';
 import { RevGridPainterRepository } from './grid-painter/grid-painter-repository';
-import { RevRenderActionQueue } from './render-action-queue';
 import { RevRenderAction } from './render-action';
+import { RevRenderActionQueue } from './render-action-queue';
 
 /** @public */
 export class RevRenderer<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {
@@ -37,7 +37,7 @@ export class RevRenderer<BGS extends RevBehavioredGridSettings, BCS extends RevB
     /** @internal */
     private _lastRenderedServerNotificationId: RevServerNotificationId = revLowestValidServerNotificationId;
     /** @internal */
-    private _waitLastServerNotificationRenderedResolves = new Array<RevRenderer.WaitModelRenderedResolve>();
+    private _waitLastServerNotificationRenderedResolves = new Array<RevRenderer.WaitLastServerNotificationRenderedResolve>();
 
     /** @internal */
     private _animator: RevAnimator | undefined;
@@ -105,10 +105,10 @@ export class RevRenderer<BGS extends RevBehavioredGridSettings, BCS extends RevB
     get lastServerNotificationId() { return this._lastServerNotificationId; }
 
     /** Promise resolves after paint renders the last server notification (change) for the first time. Columns and rows will then reflect server data and schema */
-    waitLastServerNotificationRendered(): Promise<RevServerNotificationId> {
+    waitLastServerNotificationRendered(next: boolean): Promise<RevServerNotificationId> {
         const lastRenderedServerNotificationId = this._lastRenderedServerNotificationId;
-        if (lastRenderedServerNotificationId === this._lastServerNotificationId) {
-            return Promise.resolve(lastRenderedServerNotificationId); // latest model already rendered
+        if (!next && lastRenderedServerNotificationId === this._lastServerNotificationId) {
+            return Promise.resolve(lastRenderedServerNotificationId); // latest notification already rendered
         } else {
             return new Promise<RevServerNotificationId>((resolve) => { this._waitLastServerNotificationRenderedResolves.push(resolve); });
         }
@@ -407,7 +407,7 @@ export class RevRenderer<BGS extends RevBehavioredGridSettings, BCS extends RevB
 /** @public */
 export namespace RevRenderer {
     /** @internal */
-    export type WaitModelRenderedResolve = (this: void, id: RevServerNotificationId) => void;
+    export type WaitLastServerNotificationRenderedResolve = (this: void, id: RevServerNotificationId) => void;
     /** @internal */
     export type RenderedEventer = (this: void) => void;
 }

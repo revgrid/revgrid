@@ -5863,7 +5863,7 @@ export class RevRenderer<BGS extends RevBehavioredGridSettings, BCS extends RevB
     start(): void;
     // @internal (undocumented)
     stop(): void;
-    waitLastServerNotificationRendered(): Promise<RevServerNotificationId>;
+    waitLastServerNotificationRendered(next: boolean): Promise<RevServerNotificationId>;
 }
 
 // @public (undocumented)
@@ -5871,7 +5871,7 @@ export namespace RevRenderer {
     // @internal (undocumented)
     export type RenderedEventer = (this: void) => void;
     // @internal (undocumented)
-    export type WaitModelRenderedResolve = (this: void, id: RevServerNotificationId) => void;
+    export type WaitLastServerNotificationRenderedResolve = (this: void, id: RevServerNotificationId) => void;
 }
 
 // @public (undocumented)
