@@ -39,6 +39,7 @@
       "rules": {
         "no-fallthrough":"error",
         "brace-style": ["error", "1tbs", {"allowSingleLine": true }],
+        "no-inner-declarations": ["error", { "blockScopedFunctions": "allow" }],
         "no-constant-condition": ["error", {"checkLoops": false }],
         "@typescript-eslint/consistent-type-definitions": "error",
         "@typescript-eslint/no-unnecessary-condition": ["off", { "allowConstantLoopConditions": true }], // should be set to error
