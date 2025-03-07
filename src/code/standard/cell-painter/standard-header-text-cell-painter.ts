@@ -1,5 +1,5 @@
 
-import { IndexSignatureHack } from '@xilytix/sysutils';
+import { IndexSignatureHack } from '@pbkware/js-utils';
 import { RevHorizontalAlignId } from '../../cell-content/client/internal-api';
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevClientGrid, RevColumnSettings, RevGridSettings, RevViewCell } from '../../client/internal-api';
 import { RevDataServer, RevSchemaField } from '../../common/internal-api';

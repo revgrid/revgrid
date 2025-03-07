@@ -2,7 +2,7 @@
 
 // Not used - see RevIClientGrid instead
 
-import { Integer } from '@xilytix/sysutils';
+import { Integer } from '@pbkware/js-utils';
 import { RevClientObject, RevDataServer, RevEnsureFullyInViewEnum, RevMetaServer, RevPoint, RevRectangle, RevSchemaField, RevSchemaServer, RevSelectionAreaType } from '../common/internal-api';
 import { RevCanvas } from './components/canvas/canvas';
 import { RevColumnsManager } from './components/column/columns-manager';

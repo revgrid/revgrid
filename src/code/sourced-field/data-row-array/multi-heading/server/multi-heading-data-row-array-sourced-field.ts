@@ -2,7 +2,7 @@
 
 import {
     Integer
-} from '@xilytix/sysutils';
+} from '@pbkware/js-utils';
 import { RevDataRowArrayField } from '../../../../data-row-array/server/internal-api';
 import { RevMultiHeadingField } from '../../../../header/server/internal-api';
 import { RevSourcedField } from '../../../sourced-field/server/internal-api';

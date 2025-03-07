@@ -1,5 +1,5 @@
 
-import { IndexSignatureHack } from '@xilytix/sysutils';
+import { IndexSignatureHack } from '@pbkware/js-utils';
 import { RevGridSettings } from '../../client/internal-api';
 import { RevCachedCanvasRenderingContext2D, RevRectangle } from '../../common/internal-api';
 

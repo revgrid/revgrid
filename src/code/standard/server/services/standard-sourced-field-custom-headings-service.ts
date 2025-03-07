@@ -1,6 +1,6 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
-import { JsonElement } from '@xilytix/sysutils';
+import { JsonElement } from '@pbkware/js-utils';
 import { RevSourcedFieldCustomHeadings } from '../../../sourced-field/sourced-field/server/internal-api';
 
 /** @public */

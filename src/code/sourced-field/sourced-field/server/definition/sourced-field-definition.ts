@@ -1,6 +1,6 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
-import { CommaText, Err, Integer, Ok, Result, UnreachableCaseError } from '@xilytix/sysutils';
+import { CommaText, Err, Integer, Ok, Result, UnreachableCaseError } from '@pbkware/js-utils';
 import { RevHorizontalAlignId } from '../../../../cell-content/client/internal-api';
 import { RevSourcedFieldSourceDefinition } from './sourced-field-source-definition';
 

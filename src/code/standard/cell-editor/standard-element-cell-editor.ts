@@ -1,4 +1,4 @@
-import { numberToPixels } from '@xilytix/sysutils';
+import { numberToPixels } from '@pbkware/js-utils';
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevClientGrid, RevViewCell } from '../../client/internal-api';
 import { RevDataServer, RevRectangle, RevSchemaField } from '../../common/internal-api';
 import { RevStandardCellEditor } from './standard-cell-editor';

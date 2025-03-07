@@ -1,6 +1,6 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
-import { JsonElement } from '@xilytix/sysutils';
+import { JsonElement } from '@pbkware/js-utils';
 
 // export type RevRecordSortDefinition = RevRecordSortDefinition.Field[];
 

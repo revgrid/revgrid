@@ -1,6 +1,6 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
-import { Err, Integer, JsonElement, Ok, Result, UnreachableCaseError } from '@xilytix/sysutils';
+import { Err, Integer, JsonElement, Ok, Result, UnreachableCaseError } from '@pbkware/js-utils';
 
 /** @public */
 export class RevColumnLayoutDefinition {

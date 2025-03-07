@@ -1,4 +1,4 @@
-import { Integer } from '@xilytix/sysutils';
+import { Integer } from '@pbkware/js-utils';
 import { RevSchemaField } from '../../common/internal-api';
 import { RevBehavioredColumnSettings } from '../settings/internal-api';
 import { RevColumn } from './column';

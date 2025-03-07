@@ -1,5 +1,5 @@
 
-import { IndexSignatureHack } from '@xilytix/sysutils';
+import { IndexSignatureHack } from '@pbkware/js-utils';
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevClientGrid, RevColumnSettings, RevGridSettings, RevViewCell } from '../../client/internal-api';
 import { RevDataServer, RevRectangle, RevSchemaField, revSafeConvertUnknownToBoolean } from '../../common/internal-api';
 import { RevStandardCheckboxPainter } from '../painters/internal-api';

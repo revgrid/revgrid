@@ -1,6 +1,6 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
-import { InternalError, UnreachableCaseInternalError } from '@xilytix/sysutils';
+import { InternalError, UnreachableCaseInternalError } from '@pbkware/js-utils';
 
 /** @public */
 export class RevAssertError extends InternalError {

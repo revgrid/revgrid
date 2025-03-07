@@ -1,6 +1,6 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
-import { AssertInternalError, Err, Guid, JsonElement, Ok, Result, UnreachableCaseError } from '@xilytix/sysutils';
+import { AssertInternalError, Err, Guid, JsonElement, Ok, Result, UnreachableCaseError } from '@pbkware/js-utils';
 import { RevColumnLayoutDefinition } from './column-layout-definition';
 
 /** @public */

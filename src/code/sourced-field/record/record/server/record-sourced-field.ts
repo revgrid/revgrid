@@ -4,7 +4,7 @@ import {
     AssertInternalError,
     IndexedRecord,
     Integer
-} from '@xilytix/sysutils';
+} from '@pbkware/js-utils';
 import { RevTextFormattableValue } from '../../../../cell-content/client/internal-api';
 import { RevDataServer } from '../../../../common/internal-api';
 import { RevRecordField } from '../../../../record/server/internal-api';

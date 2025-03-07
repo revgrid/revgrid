@@ -1,6 +1,6 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
-import { Integer } from '@xilytix/sysutils';
+import { Integer } from '@pbkware/js-utils';
 import { RevTextFormatter } from '../../../../../cell-content/server/internal-api';
 import { RevSourcedField, RevSourcedFieldCustomHeadings } from '../../../../sourced-field/server/internal-api';
 import { RevTableField } from '../field/internal-api';

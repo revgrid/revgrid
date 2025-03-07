@@ -1,4 +1,4 @@
-import { Integer } from '@xilytix/sysutils';
+import { Integer } from '@pbkware/js-utils';
 import { RevApiError, RevAssertError, RevSchemaField, RevSchemaServer } from '../../common/internal-api';
 
 /** @public */

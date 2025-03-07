@@ -1,6 +1,6 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
-import { IndexSignatureHack, isArrayEqual } from '@xilytix/sysutils';
+import { IndexSignatureHack, isArrayEqual } from '@pbkware/js-utils';
 import { RevClientGrid, RevViewCell } from '../../client/internal-api';
 import { RevDataServer, RevRectangle, RevSchemaField } from '../../common/internal-api';
 import { RevStandardCellPainter, RevStandardTextPainter } from '../../standard/internal-api';

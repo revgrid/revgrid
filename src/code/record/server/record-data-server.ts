@@ -1,4 +1,4 @@
-import { UnreachableCaseError } from '@xilytix/sysutils';
+import { UnreachableCaseError } from '@pbkware/js-utils';
 import { RevApiError, RevDataServer, RevListChangedTypeId } from '../../common/internal-api';
 import { RevRecord } from './record';
 import { RevRecordArrayUtil } from './record-array-utils';

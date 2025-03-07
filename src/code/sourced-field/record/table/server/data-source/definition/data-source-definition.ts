@@ -1,6 +1,6 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
-import { Err, JsonElement, Ok, Result, UnreachableCaseError } from '@xilytix/sysutils';
+import { Err, JsonElement, Ok, Result, UnreachableCaseError } from '@pbkware/js-utils';
 import { RevColumnLayoutOrReferenceDefinition } from '../../../../../../column-layout/server/internal-api';
 import { RevRecordRowOrderDefinition } from '../../../../../../record/server/internal-api';
 import { RevTableRecordSourceDefinition, RevTableRecordSourceDefinitionFromJsonFactory } from '../../record-source/internal-api';

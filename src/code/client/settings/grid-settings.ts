@@ -1,6 +1,6 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
-import { deepExtendValue } from '@xilytix/sysutils';
+import { deepExtendValue } from '@pbkware/js-utils';
 import { RevModifierKey, RevSelectionAreaTypeSpecifierId } from '../../common/internal-api';
 import { RevOnlyGridSettings } from './only-grid-settings';
 

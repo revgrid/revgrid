@@ -5,7 +5,7 @@ import {
     IndexedRecord,
     Integer,
     MultiEvent,
-} from '@xilytix/sysutils';
+} from '@pbkware/js-utils';
 import { RevRecordFieldIndex, RevRecordIndex, RevRecordInvalidatedValue, RevRecordStore } from '../../../../../record/server/internal-api';
 import { RevTable } from './table';
 

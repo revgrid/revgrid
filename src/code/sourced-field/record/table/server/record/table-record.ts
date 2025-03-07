@@ -1,6 +1,6 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
-import { ComparableList, Integer } from '@xilytix/sysutils';
+import { ComparableList, Integer } from '@pbkware/js-utils';
 import { RevRecordInvalidatedValue } from '../../../../../record/server/internal-api';
 import { RevTableValueSource } from '../value-source/internal-api';
 import { RevTableValue, RevTableValuesRecord } from '../value/internal-api';

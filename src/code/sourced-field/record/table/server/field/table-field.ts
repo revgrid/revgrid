@@ -3,7 +3,7 @@
 import {
     Integer,
     compareValue
-} from '@xilytix/sysutils';
+} from '@pbkware/js-utils';
 import { RevHorizontalAlignId, RevTextFormattableValue } from '../../../../../cell-content/client/internal-api';
 import { RevTextFormatter } from '../../../../../cell-content/server/internal-api';
 import { RevSourcedFieldSourceDefinition } from '../../../../sourced-field/server/internal-api';

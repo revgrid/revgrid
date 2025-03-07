@@ -1,6 +1,6 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
-import { Integer } from '@xilytix/sysutils';
+import { Integer } from '@pbkware/js-utils';
 // import { GridRecordFieldState } from '../../../record/grid-record-internal-api';
 import { RevSourcedFieldDefinition } from '../../../../../sourced-field/server/internal-api';
 import { RevRecordSourcedFieldSourceDefinition } from '../../../../record/server/internal-api';

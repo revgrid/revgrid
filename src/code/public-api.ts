@@ -1,5 +1,3 @@
-// (c) 2024 Xilytix Pty Ltd / Paul Klink
-
 export * from './cell-content/internal-api';
 export * from './client/internal-api';
 export * from './column-layout/internal-api';

@@ -2,7 +2,7 @@
 
 import {
     EnumInfoOutOfOrderError
-} from '@xilytix/sysutils';
+} from '@pbkware/js-utils';
 import { RevHorizontalAlignId } from '../../../cell-content/client/internal-api';
 import { RevSchemaField } from '../../../common/internal-api';
 import { RevSourcedFieldDefinition } from './definition/internal-api';

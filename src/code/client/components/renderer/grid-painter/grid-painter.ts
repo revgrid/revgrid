@@ -1,4 +1,4 @@
-import { getErrorMessage } from '@xilytix/sysutils';
+import { getErrorMessage } from '@pbkware/js-utils';
 import { RevCachedCanvasRenderingContext2D, RevRectangle, RevSchemaField } from '../../../../common/internal-api';
 import { RevViewCell } from '../../../interfaces/view-cell';
 import { RevViewLayoutColumn } from '../../../interfaces/view-layout-column';

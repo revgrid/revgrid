@@ -1,4 +1,4 @@
-import { numberToPixels } from '@xilytix/sysutils';
+import { numberToPixels } from '@pbkware/js-utils';
 import { RevApiError } from '../../../common/internal-api';
 /** effectFunction
  * @remarks Element to perform transitions upon is `options.el` if defined or `this.el`.

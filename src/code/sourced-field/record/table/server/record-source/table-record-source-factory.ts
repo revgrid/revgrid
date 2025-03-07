@@ -1,6 +1,6 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
-import { CorrectnessState } from '@xilytix/sysutils';
+import { CorrectnessState } from '@pbkware/js-utils';
 import { RevTableRecordSourceDefinition } from './definition/internal-api';
 import { RevTableRecordSource } from './table-record-source';
 

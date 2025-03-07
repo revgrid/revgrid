@@ -1,6 +1,6 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
-import { IndexedRecord, LockOpenListItem } from '@xilytix/sysutils';
+import { IndexedRecord, LockOpenListItem } from '@pbkware/js-utils';
 import { RevReferenceableColumnLayouts } from '../../../../../column-layout/server/internal-api';
 import { RevRecordRowOrderDefinition } from '../../../../../record/server/internal-api';
 import { RevTableFieldSourceDefinitionFactory } from '../field-source/internal-api';

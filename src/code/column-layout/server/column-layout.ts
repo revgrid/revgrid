@@ -14,7 +14,7 @@ import {
     moveElementInArray,
     moveElementsInArray,
     newGuid
-} from '@xilytix/sysutils';
+} from '@pbkware/js-utils';
 import { RevColumnLayoutDefinition } from './definition/internal-api';
 
 /**

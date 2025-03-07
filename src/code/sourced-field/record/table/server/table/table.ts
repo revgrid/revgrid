@@ -9,7 +9,7 @@ import {
     UsableListChangeType,
     UsableListChangeTypeId,
     moveElementsInArray
-} from '@xilytix/sysutils';
+} from '@pbkware/js-utils';
 import { RevRecordInvalidatedValue } from '../../../../../record/server/internal-api';
 import { RevAllowedRecordSourcedField } from '../../../record/server/internal-api';
 import { RevTableField } from '../field/internal-api';

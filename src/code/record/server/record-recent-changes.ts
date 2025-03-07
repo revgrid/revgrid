@@ -1,4 +1,4 @@
-import { moveElementInArray } from '@xilytix/sysutils';
+import { moveElementInArray } from '@pbkware/js-utils';
 import { RevRecordArrayUtil } from './record-array-utils';
 import { RevRecordAssertError } from './record-error';
 import {

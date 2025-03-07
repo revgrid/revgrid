@@ -1,4 +1,4 @@
-import { InternalError, UnreachableCaseInternalError } from '@xilytix/sysutils';
+import { InternalError, UnreachableCaseInternalError } from '@pbkware/js-utils';
 
 
 /** @public */

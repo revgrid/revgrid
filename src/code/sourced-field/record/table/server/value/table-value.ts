@@ -1,6 +1,6 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
-import { isArrayEqual } from '@xilytix/sysutils';
+import { isArrayEqual } from '@pbkware/js-utils';
 import { RevTextFormattableValue } from '../../../../../cell-content/client/internal-api';
 
 /** @public */

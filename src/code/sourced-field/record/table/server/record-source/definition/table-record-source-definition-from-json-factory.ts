@@ -1,6 +1,6 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
-import { JsonElement, Result } from '@xilytix/sysutils';
+import { JsonElement, Result } from '@pbkware/js-utils';
 import { RevTableRecordSourceDefinition } from './table-record-source-definition';
 
 /** @public */

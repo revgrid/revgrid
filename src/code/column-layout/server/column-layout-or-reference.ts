@@ -1,6 +1,6 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
-import { AssertInternalError, Err, Guid, LockOpenListItem, Ok, Result } from '@xilytix/sysutils';
+import { AssertInternalError, Err, Guid, LockOpenListItem, Ok, Result } from '@pbkware/js-utils';
 import { RevApiError } from '../../common/internal-api';
 import { RevColumnLayout } from './column-layout';
 import {

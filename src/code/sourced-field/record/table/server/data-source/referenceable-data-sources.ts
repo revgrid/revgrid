@@ -1,6 +1,6 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
-import { LockItemByKeyList } from '@xilytix/sysutils';
+import { LockItemByKeyList } from '@pbkware/js-utils';
 import { RevDataSource } from './data-source';
 import { RevReferenceableDataSourceDefinition } from './definition/internal-api';
 import { RevReferenceableDataSource } from './referenceable-data-source';

@@ -1,6 +1,6 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
-import { MapKey } from '@xilytix/sysutils';
+import { MapKey } from '@pbkware/js-utils';
 
 /** @public */
 export interface RevRecordDefinition {

@@ -1,6 +1,6 @@
 // (c) 2024 Xilytix Pty Ltd / Paul Klink
 
-import { JsonElement, Result } from '@xilytix/sysutils';
+import { JsonElement, Result } from '@pbkware/js-utils';
 import { RevColumnLayoutDefinition } from '../../../../../../column-layout/server/internal-api';
 import { RevSourcedField, RevSourcedFieldCustomHeadings } from '../../../../../sourced-field/server/internal-api';
 import { RevAllowedRecordSourcedField } from '../../../../record/server/internal-api';

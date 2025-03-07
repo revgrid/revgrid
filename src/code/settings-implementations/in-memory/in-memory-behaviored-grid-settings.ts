@@ -1,4 +1,4 @@
-import { isArrayEqual } from '@xilytix/sysutils';
+import { isArrayEqual } from '@pbkware/js-utils';
 import { RevBehavioredGridSettings, RevGridSettings, RevOnlyGridSettings, revGridSettingChangeInvalidateTypeIds } from '../../client/internal-api';
 import { RevHorizontalWheelScrollingAllowedId, RevModifierKey, RevRowOrColumnSelectionAreaType, RevSelectionAreaType } from '../../common/internal-api';
 import { RevInMemoryBehavioredSettings } from './in-memory-behaviored-settings';
