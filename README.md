@@ -1,6 +1,6 @@
 # Revgrid
 
-[![NPM version](https://img.shields.io/npm/v/revgrid)](https://www.npmjs.com/package/@xilytix/revgrid) [![License](https://img.shields.io/github/license/xilytix/revgrid)](https://img.shields.io/github/license/xilytix/revgrid)
+[![NPM version](https://img.shields.io/npm/v/revgrid)](https://www.npmjs.com/package/revgrid) [![License](https://img.shields.io/github/license/revgrid)](https://img.shields.io/github/license/revgrid/revgrid)
 
 Revgrid is a canvas based virtual grid focusing on realtime data display and performance. Data is injected into the grid using server interfaces.
 
@@ -25,5 +25,5 @@ The library can be installed into an application package with the npm command:\
 `npm i revgrid`
 
 ## More information
-For more information, please refer to the [Revgrid website](https://xilytix.github.io/revgrid/)
+For more information, please refer to the [Revgrid website](https://revgrid.github.io/revgrid/)
 

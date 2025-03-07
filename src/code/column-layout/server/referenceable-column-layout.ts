@@ -1,5 +1,3 @@
-// (c) 2024 Xilytix Pty Ltd / Paul Klink
-
 import { Integer } from '@pbkware/js-utils';
 import { RevColumnLayout } from './column-layout';
 import { RevReferenceableColumnLayoutDefinition } from './definition/internal-api';

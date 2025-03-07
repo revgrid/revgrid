@@ -1,5 +1,3 @@
-// (c) 2024 Xilytix Pty Ltd / Paul Klink
-
 export * from './canvas/internal-api';
 export * from './column/internal-api';
 export * from './components-manager';

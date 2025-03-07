@@ -1,5 +1,3 @@
-// (c) 2024 Xilytix Pty Ltd / Paul Klink
-
 export * from './cell-click-ui-controller';
 export * from './clipboard-ui-controller';
 export * from './column-moving-ui-controller';

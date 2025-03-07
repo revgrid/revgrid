@@ -1,5 +1,3 @@
-// (c) 2024 Xilytix Pty Ltd / Paul Klink
-
 import { MapKey } from '@pbkware/js-utils';
 
 /** @public */

@@ -1,5 +1,3 @@
-// (c) 2024 Xilytix Pty Ltd / Paul Klink
-
 import { Integer } from '@pbkware/js-utils';
 import { RevColumnLayoutDefinition } from '../../../../column-layout/server/internal-api';
 import { RevAllowedSourcedFieldsColumnLayoutDefinition } from '../../../sourced-field/server/internal-api';

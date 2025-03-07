@@ -1,5 +1,3 @@
-// (c) 2024 Xilytix Pty Ltd / Paul Klink
-
 import { RevTableValue } from './table-value';
 
 /** @public */

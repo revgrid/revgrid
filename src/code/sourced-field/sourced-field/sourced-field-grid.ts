@@ -1,5 +1,3 @@
-// (c) 2024 Xilytix Pty Ltd / Paul Klink
-
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../../client/internal-api';
 import { RevIColumnLayoutGrid } from '../../column-layout/internal-api';
 import { RevAllowedSourcedFieldsColumnLayoutDefinition, RevSourcedField } from './server/internal-api';

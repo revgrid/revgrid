@@ -1,5 +1,3 @@
-// (c) 2024 Xilytix Pty Ltd / Paul Klink
-
 import { AssertInternalError, IndexedRecord } from '@pbkware/js-utils';
 import { RevTextFormattableValue } from '../../../../cell-content/client/internal-api';
 import { RevRecordSourcedField } from './record-sourced-field';

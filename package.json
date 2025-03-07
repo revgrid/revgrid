@@ -1,18 +1,18 @@
 {
-  "name": "@xilytix/revgrid",
+  "name": "revgrid",
   "version": "0.9.0",
   "description": "Canvas based high performance grid",
   "module": "dist/code/public-api.js",
   "typings": "dist/types/public-api.d.ts",
-  "homepage": "https://xilytix.github.io/revgrid/",
+  "homepage": "https://revgrid.github.io/revgrid/",
   "repository": {
     "type": "git",
-    "url": "git://github.com/xilytix/revgrid.git"
+    "url": "git://github.com/revgrid/revgrid.git"
   },
   "contributors": [
     "Paul Klink (https://paul.klink.au)"
   ],
-  "license": "SEE LICENSE IN license.txt",
+  "license": "MIT",
   "readmeFilename": "README.md",
   "keywords": [
     "grid",
@@ -25,11 +25,10 @@
     "dist/**/*",
     "src/**/*.ts",
     "src/**/*.json",
-    "src/**/*.css",
-    "license.txt"
+    "src/**/*.css"
   ],
   "scripts": {
-    "link-xilytix": "npm link @xilytix/sysutils",
+    "link-pbkware": "npm link @pbkware/js-utils",
     "lint": "eslint -c .eslintrc.json --ext .ts src/",
     "build": "tsc --build ./src/code/tsconfig.json",
     "force-build": "tsc --build --force ./src/code/tsconfig.json",

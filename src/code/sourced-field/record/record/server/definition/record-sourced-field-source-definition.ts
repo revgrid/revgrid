@@ -1,5 +1,3 @@
-// (c) 2024 Xilytix Pty Ltd / Paul Klink
-
 import { RevSourcedFieldSourceDefinition } from '../../../../sourced-field/server/internal-api';
 
 /** @public */

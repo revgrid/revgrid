@@ -1,5 +1,3 @@
-// (c) 2024 Xilytix Pty Ltd / Paul Klink
-
 import { Integer } from '@pbkware/js-utils';
 import { RevApiError, RevAssertError, RevClientObject, RevCssTypes, RevDataServer, RevEnsureFullyInViewEnum, RevListChangedTypeId, RevMetaServer, RevPoint, RevRectangle, RevSchemaField, RevSchemaServer, RevSelectionAreaType } from '../common/internal-api';
 import { RevBehaviorManager } from './behavior/behavior-manager';

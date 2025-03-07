@@ -1,5 +1,3 @@
-// (c) 2024 Xilytix Pty Ltd / Paul Klink
-
 import { Guid, IndexedRecord } from '@pbkware/js-utils';
 
 /** @public */

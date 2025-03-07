@@ -1,5 +1,3 @@
-// (c) 2024 Xilytix Pty Ltd / Paul Klink
-
 export * from './cell-editor';
 export * from './cell-meta-settings';
 export * from './cell-painter';

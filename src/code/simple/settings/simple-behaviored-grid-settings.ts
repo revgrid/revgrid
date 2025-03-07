@@ -1,5 +1,3 @@
-// (c) 2024 Xilytix Pty Ltd / Paul Klink
-
 import { RevBehavioredGridSettings } from '../../client/internal-api';
 import { RevSimpleGridSettings } from './simple-grid-settings';
 

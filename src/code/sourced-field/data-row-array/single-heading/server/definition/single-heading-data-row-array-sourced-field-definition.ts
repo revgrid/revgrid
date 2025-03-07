@@ -1,5 +1,3 @@
-// (c) 2024 Xilytix Pty Ltd / Paul Klink
-
 import { Integer } from '@pbkware/js-utils';
 import { RevHorizontalAlignId } from '../../../../../cell-content/client/internal-api';
 import { RevSourcedFieldDefinition, RevSourcedFieldSourceDefinition } from '../../../../sourced-field/server/internal-api';

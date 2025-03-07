@@ -1,5 +1,3 @@
-// (c) 2024 Xilytix Pty Ltd / Paul Klink
-
 import { IndexedRecord, Integer } from '@pbkware/js-utils';
 import { RevTableValue } from './table-value';
 

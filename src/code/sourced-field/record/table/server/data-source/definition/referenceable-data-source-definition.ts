@@ -1,5 +1,3 @@
-// (c) 2024 Xilytix Pty Ltd / Paul Klink
-
 import { Err, Guid, JsonElement, Ok, Result, UnreachableCaseError } from '@pbkware/js-utils';
 import { RevColumnLayoutOrReferenceDefinition } from '../../../../../../column-layout/server/internal-api';
 import { RevRecordRowOrderDefinition } from '../../../../../../record/server/internal-api';

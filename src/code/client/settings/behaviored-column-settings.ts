@@ -1,5 +1,3 @@
-// (c) 2024 Xilytix Pty Ltd / Paul Klink
-
 import { RevBehavioredSettings } from './behaviored-settings';
 import { RevColumnSettings } from './column-settings';
 import { RevGridSettings } from './grid-settings';

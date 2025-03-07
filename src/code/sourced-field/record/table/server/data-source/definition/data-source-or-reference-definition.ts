@@ -1,5 +1,3 @@
-// (c) 2024 Xilytix Pty Ltd / Paul Klink
-
 import { AssertInternalError, Err, Guid, JsonElement, Ok, Result, UnreachableCaseError } from '@pbkware/js-utils';
 import { RevColumnLayoutOrReferenceDefinition } from '../../../../../../column-layout/server/internal-api';
 import { RevTableRecordSourceDefinitionFromJsonFactory } from '../../record-source/internal-api';

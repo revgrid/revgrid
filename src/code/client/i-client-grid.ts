@@ -1,5 +1,3 @@
-// (c) 2024 Xilytix Pty Ltd / Paul Klink
-
 import { RevSchemaField } from '../common/internal-api';
 import { RevClientGrid } from './client-grid';
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from './settings/internal-api';

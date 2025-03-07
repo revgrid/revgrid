@@ -1,5 +1,3 @@
-// (c) 2024 Xilytix Pty Ltd / Paul Klink
-
 export * from './data-source';
 export * from './data-source-or-reference';
 export * from './definition/internal-api';

@@ -1,5 +1,3 @@
-// (c) 2024 Xilytix Pty Ltd / Paul Klink
-
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../../../client/internal-api';
 import { RevRecordGrid } from '../../../record/internal-api';
 import { RevSourcedFieldGrid } from '../../sourced-field/internal-api';

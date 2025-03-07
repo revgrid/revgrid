@@ -1,5 +1,3 @@
-// (c) 2024 Xilytix Pty Ltd / Paul Klink
-
 import { RevDataRowArrayField } from '../../../../data-row-array/server/internal-api';
 import { RevSingleHeadingField } from '../../../../header/server/internal-api';
 import { RevSourcedField } from '../../../sourced-field/server/internal-api';

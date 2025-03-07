@@ -1,5 +1,3 @@
-// (c) 2024 Xilytix Pty Ltd / Paul Klink
-
 import { RevHorizontalWheelScrollingAllowedId, RevModifierKey, RevRowOrColumnSelectionAreaType, RevSelectionAreaType } from '../../common/internal-api';
 
 /** @public */

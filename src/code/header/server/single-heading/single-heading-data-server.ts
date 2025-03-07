@@ -1,5 +1,3 @@
-// (c) 2024 Xilytix Pty Ltd / Paul Klink
-
 import { RevAssertError, RevDataServer } from '../../../common/internal-api';
 import { RevSingleHeadingField } from './single-heading-field';
 

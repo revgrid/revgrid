@@ -1,5 +1,3 @@
-// (c) 2024 Xilytix Pty Ltd / Paul Klink
-
 export * from './behavior/internal-api';
 export * from './client-grid';
 export * from './components/internal-api';

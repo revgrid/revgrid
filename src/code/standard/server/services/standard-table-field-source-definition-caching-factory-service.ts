@@ -1,5 +1,3 @@
-// (c) 2024 Xilytix Pty Ltd / Paul Klink
-
 import { RevColumnLayoutDefinition } from '../../../column-layout/server/internal-api';
 import { RevTableFieldSourceDefinition, RevTableFieldSourceDefinitionFactory } from '../../../sourced-field/record/table/server/internal-api';
 

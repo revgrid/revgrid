@@ -1,5 +1,3 @@
-// (c) 2024 Xilytix Pty Ltd / Paul Klink
-
 import { AssertInternalError, Err, Guid, LockOpenListItem, Ok, Result, UnreachableCaseError } from '@pbkware/js-utils';
 import { RevReferenceableColumnLayouts } from '../../../../../column-layout/server/internal-api';
 import { RevApiError } from '../../../../../common/internal-api';

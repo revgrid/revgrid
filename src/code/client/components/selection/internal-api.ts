@@ -1,5 +1,3 @@
-// (c) 2024 Xilytix Pty Ltd / Paul Klink
-
 export * from './contiguous-index-range';
 export * from './contiguous-index-range-list';
 export * from './first-corner-area';

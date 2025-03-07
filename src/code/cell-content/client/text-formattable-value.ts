@@ -1,5 +1,3 @@
-// (c) 2024 Xilytix Pty Ltd / Paul Klink
-
 /** @public */
 export interface RevTextFormattableValue<TypeId, AttributeTypeId> {
     readonly typeId: TypeId;

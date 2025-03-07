@@ -1,5 +1,3 @@
-// (c) 2024 Xilytix Pty Ltd / Paul Klink
-
 import { Integer, } from '@pbkware/js-utils';
 import { RevRecordValueRecentChangeTypeId } from '../../../../../record/server/internal-api';
 import { RevTableValue } from '../value/internal-api';

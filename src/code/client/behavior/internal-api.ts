@@ -1,5 +1,3 @@
-// (c) 2024 Xilytix Pty Ltd / Paul Klink
-
 export * from './behavior-manager';
 export * from './cell-properties-behavior';
 export * from './data-extract-behavior';

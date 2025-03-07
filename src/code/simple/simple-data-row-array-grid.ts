@@ -1,5 +1,3 @@
-// (c) 2024 Xilytix Pty Ltd / Paul Klink
-
 import { RevGridDefinition, RevGridOptions, RevSubgrid, RevViewCell } from '../client/internal-api';
 import { RevDataRowArrayDataServer, RevDataRowArrayGrid, RevDataRowArraySchemaServer } from '../data-row-array/internal-api';
 import { RevSingleHeadingDataServer, RevSingleHeadingField } from '../header/internal-api';

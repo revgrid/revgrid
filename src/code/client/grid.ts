@@ -1,5 +1,3 @@
-// (c) 2024 Xilytix Pty Ltd / Paul Klink
-
 // Not used - see RevIClientGrid instead
 
 import { Integer } from '@pbkware/js-utils';

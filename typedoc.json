@@ -3,7 +3,7 @@
   "tsconfig": "./src/code/tsconfig.json",
   "entryPoints": ["./src/code/public-api.ts"],
   "excludeInternal": true,
-  "out": "../xilytix-website/content/revgrid/doc",
+  // "out": "../revgrid-website/content/revgrid/doc",
   "readme": "README.md",
   "includeVersion": true,
   "excludePrivate": true,

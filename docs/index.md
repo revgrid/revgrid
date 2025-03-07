@@ -29,7 +29,7 @@ Revgrid is shipped via NPM. Use the following commands to install it into an app
 `npm i revgrid`
 
 # Install Source
-The source can be installed by cloning the repository (or a fork) at: [https://github.com/xilytix/revgrid](https://github.com/xilytix/revgrid)
+The source can be installed by cloning the repository (or a fork) at: [https://github.com/revgrid/revgrid](https://github.com/revgrid/revgrid)
 
 To build the distribution locally, open a shell at the directory/folder in which Revgrid was cloned and run the following commands:
 1. `npm install` or `npm ci` (recommended) to install required dependencies
@@ -67,9 +67,3 @@ Bundles are not built by default and are not included in the NPM package. It is 
 Many aspects of the code base still need to be cleaned up.  As part of this, it is possible that API interfaces and behaviour will change. Also, some features and convenience functions may be removed if they are deemed to not be inline with Revgrid's objectives.
 
 We will endeavour to document these API changes however this will probably only consist of dot points. You may need to examine the Revgrid source code to fully understand the implications of these API changes.
-
-# Release information
-
- Version | Date        | Details
----------|-------------|---------
- 0.8.0   | 08 Jan2024  | Initial commit

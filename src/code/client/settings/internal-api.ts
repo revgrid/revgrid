@@ -1,5 +1,3 @@
-// (c) 2024 Xilytix Pty Ltd / Paul Klink
-
 export * from './behaviored-column-settings';
 export * from './behaviored-grid-settings';
 export * from './behaviored-settings';

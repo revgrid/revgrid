@@ -1,5 +1,3 @@
-// (c) 2024 Xilytix Pty Ltd / Paul Klink
-
 /**
  * The major classes in RevClient implement this interface to assist with debugging.
  * @public

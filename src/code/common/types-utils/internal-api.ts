@@ -1,5 +1,3 @@
-// (c) 2024 Xilytix Pty Ltd / Paul Klink
-
 // export { RevCachedCanvasRenderingContext2D } from './cached-canvas-rendering-context-2d';
 // export { RevClientObject } from './client-object';
 // export { RevCssTypes } from './css-types';
