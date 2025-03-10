@@ -18,6 +18,8 @@ import { MultiEvent } from '@pbkware/js-utils';
 import { NamedLocker } from '@pbkware/js-utils';
 import { NamedOpener } from '@pbkware/js-utils';
 import { Result } from '@pbkware/js-utils';
+import { RevEventBehavior as RevEventBehavior_2 } from '../../behavior/event-behavior';
+import { RevLastSelectionArea as RevLastSelectionArea_2 } from './internal-api';
 import { UnreachableCaseInternalError } from '@pbkware/js-utils';
 import { UsableListChangeTypeId } from '@pbkware/js-utils';
 
@@ -1071,13 +1073,13 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     // (undocumented)
     get nonFixedColumnsViewWidth(): number;
     // (undocumented)
-    onlySelectCell(x: Integer, y: Integer, subgrid?: RevSubgrid<BCS, SF>): RevLastSelectionArea;
+    onlySelectCell(x: Integer, y: Integer, subgrid?: RevSubgrid<BCS, SF>): RevLastSelectionArea_2;
     // (undocumented)
     onlySelectColumn(activeColumnIndex: Integer): void;
     // (undocumented)
     onlySelectColumns(activeColumnIndex: Integer, count: Integer): void;
     // (undocumented)
-    onlySelectRectangle(firstInexclusiveX: Integer, firstInexclusiveY: Integer, width: Integer, height: Integer, subgrid?: RevSubgrid<BCS, SF>): RevLastSelectionArea;
+    onlySelectRectangle(firstInexclusiveX: Integer, firstInexclusiveY: Integer, width: Integer, height: Integer, subgrid?: RevSubgrid<BCS, SF>): RevLastSelectionArea_2;
     // (undocumented)
     onlySelectRow(subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>): void;
     // (undocumented)
@@ -1104,7 +1106,7 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     // (undocumented)
     selectAllRows(subgrid?: RevSubgrid<BCS, SF>): void;
     // (undocumented)
-    selectCell(x: Integer, y: Integer, subgrid?: RevSubgrid<BCS, SF>): RevLastSelectionArea;
+    selectCell(x: Integer, y: Integer, subgrid?: RevSubgrid<BCS, SF>): RevLastSelectionArea_2;
     // (undocumented)
     selectColumn(activeColumnIndex: Integer): void;
     // (undocumented)
@@ -1115,7 +1117,7 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     get selectionAllAuto(): boolean;
     set selectionAllAuto(value: boolean);
     // (undocumented)
-    selectRectangle(firstInexclusiveX: Integer, firstInexclusiveY: Integer, width: Integer, height: Integer, subgrid: RevSubgrid<BCS, SF>): RevLastSelectionArea;
+    selectRectangle(firstInexclusiveX: Integer, firstInexclusiveY: Integer, width: Integer, height: Integer, subgrid: RevSubgrid<BCS, SF>): RevLastSelectionArea_2;
     // (undocumented)
     selectRow(subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>): void;
     // (undocumented)
@@ -1717,7 +1719,7 @@ export class RevColumnMovingUiController<BGS extends RevBehavioredGridSettings, 
     // (undocumented)
     handlePointerDragEnd(event: PointerEvent, cell: RevLinedHoverCell<BCS, SF> | null | undefined): RevLinedHoverCell<BCS, SF> | null | undefined;
     // (undocumented)
-    handlePointerDragStart(event: DragEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined): import("../../behavior/event-behavior").RevEventBehavior.UiPointerDragStartResult<BCS, SF>;
+    handlePointerDragStart(event: DragEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined): RevEventBehavior_2.UiPointerDragStartResult<BCS, SF>;
     // (undocumented)
     handlePointerMove(event: PointerEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined): RevLinedHoverCell<BCS, SF> | null | undefined;
     // (undocumented)
@@ -3523,9 +3525,9 @@ export namespace RevGridPainter {
 export class RevGridPainterRepository<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> {
     constructor(_gridSettings: RevGridSettings, _canvas: RevCanvas<BGS>, _subgridsManager: RevSubgridsManager<BCS, SF>, _viewLayout: RevViewLayout<BGS, BCS, SF>, _focus: RevFocus<BGS, BCS, SF>, _selection: RevSelection<BGS, BCS, SF>, _mouse: RevMouse<BGS, BCS, SF>, _repaintAllRequiredEventer: RevGridPainter.RepaintAllRequiredEventer);
     // (undocumented)
-    allCreated(): IterableIterator<RevGridPainter<BGS, BCS, SF>>;
+    allCreated(): MapIterator<RevGridPainter<BGS, BCS, SF>>;
     // (undocumented)
-    allCreatedEntries(): IterableIterator<[string, RevGridPainter<BGS, BCS, SF>]>;
+    allCreatedEntries(): MapIterator<[string, RevGridPainter<BGS, BCS, SF>]>;
     // (undocumented)
     get(key: string): RevGridPainter<BGS, BCS, SF>;
     // (undocumented)
@@ -5426,13 +5428,13 @@ export abstract class RevRecordSourcedField<TextFormattableValueTypeId, TextForm
 
 // @public (undocumented)
 export class RevRecordSourcedFieldDefinition implements RevSourcedFieldDefinition {
-    constructor(sourceDefinition: RevRecordSourcedFieldSourceDefinition, sourcelessName: string, defaultHeading: string, defaultTextAlignId: RevHorizontalAlignId, defaultWidth?: number | undefined);
+    constructor(sourceDefinition: RevRecordSourcedFieldSourceDefinition, sourcelessName: string, defaultHeading: string, defaultTextAlignId: RevHorizontalAlignId, defaultWidth?: Integer | undefined);
     // (undocumented)
     readonly defaultHeading: string;
     // (undocumented)
     readonly defaultTextAlignId: RevHorizontalAlignId;
     // (undocumented)
-    readonly defaultWidth?: number | undefined;
+    readonly defaultWidth?: Integer | undefined;
     // (undocumented)
     readonly name: string;
     // (undocumented)
@@ -6565,7 +6567,7 @@ export class RevSelectionUiController<BGS extends RevBehavioredGridSettings, BCS
     // (undocumented)
     handlePointerDragEnd(event: PointerEvent, cell: RevLinedHoverCell<BCS, SF> | null | undefined): RevLinedHoverCell<BCS, SF> | null | undefined;
     // (undocumented)
-    handlePointerDragStart(event: DragEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined): import("../../behavior/event-behavior").RevEventBehavior.UiPointerDragStartResult<BCS, SF>;
+    handlePointerDragStart(event: DragEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined): RevEventBehavior_2.UiPointerDragStartResult<BCS, SF>;
     // (undocumented)
     readonly typeName = "selection";
 }

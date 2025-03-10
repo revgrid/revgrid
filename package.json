@@ -49,7 +49,7 @@
     "doc": "npx del-cli ./doc/* && typedoc --options ./typedoc.json"
   },
   "devDependencies": {
-    "@microsoft/api-extractor": "7.43.0",
+    "@microsoft/api-extractor": "7.51.1",
     "@typescript-eslint/eslint-plugin": "7.3.1",
     "@typescript-eslint/parser": "7.3.1",
     "copyfiles": "2.4.1",
@@ -62,10 +62,10 @@
     "source-map-loader": "5.0.0",
     "style-loader": "3.3.4",
     "ts-loader": "9.5.1",
-    "typedoc": "0.25.13",
-    "typedoc-plugin-frontmatter": "1.0.0",
-    "typedoc-plugin-markdown": "4.0.1",
-    "typescript": "5.4.3",
+    "typedoc": "0.27.9",
+    "typedoc-plugin-frontmatter": "1.2.1",
+    "typedoc-plugin-markdown": "4.4.2",
+    "typescript": "5.8.2",
     "update-browserslist-db": "1.0.13",
     "webpack": "5.91.0",
     "webpack-cli": "5.1.4",
@@ -80,6 +80,6 @@
     "Firefox ESR"
   ],
   "dependencies": {
-    "@pbkware/js-utils": "0.8.0"
+    "@pbkware/js-utils": "0.8.1"
   }
 }
