@@ -1,7 +1,7 @@
-import { DataServer } from '..';
+import { RevDataServer } from '..';
 import { AppSchemaField } from './app-schema-field';
 
-export class HeaderDataServer implements DataServer<AppSchemaField> {
+export class HeaderDataServer implements RevDataServer<AppSchemaField> {
     getRowCount() {
         return 1;
     }

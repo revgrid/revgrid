@@ -1,4 +1,4 @@
-import { RevColumn, RevDataServer, StandardBehavioredColumnSettings } from '..';
+import { RevColumn, RevDataServer, RevSimpleBehavioredColumnSettings } from '..';
 import { AppSchemaField } from './app-schema-field';
 import { MainRecord } from './main-record';
 
@@ -110,7 +110,7 @@ export class MainDataServer implements RevDataServer<AppSchemaField> {
         }
     }
 
-    sort(column: RevColumn<StandardBehavioredColumnSettings, AppSchemaField>) {
+    sort(column: RevColumn<RevSimpleBehavioredColumnSettings, AppSchemaField>) {
         this._notificationsClient.preReindex();
         try {
             const field = column.field;

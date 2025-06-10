@@ -1,4 +1,4 @@
-import { MultiHeadingDataRowArrayServerSet, Point } from '..';
+import { RevDataRowArrayGrid, RevPoint } from '..';
 import { DataRowArrayGrid } from './data-row-array-grid';
 
 export class Main {
@@ -45,7 +45,7 @@ export class Main {
         return grid;
     }
 
-    private handleCellFocusEvent(newPoint: Point | undefined, oldPoint: Point | undefined): void {
+    private handleCellFocusEvent(newPoint: RevPoint | undefined, oldPoint: RevPoint | undefined): void {
         console.log(`Focus change: New: ${newPoint === undefined ? '-' : `(${newPoint.x}, ${newPoint.y})`}  Old: ${oldPoint === undefined ? '-' : `(${oldPoint.x}, ${oldPoint.y})`}`);
     }
 
@@ -67,7 +67,7 @@ export class Main {
     }
 
     private loadPets() {
-        interface Pet extends MultiHeadingDataRowArrayServerSet.DataRow {
+        interface Pet extends RevDataRowArrayGrid.DataRow {
             name: string;
             type: string;
             color: string;
@@ -129,7 +129,7 @@ export class Main {
     }
 
     private loadMany() {
-        interface Row extends MultiHeadingDataRowArrayServerSet.DataRow {
+        interface Row extends RevDataRowArrayGrid.DataRow {
             StrCol: string;
             NumberCol: number;
             BoolCol: boolean;

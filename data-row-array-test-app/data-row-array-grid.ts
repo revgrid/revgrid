@@ -1,97 +1,66 @@
 import {
-    MultiHeadingDataRowArrayServerSet,
-    MultiHeadingSchemaField,
-    RevClientGrid,
+    RevHorizontalAlignId,
     RevLinedHoverCell,
+    RevMultiHeadingDataRowArraySourcedField,
+    RevMultiHeadingDataRowArraySourcedFieldDefinition,
+    RevMultiHeadingDataRowArraySourcedFieldGrid,
     RevPoint,
+    RevSimpleAlphaTextCellPainter,
+    RevSimpleBehavioredColumnSettings,
+    RevSimpleBehavioredGridSettings,
+    RevStandardHeaderTextCellPainter,
     RevViewCell,
-    StandardAlphaTextCellPainter,
-    StandardBehavioredColumnSettings,
-    StandardBehavioredGridSettings,
-    StandardHeaderTextCellPainter,
-    readonlyDefaultStandardBehavioredColumnSettings,
-    readonlyDefaultStandardBehavioredGridSettings
+    revSimpleReadonlyDefaultBehavioredColumnSettings,
+    revSimpleReadonlyDefaultBehavioredGridSettings
 } from '..';
 
-export class DataRowArrayGrid extends RevClientGrid<
-        StandardBehavioredGridSettings,
-        StandardBehavioredColumnSettings,
-        MultiHeadingSchemaField
+export class DataRowArrayGrid extends RevMultiHeadingDataRowArraySourcedFieldGrid<
+        RevSimpleBehavioredGridSettings,
+        RevSimpleBehavioredColumnSettings,
+        RevMultiHeadingDataRowArraySourcedField
     > {
 
     cellFocusEventer: DataRowArrayGrid.CellFocusEventer | undefined;
     clickEventer: DataRowArrayGrid.RowFocusClickEventer | undefined;
     dblClickEventer: DataRowArrayGrid.RowFocusDblClickEventer | undefined;
 
-    private readonly _serverSet: MultiHeadingDataRowArrayServerSet<MultiHeadingSchemaField>;
-
-    private readonly _headerCellPainter: StandardHeaderTextCellPainter<
-        StandardBehavioredGridSettings,
-        StandardBehavioredColumnSettings,
-        MultiHeadingSchemaField
+    private readonly _headerCellPainter: RevStandardHeaderTextCellPainter<
+        RevSimpleBehavioredGridSettings,
+        RevSimpleBehavioredColumnSettings,
+        RevMultiHeadingDataRowArraySourcedField
     >;
-    private readonly _textCellPainter: StandardAlphaTextCellPainter<
-        StandardBehavioredGridSettings,
-        StandardBehavioredColumnSettings,
-        MultiHeadingSchemaField
+    private readonly _textCellPainter: RevSimpleAlphaTextCellPainter<
+        RevSimpleBehavioredGridSettings,
+        RevSimpleBehavioredColumnSettings,
+        RevMultiHeadingDataRowArraySourcedField
     >;
 
     constructor(
         gridElement: HTMLElement,
         externalParent: unknown,
     ) {
-        const gridSettings: StandardBehavioredGridSettings = {
-            ...readonlyDefaultStandardBehavioredGridSettings,
+        const gridSettings: RevSimpleBehavioredGridSettings = {
+            ...revSimpleReadonlyDefaultBehavioredGridSettings,
             mouseColumnSelectionEnabled: false,
             mouseRowSelectionEnabled: false,
             multipleSelectionAreas: false,
         };
 
-        const serverSet = new MultiHeadingDataRowArrayServerSet<MultiHeadingSchemaField>(
-            (index, key, headings) => ({
-                index,
-                name: key,
-                headings,
-            }),
+        super(
+            gridElement,
+            (viewCell) => this.getHeaderCellPainter(viewCell),
+            (viewCell) => this.getMainCellPainter(viewCell),
+            gridSettings,
+            () => revSimpleReadonlyDefaultBehavioredColumnSettings,
+            (index: number, key: string, headings: string[]) => this.createField(index, key, headings),
+            { externalParent }
         );
-        const schemaServer = serverSet.schemaServer;
 
-        const headerDataServer = serverSet.headerDataServer;
-        const mainDataServer = serverSet.mainDataServer;
-
-        const definition: RevClientGrid.Definition<StandardBehavioredColumnSettings, MultiHeadingSchemaField> = {
-            schemaServer,
-            subgrids: [
-                {
-                    role: RevSubgrid.RoleEnum.header,
-                    dataServer: headerDataServer,
-                    getCellPainterEventer: (viewCell) => this.getHeaderCellPainter(viewCell),
-                },
-                {
-                    role: RevSubgrid.RoleEnum.main,
-                    dataServer: mainDataServer,
-                    getCellPainterEventer: (viewCell) => this.getMainCellPainter(viewCell),
-                }
-            ],
-        };
-
-        super(gridElement, definition, gridSettings, () => readonlyDefaultStandardBehavioredColumnSettings, { externalParent });
-
-        this._serverSet = serverSet;
-
-        this._headerCellPainter = new StandardHeaderTextCellPainter(this, headerDataServer);
-        this._textCellPainter = new StandardAlphaTextCellPainter(this, mainDataServer);
+        this._headerCellPainter = new RevStandardHeaderTextCellPainter(this, this.headerDataServer);
+        this._textCellPainter = new RevSimpleAlphaTextCellPainter(this, this.mainDataServer);
     }
-
-    get headerDataServer() { return this._serverSet.headerDataServer; }
-
-    get fieldCount(): number { return this.schemaServer.getFields().length; }
 
     get columnCount(): number { return this.activeColumnCount; }
-
-    get headerRowCount(): number {
-        return this.headerDataServer.getRowCount();
-    }
 
     protected override descendantProcessCellFocusChanged(oldPoint: RevPoint | undefined, newPoint: RevPoint | undefined) {
         if (this.cellFocusEventer !== undefined) {
@@ -101,7 +70,7 @@ export class DataRowArrayGrid extends RevClientGrid<
 
     protected override descendantProcessClick(
         event: MouseEvent,
-        hoverCell: RevLinedHoverCell<StandardBehavioredColumnSettings, MultiHeadingSchemaField> | null | undefined
+        hoverCell: RevLinedHoverCell<RevSimpleBehavioredColumnSettings, RevMultiHeadingDataRowArraySourcedField> | null | undefined
     ) {
         if (this.clickEventer !== undefined) {
             if (hoverCell === null) {
@@ -118,7 +87,7 @@ export class DataRowArrayGrid extends RevClientGrid<
 
     protected override descendantProcessDblClick(
         event: MouseEvent,
-        hoverCell: RevLinedHoverCell<StandardBehavioredColumnSettings, MultiHeadingSchemaField> | null | undefined
+        hoverCell: RevLinedHoverCell<RevSimpleBehavioredColumnSettings, RevMultiHeadingDataRowArraySourcedField> | null | undefined
     ) {
         if (this.dblClickEventer !== undefined) {
             if (hoverCell === null) {
@@ -133,15 +102,27 @@ export class DataRowArrayGrid extends RevClientGrid<
         }
     }
 
-    setData(data: MultiHeadingDataRowArrayServerSet.DataRow[], headerRowCount = -1): void {
-        this._serverSet.setData(data, headerRowCount)
+    // setData(data: MultiHeadingDataRowArrayServerSet.DataRow[], headerRowCount = -1): void {
+    //     this._serverSet.setData(data, headerRowCount)
+    // }
+
+    private createField(index: number, key: string, headings: string[]) {
+        const definition = RevMultiHeadingDataRowArraySourcedFieldDefinition.create(
+            { name: '' },
+            key,
+            headings,
+            undefined,
+            RevHorizontalAlignId.Left,
+        );
+
+        return new RevMultiHeadingDataRowArraySourcedField(definition);
     }
 
-    private getHeaderCellPainter(_viewCell: RevViewCell<StandardBehavioredColumnSettings, MultiHeadingSchemaField>) {
+    private getHeaderCellPainter(_viewCell: RevViewCell<RevSimpleBehavioredColumnSettings, RevMultiHeadingDataRowArraySourcedField>) {
         return this._headerCellPainter;
     }
 
-    private getMainCellPainter(_viewCell: RevViewCell<StandardBehavioredColumnSettings, MultiHeadingSchemaField>) {
+    private getMainCellPainter(_viewCell: RevViewCell<RevSimpleBehavioredColumnSettings, RevMultiHeadingDataRowArraySourcedField>) {
         return this._textCellPainter;
     }
 }

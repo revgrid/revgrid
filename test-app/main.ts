@@ -1,24 +1,24 @@
 import {
-    HorizontalAlignEnum,
-    InMemoryStandardBehavioredColumnSettings,
-    InMemoryStandardBehavioredGridSettings,
     RevCellEditor,
     RevClientGrid,
     RevDispatchableEvent,
     RevGridDefinition,
+    RevHorizontalAlign,
+    RevSimpleAlphaTextCellPainter,
+    RevSimpleBehavioredColumnSettings,
+    RevSimpleBehavioredGridSettings,
+    RevSimpleInMemoryBehavioredColumnSettings,
+    RevSimpleInMemoryBehavioredGridSettings,
+    RevStandardCellPainter,
+    RevStandardCheckboxCellPainter,
+    RevStandardHeaderTextCellPainter,
+    RevStandardTextInputCellEditor,
+    RevStandardToggleClickBoxCellEditor,
     RevSubgrid,
     RevViewCell,
-    StandardAlphaTextCellPainter,
-    StandardBehavioredColumnSettings,
-    StandardBehavioredGridSettings,
-    StandardCellPainter,
-    StandardCheckboxCellPainter,
-    StandardHeaderTextCellPainter,
-    StandardTextInputCellEditor,
-    StandardToggleClickBoxCellEditor,
-    defaultGridSettings,
-    defaultStandardColumnSettings,
-    defaultStandardGridSettings
+    revDefaultGridSettings,
+    revSimpleDefaultColumnSettings,
+    revSimpleDefaultGridSettings
 } from '..';
 import { AppSchemaField } from './app-schema-field';
 import { AppSchemaServer } from './app-schema-server';
@@ -41,17 +41,17 @@ export class Main {
     private readonly _gridHostElement: HTMLElement;
     private readonly _getSettingsForNewColumnListener = (field: AppSchemaField) => this.getSettingsForNewColumn(field);
 
-    private _gridSettings: StandardBehavioredGridSettings = new InMemoryStandardBehavioredGridSettings();
+    private _gridSettings: RevSimpleBehavioredGridSettings = new RevSimpleInMemoryBehavioredGridSettings();
     private _schemaServer: AppSchemaServer;
     private _headerDataServer: HeaderDataServer;
     private _mainDataServer: MainDataServer;
-    private _headerCellPainter: StandardHeaderTextCellPainter<StandardBehavioredGridSettings, StandardBehavioredColumnSettings, AppSchemaField>;
-    private _textCellPainter: StandardAlphaTextCellPainter<StandardBehavioredGridSettings, StandardBehavioredColumnSettings, AppSchemaField>;
-    private _checkboxCellPainter: StandardCheckboxCellPainter<StandardBehavioredGridSettings, StandardBehavioredColumnSettings, AppSchemaField>;
-    private _textInputEditor: StandardTextInputCellEditor<StandardBehavioredGridSettings, StandardBehavioredColumnSettings, AppSchemaField>;
-    private _checkboxEditor: StandardToggleClickBoxCellEditor<StandardBehavioredGridSettings, StandardBehavioredColumnSettings, AppSchemaField>;
+    private _headerCellPainter: RevStandardHeaderTextCellPainter<RevSimpleBehavioredGridSettings, RevSimpleBehavioredColumnSettings, AppSchemaField>;
+    private _textCellPainter: RevSimpleAlphaTextCellPainter<RevSimpleBehavioredGridSettings, RevSimpleBehavioredColumnSettings, AppSchemaField>;
+    private _checkboxCellPainter: RevStandardCheckboxCellPainter<RevSimpleBehavioredGridSettings, RevSimpleBehavioredColumnSettings, AppSchemaField>;
+    private _textInputEditor: RevStandardTextInputCellEditor<RevSimpleBehavioredGridSettings, RevSimpleBehavioredColumnSettings, AppSchemaField>;
+    private _checkboxEditor: RevStandardToggleClickBoxCellEditor<RevSimpleBehavioredGridSettings, RevSimpleBehavioredColumnSettings, AppSchemaField>;
 
-    private _grid: RevClientGrid<StandardBehavioredGridSettings, StandardBehavioredColumnSettings, AppSchemaField>;
+    private _grid: RevClientGrid<RevSimpleBehavioredGridSettings, RevSimpleBehavioredColumnSettings, AppSchemaField>;
 
     constructor() {
         const gridHostElement = document.querySelector('#gridHost');
@@ -177,7 +177,7 @@ export class Main {
         const gridSettings = this._gridSettings;
 
         gridSettings.beginChange();
-        gridSettings.merge(defaultStandardGridSettings);
+        gridSettings.merge(revSimpleDefaultGridSettings);
 
         gridSettings.editable = true;
         gridSettings.cellPadding = defaultCellPadding;
@@ -212,16 +212,16 @@ export class Main {
         this._mainDataServer = new MainDataServer();
         this._headerDataServer = new HeaderDataServer();
 
-        const definition: RevGridDefinition<StandardBehavioredColumnSettings, AppSchemaField> = {
+        const definition: RevGridDefinition<RevSimpleBehavioredColumnSettings, AppSchemaField> = {
             schemaServer: this._schemaServer,
             subgrids: [
                 {
-                    role: RevSubgrid.RoleEnum.header,
+                    role: RevSubgrid.Role.header,
                     dataServer: this._headerDataServer,
                     getCellPainterEventer: (viewCell) => this.getHeaderCellPainter(viewCell),
                 },
                 {
-                    role: RevSubgrid.RoleEnum.main,
+                    role: RevSubgrid.Role.main,
                     dataServer: this._mainDataServer,
                     getCellPainterEventer: (viewCell) => this.getMainCellPainter(viewCell),
                 }
@@ -230,24 +230,24 @@ export class Main {
 
         this._grid = new RevClientGrid(this._gridHostElement, definition, this._gridSettings, this._getSettingsForNewColumnListener, { externalParent: this });
 
-        this._headerCellPainter = new StandardHeaderTextCellPainter(this._grid, this._headerDataServer);
-        this._textCellPainter = new StandardAlphaTextCellPainter(this._grid, this._mainDataServer);
-        this._checkboxCellPainter = new StandardCheckboxCellPainter(this._grid, this._mainDataServer, false);
-        this._textInputEditor = new StandardTextInputCellEditor(this._grid, this._mainDataServer);
-        const checkboxCellPainter = new StandardCheckboxCellPainter(this._grid, this._mainDataServer, true);
-        this._checkboxEditor = new StandardToggleClickBoxCellEditor(this._grid, this._mainDataServer, checkboxCellPainter);
+        this._headerCellPainter = new RevStandardHeaderTextCellPainter(this._grid, this._headerDataServer);
+        this._textCellPainter = new RevSimpleAlphaTextCellPainter(this._grid, this._mainDataServer);
+        this._checkboxCellPainter = new RevStandardCheckboxCellPainter(this._grid, this._mainDataServer, false);
+        this._textInputEditor = new RevStandardTextInputCellEditor(this._grid, this._mainDataServer);
+        const checkboxCellPainter = new RevStandardCheckboxCellPainter(this._grid, this._mainDataServer, true);
+        this._checkboxEditor = new RevStandardToggleClickBoxCellEditor(this._grid, this._mainDataServer, checkboxCellPainter);
 
 
         this._fixedColumnCountTextboxElement.value = this._grid.settings.fixedColumnCount.toString();
         this._cellPaddingTextboxElement.value = this._grid.settings.cellPadding.toString();
-        this._rightHalignCheckboxElement.checked = this._grid.settings.horizontalAlign === HorizontalAlignEnum.right;
+        this._rightHalignCheckboxElement.checked = this._grid.settings.horizontalAlign === RevHorizontalAlign.right;
         this._gridRightAlignedCheckboxElement.checked = this._grid.settings.gridRightAligned;
         this._scrollHorizontallySmoothlyCheckboxElement.checked = this._grid.settings.scrollHorizontallySmoothly;
         this._visibleColumnWidthAdjustCheckboxElement.checked = this._grid.settings.visibleColumnWidthAdjust;
         this._deleteRowIndexTextboxElement.value = '0';
 
         this._grid.addEventListener('rev-column-sort', (event) => {
-                const hoverCell = (event as CustomEvent<RevDispatchableEvent.Detail.ColumnSort<StandardBehavioredColumnSettings, AppSchemaField>>).detail.revgridHoverCell;
+                const hoverCell = (event as CustomEvent<RevDispatchableEvent.Detail.ColumnSort<RevSimpleBehavioredColumnSettings, AppSchemaField>>).detail.revgridHoverCell;
                 if (hoverCell !== undefined) {
                     this._mainDataServer.sort(hoverCell.viewCell.viewLayoutColumn.column);
                 }
@@ -293,15 +293,15 @@ export class Main {
     }
 
     private getSettingsForNewColumn(_field: AppSchemaField) {
-        const columnSettings = new InMemoryStandardBehavioredColumnSettings(this._gridSettings) as StandardBehavioredColumnSettings;
-        columnSettings.merge(defaultStandardColumnSettings);
+        const columnSettings = new RevSimpleInMemoryBehavioredColumnSettings(this._gridSettings) as RevSimpleBehavioredColumnSettings;
+        columnSettings.merge(revSimpleDefaultColumnSettings);
         return columnSettings;
     }
 
-    private getMainCellPainter(viewCell: RevViewCell<StandardBehavioredColumnSettings, AppSchemaField>) {
-        let cellPainter: StandardCellPainter<
-            StandardBehavioredGridSettings,
-            StandardBehavioredColumnSettings,
+    private getMainCellPainter(viewCell: RevViewCell<RevSimpleBehavioredColumnSettings, AppSchemaField>) {
+        let cellPainter: RevStandardCellPainter<
+            RevSimpleBehavioredGridSettings,
+            RevSimpleBehavioredColumnSettings,
             AppSchemaField
         >;
 
@@ -313,17 +313,17 @@ export class Main {
         return cellPainter;
     }
 
-    private getHeaderCellPainter(viewCell: RevViewCell<StandardBehavioredColumnSettings, AppSchemaField>) {
+    private getHeaderCellPainter(viewCell: RevViewCell<RevSimpleBehavioredColumnSettings, AppSchemaField>) {
         return this._headerCellPainter;
     }
 
     private getCellEditor(
         field: AppSchemaField,
         _subgridRowIndex: number,
-        _subgrid: RevSubgrid<StandardBehavioredColumnSettings, AppSchemaField>,
+        _subgrid: RevSubgrid<RevSimpleBehavioredColumnSettings, AppSchemaField>,
         readonly: boolean,
-        _viewCell: RevViewCell<StandardBehavioredColumnSettings, AppSchemaField> | undefined
-    ): RevCellEditor<StandardBehavioredColumnSettings, AppSchemaField> | undefined {
+        _viewCell: RevViewCell<RevSimpleBehavioredColumnSettings, AppSchemaField> | undefined
+    ): RevCellEditor<RevSimpleBehavioredColumnSettings, AppSchemaField> | undefined {
         return this.tryGetCellEditor(field.name, readonly);
     }
 
@@ -344,9 +344,9 @@ export class Main {
     }
 }
 
-const defaultGridRightAligned = defaultGridSettings.gridRightAligned;
-const defaultScrollHorizontallySmoothly = defaultGridSettings.scrollHorizontallySmoothly;
-const defaultVisibleColumnWidthAdjust = defaultGridSettings.visibleColumnWidthAdjust;
-const defaultCellPadding = defaultStandardGridSettings.cellPadding;
-const defaultFixedColumnCount: typeof defaultGridSettings.fixedColumnCount = 2;
-const defaultHorizontalAlign: typeof defaultStandardGridSettings.horizontalAlign = 'left';
+const defaultGridRightAligned = revDefaultGridSettings.gridRightAligned;
+const defaultScrollHorizontallySmoothly = revDefaultGridSettings.scrollHorizontallySmoothly;
+const defaultVisibleColumnWidthAdjust = revDefaultGridSettings.visibleColumnWidthAdjust;
+const defaultCellPadding = revSimpleDefaultGridSettings.cellPadding;
+const defaultFixedColumnCount: typeof revDefaultGridSettings.fixedColumnCount = 2;
+const defaultHorizontalAlign: typeof revSimpleDefaultGridSettings.horizontalAlign = 'left';
