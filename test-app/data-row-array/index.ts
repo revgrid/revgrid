@@ -1,7 +1,5 @@
 import { Main } from './main';
 
-// Run with URL: http://localhost:3000/test-app/dist/
-
 declare global {
     interface Window {
         revgridTestAppMain: Main;

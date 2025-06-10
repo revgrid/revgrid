@@ -1,4 +1,4 @@
-import { RevDataRowArrayGrid, RevPoint } from '..';
+import { RevDataRowArrayGrid, RevPoint } from '../..';
 import { DataRowArrayGrid } from './data-row-array-grid';
 
 export class Main {

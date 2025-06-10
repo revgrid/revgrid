@@ -12,7 +12,7 @@ import {
     RevViewCell,
     revSimpleReadonlyDefaultBehavioredColumnSettings,
     revSimpleReadonlyDefaultBehavioredGridSettings
-} from '..';
+} from '../..';
 
 export class DataRowArrayGrid extends RevMultiHeadingDataRowArraySourcedFieldGrid<
         RevSimpleBehavioredGridSettings,

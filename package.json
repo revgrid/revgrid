@@ -46,9 +46,9 @@
     "recordtestapp": "tsc --project ./test-app/record/tsconfig.json",
     "recordtestapp:build": "webpack --mode development --config ./test-app/record/webpack.config.js",
     "recordtestapp:serve": "webpack serve --mode development --config ./test-app/record/webpack.config.js",
-    "dratestapp": "tsc --project ./data-row-array-test-app/tsconfig.json",
-    "dratestapp:build": "webpack --mode development --config ./data-row-array-test-app/webpack.config.js",
-    "dratestapp:serve": "webpack serve --mode development --config ./data-row-array-test-app/webpack.config.js",
+    "dratestapp": "tsc --project ./test-app/data-row-array/tsconfig.json",
+    "dratestapp:build": "webpack --mode development --config ./test-app/data-row-array/webpack.config.js",
+    "dratestapp:serve": "webpack serve --mode development --config ./test-app/data-row-array/webpack.config.js",
     "doc": "npx del-cli ./doc/* && typedoc --options ./typedoc.json"
   },
   "devDependencies": {
