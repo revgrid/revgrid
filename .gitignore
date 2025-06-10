@@ -18,8 +18,8 @@ node_modules
 npm-debug.log
 debug.log
 /debug.log
-/test-app/dist
-/test-app/out-tsc
+/test-app/client/dist
+/test-app/client/out-tsc
 /test-app/record/dist
 /test-app/record/out-tsc
 /data-row-array-test-app/dist

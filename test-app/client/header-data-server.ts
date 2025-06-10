@@ -1,4 +1,4 @@
-import { RevDataServer } from '..';
+import { RevDataServer } from '../..';
 import { AppSchemaField } from './app-schema-field';
 
 export class HeaderDataServer implements RevDataServer<AppSchemaField> {

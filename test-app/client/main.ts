@@ -19,7 +19,7 @@ import {
     revDefaultGridSettings,
     revSimpleDefaultColumnSettings,
     revSimpleDefaultGridSettings
-} from '..';
+} from '../..';
 import { AppSchemaField } from './app-schema-field';
 import { AppSchemaServer } from './app-schema-server';
 import { HeaderDataServer } from './header-data-server';

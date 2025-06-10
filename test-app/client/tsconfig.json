@@ -1,5 +1,5 @@
 {
-  "extends": "../tsconfig.code-generation.json",
+  "extends": "../../tsconfig.code-generation.json",
 	"compilerOptions": {
     "outDir": "./out-tsc",
     "sourceMap": true,

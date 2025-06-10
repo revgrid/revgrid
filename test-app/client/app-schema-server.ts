@@ -1,4 +1,4 @@
-import { RevSchemaServer } from '..';
+import { RevSchemaServer } from '../..';
 import { AppSchemaField } from './app-schema-field';
 import { MainRecord } from './main-record';
 

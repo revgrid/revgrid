@@ -1,4 +1,4 @@
-import { RevColumn, RevDataServer, RevSimpleBehavioredColumnSettings } from '..';
+import { RevColumn, RevDataServer, RevSimpleBehavioredColumnSettings } from '../..';
 import { AppSchemaField } from './app-schema-field';
 import { MainRecord } from './main-record';
 

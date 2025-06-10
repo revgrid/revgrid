@@ -1,4 +1,4 @@
-import { RevSchemaField } from '..';
+import { RevSchemaField } from '../..';
 import { MainRecord } from './main-record';
 
 export interface AppSchemaField extends RevSchemaField {
