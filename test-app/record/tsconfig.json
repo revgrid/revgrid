@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.code-generation.json",
+	"compilerOptions": {
+    "rootDir": "./",
+    "outDir": "./out-tsc",
+    "baseUrl": "./",
+    "sourceMap": true,
+	},
+
+  "include": [
+    "*.ts"
+  ],
+}
