@@ -36,22 +36,21 @@ export class RevSubgridsManager<BCS extends RevBehavioredColumnSettings, SF exte
         const subgrids = this.subgridImplementations;
         definitions.sort((left, right) => RevSubgrid.Role.gridOrderCompare(left.role, right.role));
         for (const definition of definitions) {
-            if (definition !== undefined) {
-                const subgridHandle = this._handledSubgrids.length;
-                const subgrid = this.createSubgridFromDefinition(subgridHandle, definition);
-                subgrids.push(subgrid);
-                this._handledSubgrids.push(subgrid);
-                const role = subgrid.role;
-                switch (role) {
-                    case 'header': this.headerSubgrid = subgrid; break;
-                    case 'filter': this.filterSubgrid = subgrid; break;
-                    case 'main': this.mainSubgrid = subgrid as RevMainSubgrid<BCS, SF>; break;
-                    case 'summary': this.summarySubgrid = subgrid; break;
-                    case 'footer': this.footerSubgrid = subgrid; break;
-                }
+            const subgridHandle = this._handledSubgrids.length;
+            const subgrid = this.createSubgridFromDefinition(subgridHandle, definition);
+            subgrids.push(subgrid);
+            this._handledSubgrids.push(subgrid);
+            const role = subgrid.role;
+            switch (role) {
+                case 'header': this.headerSubgrid = subgrid; break;
+                case 'filter': this.filterSubgrid = subgrid; break;
+                case 'main': this.mainSubgrid = subgrid as RevMainSubgrid<BCS, SF>; break;
+                case 'summary': this.summarySubgrid = subgrid; break;
+                case 'footer': this.footerSubgrid = subgrid; break;
             }
         }
 
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         if (this.mainSubgrid === undefined) {
             throw new RevAssertError('SMSS98224', 'Subgrid Specs does not include main');
         } else {

@@ -511,7 +511,7 @@ export class RevRecordDataServer<SF extends RevRecordField> implements RevDataSe
                         this.invalidateFields(recordIndexFieldIndexes);
                         this.checkConsistency();
                     } else {
-                        const toBeDeletedDefinedRowIndexes = toBeDeletedRowIndexes.filter(value => value !== undefined) as number[];
+                        const toBeDeletedDefinedRowIndexes = toBeDeletedRowIndexes.filter(value => value !== undefined);
 
                         const deleteCount = toBeDeletedDefinedRowIndexes.length;
                         if (deleteCount === 0) {

@@ -1313,7 +1313,7 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
                     }
                 }
 
-                if (indexValues !== undefined && indexValueCount > 0) {
+                if (indexValueCount > 0) {
                     // Sort selected column indices so that sequential indices can be selected in ranges
                     indexValues.length = indexValueCount;
                     indexValues.sort((left, right) => left - right);

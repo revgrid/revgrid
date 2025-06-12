@@ -145,6 +145,7 @@ export class RevCachedCanvasRenderingContext2D {
         } else if ((matches = cssColorSpec.match(RevCachedCanvasRenderingContext2D.ALPHA_REGEX)) === null) {
             // an opaque color (a color spec with no alpha channel)
             result = 1;
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         } else if (matches[4] === undefined) {
             // cssColorSpec must have been 'transparent'
             result = 0;
@@ -662,15 +663,15 @@ export namespace RevCachedCanvasRenderingContext2D {
 
     export namespace Cache {
         export interface Values {
-            lineDash: number[];
+            lineDash: number[] | undefined;
             fillStyle: string | CanvasGradient | undefined /* | CanvasPattern*/;
             font: string | undefined;
             globalAlpha: number | undefined;
             globalCompositeOperation: GlobalCompositeOperation | undefined;
             imageSmoothingEnabled: boolean | undefined;
-            lineCap: CanvasLineCap;
+            lineCap: CanvasLineCap | undefined;
             lineDashOffset: number | undefined;
-            lineJoin: CanvasLineJoin;
+            lineJoin: CanvasLineJoin | undefined;
             lineWidth: number | undefined;
             miterLimit: number | undefined;
             shadowBlur: number | undefined;

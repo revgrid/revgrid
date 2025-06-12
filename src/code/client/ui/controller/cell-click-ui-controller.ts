@@ -17,8 +17,10 @@ export class RevCellClickUiController<BGS extends RevBehavioredGridSettings, BCS
             }
             if (cell !== undefined) {
                 const link = false// cell.columnSettings.link;
+                // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                 const isActionableLink = link && typeof link !== 'boolean'; // actionable with truthy other than `true`
 
+                // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                 sharedState.locationCursorName = isActionableLink ? 'pointer' : undefined;
                 sharedState.locationTitleText = undefined;
             }

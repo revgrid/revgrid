@@ -59,44 +59,40 @@ export class RevMultiHeadingDataRowArraySourcedFieldGrid<
      * should be derived from column names in data.
      */
     setData(data: RevDataRowArrayGrid.DataRow[] | (() => RevDataRowArrayGrid.DataRow[]), headerRowCount = -1) {
-        if (data === undefined) {
-            return;
-        } else {
-            const dataRows = typeof data === 'function' ? data() : data;
-            let mainDataRows: RevDataRowArrayGrid.DataRow[];
+        const dataRows = typeof data === 'function' ? data() : data;
+        let mainDataRows: RevDataRowArrayGrid.DataRow[];
 
-            if (!Array.isArray(dataRows)) {
-                throw new RevAssertError('BSD73766', 'Expected data to be an array of data row objects');
+        if (!Array.isArray(dataRows)) {
+            throw new RevAssertError('BSD73766', 'Expected data to be an array of data row objects');
+        } else {
+            let schema: SF[];
+            if (headerRowCount < 0) {
+                schema = this.calculateSchemaFromData(dataRows, true);
+                mainDataRows = dataRows;
             } else {
-                let schema: SF[];
-                if (headerRowCount < 0) {
-                    schema = this.calculateSchemaFromData(dataRows, true);
+                if (headerRowCount === 0) {
+                    schema = this.calculateSchemaFromData(dataRows, false);
                     mainDataRows = dataRows;
                 } else {
-                    if (headerRowCount === 0) {
-                        schema = this.calculateSchemaFromData(dataRows, false);
-                        mainDataRows = dataRows;
-                    } else {
-                        const schemaAndMainDataRows = this.extractSchemaAndMainDataRowsFromData(dataRows, headerRowCount);
-                        schema = schemaAndMainDataRows.schema;
-                        mainDataRows = schemaAndMainDataRows.mainDataRows;
-                    }
+                    const schemaAndMainDataRows = this.extractSchemaAndMainDataRowsFromData(dataRows, headerRowCount);
+                    schema = schemaAndMainDataRows.schema;
+                    mainDataRows = schemaAndMainDataRows.mainDataRows;
                 }
+            }
 
-                if (schema.length === 0) {
-                    headerRowCount = 0;
-                } else {
-                    headerRowCount = schema[0].headings.length;
-                }
+            if (schema.length === 0) {
+                headerRowCount = 0;
+            } else {
+                headerRowCount = schema[0].headings.length;
+            }
 
-                this.mainDataServer.beginDataChange();
-                try {
-                    this.schemaServer.reset(schema);
-                    this.headerDataServer.reset(headerRowCount);
-                    this.mainDataServer.reset(mainDataRows);
-                } finally {
-                    this.mainDataServer.endDataChange();
-                }
+            this.mainDataServer.beginDataChange();
+            try {
+                this.schemaServer.reset(schema);
+                this.headerDataServer.reset(headerRowCount);
+                this.mainDataServer.reset(mainDataRows);
+            } finally {
+                this.mainDataServer.endDataChange();
             }
         }
     }
@@ -171,13 +167,11 @@ export class RevMultiHeadingDataRowArraySourcedFieldGrid<
         let initialCount = 0;
         for (let i = 0; i < sourceCount; i++) {
             const row = sourceRows[i];
-            if (row !== undefined) {
-                rows[initialCount++] = row;
-                if (initialCount === maxCount) {
-                    return {
-                        rows,
-                        sourceCount: i + 1,
-                    }
+            rows[initialCount++] = row;
+            if (initialCount === maxCount) {
+                return {
+                    rows,
+                    sourceCount: i + 1,
                 }
             }
         }

@@ -19,9 +19,9 @@ export class RevScroller<BGS extends RevBehavioredGridSettings, BCS extends RevB
     /** @internal */
     actionEventer: RevScroller.ActionEventer;
     /** @internal */
-    wheelEventer: RevScroller.WheelEventer;
+    wheelEventer: RevScroller.WheelEventer | undefined;
     /** @internal */
-    visibilityChangedEventer: RevScroller.VisibilityChangedEventer;
+    visibilityChangedEventer: RevScroller.VisibilityChangedEventer | undefined;
 
     /**
      * The generated scrollbar thumb element.
@@ -904,6 +904,7 @@ const axesProperties: AxesProperties = {
     }
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const enum LeadingTrailingKey {
     left,
     top,

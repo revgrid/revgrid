@@ -319,6 +319,7 @@ export class RevRecordRowIndexMap {
     getLeftIndex(rightIndex: number): number | undefined {
         const ref = this.rtoref[rightIndex];
 
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         if (ref === undefined) {
             throw new RangeError(`Index is invalid: rightIndex: ${rightIndex}`);
         }
@@ -424,6 +425,7 @@ export class RevRecordRowIndexMap {
     getRightIndex(leftIndex: number): number | undefined {
         const ref = this.ltoref[leftIndex];
 
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         if (ref === undefined) {
             throw new RangeError('Index is invalid');
         }
@@ -569,6 +571,7 @@ export class RevRecordRowIndexMap {
         const lref = this.ltoref[leftIndex];
         const rref = this.rtoref[rightIndex];
 
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         if (lref === undefined || rref === undefined) {
             throw new RangeError('Index is invalid');
         }
@@ -595,6 +598,7 @@ export class RevRecordRowIndexMap {
     removeLeft(leftIndex: number): number | undefined {
         const ref = this.ltoref[leftIndex];
 
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         if (ref === undefined) {
             throw new RangeError('Index is invalid');
         }
@@ -622,6 +626,7 @@ export class RevRecordRowIndexMap {
     removeRight(rightIndex: number): number | undefined {
         const ref = this.rtoref[rightIndex];
 
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         if (ref === undefined) {
             throw new RangeError('Index is invalid');
         }
@@ -676,12 +681,12 @@ export class RevRecordRowIndexMap {
         }
 
         // Remove in bulk
-        for (const leftIndex of (Array.from(left).filter(value => value !== undefined) as number[]).sort((l, r) => r - l)) {
+        for (const leftIndex of (Array.from(left).filter(value => value !== undefined)).sort((l, r) => r - l)) {
             this.ltoref.splice(leftIndex, 1);
             this.reftol.splice(leftIndex, 1);
         }
 
-        for (const rightIndex of (Array.from(right).filter(value => value !== undefined) as number[]).sort((l, r) => r - l)) {
+        for (const rightIndex of (Array.from(right).filter(value => value !== undefined)).sort((l, r) => r - l)) {
             this.rtoref.splice(rightIndex, 1);
             this.reftor.splice(rightIndex, 1);
         }
@@ -700,6 +705,7 @@ export class RevRecordRowIndexMap {
         let oldIndex = -1;
         let rref: number;
 
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         if (ref === undefined) {
             throw new RevRecordRowError('RRIMULU16773', 'Index is invalid');
         }
@@ -791,6 +797,7 @@ export class RevRecordRowIndexMap {
         let oldIndex = -1;
         let lref: number;
 
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         if (ref === undefined) {
             throw new RevRecordRowError('RRIMURU16774', 'Index is invalid');
         }

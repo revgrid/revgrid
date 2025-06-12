@@ -1,4 +1,4 @@
-import { RevClientObject, RevDataServer, RevSchemaField, RevSchemaServer } from '../../common/internal-api';
+import { RevApiError, RevClientObject, RevDataServer, RevSchemaField, RevSchemaServer } from '../../common/internal-api';
 import { RevColumnsManager } from '../components/column/columns-manager';
 import { RevFocus } from '../components/focus/focus';
 import { RevRenderer } from '../components/renderer/renderer';
@@ -123,7 +123,9 @@ export class RevServerNotificationBehavior<BGS extends RevBehavioredGridSettings
     }
 
     private enableSchemaNotifications() {
-        if (this._schemaServer.subscribeSchemaNotifications !== undefined) {
+        if (this._schemaNotificationsSubscribed) {
+            throw new RevApiError('SNBESN44998', 'Schema notifications already enabled');
+        } else {
             this._schemaNotificationsSubscribed = true;
             this._schemaServer.subscribeSchemaNotifications(this.schemaServerNotificationsClient);
         }

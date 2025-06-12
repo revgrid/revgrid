@@ -262,30 +262,37 @@ export abstract class RevGridPainter<BGS extends RevBehavioredGridSettings, BCS 
 
                 if (
                     // entire selection scrolled out of view to left of visible columns; or
+                    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                     (vc = columns[0]) && selectionArea.inclusiveRight < vc.activeColumnIndex ||
 
                     // entire selection scrolled out of view between fixed columns and scrollable columns; or
                     fixedColumnCount > 0 &&
+                    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                     (vc = columns[fixedColumnCount - 1]) &&
                     selectionArea.left > vc.activeColumnIndex &&
                     selectionArea.inclusiveRight < firstScrollableColumn.activeColumnIndex ||
 
                     // entire selection scrolled out of view to right of visible columns; or
+                    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                     lastScrollableColumn &&
                     selectionArea.left > lastScrollableColumn.activeColumnIndex ||
 
                     // entire selection scrolled out of view above visible rows; or
+                    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                     (vr = rows[preMainRowCount]) &&
                     selectionArea.inclusiveBottom < vr.subgridRowIndex ||
 
                     // entire selection scrolled out of view between fixed rows and scrollable rows; or
                     fixedRowCount > 0 &&
+                    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                     firstScrollableRow !== undefined &&
+                    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                     (vr = rows[preMainRowCount + fixedRowCount - 1]) &&
                     selectionArea.top > vr.subgridRowIndex &&
                     selectionArea.inclusiveBottom < firstScrollableRow.subgridRowIndex ||
 
                     // entire selection scrolled out of view below visible rows
+                    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                     lastScrollableRow &&
                     selectionArea.top > lastScrollableRow.subgridRowIndex
                 ) {
@@ -299,6 +306,7 @@ export abstract class RevGridPainter<BGS extends RevBehavioredGridSettings, BCS 
                     const vcCorner = columns[selectionArea.inclusiveRight - scrolledColumnCount];
                     const vrCorner = rows[selectionArea.inclusiveBottom - scrolledRowCount];
 
+                    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                     if (!(vcOrigin && vrOrigin && vcCorner && vrCorner)) {
                         return undefined;
                     } else {

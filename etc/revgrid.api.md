@@ -155,11 +155,11 @@ export class RevAssertError extends InternalError {
 // @public (undocumented)
 export interface RevBehavioredColumnSettings extends RevColumnSettings, RevBehavioredSettings {
     // (undocumented)
-    clone(): RevBehavioredColumnSettings;
+    clone(overrideGrid: boolean): RevBehavioredColumnSettings;
     // (undocumented)
     readonly gridSettings: RevGridSettings;
     // (undocumented)
-    merge(settings: Partial<RevColumnSettings>): boolean;
+    merge(settings: Partial<RevColumnSettings>, overrideGrid: boolean): boolean;
 }
 
 // @public (undocumented)
@@ -447,13 +447,13 @@ export namespace RevCachedCanvasRenderingContext2D {
             // (undocumented)
             imageSmoothingEnabled: boolean | undefined;
             // (undocumented)
-            lineCap: CanvasLineCap;
+            lineCap: CanvasLineCap | undefined;
             // (undocumented)
-            lineDash: number[];
+            lineDash: number[] | undefined;
             // (undocumented)
             lineDashOffset: number | undefined;
             // (undocumented)
-            lineJoin: CanvasLineJoin;
+            lineJoin: CanvasLineJoin | undefined;
             // (undocumented)
             lineWidth: number | undefined;
             // (undocumented)
@@ -936,11 +936,11 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     // (undocumented)
     deselectCell(x: Integer, y: Integer, subgrid: RevSubgrid<BCS, SF>): void;
     // (undocumented)
-    deselectColumn(x: Integer, subgrid: RevSubgrid<BCS, SF>): void;
+    deselectColumn(x: Integer, subgrid?: RevSubgrid<BCS, SF>): void;
     // (undocumented)
-    deselectColumns(x: Integer, count: Integer, subgrid: RevSubgrid<BCS, SF>): void;
+    deselectColumns(x: Integer, count: Integer, subgrid?: RevSubgrid<BCS, SF>): void;
     // (undocumented)
-    deselectRectangle(rectangle: RevRectangle, subgrid: RevSubgrid<BCS, SF>): void;
+    deselectRectangle(rectangle: RevRectangle, subgrid?: RevSubgrid<BCS, SF>): void;
     // (undocumented)
     deselectRow(y: Integer, subgrid?: RevSubgrid<BCS, SF>): void;
     // (undocumented)
@@ -981,7 +981,7 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     // (undocumented)
     getActiveColumnWidth(activeIndex: Integer): number;
     // (undocumented)
-    getAllCellSelectionAreaTypeIds(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid: RevSubgrid<BCS, SF>): RevSelectionAreaType[];
+    getAllCellSelectionAreaTypeIds(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>): RevSelectionAreaType[];
     // (undocumented)
     getAllColumn(allX: Integer): RevColumn<BCS, SF>;
     // (undocumented)
@@ -1005,7 +1005,7 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     // (undocumented)
     getHiDPI(): number;
     // (undocumented)
-    getOneCellSelectionAreaType(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid: RevSubgrid<BCS, SF>): RevSelectionAreaType | undefined;
+    getOneCellSelectionAreaType(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>): RevSelectionAreaType | undefined;
     // (undocumented)
     getRenderedData(): RevDataServer.ViewValue[][];
     // (undocumented)
@@ -1063,7 +1063,7 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     // (undocumented)
     readonly mainSubgrid: RevMainSubgrid<BCS, SF>;
     // (undocumented)
-    mergeFieldColumnSettings(fieldIndex: Integer, settings: Partial<BCS>): boolean;
+    mergeFieldColumnSettings(fieldIndex: Integer, settings: Partial<BCS>, overrideGrid?: boolean): boolean;
     // (undocumented)
     readonly mouse: RevMouse<BGS, BCS, SF>;
     // (undocumented)
@@ -1115,7 +1115,7 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     get selectionAllAuto(): boolean;
     set selectionAllAuto(value: boolean);
     // (undocumented)
-    selectRectangle(firstInexclusiveX: Integer, firstInexclusiveY: Integer, width: Integer, height: Integer, subgrid: RevSubgrid<BCS, SF>): RevLastSelectionArea;
+    selectRectangle(firstInexclusiveX: Integer, firstInexclusiveY: Integer, width: Integer, height: Integer, subgrid?: RevSubgrid<BCS, SF>): RevLastSelectionArea;
     // (undocumented)
     selectRow(subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>): void;
     // (undocumented)
@@ -1845,7 +1845,7 @@ export class RevColumnsManager<BCS extends RevBehavioredColumnSettings, SF exten
     // @internal
     mergeAllColumnSettings(settings: Partial<RevColumnSettings>[] | Record<string, Partial<RevColumnSettings>>, settingState?: boolean): void;
     // @internal (undocumented)
-    mergeFieldColumnSettings(fieldIndex: number, settings: Partial<BCS>): boolean;
+    mergeFieldColumnSettings(fieldIndex: number, settings: Partial<BCS>, overrideGrid: boolean): boolean;
     // (undocumented)
     moveActiveColumn(fromIndex: number, toIndex: number, ui: boolean): void;
     // @internal (undocumented)
@@ -2267,7 +2267,7 @@ SF extends RevSchemaField> {
     field: SF,
     rowIndex: number): RevDataServer.ViewValue;
     setEditValue?(field: SF, rowIndex: number, value: RevDataServer.EditValue): void;
-    setViewRow?(rowIndex: number, dataRow?: RevDataServer.ViewRow): void;
+    setViewRow?(rowIndex: number, dataRow: RevDataServer.ViewRow): void;
     subscribeDataNotifications(client: RevDataServer.NotificationsClient): void;
     unsubscribeDataNotifications?(client: RevDataServer.NotificationsClient): void;
 }
@@ -3783,7 +3783,7 @@ export class RevInMemoryBehavioredColumnSettings extends RevInMemoryBehavioredSe
     get backgroundColor(): string;
     set backgroundColor(value: string);
     // (undocumented)
-    clone(): RevInMemoryBehavioredColumnSettings;
+    clone(overrideGrid?: boolean): RevInMemoryBehavioredColumnSettings;
     // (undocumented)
     get color(): string;
     set color(value: string);
@@ -3826,7 +3826,7 @@ export class RevInMemoryBehavioredColumnSettings extends RevInMemoryBehavioredSe
     get maximumColumnWidth(): number | undefined;
     set maximumColumnWidth(value: number | undefined);
     // (undocumented)
-    merge(settings: Partial<RevColumnSettings>): boolean;
+    merge(settings: Partial<RevColumnSettings>, overrideGrid?: boolean): boolean;
     // (undocumented)
     get minimumColumnWidth(): number;
     set minimumColumnWidth(value: number);
@@ -6165,9 +6165,9 @@ export class RevScroller<BGS extends RevBehavioredGridSettings, BCS extends RevB
     // (undocumented)
     get trailing(): boolean;
     // @internal (undocumented)
-    visibilityChangedEventer: RevScroller.VisibilityChangedEventer;
+    visibilityChangedEventer: RevScroller.VisibilityChangedEventer | undefined;
     // @internal (undocumented)
-    wheelEventer: RevScroller.WheelEventer;
+    wheelEventer: RevScroller.WheelEventer | undefined;
 }
 
 // @public (undocumented)
@@ -6631,9 +6631,9 @@ export namespace RevSimpleAlphaTextCellPainter {
 // @public (undocumented)
 export interface RevSimpleBehavioredColumnSettings extends RevSimpleColumnSettings, RevBehavioredColumnSettings {
     // (undocumented)
-    clone(): RevSimpleBehavioredColumnSettings;
+    clone(overrideGrid: boolean): RevSimpleBehavioredColumnSettings;
     // (undocumented)
-    merge(settings: Partial<RevSimpleColumnSettings>): boolean;
+    merge(settings: Partial<RevSimpleColumnSettings>, overrideGrid: boolean): boolean;
 }
 
 // @public (undocumented)
@@ -6680,7 +6680,7 @@ export class RevSimpleInMemoryBehavioredColumnSettings extends RevInMemoryBehavi
     get cellPadding(): number;
     set cellPadding(value: number);
     // (undocumented)
-    clone(): RevSimpleInMemoryBehavioredColumnSettings;
+    clone(overrideGrid?: boolean): RevSimpleInMemoryBehavioredColumnSettings;
     // (undocumented)
     get columnHeaderBackgroundColor(): RevGridSettings.Color | undefined;
     set columnHeaderBackgroundColor(value: RevGridSettings.Color | undefined);
@@ -6718,7 +6718,7 @@ export class RevSimpleInMemoryBehavioredColumnSettings extends RevInMemoryBehavi
     // (undocumented)
     get horizontalAlignId(): RevHorizontalAlignId;
     // (undocumented)
-    merge(settings: Partial<RevSimpleColumnSettings>): boolean;
+    merge(settings: Partial<RevSimpleColumnSettings>, overrideGrid?: boolean): boolean;
     // (undocumented)
     get textStrikeThrough(): boolean;
     set textStrikeThrough(value: boolean);
@@ -7181,9 +7181,9 @@ export namespace RevStandardCheckboxCellPainter {
     // (undocumented)
     export interface BehavioredColumnSettings extends ColumnSettings, RevBehavioredColumnSettings {
         // (undocumented)
-        clone(): BehavioredColumnSettings;
+        clone(overrideGrid: boolean): BehavioredColumnSettings;
         // (undocumented)
-        merge(settings: Partial<ColumnSettings>): boolean;
+        merge(settings: Partial<ColumnSettings>, overrideGrid: boolean): boolean;
     }
     // (undocumented)
     export interface ColumnSettings extends OnlyColumnSettings, RevColumnSettings {
@@ -7318,9 +7318,9 @@ export namespace RevStandardHeaderTextCellPainter {
     // (undocumented)
     export interface BehavioredColumnSettings extends ColumnSettings, RevBehavioredColumnSettings {
         // (undocumented)
-        clone(): BehavioredColumnSettings;
+        clone(overrideGrid: boolean): BehavioredColumnSettings;
         // (undocumented)
-        merge(settings: Partial<ColumnSettings>): boolean;
+        merge(settings: Partial<ColumnSettings>, overrideGrid: boolean): boolean;
     }
     // (undocumented)
     export interface ColumnSettings extends OnlyColumnSettings, RevStandardTextPainter.OnlyColumnSettings, RevColumnSettings {

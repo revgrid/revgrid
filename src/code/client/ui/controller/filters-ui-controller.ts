@@ -37,6 +37,7 @@ export class RevFiltersUiController<BGS extends RevBehavioredGridSettings, BCS e
         //     }
         // }
 
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         if (!handled) {
             if (this.next) {
                 this.next.handleKeyDown(event, fromEditor);

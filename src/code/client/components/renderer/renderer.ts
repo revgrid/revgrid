@@ -358,6 +358,7 @@ export class RevRenderer<BGS extends RevBehavioredGridSettings, BCS extends RevB
                 for (let i = 0; i < actionsCount; i++) {
                     const action = renderActions[i];
                     switch (action.type) {
+                        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                         case RevRenderAction.TypeId.PaintAll: {
                             this.paintAll();
                             break;

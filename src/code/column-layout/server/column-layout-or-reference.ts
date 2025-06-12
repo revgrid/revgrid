@@ -68,7 +68,7 @@ export class RevColumnLayoutOrReference {
                         resolve(new Ok(undefined));
                     }
                 },
-                (reason) => { throw AssertInternalError.createIfNotError(reason, 'RGLORTL54441'); }
+                (reason: unknown) => { throw AssertInternalError.createIfNotError(reason, 'RGLORTL54441'); }
             );
         } else {
             if (this._referenceId !== undefined) {
@@ -94,7 +94,7 @@ export class RevColumnLayoutOrReference {
                                 }
                             }
                         },
-                        (reason) => { throw AssertInternalError.createIfNotError(reason, 'RGLORTL54441'); }
+                        (reason: unknown) => { throw AssertInternalError.createIfNotError(reason, 'RGLORTL54441'); }
                     );
                 }
             } else {

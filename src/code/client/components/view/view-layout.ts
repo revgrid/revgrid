@@ -1073,17 +1073,13 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
                 return undefined;
             } else {
                 const viewCell = this.findCellAtViewpointIndex(columnIndex, rowIndex, true);
-                if (viewCell === undefined) {
-                    throw new RevAssertError('VGCFMP34440');
-                } else {
-                    const mouseOverLeftLine = canvasXOffset < viewCell.viewLayoutColumn.left;
-                    const mouseOverTopLine = canvasYOffset < viewCell.viewLayoutRow.top;
-                    return {
-                        viewCell,
-                        mouseOverLeftLine,
-                        mouseOverTopLine,
-                    };
-                }
+                const mouseOverLeftLine = canvasXOffset < viewCell.viewLayoutColumn.left;
+                const mouseOverTopLine = canvasYOffset < viewCell.viewLayoutRow.top;
+                return {
+                    viewCell,
+                    mouseOverLeftLine,
+                    mouseOverTopLine,
+                };
             }
         }
     }
@@ -1727,11 +1723,7 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
                 return undefined;
             } else {
                 const cell = this.findCellAtViewpointIndex(columnIndex, row.index, canComputePool);
-                if (cell === undefined) {
-                    throw new RevAssertError('VGCFMP34440');
-                } else {
-                    return cell;
-                }
+                return cell;
             }
         }
     }

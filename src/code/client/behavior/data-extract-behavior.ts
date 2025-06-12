@@ -42,9 +42,6 @@ export class RevDataExtractBehavior<BGS extends RevBehavioredGridSettings, BCS e
                 case RevSelectionAreaTypeId.column: {
                     return this.convertDataValueArraysToTsv(this.getColumnSelectionMatrix());
                 }
-                case undefined: {
-                    return '';
-                }
                 default:
                     throw new RevUnreachableCaseError('MSGSATSV12998', selectionArea.areaTypeId);
             }
@@ -310,6 +307,7 @@ export class RevDataExtractBehavior<BGS extends RevBehavioredGridSettings, BCS e
                         activeColumnIndex = this._columnsManager.getActiveColumnIndexByFieldName(fieldIndexOrName);
                     }
                     const column = this._columnsManager.getActiveColumn(activeColumnIndex);
+                    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                     if (column !== undefined) {
                         if (!activeColumns.includes(column)) {
                             columns.push(column);
