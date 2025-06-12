@@ -116,9 +116,7 @@ export class RevColumnLayoutGrid<BGS extends RevBehavioredGridSettings, BCS exte
         ui: boolean,
     ) {
         if (ui) {
-            if (this._columnLayout === undefined) {
-                throw new AssertInternalError('RRGDPACLC56678');
-            } else {
+            if (this._columnLayout !== undefined) {
                 switch (typeId) {
                     case RevListChangedTypeId.Move: {
                         if (targetIndex === undefined) {
@@ -148,9 +146,7 @@ export class RevColumnLayoutGrid<BGS extends RevBehavioredGridSettings, BCS exte
 
     protected override descendantProcessColumnsWidthChanged(columns: RevColumn<BCS, SF>[], ui: boolean) {
         if (ui) {
-            if (this._columnLayout === undefined) {
-                throw new AssertInternalError('RGPCWC56678');
-            } else {
+            if (this._columnLayout !== undefined) {
                 this._columnLayout.beginChange(this);
                 for (const column of columns) {
                     this._columnLayout.setColumnWidth(this, column.field.name, column.width);
