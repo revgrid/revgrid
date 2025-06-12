@@ -113,10 +113,10 @@ export interface RevDataServer<
     /**
      * _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
      *
-     * Update or blank a row in place, without deleting the row (and without affecting succeeding rows' indexes).
-     * @param dataRow - if omitted or otherwise falsy, row renders as blank
+     * Update a row in place, without deleting the row (and without affecting succeeding rows' indexes).
+     * @param dataRow - Updated row value
      */
-    setViewRow?(rowIndex: number, dataRow?: RevDataServer.ViewRow): void;
+    setViewRow?(rowIndex: number, dataRow: RevDataServer.ViewRow): void;
 
     /** Cursor to be displayed when mouse hovers over cell containing data point */
     getCursorName?(field: SF, rowIndex: number): string;

@@ -54,7 +54,7 @@ export class RevDataRowArrayDataServer<SF extends RevSchemaField> implements Rev
      * @param dataRow - if omitted or otherwise falsy, row renders as blank
      */
     setViewRow(index: number, dataRow: RevDataServer.ObjectViewRow) {
-        this._data[index] = dataRow || undefined;
+        this._data[index] = dataRow;
         this._callbackListeners.forEach((listener) => { listener.invalidateRow(index); });
     }
 
@@ -70,7 +70,7 @@ export class RevDataRowArrayDataServer<SF extends RevSchemaField> implements Rev
     }
 
     deleteRows(index: number, count = 1) {
-        const rows = this._data.splice(index, count === undefined ? 1 : count);
+        const rows = this._data.splice(index, count);
         if (rows.length > 0) {
             this._callbackListeners.forEach((listener) => { listener.rowsDeleted(index, count); });
         }
@@ -79,9 +79,6 @@ export class RevDataRowArrayDataServer<SF extends RevSchemaField> implements Rev
 
     getViewValue(field: SF, y: number) {
         const row = this._data[y];
-        if (!row) {
-            return null;
-        }
         return row[field.name];
     }
 
