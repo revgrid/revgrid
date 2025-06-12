@@ -6,6 +6,6 @@ import { RevGridSettings } from './grid-settings';
 export interface RevBehavioredColumnSettings extends RevColumnSettings, RevBehavioredSettings {
     readonly gridSettings: RevGridSettings;
 
-    merge(settings: Partial<RevColumnSettings>): boolean;
-    clone(): RevBehavioredColumnSettings;
+    merge(settings: Partial<RevColumnSettings>, overrideGrid: boolean): boolean;
+    clone(overrideGrid: boolean): RevBehavioredColumnSettings;
 }

@@ -264,7 +264,7 @@ export class RevInMemoryBehavioredColumnSettings extends RevInMemoryBehavioredSe
         }
     }
 
-    merge(settings: Partial<RevColumnSettings>) {
+    merge(settings: Partial<RevColumnSettings>, overrideGrid = false): boolean {
         this.beginChange();
 
         const requiredSettings = settings as Required<RevColumnSettings>; // since we only iterate over keys that exist we can assume that settings is not partial in the switch loop
@@ -272,114 +272,150 @@ export class RevInMemoryBehavioredColumnSettings extends RevInMemoryBehavioredSe
             // Use loop so that compiler will report error if any setting missing
             const columnSettingsKey = key as keyof RevColumnSettings;
             switch (columnSettingsKey) {
-                case 'backgroundColor':
-                    if (this._backgroundColor !== requiredSettings.backgroundColor) {
+                case 'backgroundColor': {
+                    const currentBackgroundColor = overrideGrid ? this._backgroundColor : this.backgroundColor;
+                    if (currentBackgroundColor !== requiredSettings.backgroundColor) {
                         this._backgroundColor = requiredSettings.backgroundColor;
                         this.flagChanged(revGridSettingChangeInvalidateTypeIds.backgroundColor);
                     }
                     break;
-                case 'color':
-                    if (this._color !== requiredSettings.color) {
+                }
+                case 'color': {
+                    const currentColor = overrideGrid ? this._color : this.color;
+                    if (currentColor !== requiredSettings.color) {
                         this._color = requiredSettings.color;
                         this.flagChanged(revGridSettingChangeInvalidateTypeIds.color);
                     }
                     break;
-                case 'columnAutoSizingMax':
-                    if (this._columnAutoSizingMax !== requiredSettings.columnAutoSizingMax) {
+                }
+                case 'columnAutoSizingMax': {
+                    const currentColumnAutoSizingMax = overrideGrid ? this._columnAutoSizingMax : this.columnAutoSizingMax;
+                    if (currentColumnAutoSizingMax !== requiredSettings.columnAutoSizingMax) {
                         this._columnAutoSizingMax = requiredSettings.columnAutoSizingMax;
                         this.flagChanged(revGridSettingChangeInvalidateTypeIds.columnAutoSizingMax);
                     }
                     break;
-                case 'columnClip':
-                    if (this._columnClip !== requiredSettings.columnClip) {
+                }
+                case 'columnClip': {
+                    const currentColumnClip = overrideGrid ? this._columnClip : this.columnClip;
+                    if (currentColumnClip !== requiredSettings.columnClip) {
                         this._columnClip = requiredSettings.columnClip;
                         this.flagChanged(revGridSettingChangeInvalidateTypeIds.columnClip);
                     }
                     break;
-                case 'defaultColumnAutoSizing':
-                    if (this._defaultColumnAutoSizing !== requiredSettings.defaultColumnAutoSizing) {
+                }
+                case 'defaultColumnAutoSizing': {
+                    const currentDefaultColumnAutoSizing = overrideGrid ? this._defaultColumnAutoSizing : this.defaultColumnAutoSizing;
+                    if (currentDefaultColumnAutoSizing !== requiredSettings.defaultColumnAutoSizing) {
                         this._defaultColumnAutoSizing = requiredSettings.defaultColumnAutoSizing;
                         this.flagChanged(revGridSettingChangeInvalidateTypeIds.defaultColumnAutoSizing);
                     }
                     break;
-                case 'defaultColumnWidth':
-                    if (this._defaultColumnWidth !== requiredSettings.defaultColumnWidth) {
+                }
+                case 'defaultColumnWidth': {
+                    const currentDefaultColumnWidth = overrideGrid ? this._defaultColumnWidth : this.defaultColumnWidth;
+                    if (currentDefaultColumnWidth !== requiredSettings.defaultColumnWidth) {
                         this._defaultColumnWidth = requiredSettings.defaultColumnWidth;
                         this.flagChanged(revGridSettingChangeInvalidateTypeIds.defaultColumnWidth);
                     }
                     break;
-                case 'editable':
-                    if (this._editable !== requiredSettings.editable) {
+                }
+                case 'editable': {
+                    const currentEditable = overrideGrid ? this._editable : this.editable;
+                    if (currentEditable !== requiredSettings.editable) {
                         this._editable = requiredSettings.editable;
                         this.flagChanged(revGridSettingChangeInvalidateTypeIds.editable);
                     }
                     break;
-                case 'editOnClick':
-                    if (this._editOnClick !== requiredSettings.editOnClick) {
+                }
+                case 'editOnClick': {
+                    const currentEditOnClick = overrideGrid ? this._editOnClick : this.editOnClick;
+                    if (currentEditOnClick !== requiredSettings.editOnClick) {
                         this._editOnClick = requiredSettings.editOnClick;
                         this.flagChanged(revGridSettingChangeInvalidateTypeIds.editOnClick);
                     }
                     break;
-                case 'editOnDoubleClick':
-                    if (this._editOnDoubleClick !== requiredSettings.editOnDoubleClick) {
+                }
+                case 'editOnDoubleClick': {
+                    const currentEditOnDoubleClick = overrideGrid ? this._editOnDoubleClick : this.editOnDoubleClick;
+                    if (currentEditOnDoubleClick !== requiredSettings.editOnDoubleClick) {
                         this._editOnDoubleClick = requiredSettings.editOnDoubleClick;
                         this.flagChanged(revGridSettingChangeInvalidateTypeIds.editOnDoubleClick);
                     }
                     break;
-                case 'editOnFocusCell':
-                    if (this._editOnFocusCell !== requiredSettings.editOnFocusCell) {
+                }
+                case 'editOnFocusCell': {
+                    const currentEditOnFocusCell = overrideGrid ? this._editOnFocusCell : this.editOnFocusCell;
+                    if (currentEditOnFocusCell !== requiredSettings.editOnFocusCell) {
                         this._editOnFocusCell = requiredSettings.editOnFocusCell;
                         this.flagChanged(revGridSettingChangeInvalidateTypeIds.editOnFocusCell);
                     }
                     break;
-                case 'editOnKeyDown':
-                    if (this._editOnKeyDown !== requiredSettings.editOnKeyDown) {
+                }
+                case 'editOnKeyDown': {
+                    const currentEditOnKeyDown = overrideGrid ? this._editOnKeyDown : this.editOnKeyDown;
+                    if (currentEditOnKeyDown !== requiredSettings.editOnKeyDown) {
                         this._editOnKeyDown = requiredSettings.editOnKeyDown;
                         this.flagChanged(revGridSettingChangeInvalidateTypeIds.editOnKeyDown);
                     }
                     break;
-                case 'editorClickableCursorName':
-                    if (this._editorClickableCursorName !== requiredSettings.editorClickableCursorName) {
+                }
+                case 'editorClickableCursorName': {
+                    const currentEditorClickableCursorName = overrideGrid ? this._editorClickableCursorName : this.editorClickableCursorName;
+                    if (currentEditorClickableCursorName !== requiredSettings.editorClickableCursorName) {
                         this._editorClickableCursorName = requiredSettings.editorClickableCursorName;
                         this.flagChanged(revGridSettingChangeInvalidateTypeIds.editorClickableCursorName);
                     }
                     break;
-                case 'filterable':
-                    if (this._filterable !== requiredSettings.filterable) {
+                }
+                case 'filterable': {
+                    const currentFilterable = overrideGrid ? this._filterable : this.filterable;
+                    if (currentFilterable !== requiredSettings.filterable) {
                         this._filterable = requiredSettings.filterable;
                         this.flagChanged(revGridSettingChangeInvalidateTypeIds.filterable);
                     }
                     break;
-                case 'maximumColumnWidth':
-                    if (this._maximumColumnWidth !== requiredSettings.maximumColumnWidth) {
+                }
+                case 'maximumColumnWidth': {
+                    const currentMaximumColumnWidth = overrideGrid ? this._maximumColumnWidth : this.maximumColumnWidth;
+                    if (currentMaximumColumnWidth !== requiredSettings.maximumColumnWidth) {
                         this._maximumColumnWidth = requiredSettings.maximumColumnWidth;
                         this.flagChanged(revGridSettingChangeInvalidateTypeIds.maximumColumnWidth);
                     }
                     break;
-                case 'minimumColumnWidth':
-                    if (this._minimumColumnWidth !== requiredSettings.minimumColumnWidth) {
+                }
+                case 'minimumColumnWidth': {
+                    const currentMinimumColumnWidth = overrideGrid ? this._minimumColumnWidth : this.minimumColumnWidth;
+                    if (currentMinimumColumnWidth !== requiredSettings.minimumColumnWidth) {
                         this._minimumColumnWidth = requiredSettings.minimumColumnWidth;
                         this.flagChanged(revGridSettingChangeInvalidateTypeIds.minimumColumnWidth);
                     }
                     break;
-                case 'resizeColumnInPlace':
-                    if (this._resizeColumnInPlace !== requiredSettings.resizeColumnInPlace) {
+                }
+                case 'resizeColumnInPlace': {
+                    const currentResizeColumnInPlace = overrideGrid ? this._resizeColumnInPlace : this.resizeColumnInPlace;
+                    if (currentResizeColumnInPlace !== requiredSettings.resizeColumnInPlace) {
                         this._resizeColumnInPlace = requiredSettings.resizeColumnInPlace;
                         this.flagChanged(revGridSettingChangeInvalidateTypeIds.resizeColumnInPlace);
                     }
                     break;
-                case 'sortOnDoubleClick':
-                    if (this._sortOnDoubleClick !== requiredSettings.sortOnDoubleClick) {
+                }
+                case 'sortOnDoubleClick': {
+                    const currentSortOnDoubleClick = overrideGrid ? this._sortOnDoubleClick : this.sortOnDoubleClick;
+                    if (currentSortOnDoubleClick !== requiredSettings.sortOnDoubleClick) {
                         this._sortOnDoubleClick = requiredSettings.sortOnDoubleClick;
                         this.flagChanged(revGridSettingChangeInvalidateTypeIds.sortOnDoubleClick);
                     }
                     break;
-                case 'sortOnClick':
-                    if (this._sortOnClick !== requiredSettings.sortOnClick) {
+                }
+                case 'sortOnClick': {
+                    const currentSortOnClick = overrideGrid ? this._sortOnClick : this.sortOnClick;
+                    if (currentSortOnClick !== requiredSettings.sortOnClick) {
                         this._sortOnClick = requiredSettings.sortOnClick;
                         this.flagChanged(revGridSettingChangeInvalidateTypeIds.sortOnClick);
                     }
                     break;
+                }
 
                 default: {
                     columnSettingsKey satisfies never;
@@ -390,9 +426,9 @@ export class RevInMemoryBehavioredColumnSettings extends RevInMemoryBehavioredSe
         return this.endChange();
     }
 
-    clone() {
+    clone(overrideGrid = false) {
         const copy = new RevInMemoryBehavioredColumnSettings(this.gridSettings);
-        copy.merge(this);
+        copy.merge(this, overrideGrid);
         return copy;
     }
 }

@@ -291,121 +291,153 @@ export class RevSimpleInMemoryBehavioredColumnSettings extends RevInMemoryBehavi
         }
     }
 
-    override merge(settings: Partial<RevSimpleColumnSettings>) {
+    override merge(settings: Partial<RevSimpleColumnSettings>, overrideGrid = false) {
         this.beginChange();
 
-        super.merge(settings);
+        super.merge(settings, overrideGrid);
 
         const requiredSettings = settings as Required<RevSimpleColumnSettings>; // since we only iterate over keys that exist we can assume that settings is not partial in the switch loop
         for (const key in settings) {
             // Use loop so that compiler will report error if any setting missing
             const columnSettingsKey = key as keyof RevSimpleOnlyColumnSettings;
             switch (columnSettingsKey) {
-                case 'cellPadding':
-                    if (this._cellPadding !== requiredSettings.cellPadding) {
+                case 'cellPadding': {
+                    const currentCellPadding = overrideGrid ? this._cellPadding : this.cellPadding;
+                    if (currentCellPadding !== requiredSettings.cellPadding) {
                         this._cellPadding = requiredSettings.cellPadding;
                         this.flagChangedViewRender();
                     }
                     break;
-                case 'cellFocusedBorderColor':
-                    if (this._cellFocusedBorderColor !== requiredSettings.cellFocusedBorderColor) {
+                }
+                case 'cellFocusedBorderColor': {
+                    const currentCellFocusedBorderColor = overrideGrid ? this._cellFocusedBorderColor : this.cellFocusedBorderColor;
+                    if (currentCellFocusedBorderColor !== requiredSettings.cellFocusedBorderColor) {
                         this._cellFocusedBorderColor = requiredSettings.cellFocusedBorderColor;
                         this.flagChangedViewRender();
                     }
                     break;
-                case 'cellHoverBackgroundColor':
-                    if (this._cellHoverBackgroundColor !== requiredSettings.cellHoverBackgroundColor) {
+                }
+                case 'cellHoverBackgroundColor': {
+                    const currentCellHoverBackgroundColor = overrideGrid ? this._cellHoverBackgroundColor : this.cellHoverBackgroundColor;
+                    if (currentCellHoverBackgroundColor !== requiredSettings.cellHoverBackgroundColor) {
                         this._cellHoverBackgroundColor = requiredSettings.cellHoverBackgroundColor;
                         this.flagChangedViewRender();
                     }
                     break;
-                case 'columnHoverBackgroundColor':
-                    if (this._columnHoverBackgroundColor !== requiredSettings.columnHoverBackgroundColor) {
+                }
+                case 'columnHoverBackgroundColor': {
+                    const currentColumnHoverBackgroundColor = overrideGrid ? this._columnHoverBackgroundColor : this.columnHoverBackgroundColor;
+                    if (currentColumnHoverBackgroundColor !== requiredSettings.columnHoverBackgroundColor) {
                         this._columnHoverBackgroundColor = requiredSettings.columnHoverBackgroundColor;
                         this.flagChangedViewRender();
                     }
                     break;
-                case 'columnHeaderFont':
-                    if (this._columnHeaderFont !== requiredSettings.columnHeaderFont) {
+                }
+                case 'columnHeaderFont': {
+                    const currentColumnHeaderFont = overrideGrid ? this._columnHeaderFont : this.columnHeaderFont;
+                    if (currentColumnHeaderFont !== requiredSettings.columnHeaderFont) {
                         this._columnHeaderFont = requiredSettings.columnHeaderFont;
                         this.flagChangedViewRender();
                     }
                     break;
+                }
                 case 'columnHeaderHorizontalAlignId':
                     break; // will always match columnHeaderHorizontalAlign
-                case 'columnHeaderHorizontalAlign':
-                    if (this._columnHeaderHorizontalAlign !== requiredSettings.columnHeaderHorizontalAlign) {
+                case 'columnHeaderHorizontalAlign': {
+                    const currentColumnHeaderHorizontalAlign = overrideGrid ? this._columnHeaderHorizontalAlign : this.columnHeaderHorizontalAlign;
+                    if (currentColumnHeaderHorizontalAlign !== requiredSettings.columnHeaderHorizontalAlign) {
                         this._columnHeaderHorizontalAlignId = requiredSettings.columnHeaderHorizontalAlignId;
                         this._columnHeaderHorizontalAlign = requiredSettings.columnHeaderHorizontalAlign;
                         this.flagChangedViewRender();
                     }
                     break;
-                case 'columnHeaderBackgroundColor':
-                    if (this._columnHeaderBackgroundColor !== requiredSettings.columnHeaderBackgroundColor) {
+                }
+                case 'columnHeaderBackgroundColor': {
+                    const currentColumnHeaderBackgroundColor = overrideGrid ? this._columnHeaderBackgroundColor : this.columnHeaderBackgroundColor;
+                    if (currentColumnHeaderBackgroundColor !== requiredSettings.columnHeaderBackgroundColor) {
                         this._columnHeaderBackgroundColor = requiredSettings.columnHeaderBackgroundColor;
                         this.flagChangedViewRender();
                     }
                     break;
-                case 'columnHeaderForegroundColor':
-                    if (this._columnHeaderForegroundColor !== requiredSettings.columnHeaderForegroundColor) {
+                }
+                case 'columnHeaderForegroundColor': {
+                    const currentColumnHeaderForegroundColor = overrideGrid ? this._columnHeaderForegroundColor : this.columnHeaderForegroundColor;
+                    if (currentColumnHeaderForegroundColor !== requiredSettings.columnHeaderForegroundColor) {
                         this._columnHeaderForegroundColor = requiredSettings.columnHeaderForegroundColor;
                         this.flagChangedViewRender();
                     }
                     break;
-                case 'columnHeaderSelectionFont':
-                    if (this._columnHeaderSelectionFont !== requiredSettings.columnHeaderSelectionFont) {
+                }
+                case 'columnHeaderSelectionFont': {
+                    const currentColumnHeaderSelectionFont = overrideGrid ? this._columnHeaderSelectionFont : this.columnHeaderSelectionFont;
+                    if (currentColumnHeaderSelectionFont !== requiredSettings.columnHeaderSelectionFont) {
                         this._columnHeaderSelectionFont = requiredSettings.columnHeaderSelectionFont;
                         this.flagChangedViewRender();
                     }
                     break;
-                case 'columnHeaderSelectionBackgroundColor':
-                    if (this._columnHeaderSelectionBackgroundColor !== requiredSettings.columnHeaderSelectionBackgroundColor) {
+                }
+                case 'columnHeaderSelectionBackgroundColor': {
+                    const currentColumnHeaderSelectionBackgroundColor = overrideGrid ? this._columnHeaderSelectionBackgroundColor : this.columnHeaderSelectionBackgroundColor;
+                    if (currentColumnHeaderSelectionBackgroundColor !== requiredSettings.columnHeaderSelectionBackgroundColor) {
                         this._columnHeaderSelectionBackgroundColor = requiredSettings.columnHeaderSelectionBackgroundColor;
                         this.flagChangedViewRender();
                     }
                     break;
-                case 'columnHeaderSelectionForegroundColor':
-                    if (this._columnHeaderSelectionForegroundColor !== requiredSettings.columnHeaderSelectionForegroundColor) {
+                }
+                case 'columnHeaderSelectionForegroundColor': {
+                    const currentColumnHeaderSelectionForegroundColor = overrideGrid ? this._columnHeaderSelectionForegroundColor : this.columnHeaderSelectionForegroundColor;
+                    if (currentColumnHeaderSelectionForegroundColor !== requiredSettings.columnHeaderSelectionForegroundColor) {
                         this._columnHeaderSelectionForegroundColor = requiredSettings.columnHeaderSelectionForegroundColor;
                         this.flagChangedViewRender();
                     }
                     break;
-                case 'font':
-                    if (this._font !== requiredSettings.font) {
+                }
+                case 'font': {
+                    const currentFont = overrideGrid ? this._font : this.font;
+                    if (currentFont !== requiredSettings.font) {
                         this._font = requiredSettings.font;
                         this.flagChangedViewRender();
                     }
                     break;
+                }
                 case 'horizontalAlignId':
                     break; // will always match horizontalAlign
-                case 'horizontalAlign':
-                    if (this._horizontalAlign !== requiredSettings.horizontalAlign) {
+                case 'horizontalAlign': {
+                    const currentHorizontalAlign = overrideGrid ? this._horizontalAlign : this.horizontalAlign;
+                    if (currentHorizontalAlign !== requiredSettings.horizontalAlign) {
                         this._horizontalAlignId = requiredSettings.horizontalAlignId;
                         this._horizontalAlign = requiredSettings.horizontalAlign;
                         this.flagChangedViewRender();
                     }
+                }
                     break;
-                case 'verticalOffset':
-                    if (this._verticalOffset !== requiredSettings.verticalOffset) {
+                case 'verticalOffset': {
+                    const currentVerticalOffset = overrideGrid ? this._verticalOffset : this.verticalOffset;
+                    if (currentVerticalOffset !== requiredSettings.verticalOffset) {
                         this._verticalOffset = requiredSettings.verticalOffset;
                         this.flagChangedViewRender();
                     }
                     break;
+                }
                 case 'textTruncateTypeId':
                     break; // will always match horizontalAlign
-                case 'textTruncateType':
-                    if (this._textTruncateType !== requiredSettings.textTruncateType) {
+                case 'textTruncateType': {
+                    const currentTextTruncateType = overrideGrid ? this._textTruncateType : this.textTruncateType;
+                    if (currentTextTruncateType !== requiredSettings.textTruncateType) {
                         this._textTruncateTypeId = requiredSettings.textTruncateTypeId;
                         this._textTruncateType = requiredSettings.textTruncateType;
                         this.flagChangedViewRender();
                     }
+                }
                     break;
-                case 'textStrikeThrough':
-                    if (this._textStrikeThrough !== requiredSettings.textStrikeThrough) {
+                case 'textStrikeThrough': {
+                    const currentTextStrikeThrough = overrideGrid ? this._textStrikeThrough : this.textStrikeThrough;
+                    if (currentTextStrikeThrough !== requiredSettings.textStrikeThrough) {
                         this._textStrikeThrough = requiredSettings.textStrikeThrough;
                         this.flagChangedViewRender();
                     }
                     break;
+                }
 
                 default:
                     columnSettingsKey satisfies never;
@@ -415,9 +447,9 @@ export class RevSimpleInMemoryBehavioredColumnSettings extends RevInMemoryBehavi
         return this.endChange();
     }
 
-    override clone() {
+    override clone(overrideGrid = false) {
         const copy = new RevSimpleInMemoryBehavioredColumnSettings(this.gridSettings);
-        copy.merge(this);
+        copy.merge(this, overrideGrid);
         return copy;
     }
 }

@@ -97,7 +97,7 @@ export class RevColumnImplementation<BCS extends RevBehavioredColumnSettings, SF
      * @param settings - A simple properties hash.
      */
     loadSettings(settings: BCS) {
-        this.settings.merge(settings);
+        this.settings.merge(settings, false);
     }
 
     /**

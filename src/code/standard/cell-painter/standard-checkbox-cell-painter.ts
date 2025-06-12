@@ -145,7 +145,7 @@ export namespace RevStandardCheckboxCellPainter {
     }
 
     export interface BehavioredColumnSettings extends ColumnSettings, RevBehavioredColumnSettings {
-        merge(settings: Partial<ColumnSettings>): boolean;
-        clone(): BehavioredColumnSettings;
+        merge(settings: Partial<ColumnSettings>, overrideGrid: boolean): boolean;
+        clone(overrideGrid: boolean): BehavioredColumnSettings;
     }
 }

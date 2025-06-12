@@ -197,6 +197,7 @@ export class RevColumnsManager<BCS extends RevBehavioredColumnSettings, SF exten
             const column = this.newColumn(field);
             this._activeColumns[i] = column;
             const fieldIndex = field.index;
+            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
             if (this._fieldColumns[fieldIndex] !== undefined) {
                 throw new RevApiError('CMCC10197', `RevColumnsManager.createColumns: Duplicate column index ${fieldIndex}`);
             } else {
@@ -230,18 +231,21 @@ export class RevColumnsManager<BCS extends RevBehavioredColumnSettings, SF exten
     /** @internal */
     getActiveColumnWidth(index: number) {
         const column = this._activeColumns[index];
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         return column !== undefined ? column.width : 0;
     }
 
     /** @internal */
     getActiveColumnRoundedWidth(index: number) {
         const column = this._activeColumns[index];
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         return column !== undefined ? Math.round(column.width) : 0;
     }
 
     /** @internal */
     getActiveColumnCeilWidth(index: number) {
         const column = this._activeColumns[index];
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         return column !== undefined ? Math.ceil(column.width) : 0;
     }
 
@@ -297,7 +301,7 @@ export class RevColumnsManager<BCS extends RevBehavioredColumnSettings, SF exten
         let changedColumnsCount = 0;
         for (const fieldNameAndWidth of fieldNameAndWidths) {
             const { name, autoSizableWidth } = fieldNameAndWidth;
-            const column = this._fieldColumns.find((aColumn) => aColumn.field.name === name) as RevColumnImplementation<BCS, SF>;
+            const column = this._fieldColumns.find((aColumn) => aColumn.field.name === name) as RevColumnImplementation<BCS, SF> | undefined;
             if (column === undefined) {
                 throw new RevApiError('CMSCWBFN20251', `Behavior.setColumnWidthsByName: Column name not found: ${name}`);
             } else {
@@ -327,7 +331,7 @@ export class RevColumnsManager<BCS extends RevBehavioredColumnSettings, SF exten
         let changedColumnsCount = 0;
         for (let i = 0; i < newActiveColumnCount; i++) {
             const { name, autoSizableWidth } = fieldNameAndWidths[i];
-            const column = this._fieldColumns.find((aColumn) => aColumn.field.name === name) as RevColumnImplementation<BCS, SF>;
+            const column = this._fieldColumns.find((aColumn) => aColumn.field.name === name) as RevColumnImplementation<BCS, SF> | undefined;
             if (column === undefined) {
                 throw new RevApiError('CMSACAWBFN01098', `Behavior.setActiveColumnsAndWidthsByName: Column name not found: ${name}`);
             } else {
@@ -426,6 +430,7 @@ export class RevColumnsManager<BCS extends RevBehavioredColumnSettings, SF exten
             const columnIndexes = (typeof columnIndexOrIndices === 'number') ? [columnIndexOrIndices] : columnIndexOrIndices;
             newColumns = columnIndexes
                 .map((index) => sourceColumnList[index]) // Look up columns using provided indexes
+                // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                 .filter(column => column !== undefined); // Remove any undefined columns
 
         }
@@ -483,14 +488,15 @@ export class RevColumnsManager<BCS extends RevBehavioredColumnSettings, SF exten
      * @returns The properties for a specific column.
      * @internal
      */
-    mergeFieldColumnSettings(fieldIndex: number, settings: Partial<BCS>) {
+    mergeFieldColumnSettings(fieldIndex: number, settings: Partial<BCS>, overrideGrid: boolean) {
         const column = this.getFieldColumn(fieldIndex);
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         if (column === undefined) {
             throw new RevAssertError('CMMFCS50399', fieldIndex.toString());
         }
 
         // column.clearProperties(); // needs implementation
-        return column.settings.merge(settings);
+        return column.settings.merge(settings, overrideGrid);
     }
 
     /**
@@ -513,11 +519,13 @@ export class RevColumnsManager<BCS extends RevBehavioredColumnSettings, SF exten
     swapColumns(source: number, target: number) {
         const columns = this._activeColumns;
         const sourceColumn = columns[source];
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         if (sourceColumn === undefined) {
             return;
         }
         const targetColumn = columns[target];
         columns[source] = targetColumn;
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         if (sourceColumn === undefined) {
             return;
         }

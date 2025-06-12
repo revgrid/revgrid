@@ -769,12 +769,12 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
         return column.settings;
     }
 
-    mergeFieldColumnSettings(fieldIndex: Integer, settings: Partial<BCS>) {
-        return this.columnsManager.mergeFieldColumnSettings(fieldIndex, settings);
+    mergeFieldColumnSettings(fieldIndex: Integer, settings: Partial<BCS>, overrideGrid = false) {
+        return this.columnsManager.mergeFieldColumnSettings(fieldIndex, settings, overrideGrid);
     }
 
     setFieldColumnSettings(fieldIndex: Integer, settings: BCS) {
-        return this.columnsManager.mergeFieldColumnSettings(fieldIndex, settings);
+        return this.columnsManager.mergeFieldColumnSettings(fieldIndex, settings, true);
     }
 
     /**
@@ -1058,7 +1058,7 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
         let key: string;
         if (typeof allXOrCell === 'object') {
             optionalCell = allXOrCell;
-            column = allXOrCell.viewLayoutColumn.column,
+            column = allXOrCell.viewLayoutColumn.column;
             dataY = allXOrCell.viewLayoutRow.subgridRowIndex;
             key = yOrKey as string;
             value = keyOrValue;
@@ -1134,14 +1134,14 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
         return this.selection.onlySelectRectangle(firstInexclusiveX, firstInexclusiveY, width, height, subgrid);
     }
 
-    selectRectangle(firstInexclusiveX: Integer, firstInexclusiveY: Integer, width: Integer, height: Integer, subgrid: RevSubgrid<BCS, SF>) {
+    selectRectangle(firstInexclusiveX: Integer, firstInexclusiveY: Integer, width: Integer, height: Integer, subgrid?: RevSubgrid<BCS, SF>) {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
         return this.selection.selectRectangle(firstInexclusiveX, firstInexclusiveY, width, height, subgrid);
     }
 
-    deselectRectangle(rectangle: RevRectangle, subgrid: RevSubgrid<BCS, SF>) {
+    deselectRectangle(rectangle: RevRectangle, subgrid?: RevSubgrid<BCS, SF>) {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
@@ -1162,14 +1162,14 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
         this.selection.deselectRows(y, count, subgrid);
     }
 
-    deselectColumn(x: Integer, subgrid: RevSubgrid<BCS, SF>) {
+    deselectColumn(x: Integer, subgrid?: RevSubgrid<BCS, SF>) {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
         this.selection.deselectColumns(x, 1, subgrid);
     }
 
-    deselectColumns(x: Integer, count: Integer, subgrid: RevSubgrid<BCS, SF>) {
+    deselectColumns(x: Integer, count: Integer, subgrid?: RevSubgrid<BCS, SF>) {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
@@ -1191,7 +1191,7 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
         return this.selection.isOnlyThisCellSelected(x, y, subgrid);
     }
 
-    getOneCellSelectionAreaType(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid: RevSubgrid<BCS, SF>): RevSelectionAreaType | undefined {
+    getOneCellSelectionAreaType(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>): RevSelectionAreaType | undefined {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
@@ -1204,7 +1204,7 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
         }
     }
 
-    getAllCellSelectionAreaTypeIds(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid: RevSubgrid<BCS, SF>): RevSelectionAreaType[] {
+    getAllCellSelectionAreaTypeIds(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>): RevSelectionAreaType[] {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
@@ -1559,8 +1559,8 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
                 foundOrCreatedElement.style.position = RevCssTypes.Position.relative; // allow scrollers to be positioned
                 foundOrCreatedElement.style.margin = '0'; // size of canvas must match host
                 foundOrCreatedElement.style.padding = '0'; // size of canvas must match host
-                foundOrCreatedElement.style.height = '100%', // take up all space
-                foundOrCreatedElement.style.width = '100%', // take up all space
+                foundOrCreatedElement.style.height = '100%'; // take up all space
+                foundOrCreatedElement.style.width = '100%'; // take up all space
                 document.body.appendChild(foundOrCreatedElement);
             }
             resolvedHostElement = foundOrCreatedElement;

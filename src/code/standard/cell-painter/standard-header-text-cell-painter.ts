@@ -96,6 +96,7 @@ export class RevStandardHeaderTextCellPainter<
             const bounds = cell.bounds;
             const cellPadding = columnSettings.cellPadding;
             const columnHeaderHorizontalAlignId = columnSettings.columnHeaderHorizontalAlignId;
+            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
             const horizontalAlignId = columnHeaderHorizontalAlignId === undefined ? columnSettings.horizontalAlignId : columnHeaderHorizontalAlignId;
 
             // background
@@ -138,8 +139,8 @@ export namespace RevStandardHeaderTextCellPainter {
     }
 
     export interface BehavioredColumnSettings extends ColumnSettings, RevBehavioredColumnSettings {
-        merge(settings: Partial<ColumnSettings>): boolean;
-        clone(): BehavioredColumnSettings;
+        merge(settings: Partial<ColumnSettings>, overrideGrid: boolean): boolean;
+        clone(overrideGrid: boolean): BehavioredColumnSettings;
     }
 
     export interface RevPaintFingerprintInterface {

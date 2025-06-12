@@ -294,7 +294,7 @@ export class Main {
 
     private getSettingsForNewColumn(_field: AppSchemaField) {
         const columnSettings = new RevSimpleInMemoryBehavioredColumnSettings(this._gridSettings) as RevSimpleBehavioredColumnSettings;
-        columnSettings.merge(revSimpleDefaultColumnSettings);
+        columnSettings.merge(revSimpleDefaultColumnSettings, false);
         return columnSettings;
     }
 
