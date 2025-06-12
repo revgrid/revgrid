@@ -515,7 +515,7 @@ export function revCalculateAdjustmentForRangeMoved(value: number, oldRangeIndex
 // Warning: (ae-internal-missing-underscore) The name "revCalculateNumberArrayUniqueCount" should be prefixed with an underscore because the declaration is marked as @internal
 //
 // @internal (undocumented)
-export function revCalculateNumberArrayUniqueCount<T extends number>(array: T[]): number;
+export function revCalculateNumberArrayUniqueCount(array: number[]): number;
 
 // @public (undocumented)
 export class RevCanvas<BGS extends RevBehavioredGridSettings> implements RevClientObject {
@@ -559,7 +559,7 @@ export class RevCanvas<BGS extends RevBehavioredGridSettings> implements RevClie
     // (undocumented)
     readonly gc: RevCachedCanvasRenderingContext2D;
     // @internal (undocumented)
-    getOffsetPoint<T extends MouseEvent | Touch>(mouseEventOrTouch: T): RevPoint;
+    getOffsetPoint(mouseEventOrTouch: MouseEvent | Touch): RevPoint;
     // (undocumented)
     get hasBounds(): boolean;
     // (undocumented)
@@ -3415,7 +3415,7 @@ export namespace RevFocusSelectBehavior {
 }
 
 // @public (undocumented)
-export class RevGenericTableField<DataType extends number | string, ValueClass extends RevGenericTableValue<DataType, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> extends RevTableField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> {
+export class RevGenericTableField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> extends RevTableField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> {
     // (undocumented)
     protected compareDefined(left: RevTableValue<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, right: RevTableValue<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>): number;
 }
@@ -3577,17 +3577,17 @@ export namespace RevGridSettings {
     // (undocumented)
     export type Color = RevOnlyGridSettings.Color;
     // (undocumented)
-    export function getSelectionAreaTypeFromEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: RevGridSettings, event: T): "all" | "rectangle" | "row" | "column";
+    export function getSelectionAreaTypeFromEvent(gridSettings: RevGridSettings, event: MouseEvent | KeyboardEvent): "all" | "rectangle" | "row" | "column";
     // (undocumented)
-    export function getSelectionAreaTypeSpecifierFromEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: RevGridSettings, event: T): RevSelectionAreaTypeSpecifierId.Primary | RevSelectionAreaTypeSpecifierId.Secondary;
+    export function getSelectionAreaTypeSpecifierFromEvent(gridSettings: RevGridSettings, event: MouseEvent | KeyboardEvent): RevSelectionAreaTypeSpecifierId.Primary | RevSelectionAreaTypeSpecifierId.Secondary;
     // (undocumented)
-    export function isAddToggleSelectionAreaModifierKeyDownInEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: RevGridSettings, event: T): boolean;
+    export function isAddToggleSelectionAreaModifierKeyDownInEvent(gridSettings: RevGridSettings, event: MouseEvent | KeyboardEvent): boolean;
     // (undocumented)
-    export function isExtendLastSelectionAreaModifierKeyDownInEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: RevGridSettings, event: T): boolean;
+    export function isExtendLastSelectionAreaModifierKeyDownInEvent(gridSettings: RevGridSettings, event: MouseEvent | KeyboardEvent): boolean;
     // (undocumented)
-    export function isSecondarySelectionAreaTypeSpecifierModifierKeyDownInEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: RevGridSettings, event: T): boolean;
+    export function isSecondarySelectionAreaTypeSpecifierModifierKeyDownInEvent(gridSettings: RevGridSettings, event: MouseEvent | KeyboardEvent): boolean;
     // (undocumented)
-    export function isShowScrollerThumbOnMouseMoveModifierKeyDownInEvent<T extends MouseEvent | KeyboardEvent>(gridSettings: RevGridSettings, event: T): boolean;
+    export function isShowScrollerThumbOnMouseMoveModifierKeyDownInEvent(gridSettings: RevGridSettings, event: MouseEvent | KeyboardEvent): boolean;
 }
 
 // @public (undocumented)
@@ -4292,7 +4292,7 @@ export namespace RevModifierKey {
     const // (undocumented)
     alt = "Alt";
     // (undocumented)
-    export function isDownInEvent<T extends MouseEvent | KeyboardEvent>(key: RevModifierKey | undefined, event: T): boolean;
+    export function isDownInEvent(key: RevModifierKey | undefined, event: MouseEvent | KeyboardEvent): boolean;
 }
 
 // @public (undocumented)
@@ -9569,7 +9569,7 @@ export namespace RevWritablePoint {
 
 // Warnings were encountered during analysis:
 //
-// src/code/standard/painters/standard-text-painter.ts:256:48 - (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
+// src/code/standard/painters/standard-text-painter.ts:257:48 - (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
 
 // (No @packageDocumentation comment for this package)
 

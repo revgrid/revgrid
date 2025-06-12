@@ -234,6 +234,7 @@ export class RevRecordRowMap {
                 throw new RevRecordAssertError('RRMCC31001');
             } else {
                 const record = row.record;
+                // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                 if (record === undefined) {
                     throw new RevRecordAssertError('RRMCC31002');
                 } else {

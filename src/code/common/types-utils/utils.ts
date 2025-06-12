@@ -56,7 +56,7 @@ export function revSafeConvertUnknownToBoolean(value: unknown) {
 }
 
 /** @internal */
-export function revCalculateNumberArrayUniqueCount<T extends number>(array: T[]) {
+export function revCalculateNumberArrayUniqueCount(array: number[]) {
     array.sort((left, right) => left - right);
     const allCount = array.length;
     let previousIndex = array[0];

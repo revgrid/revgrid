@@ -6,12 +6,12 @@ import { RevSelectionArea } from './selection-area';
 export class RevSelectionRectangle extends RevFirstCornerRectangle implements RevSelectionArea {
     readonly areaTypeId = RevSelectionAreaTypeId.rectangle;
 
+    get size() {
+        return this.area;
+    }
+
     override createCopy() {
         const { x, y, width, height } = RevFirstCornerRectangle.calculateXYWidthHeightForCorner(this.x, this.y, this.width, this.height, this.firstCorner);
         return new RevSelectionRectangle(x, y, width, height);
-    }
-
-    get size() {
-        return this.area;
     }
 }

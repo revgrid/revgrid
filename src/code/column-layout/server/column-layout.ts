@@ -377,7 +377,7 @@ export namespace RevColumnLayout {
         }
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-empty-interface
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
     export interface ChangeInitiator {
         // just used to mark object initiating a change
     }

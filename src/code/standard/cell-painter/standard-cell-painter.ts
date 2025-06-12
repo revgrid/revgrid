@@ -19,8 +19,6 @@ export abstract class RevStandardCellPainter<
         this._renderingContext = grid.canvas.gc;
     }
 
-    abstract paint(cell: RevViewCell<BCS, SF>, prefillColor: string | undefined): number | undefined;
-
     protected paintBackground(bounds: RevRectangle, backgroundColor: string) {
         const gc = this._renderingContext;
         gc.cache.fillStyle = backgroundColor;
@@ -39,4 +37,6 @@ export abstract class RevStandardCellPainter<
             gc.cache.lineDash = [];
         }
     }
+
+    abstract paint(cell: RevViewCell<BCS, SF>, prefillColor: string | undefined): number | undefined;
 }

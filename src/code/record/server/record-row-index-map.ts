@@ -2,6 +2,13 @@ import { RevRecordRowError } from './record-error';
 
 /** Provides fast mappings between array locations, including imbalanced mappings where records are absent from one side */
 export class RevRecordRowIndexMap {
+    // Maps left index values to right
+    private ltoref: number[] = [];
+    private reftor: number[] = [];
+
+    // Maps right index values to left
+    private rtoref: number[] = [];
+    private reftol: number[] = [];
 
     /** Gets the number of indexes on the left */
     get leftCount(): number {
@@ -12,13 +19,6 @@ export class RevRecordRowIndexMap {
     get rightCount(): number {
         return this.rtoref.length;
     }
-    // Maps left index values to right
-    private ltoref: number[] = [];
-    private reftor: number[] = [];
-
-    // Maps right index values to left
-    private rtoref: number[] = [];
-    private reftol: number[] = [];
 
     /**
 	 * Performs a binary search for a specific reference number
@@ -138,30 +138,6 @@ export class RevRecordRowIndexMap {
         return ref;
     }
 
-    private static refBelow(indexes: number[], nodeIndex: number): number {
-        for (let Index = nodeIndex; Index >= 0; Index--) {
-            const ref = indexes[Index];
-
-            if (ref !== -1) {
-                return ref;
-            }
-        }
-
-        return -1;
-    }
-
-    private static refAbove(indexes: number[], nodeIndex: number): number {
-        for (let Index = nodeIndex; Index < indexes.length; Index++) {
-            const ref = indexes[Index];
-
-            if (ref !== -1) {
-                return ref;
-            }
-        }
-
-        return -1;
-    }
-
     /**
 	 * Redistributes reference numbers to make space at a specific index
 	 * @param nodes - The array to redistribute
@@ -226,6 +202,30 @@ export class RevRecordRowIndexMap {
                 nodes[Index] = newRef;
             }
         }
+    }
+
+    private static refBelow(indexes: number[], nodeIndex: number): number {
+        for (let Index = nodeIndex; Index >= 0; Index--) {
+            const ref = indexes[Index];
+
+            if (ref !== -1) {
+                return ref;
+            }
+        }
+
+        return -1;
+    }
+
+    private static refAbove(indexes: number[], nodeIndex: number): number {
+        for (let Index = nodeIndex; Index < indexes.length; Index++) {
+            const ref = indexes[Index];
+
+            if (ref !== -1) {
+                return ref;
+            }
+        }
+
+        return -1;
     }
 
     /**

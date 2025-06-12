@@ -107,129 +107,6 @@ export class RevCanvas<BGS extends RevBehavioredGridSettings> implements RevClie
     })
 
     /** @internal */
-    private pointerUpCancelEventListener = (event: PointerEvent) => {
-        // event.preventDefault(); // no mouse event
-
-        switch (this._pointerDownState) {
-            case RevCanvas.PointerDownStateId.NotDown:
-                break;
-            case RevCanvas.PointerDownStateId.NotDragging:
-                this.setPointerDownState(RevCanvas.PointerDownStateId.NotDown, event);
-                break;
-            case RevCanvas.PointerDownStateId.DragStarting:
-                this.pointerUpCancelEventer(event);
-                this.setPointerDownState(RevCanvas.PointerDownStateId.NotDown, event);
-                break;
-            case RevCanvas.PointerDownStateId.Dragging:
-                this.pointerDragEndEventer(event, this._pointerDragInternal);
-                this.pointerUpCancelEventer(event);
-                this.setPointerDownState(RevCanvas.PointerDownStateId.IgnoreClickAfterDrag, event);
-                break;
-            case RevCanvas.PointerDownStateId.IgnoreClickAfterDrag:
-                this.setPointerDownState(RevCanvas.PointerDownStateId.NotDown, event);
-                break;
-            default:
-                throw new RevUnreachableCaseError('CMPUCEL34440', this._pointerDownState);
-        }
-    };
-
-    /** @internal */
-    private pointerLeaveOutListener = (event: PointerEvent) => {
-        // event.preventDefault(); // no mouse event
-
-        if (this._pointerEntered) {
-            this.pointerLeaveOutEventer(event);
-            this._pointerEntered = false;
-        }
-    }
-
-    /** @internal */
-    private keyDownEventListener = (e: KeyboardEvent) => {
-        if (this.isActiveDocumentElement()) {
-            this.checkPreventDefault(e);
-
-            // const key = e.key;
-
-            // if (e.repeat) {
-            //     if (this._repeatKey === key) {
-            //         this._repeatKeyCount++;
-            //     } else {
-            //         this._repeatKey = key;
-            //         this._repeatKeyStartTime = Date.now();
-            //     }
-            // } else {
-            //     this._repeatKey = undefined;
-            //     this._repeatKeyCount = 0;
-            //     this._repeatKeyStartTime = 0;
-            // }
-
-            // const eventDetail = this.createKeyboardEventDetail(e);
-            this.keyDownEventer(e);
-        }
-    }
-
-    /** @internal */
-    private keyUpEventListener = (e: KeyboardEvent) => {
-        if (this.isActiveDocumentElement()) {
-            this.checkPreventDefault(e);
-
-            // this._repeatKeyCount = 0;
-            // this._repeatKey = undefined;
-            // this._repeatKeyStartTime = 0;
-
-            // const eventDetail = this.createKeyboardEventDetail(e);
-            this.keyUpEventer(e);
-        }
-    }
-
-    /** @internal */
-    private focusEventListener = (e: FocusEvent) => {
-        this.focusEventer(e);
-    }
-
-    /** @internal */
-    private blurEventListener = (e: FocusEvent) => {
-        this.blurEventer(e);
-    }
-
-    /** @internal */
-    private clickEventListener = (e: MouseEvent) => {
-        if (this._pointerDownState === RevCanvas.PointerDownStateId.IgnoreClickAfterDrag) {
-            this.setPointerDownState(RevCanvas.PointerDownStateId.NotDown, undefined);
-        } else {
-            this.clickEventer(e);
-        }
-    };
-    /** @internal */
-    private dblClickEventListener = (e: MouseEvent) => {
-        this.dblClickEventer(e);
-    };
-    /** @internal */
-    private contextMenuEventListener = (e: MouseEvent) => {
-        this.contextMenuEventer(e);
-    };
-
-    /** @internal */
-    private touchStartEventListener = (e: TouchEvent) => {
-        this.touchStartEventer(e);
-    }
-    /** @internal */
-    private touchMoveEventListener = (e: TouchEvent) => {
-        this.touchMoveEventer(e);
-    }
-    /** @internal */
-    private touchEndEventListener = (e: TouchEvent) => {
-        this.touchEndEventer(e);
-    }
-
-    /** @internal */
-    private copyEventListener = (e: ClipboardEvent) => {
-        if (this.isActiveDocumentElement()) {
-            this.copyEventer(e);
-        }
-    }
-
-    /** @internal */
     constructor(
         readonly clientId: string,
         readonly internalParent: RevClientObject,
@@ -489,7 +366,7 @@ export class RevCanvas<BGS extends RevBehavioredGridSettings> implements RevClie
     // }
 
     /** @internal */
-    getOffsetPoint<T extends MouseEvent|Touch>(mouseEventOrTouch: T) {
+    getOffsetPoint(mouseEventOrTouch: MouseEvent|Touch) {
         const rect = this.getCanvasBoundingClientRect();
 
         const offsetPoint = RevPoint.create(
@@ -531,6 +408,129 @@ export class RevCanvas<BGS extends RevBehavioredGridSettings> implements RevClie
     /** @internal */
     setTitleText(titleText: string) {
         this.element.title = titleText;
+    }
+
+    /** @internal */
+    private pointerUpCancelEventListener = (event: PointerEvent) => {
+        // event.preventDefault(); // no mouse event
+
+        switch (this._pointerDownState) {
+            case RevCanvas.PointerDownStateId.NotDown:
+                break;
+            case RevCanvas.PointerDownStateId.NotDragging:
+                this.setPointerDownState(RevCanvas.PointerDownStateId.NotDown, event);
+                break;
+            case RevCanvas.PointerDownStateId.DragStarting:
+                this.pointerUpCancelEventer(event);
+                this.setPointerDownState(RevCanvas.PointerDownStateId.NotDown, event);
+                break;
+            case RevCanvas.PointerDownStateId.Dragging:
+                this.pointerDragEndEventer(event, this._pointerDragInternal);
+                this.pointerUpCancelEventer(event);
+                this.setPointerDownState(RevCanvas.PointerDownStateId.IgnoreClickAfterDrag, event);
+                break;
+            case RevCanvas.PointerDownStateId.IgnoreClickAfterDrag:
+                this.setPointerDownState(RevCanvas.PointerDownStateId.NotDown, event);
+                break;
+            default:
+                throw new RevUnreachableCaseError('CMPUCEL34440', this._pointerDownState);
+        }
+    };
+
+    /** @internal */
+    private pointerLeaveOutListener = (event: PointerEvent) => {
+        // event.preventDefault(); // no mouse event
+
+        if (this._pointerEntered) {
+            this.pointerLeaveOutEventer(event);
+            this._pointerEntered = false;
+        }
+    }
+
+    /** @internal */
+    private keyDownEventListener = (e: KeyboardEvent) => {
+        if (this.isActiveDocumentElement()) {
+            this.checkPreventDefault(e);
+
+            // const key = e.key;
+
+            // if (e.repeat) {
+            //     if (this._repeatKey === key) {
+            //         this._repeatKeyCount++;
+            //     } else {
+            //         this._repeatKey = key;
+            //         this._repeatKeyStartTime = Date.now();
+            //     }
+            // } else {
+            //     this._repeatKey = undefined;
+            //     this._repeatKeyCount = 0;
+            //     this._repeatKeyStartTime = 0;
+            // }
+
+            // const eventDetail = this.createKeyboardEventDetail(e);
+            this.keyDownEventer(e);
+        }
+    }
+
+    /** @internal */
+    private keyUpEventListener = (e: KeyboardEvent) => {
+        if (this.isActiveDocumentElement()) {
+            this.checkPreventDefault(e);
+
+            // this._repeatKeyCount = 0;
+            // this._repeatKey = undefined;
+            // this._repeatKeyStartTime = 0;
+
+            // const eventDetail = this.createKeyboardEventDetail(e);
+            this.keyUpEventer(e);
+        }
+    }
+
+    /** @internal */
+    private focusEventListener = (e: FocusEvent) => {
+        this.focusEventer(e);
+    }
+
+    /** @internal */
+    private blurEventListener = (e: FocusEvent) => {
+        this.blurEventer(e);
+    }
+
+    /** @internal */
+    private clickEventListener = (e: MouseEvent) => {
+        if (this._pointerDownState === RevCanvas.PointerDownStateId.IgnoreClickAfterDrag) {
+            this.setPointerDownState(RevCanvas.PointerDownStateId.NotDown, undefined);
+        } else {
+            this.clickEventer(e);
+        }
+    };
+    /** @internal */
+    private dblClickEventListener = (e: MouseEvent) => {
+        this.dblClickEventer(e);
+    };
+    /** @internal */
+    private contextMenuEventListener = (e: MouseEvent) => {
+        this.contextMenuEventer(e);
+    };
+
+    /** @internal */
+    private touchStartEventListener = (e: TouchEvent) => {
+        this.touchStartEventer(e);
+    }
+    /** @internal */
+    private touchMoveEventListener = (e: TouchEvent) => {
+        this.touchMoveEventer(e);
+    }
+    /** @internal */
+    private touchEndEventListener = (e: TouchEvent) => {
+        this.touchEndEventer(e);
+    }
+
+    /** @internal */
+    private copyEventListener = (e: ClipboardEvent) => {
+        if (this.isActiveDocumentElement()) {
+            this.copyEventer(e);
+        }
     }
 
     /** @internal */

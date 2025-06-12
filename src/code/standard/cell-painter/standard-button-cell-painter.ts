@@ -42,7 +42,7 @@ export class RevStandardButtonCellPainter<
         // draw the capsule
         gc.cache.fillStyle = arcGradient;
         gc.cache.strokeStyle = '#000000';
-        RevCellPainter.roundRect(gc, x, y, width, height, radius, arcGradient !== undefined, true);
+        RevCellPainter.roundRect(gc, x, y, width, height, radius, true, true);
 
         const ox = (width - gc.getTextWidth(val)) / 2;
         const oy = (height - gc.getFontHeight().descent) / 2;

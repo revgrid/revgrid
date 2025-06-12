@@ -35,7 +35,7 @@ export class RevStandardSliderCellPainter<
         arcGradient.addColorStop(0, '#aaaaaa');
         arcGradient.addColorStop(1, '#777777');
         gc.cache.fillStyle = btnGradient;
-        RevCellPainter.roundRect(gc, x, y, width, height, radius, btnGradient !== undefined);
+        RevCellPainter.roundRect(gc, x, y, width, height, radius, true);
         if (val < 1.0) {
             gc.cache.fillStyle = arcGradient;
         } else {

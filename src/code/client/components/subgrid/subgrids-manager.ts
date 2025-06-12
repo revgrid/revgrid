@@ -88,94 +88,6 @@ export class RevSubgridsManager<BCS extends RevBehavioredColumnSettings, SF exte
     /** @internal */
     getSubgridByHandle(handle: RevSubgridImplementation.Handle) { return this._handledSubgrids[handle]; }
 
-    /**
-     * Resolves a `subgridSpec` to a Subgrid (and its DataModel).
-     * @remarks The spec may describe either an existing data model, or a constructor for a new data model.
-     * @returns either Subgrid or MainSubgrid depending on role specified in Spec
-     * @internal
-     */
-    private createSubgridFromDefinition(
-        subgridHandle: RevSubgridImplementation.Handle,
-        definition: RevSubgrid.Definition<BCS, SF>,
-    ) {
-        const role = definition.role ?? RevSubgrid.Role.defaultRole;
-        const isMainRole = role === RevSubgrid.Role.main;
-
-        let dataServer = definition.dataServer;
-        if (typeof dataServer === 'function') {
-            dataServer = new dataServer();
-        }
-        let metaServer = definition.metaServer;
-        if (typeof metaServer === 'function') {
-            metaServer = new metaServer();
-        }
-
-        const rowHeightsCanDiffer = definition.rowPropertiesCanSpecifyRowHeight === true;
-        let selectable = definition.selectable;
-        if (selectable === undefined) {
-            selectable = isMainRole;
-        }
-        return this.createSubgrid(
-            subgridHandle,
-            role,
-            dataServer,
-            metaServer,
-            selectable,
-            definition.defaultRowHeight,
-            rowHeightsCanDiffer,
-            definition.rowPropertiesPrototype,
-            definition.getCellPainterEventer,
-        );
-    }
-
-    /**
-     * @returns either Subgrid or MainSubgrid depending on role
-     * @internal
-     */
-    private createSubgrid(
-        subgridHandle: RevSubgridImplementation.Handle,
-        role: RevSubgrid.Role, dataServer: RevDataServer<SF>, metaServer: RevMetaServer | undefined,
-        selectable: boolean,
-        defaultRowHeight: number | undefined, rowHeightsCanDiffer: boolean,
-        rowPropertiesPrototype: RevMetaServer.RowPropertiesPrototype | undefined,
-        getCellPainterEventer: RevSubgrid.GetCellPainterEventer<BCS, SF>,
-    ) {
-        let subgrid: RevSubgridImplementation<BCS, SF>;
-        if (role === RevSubgrid.Role.main) {
-            subgrid = new RevMainSubgridImplementation<BCS, SF>(
-                this._gridSettings,
-                this._columnsManager,
-                subgridHandle,
-                role,
-                this._columnsManager.schemaServer,
-                dataServer,
-                metaServer,
-                selectable,
-                defaultRowHeight,
-                rowHeightsCanDiffer,
-                rowPropertiesPrototype,
-                getCellPainterEventer,
-            );
-        } else {
-            subgrid = new RevSubgridImplementation(
-                this._gridSettings,
-                this._columnsManager,
-                subgridHandle,
-                role,
-                this._columnsManager.schemaServer,
-                dataServer,
-                metaServer,
-                selectable,
-                defaultRowHeight,
-                rowHeightsCanDiffer,
-                rowPropertiesPrototype,
-                getCellPainterEventer,
-            );
-        }
-
-        return subgrid;
-    }
-
     calculateRowCount() {
         const subgrids = this.subgridImplementations;
         const subgridCount = subgrids.length;
@@ -435,6 +347,94 @@ export class RevSubgridsManager<BCS extends RevBehavioredColumnSettings, SF exte
             count += subgrid.getRowCount();
         }
         return count;
+    }
+
+    /**
+     * Resolves a `subgridSpec` to a Subgrid (and its DataModel).
+     * @remarks The spec may describe either an existing data model, or a constructor for a new data model.
+     * @returns either Subgrid or MainSubgrid depending on role specified in Spec
+     * @internal
+     */
+    private createSubgridFromDefinition(
+        subgridHandle: RevSubgridImplementation.Handle,
+        definition: RevSubgrid.Definition<BCS, SF>,
+    ) {
+        const role = definition.role ?? RevSubgrid.Role.defaultRole;
+        const isMainRole = role === RevSubgrid.Role.main;
+
+        let dataServer = definition.dataServer;
+        if (typeof dataServer === 'function') {
+            dataServer = new dataServer();
+        }
+        let metaServer = definition.metaServer;
+        if (typeof metaServer === 'function') {
+            metaServer = new metaServer();
+        }
+
+        const rowHeightsCanDiffer = definition.rowPropertiesCanSpecifyRowHeight === true;
+        let selectable = definition.selectable;
+        if (selectable === undefined) {
+            selectable = isMainRole;
+        }
+        return this.createSubgrid(
+            subgridHandle,
+            role,
+            dataServer,
+            metaServer,
+            selectable,
+            definition.defaultRowHeight,
+            rowHeightsCanDiffer,
+            definition.rowPropertiesPrototype,
+            definition.getCellPainterEventer,
+        );
+    }
+
+    /**
+     * @returns either Subgrid or MainSubgrid depending on role
+     * @internal
+     */
+    private createSubgrid(
+        subgridHandle: RevSubgridImplementation.Handle,
+        role: RevSubgrid.Role, dataServer: RevDataServer<SF>, metaServer: RevMetaServer | undefined,
+        selectable: boolean,
+        defaultRowHeight: number | undefined, rowHeightsCanDiffer: boolean,
+        rowPropertiesPrototype: RevMetaServer.RowPropertiesPrototype | undefined,
+        getCellPainterEventer: RevSubgrid.GetCellPainterEventer<BCS, SF>,
+    ) {
+        let subgrid: RevSubgridImplementation<BCS, SF>;
+        if (role === RevSubgrid.Role.main) {
+            subgrid = new RevMainSubgridImplementation<BCS, SF>(
+                this._gridSettings,
+                this._columnsManager,
+                subgridHandle,
+                role,
+                this._columnsManager.schemaServer,
+                dataServer,
+                metaServer,
+                selectable,
+                defaultRowHeight,
+                rowHeightsCanDiffer,
+                rowPropertiesPrototype,
+                getCellPainterEventer,
+            );
+        } else {
+            subgrid = new RevSubgridImplementation(
+                this._gridSettings,
+                this._columnsManager,
+                subgridHandle,
+                role,
+                this._columnsManager.schemaServer,
+                dataServer,
+                metaServer,
+                selectable,
+                defaultRowHeight,
+                rowHeightsCanDiffer,
+                rowPropertiesPrototype,
+                getCellPainterEventer,
+            );
+        }
+
+        return subgrid;
     }
 
     /** @internal */

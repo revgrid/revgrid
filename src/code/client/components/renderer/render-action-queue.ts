@@ -76,7 +76,6 @@ export class RevRenderActionQueue {
         }
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     invalidateViewRowCells(_viewRowIndex: number, _viewColumnIndices: number[]) {
         this.beginChange();
         try {
@@ -86,7 +85,6 @@ export class RevRenderActionQueue {
         }
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     invalidateViewCell(_viewColumnIndex: number, _viewRowIndex: number) {
         this.beginChange();
         try {

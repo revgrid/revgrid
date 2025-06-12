@@ -342,7 +342,6 @@ export class RevColumnResizingUiController<BGS extends RevBehavioredGridSettings
     private checkSetLocation(event: MouseEvent, cell: RevViewCell<BCS, SF>) {
         const canvasOffsetX = event.offsetX;
         if (
-            // eslint-disable-next-line @typescript-eslint/prefer-optional-chain
             cell !== null &&
             cell.isHeader &&
             this.calculateNearGridLine(canvasOffsetX, cell) !== RevColumnResizingUiController.NearGridLine.neither

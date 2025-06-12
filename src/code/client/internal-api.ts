@@ -11,7 +11,7 @@ export * from './components/internal-api';
 // export { RevScroller } from './components/scroller/scroller';
 // export { RevFirstCornerArea } from './components/selection/first-corner-area';
 // export { RevFirstCornerRectangle } from './components/selection/first-corner-rectangle';
-export { RevLastSelectionArea } from './components/selection/last-selection-area';
+// export { RevLastSelectionArea } from './components/selection/last-selection-area';
 // export { RevSelection } from './components/selection/selection';
 // export { RevSelectionArea } from './components/selection/selection-area';
 // export { RevSelectionRectangle } from './components/selection/selection-rectangle';

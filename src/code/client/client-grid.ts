@@ -209,6 +209,8 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     get selectionAllAuto() { return this.selection.allAuto; }
     set selectionAllAuto(value: boolean) { this.selection.allAuto = value; }
 
+    get activeColumnCount() { return this.columnsManager.activeColumnCount; }
+
     /**
      * Be a responsible citizen and call this function on instance disposal!
      * If multiple grids are used in an application (simultaneously or not), then {@link destroy} must be called otherwise
@@ -255,8 +257,6 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     isActiveDocumentElement() {
         return this.canvas.isActiveDocumentElement();
     }
-
-    get activeColumnCount() { return this.columnsManager.activeColumnCount; }
 
     /**
      * Gets the number of rows in the main subgrid.
@@ -308,39 +308,6 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
             subgrid = this.mainSubgrid;
         }
         this._componentsManager.setValue(x, y, value, subgrid);
-    }
-
-    private prepareHost(hostElement: string | HTMLElement | undefined): HTMLElement {
-        let resolvedHostElement: HTMLElement;
-        if (hostElement === undefined) {
-            let foundOrCreatedElement = document.getElementById(RevCssTypes.libraryName);
-
-            if (foundOrCreatedElement === null || foundOrCreatedElement.childElementCount > 0) {
-                // is not found or being used.  Create a new host
-                foundOrCreatedElement = document.createElement('div');
-                foundOrCreatedElement.style.display = RevCssTypes.Display.inline; // other display values would probably also work
-                foundOrCreatedElement.style.position = RevCssTypes.Position.relative; // allow scrollers to be positioned
-                foundOrCreatedElement.style.margin = '0'; // size of canvas must match host
-                foundOrCreatedElement.style.padding = '0'; // size of canvas must match host
-                foundOrCreatedElement.style.height = '100%', // take up all space
-                foundOrCreatedElement.style.width = '100%', // take up all space
-                document.body.appendChild(foundOrCreatedElement);
-            }
-            resolvedHostElement = foundOrCreatedElement;
-        } else {
-            if (typeof hostElement === 'string') {
-                const queriedHostElement = document.querySelector(hostElement);
-                if (queriedHostElement === null) {
-                    throw new RevAssertError('RIC55998', `Host element not found: ${hostElement}`);
-                } else {
-                    resolvedHostElement = queriedHostElement as HTMLElement;
-                }
-            } else {
-                resolvedHostElement = hostElement;
-            }
-        }
-
-        return resolvedHostElement;
     }
 
     /**
@@ -799,11 +766,7 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
      */
     getActiveColumnSettings(activeColumnIndex: Integer): BCS {
         const column = this.columnsManager.getActiveColumn(activeColumnIndex);
-        if (column === undefined) {
-            throw new RevApiError('RGACS50008', `activeColumnIndex is not a valid index: ${activeColumnIndex}`);
-        } else {
-            return column.settings;
-        }
+        return column.settings;
     }
 
     mergeFieldColumnSettings(fieldIndex: Integer, settings: Partial<BCS>) {
@@ -945,164 +908,6 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
 
     tryScrollPageDown() {
         return this._focusScrollBehavior.tryScrollPageDown();
-    }
-
-    // Overridable methods for descendant classes to handle event processing
-
-    protected descendantProcessDataServersRowListChanged(_dataServers: RevDataServer<SF>[]) {
-        // for descendants
-    }
-
-    protected descendantProcessCellFocusChanged(_newPoint: RevPoint | undefined, _oldPoint: RevPoint | undefined) {
-        // for descendants
-    }
-
-    protected descendantProcessRowFocusChanged(_newSubgridRowIndex: Integer | undefined, _oldSubgridRowIndex: Integer | undefined) {
-        // for descendants
-    }
-
-    protected descendantProcessSelectionChanged() {
-        // for descendants
-    }
-
-    protected descendantProcessFieldColumnListChanged(_typeId: RevListChangedTypeId, _index: Integer, _count: Integer, _targetIndex: Integer | undefined) {
-        // for descendants
-    }
-
-    protected descendantProcessActiveColumnListChanged(_typeId: RevListChangedTypeId, _index: Integer, _count: Integer, _targetIndex: Integer | undefined, _ui: boolean) {
-        // for descendants
-    }
-
-    protected descendantProcessColumnsWidthChanged(_columns: RevColumn<BCS, SF>[], _ui: boolean) {
-        // for descendants
-    }
-
-    protected descendantProcessColumnsViewWidthsChanged(_changeds: RevViewLayout.ColumnsViewWidthChangeds) {
-        // for descendants
-    }
-
-    protected descendantProcessColumnSort(_event: MouseEvent, _headerOrFixedRowCell: RevViewCell<BCS, SF>) {
-        // for descendants
-    }
-
-    protected descendantEventerFocus() {
-        // for descendants
-    }
-
-    protected descendantEventerBlur() {
-        // for descendants
-    }
-
-    protected descendantProcessKeyDown(_event: KeyboardEvent, _fromEditor: boolean) {
-        // for descendants
-    }
-
-    protected descendantProcessKeyUp(_event: KeyboardEvent) {
-        // for descendants
-    }
-
-    protected descendantProcessClick(_event: MouseEvent, _hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined) {
-        // for descendants
-    }
-
-    protected descendantProcessDblClick(_event: MouseEvent, _hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined) {
-        // for descendants
-    }
-
-    protected descendantProcessPointerEnter(_event: MouseEvent, _hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined) {
-        // for descendants
-    }
-
-    protected descendantProcessPointerDown(_event: MouseEvent, _hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined) {
-        // for descendants
-    }
-
-    protected descendantProcessPointerUpCancel(_event: MouseEvent, _hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined) {
-        // for descendants
-    }
-
-    protected descendantProcessPointerMove(_event: MouseEvent, _hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined) {
-        // for descendants
-    }
-
-    protected descendantProcessPointerLeaveOut(_event: MouseEvent, _hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined) {
-        // for descendants
-    }
-
-    protected descendantProcessWheelMove(_event: MouseEvent, _hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined) {
-        // for descendants
-    }
-
-    protected descendantProcessDragStart(_event: DragEvent) {
-        // for descendants
-    }
-
-    protected descendantProcessContextMenu(_event: MouseEvent, _hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined) {
-        // for descendants
-    }
-
-    /**
-     * Uses DragEvent as this has original Mouse location.  Do not change DragEvent or call any of its methods
-     * Return true if drag operation is to be started.
-     */
-    protected descendantProcessPointerDragStart(_event: DragEvent, _hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined): boolean {
-        return false;
-    }
-
-    protected descendantProcessPointerDrag(_event: PointerEvent) {
-        // for descendants
-    }
-
-    protected descendantProcessPointerDragEnd(_event: PointerEvent) {
-        // for descendants
-    }
-
-    protected descendantProcessRendered() {
-        // for descendants
-    }
-
-    protected descendantProcessMouseEnteredCell(_cell: RevViewCell<BCS, SF>) {
-        // for descendants
-    }
-
-    protected descendantProcessMouseExitedCell(_cell: RevViewCell<BCS, SF>) {
-        // for descendants
-    }
-
-    protected descendantProcessTouchStart(_event: TouchEvent) {
-        // for descendants
-    }
-
-    protected descendantProcessTouchMove(_event: TouchEvent) {
-        // for descendants
-    }
-
-    protected descendantProcessTouchEnd(_event: TouchEvent) {
-        // for descendants
-    }
-
-    protected descendantProcessCopy(_event: ClipboardEvent) {
-        // for descendants
-    }
-
-    protected descendantProcessResized() {
-        // for descendants
-    }
-
-    protected descendantProcessHorizontalScrollViewportStartChanged() {
-        // for descendants
-    }
-
-    protected descendantProcessVerticalScrollViewportStartChanged() {
-        // for descendants
-    }
-
-    protected descendantProcessHorizontalScrollerAction(_event: RevScroller.Action) {
-        // for descendants
-    }
-
-    protected descendantProcessVerticalScrollerAction(_event: RevScroller.Action) {
-        // for descendants
     }
 
     /**
@@ -1581,6 +1386,198 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
 
     tryExtendLastSelectionAreaAsCloseAsPossibleToFocus() {
         return this._focusSelectBehavior.tryExtendLastSelectionAreaAsCloseAsPossibleToFocus();
+    }
+
+    // Overridable methods for descendant classes to handle event processing
+
+    protected descendantProcessDataServersRowListChanged(_dataServers: RevDataServer<SF>[]) {
+        // for descendants
+    }
+
+    protected descendantProcessCellFocusChanged(_newPoint: RevPoint | undefined, _oldPoint: RevPoint | undefined) {
+        // for descendants
+    }
+
+    protected descendantProcessRowFocusChanged(_newSubgridRowIndex: Integer | undefined, _oldSubgridRowIndex: Integer | undefined) {
+        // for descendants
+    }
+
+    protected descendantProcessSelectionChanged() {
+        // for descendants
+    }
+
+    protected descendantProcessFieldColumnListChanged(_typeId: RevListChangedTypeId, _index: Integer, _count: Integer, _targetIndex: Integer | undefined) {
+        // for descendants
+    }
+
+    protected descendantProcessActiveColumnListChanged(_typeId: RevListChangedTypeId, _index: Integer, _count: Integer, _targetIndex: Integer | undefined, _ui: boolean) {
+        // for descendants
+    }
+
+    protected descendantProcessColumnsWidthChanged(_columns: RevColumn<BCS, SF>[], _ui: boolean) {
+        // for descendants
+    }
+
+    protected descendantProcessColumnsViewWidthsChanged(_changeds: RevViewLayout.ColumnsViewWidthChangeds) {
+        // for descendants
+    }
+
+    protected descendantProcessColumnSort(_event: MouseEvent, _headerOrFixedRowCell: RevViewCell<BCS, SF>) {
+        // for descendants
+    }
+
+    protected descendantEventerFocus() {
+        // for descendants
+    }
+
+    protected descendantEventerBlur() {
+        // for descendants
+    }
+
+    protected descendantProcessKeyDown(_event: KeyboardEvent, _fromEditor: boolean) {
+        // for descendants
+    }
+
+    protected descendantProcessKeyUp(_event: KeyboardEvent) {
+        // for descendants
+    }
+
+    protected descendantProcessClick(_event: MouseEvent, _hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined) {
+        // for descendants
+    }
+
+    protected descendantProcessDblClick(_event: MouseEvent, _hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined) {
+        // for descendants
+    }
+
+    protected descendantProcessPointerEnter(_event: MouseEvent, _hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined) {
+        // for descendants
+    }
+
+    protected descendantProcessPointerDown(_event: MouseEvent, _hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined) {
+        // for descendants
+    }
+
+    protected descendantProcessPointerUpCancel(_event: MouseEvent, _hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined) {
+        // for descendants
+    }
+
+    protected descendantProcessPointerMove(_event: MouseEvent, _hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined) {
+        // for descendants
+    }
+
+    protected descendantProcessPointerLeaveOut(_event: MouseEvent, _hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined) {
+        // for descendants
+    }
+
+    protected descendantProcessWheelMove(_event: MouseEvent, _hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined) {
+        // for descendants
+    }
+
+    protected descendantProcessDragStart(_event: DragEvent) {
+        // for descendants
+    }
+
+    protected descendantProcessContextMenu(_event: MouseEvent, _hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined) {
+        // for descendants
+    }
+
+    /**
+     * Uses DragEvent as this has original Mouse location.  Do not change DragEvent or call any of its methods
+     * Return true if drag operation is to be started.
+     */
+    protected descendantProcessPointerDragStart(_event: DragEvent, _hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined): boolean {
+        return false;
+    }
+
+    protected descendantProcessPointerDrag(_event: PointerEvent) {
+        // for descendants
+    }
+
+    protected descendantProcessPointerDragEnd(_event: PointerEvent) {
+        // for descendants
+    }
+
+    protected descendantProcessRendered() {
+        // for descendants
+    }
+
+    protected descendantProcessMouseEnteredCell(_cell: RevViewCell<BCS, SF>) {
+        // for descendants
+    }
+
+    protected descendantProcessMouseExitedCell(_cell: RevViewCell<BCS, SF>) {
+        // for descendants
+    }
+
+    protected descendantProcessTouchStart(_event: TouchEvent) {
+        // for descendants
+    }
+
+    protected descendantProcessTouchMove(_event: TouchEvent) {
+        // for descendants
+    }
+
+    protected descendantProcessTouchEnd(_event: TouchEvent) {
+        // for descendants
+    }
+
+    protected descendantProcessCopy(_event: ClipboardEvent) {
+        // for descendants
+    }
+
+    protected descendantProcessResized() {
+        // for descendants
+    }
+
+    protected descendantProcessHorizontalScrollViewportStartChanged() {
+        // for descendants
+    }
+
+    protected descendantProcessVerticalScrollViewportStartChanged() {
+        // for descendants
+    }
+
+    protected descendantProcessHorizontalScrollerAction(_event: RevScroller.Action) {
+        // for descendants
+    }
+
+    protected descendantProcessVerticalScrollerAction(_event: RevScroller.Action) {
+        // for descendants
+    }
+
+    /** @internal */
+    private prepareHost(hostElement: string | HTMLElement | undefined): HTMLElement {
+        let resolvedHostElement: HTMLElement;
+        if (hostElement === undefined) {
+            let foundOrCreatedElement = document.getElementById(RevCssTypes.libraryName);
+
+            if (foundOrCreatedElement === null || foundOrCreatedElement.childElementCount > 0) {
+                // is not found or being used.  Create a new host
+                foundOrCreatedElement = document.createElement('div');
+                foundOrCreatedElement.style.display = RevCssTypes.Display.inline; // other display values would probably also work
+                foundOrCreatedElement.style.position = RevCssTypes.Position.relative; // allow scrollers to be positioned
+                foundOrCreatedElement.style.margin = '0'; // size of canvas must match host
+                foundOrCreatedElement.style.padding = '0'; // size of canvas must match host
+                foundOrCreatedElement.style.height = '100%', // take up all space
+                foundOrCreatedElement.style.width = '100%', // take up all space
+                document.body.appendChild(foundOrCreatedElement);
+            }
+            resolvedHostElement = foundOrCreatedElement;
+        } else {
+            if (typeof hostElement === 'string') {
+                const queriedHostElement = document.querySelector(hostElement);
+                if (queriedHostElement === null) {
+                    throw new RevAssertError('RIC55998', `Host element not found: ${hostElement}`);
+                } else {
+                    resolvedHostElement = queriedHostElement as HTMLElement;
+                }
+            } else {
+                resolvedHostElement = hostElement;
+            }
+        }
+
+        return resolvedHostElement;
     }
 
     /** @internal */

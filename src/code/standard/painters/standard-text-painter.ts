@@ -117,6 +117,7 @@ export class RevStandardTextPainter {
                 }
             }
 
+            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
             if (text !== null) {
                 // the position for x need to be relocated.
                 // for canvas to print text, when textAlign is 'end' or 'right'

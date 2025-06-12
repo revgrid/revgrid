@@ -116,7 +116,7 @@ export class MultiHeadingDataRowArrayServerSet<SF extends MultiHeadingSchemaFiel
             case 'symbol': return value.toString();
             case 'undefined': return '?Undefined';
             case 'object': return '?Object';
-            case 'function': return value.toString();
+            case 'function': return '?Function';
             default: return '?Unknown Type';
         }
 }

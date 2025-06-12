@@ -65,7 +65,7 @@ export class RevDataExtractBehavior<BGS extends RevBehavioredGridSettings, BCS e
 
             //disallow if selection is too big
             if (areaSize > 20000) {
-                alert('selection size is too big to copy to the paste buffer'); // eslint-disable-line no-alert
+                alert('selection size is too big to copy to the paste buffer');
                 return '';
             }
 

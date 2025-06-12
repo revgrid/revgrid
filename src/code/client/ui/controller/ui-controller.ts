@@ -29,7 +29,15 @@ export abstract class RevUiController<BGS extends RevBehavioredGridSettings, BCS
     readonly clientId: string;
     readonly internalParent: RevClientObject;
 
-    abstract readonly typeName: string;
+    /**
+     * the next feature to be given a chance to handle incoming events
+     */
+    next: RevUiController<BGS, BCS, SF> | undefined;
+
+    /**
+     * a temporary holding field for my next feature when I'm in a disconnected state
+     */
+    detached: RevUiController<BGS, BCS, SF> | undefined;
 
     protected readonly _sharedState: RevUiControllerSharedState;
     protected readonly _hostElement: HTMLElement;
@@ -56,6 +64,8 @@ export abstract class RevUiController<BGS extends RevBehavioredGridSettings, BCS
     protected readonly _eventBehavior: RevEventBehavior<BGS, BCS, SF>;
 
     protected readonly _mainSubgrid: RevMainSubgrid<BCS, SF>;
+
+    abstract readonly typeName: string;
 
     constructor(services: RevUiControllerServices<BGS, BCS, SF>) {
         this.clientId = services.clientId;
@@ -87,16 +97,6 @@ export abstract class RevUiController<BGS extends RevBehavioredGridSettings, BCS
 
         this._mainSubgrid = this._subgridsManager.mainSubgrid;
     }
-
-    /**
-     * the next feature to be given a chance to handle incoming events
-     */
-    next: RevUiController<BGS, BCS, SF> | undefined;
-
-    /**
-     * a temporary holding field for my next feature when I'm in a disconnected state
-     */
-    detached: RevUiController<BGS, BCS, SF> | undefined;
 
     /**
      * set my next field, or if it's populated delegate to the feature in my next field

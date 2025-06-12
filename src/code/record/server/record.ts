@@ -1,5 +1,5 @@
 import { RevDataServer } from '../../common/internal-api';
-// eslint-disable-next-line import/no-cycle
+// eslint-disable-next-line import-x/no-cycle
 import { RevRecordRow } from './record-row';
 
 /** @public */

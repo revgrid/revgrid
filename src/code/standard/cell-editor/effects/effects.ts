@@ -55,8 +55,6 @@ export class RevStandardShakerCellEffect extends RevStandardCellEffect {
     private dx: number;
     private shakes: number;
 
-    private _transitionendListener = (ev: TransitionEvent) => { this.shake(ev); };
-
     constructor(el: HTMLElement, options?: RevStandardShakerCellEffect.Options) {
         super(el, options);
         this.duration = options?.duration ?? RevStandardShakerCellEffect.duration;
@@ -97,6 +95,8 @@ export class RevStandardShakerCellEffect extends RevStandardCellEffect {
             this.dx = this.shakes ? -this.dx : 0;
         }
     }
+
+    private _transitionendListener = (ev: TransitionEvent) => { this.shake(ev); };
 }
 
 export namespace RevStandardShakerCellEffect {
@@ -114,7 +114,6 @@ export namespace RevStandardShakerCellEffect {
 export class RevStandardGlowerCellEffect extends RevStandardCellEffect {
     private _duration: string;
     private _glowerStyles: RevStandardGlowerCellEffect.Styles;
-    private _transitionendListener = (ev: TransitionEvent) => { this.glower(ev); };
     private _originalTransitionStyle: string;
     private _styleWasMap = new Map<string, RevStandardGlowerCellEffect.StyleWas>();
     private _activeCount: number;
@@ -172,6 +171,8 @@ export class RevStandardGlowerCellEffect extends RevStandardCellEffect {
             }
         }
     }
+
+    private _transitionendListener = (ev: TransitionEvent) => { this.glower(ev); };
 }
 
 export namespace RevStandardGlowerCellEffect {

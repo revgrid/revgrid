@@ -26,8 +26,6 @@ export class RevRenderer<BGS extends RevBehavioredGridSettings, BCS extends RevB
     private readonly _gridPainterRepository: RevGridPainterRepository<BGS, BCS, SF>;
     /** @internal */
     private readonly _renderActionQueue: RevRenderActionQueue;
-    /** @internal */
-    private readonly _gridSettingsChangedListener = () => { this.handleGridSettingsChanged(); };
 
     /** @internal */
     private _documentHidden = false;
@@ -45,9 +43,6 @@ export class RevRenderer<BGS extends RevBehavioredGridSettings, BCS extends RevB
     private _gridPainter: RevGridPainter<BGS, BCS, SF>;
     /** @internal */
     private _allGridPainter: RevGridPainter<BGS, BCS, SF> | undefined;
-
-    /** @internal */
-    private _pageVisibilityChangeListener = () => { this.handlePageVisibilityChange(); };
 
     /** @internal */
     constructor(
@@ -309,6 +304,12 @@ export class RevRenderer<BGS extends RevBehavioredGridSettings, BCS extends RevB
             }
         }
     }
+
+    /** @internal */
+    private readonly _gridSettingsChangedListener = () => { this.handleGridSettingsChanged(); };
+
+    /** @internal */
+    private _pageVisibilityChangeListener = () => { this.handlePageVisibilityChange(); };
 
     /** @internal */
     private handlePageVisibilityChange() {

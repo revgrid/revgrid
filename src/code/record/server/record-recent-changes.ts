@@ -321,6 +321,7 @@ export class RevRecordRecentChanges {
             RevRecordRow.clearRecentChanges(row);
             const recordIndex = this._recordRowMap.getRecordIndexFromRowIndex(rowIndex);
             // const recordIndex = this._rowLookup.getLeftIndex(rowIndex);
+            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
             if (recordIndex === undefined) {
                 throw new RevRecordAssertError('RCPPRE75529', `${rowIndex}`);
             } else {

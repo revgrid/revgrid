@@ -28,9 +28,6 @@ export class RevSubgridImplementation<BCS extends RevBehavioredColumnSettings, S
     private _dataNotificationsClient: RevDataServer.NotificationsClient;
 
     /** @internal */
-    private _columnsManagerBeforeCreateColumnsListener = () => { this._viewDataRowProxy.updateSchema(); };
-
-    /** @internal */
     constructor(
         /** @internal */
         protected readonly _gridSettings: RevGridSettings,
@@ -305,6 +302,9 @@ export class RevSubgridImplementation<BCS extends RevBehavioredColumnSettings, S
 
         return this.setRowMetadataRowProperties(y, metadata, properties);
     }
+
+    /** @internal */
+    private _columnsManagerBeforeCreateColumnsListener = () => { this._viewDataRowProxy.updateSchema(); };
 
     private setRowMetadataRowProperties(y: number, existingMetadata: RevMetaServer.RowMetadata | undefined, properties: RevMetaServer.RowProperties | undefined) {
         if (existingMetadata === undefined) {

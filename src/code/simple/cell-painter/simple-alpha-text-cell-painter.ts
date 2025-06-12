@@ -185,6 +185,7 @@ export class RevSimpleAlphaTextCellPainter<
             const bounds = cell.bounds;
             const cellPadding = columnSettings.cellPadding;
             const columnHeaderHorizontalAlignId = columnSettings.columnHeaderHorizontalAlignId;
+            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
             const horizontalAlignId = columnHeaderHorizontalAlignId === undefined ? columnSettings.horizontalAlignId : columnHeaderHorizontalAlignId;
 
             this.paintLayerColors(bounds, layerColors, firstColorIsFill);

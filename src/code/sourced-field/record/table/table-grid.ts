@@ -239,7 +239,7 @@ export class RevTableGrid<
                     }
                 }
             },
-            (reason) => { throw AssertInternalError.createIfNotError(reason, 'TGTOGS35791'); }
+            (reason: unknown) => { throw AssertInternalError.createIfNotError(reason, 'TGTOGS35791'); }
         );
 
         return resultPromise;

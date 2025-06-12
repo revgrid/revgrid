@@ -47,9 +47,7 @@ export namespace RevColumnLayoutDefinition {
     }
 
     export namespace Column {
-        // eslint-disable-next-line @typescript-eslint/no-shadow
         export namespace JsonTag {
-            // eslint-disable-next-line @typescript-eslint/no-shadow
             export const fieldName = 'fieldName';
             export const name = 'name'; // legacy
             export const visible = 'visible';

@@ -1,6 +1,6 @@
 import { RevCachedCanvasRenderingContext2D, RevSchemaField } from '../../common/internal-api';
 import { RevBehavioredColumnSettings } from '../settings/internal-api';
-// eslint-disable-next-line import/no-cycle
+// eslint-disable-next-line import-x/no-cycle
 import { RevCellPossiblyPaintable } from './cell-possibly-paintable';
 import { RevViewCell } from './view-cell';
 

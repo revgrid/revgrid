@@ -25,6 +25,7 @@ export class RevStandardSparkBarCellPainter<
 
         gc.beginPath();
         const val = config.value;
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         if (val === undefined || val.length === 0) {
             return undefined;
         } else {

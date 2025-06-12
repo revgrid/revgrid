@@ -71,26 +71,6 @@ export class RevScroller<BGS extends RevBehavioredGridSettings, BCS extends RevB
     /** @internal */
     private _thumbVisibilityState = ThumbVisibilityStateId.Reduced;
     /** @internal */
-    private readonly _settingsChangedListener = () => { this.applySettings(); };
-    /** @internal */
-    private readonly _barWheelListener = (event: WheelEvent) => { this.handleBarWheelEvent(event) };
-    /** @internal */
-    private readonly _barClickListener = (event: MouseEvent) => { this.handleBarClickEvent(event); };
-    /** @internal */
-    private readonly _thumbClickListener = (event: MouseEvent) => { this.handleThumbClickEvent(event); };
-    /** @internal */
-    private readonly _thumbPointerEnterListener = () => { this.handleThumbPointerEnterEvent(); };
-    /** @internal */
-    private readonly _thumbPointerLeaveListener = () => { this.handleThumbPointerLeaveEvent(); };
-    /** @internal */
-    private readonly _thumbTransitionEndListener = () => { this.handleThumbTransitionEndEvent(); };
-    /** @internal */
-    private readonly _barPointerEnterListener = () => { this.handleBarPointerEnterEvent(); };
-    /** @internal */
-    private readonly _barPointerLeaveListener = () => { this.handleBarPointerLeaveEvent(); };
-    /** @internal */
-    private readonly _barPointerDownListener = (event: PointerEvent) => { this.handleBarPointerDownEvent(event); };
-    /** @internal */
     private _barPointerMoveListener: RevScroller.PointerEventListener | undefined;
     /** @internal */
     private _barPointerUpListener: RevScroller.PointerEventListener | undefined;
@@ -194,28 +174,6 @@ export class RevScroller<BGS extends RevBehavioredGridSettings, BCS extends RevB
         this._hostElement.appendChild(bar);
     }
 
-    /**
-     * Remove the scrollbar.
-     * @remarks Unhooks all the event handlers and then removes the element from the DOM. Always call this method prior to disposing of the scrollbar object.
-     * @internal
-     */
-    destroy() {
-        this._gridSettings.unsubscribeChangedEvent(this._settingsChangedListener);
-        this.bar.removeEventListener('pointerenter', this._barPointerEnterListener);
-        this.bar.removeEventListener('pointerleave', this._barPointerLeaveListener);
-        this.bar.removeEventListener('click', this._barClickListener);
-        this.bar.removeEventListener('pointerdown', this._barPointerDownListener);
-        this.bar.removeEventListener('wheel', this._barWheelListener);
-        this._thumb.removeEventListener('click', this._thumbClickListener);
-        this._thumb.removeEventListener('pointerenter', this._thumbPointerEnterListener);
-        this._thumb.removeEventListener('pointerleave', this._thumbPointerLeaveListener);
-        this._thumb.removeEventListener('transitionend', this._thumbTransitionEndListener);
-
-        this.cancelTemporaryThumbFullVisibilityTimeout();
-
-        this.bar.remove();
-    }
-
     get trailing() { return this._trailing; }
 
     /** @internal */
@@ -255,6 +213,28 @@ export class RevScroller<BGS extends RevBehavioredGridSettings, BCS extends RevB
         }
     }
 
+    /**
+     * Remove the scrollbar.
+     * @remarks Unhooks all the event handlers and then removes the element from the DOM. Always call this method prior to disposing of the scrollbar object.
+     * @internal
+     */
+    destroy() {
+        this._gridSettings.unsubscribeChangedEvent(this._settingsChangedListener);
+        this.bar.removeEventListener('pointerenter', this._barPointerEnterListener);
+        this.bar.removeEventListener('pointerleave', this._barPointerLeaveListener);
+        this.bar.removeEventListener('click', this._barClickListener);
+        this.bar.removeEventListener('pointerdown', this._barPointerDownListener);
+        this.bar.removeEventListener('wheel', this._barWheelListener);
+        this._thumb.removeEventListener('click', this._thumbClickListener);
+        this._thumb.removeEventListener('pointerenter', this._thumbPointerEnterListener);
+        this._thumb.removeEventListener('pointerleave', this._thumbPointerLeaveListener);
+        this._thumb.removeEventListener('transitionend', this._thumbTransitionEndListener);
+
+        this.cancelTemporaryThumbFullVisibilityTimeout();
+
+        this.bar.remove();
+    }
+
     setBeforeInsideOffset(offset: number) {
         const crossLeadingPropertyKey = this._axisProperties.crossLeading;
         this.bar.style[crossLeadingPropertyKey] = numberToPixels(offset);
@@ -274,6 +254,68 @@ export class RevScroller<BGS extends RevBehavioredGridSettings, BCS extends RevB
         this._temporaryThumbFullVisibilityTimePeriod = timePeriod;
         this.updateThumbVisibility();
     }
+
+    /** @internal */
+    activatePointerScrolling(event: PointerEvent) {
+        this.bar.setPointerCapture(event.pointerId);
+        this._barPointerCaptured = true;
+
+        this._viewLayout.beginUiControlTracking();
+        this._viewLayoutTrackingActive = true;
+        this.updateThumbVisibility();
+    }
+
+    /** @internal */
+    deactivatePointerScrolling(event: PointerEvent) {
+        if (this._barPointerMoveListener !== undefined) {
+            this.bar.removeEventListener('pointermove', this._barPointerMoveListener);
+            this._barPointerMoveListener = undefined;
+        }
+        if (this._barPointerUpListener !== undefined) {
+            this.bar.removeEventListener('pointerup', this._barPointerUpListener);
+            this._barPointerUpListener = undefined;
+        }
+        if (this._barPointerCancelListener !== undefined) {
+            this.bar.removeEventListener('pointercancel', this._barPointerCancelListener);
+            this._barPointerCancelListener = undefined;
+        }
+
+        if (this._barPointerCaptured) {
+            this.bar.releasePointerCapture(event.pointerId);
+            this._barPointerCaptured = false;
+        }
+
+        if (this._viewLayoutTrackingActive) {
+            this._viewLayout.endUiControlTracking();
+            this._viewLayoutTrackingActive = false;
+        }
+
+        document.documentElement.style.cursor = 'auto';
+
+        this.updateThumbVisibility();
+        this.setThumbPosition(this._scrollDimension.viewportStart);
+    }
+
+    /** @internal */
+    private readonly _settingsChangedListener = () => { this.applySettings(); };
+    /** @internal */
+    private readonly _barWheelListener = (event: WheelEvent) => { this.handleBarWheelEvent(event) };
+    /** @internal */
+    private readonly _barClickListener = (event: MouseEvent) => { this.handleBarClickEvent(event); };
+    /** @internal */
+    private readonly _thumbClickListener = (event: MouseEvent) => { this.handleThumbClickEvent(event); };
+    /** @internal */
+    private readonly _thumbPointerEnterListener = () => { this.handleThumbPointerEnterEvent(); };
+    /** @internal */
+    private readonly _thumbPointerLeaveListener = () => { this.handleThumbPointerLeaveEvent(); };
+    /** @internal */
+    private readonly _thumbTransitionEndListener = () => { this.handleThumbTransitionEndEvent(); };
+    /** @internal */
+    private readonly _barPointerEnterListener = () => { this.handleBarPointerEnterEvent(); };
+    /** @internal */
+    private readonly _barPointerLeaveListener = () => { this.handleBarPointerLeaveEvent(); };
+    /** @internal */
+    private readonly _barPointerDownListener = (event: PointerEvent) => { this.handleBarPointerDownEvent(event); };
 
     /** @internal */
     private applySettings() {
@@ -698,47 +740,6 @@ export class RevScroller<BGS extends RevBehavioredGridSettings, BCS extends RevB
         this.bar.addEventListener('pointercancel', this._barPointerCancelListener);
 
         this.updateThumbVisibility();
-    }
-
-    /** @internal */
-    activatePointerScrolling(event: PointerEvent) {
-        this.bar.setPointerCapture(event.pointerId);
-        this._barPointerCaptured = true;
-
-        this._viewLayout.beginUiControlTracking();
-        this._viewLayoutTrackingActive = true;
-        this.updateThumbVisibility();
-    }
-
-    /** @internal */
-    deactivatePointerScrolling(event: PointerEvent) {
-        if (this._barPointerMoveListener !== undefined) {
-            this.bar.removeEventListener('pointermove', this._barPointerMoveListener);
-            this._barPointerMoveListener = undefined;
-        }
-        if (this._barPointerUpListener !== undefined) {
-            this.bar.removeEventListener('pointerup', this._barPointerUpListener);
-            this._barPointerUpListener = undefined;
-        }
-        if (this._barPointerCancelListener !== undefined) {
-            this.bar.removeEventListener('pointercancel', this._barPointerCancelListener);
-            this._barPointerCancelListener = undefined;
-        }
-
-        if (this._barPointerCaptured) {
-            this.bar.releasePointerCapture(event.pointerId);
-            this._barPointerCaptured = false;
-        }
-
-        if (this._viewLayoutTrackingActive) {
-            this._viewLayout.endUiControlTracking();
-            this._viewLayoutTrackingActive = false;
-        }
-
-        document.documentElement.style.cursor = 'auto';
-
-        this.updateThumbVisibility();
-        this.setThumbPosition(this._scrollDimension.viewportStart);
     }
 
     /** @internal */

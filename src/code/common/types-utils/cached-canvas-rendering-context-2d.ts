@@ -8,6 +8,9 @@ import { RevAssertError } from './revgrid-error';
  * Cache also stores the width and height of strings so that these widths and heights can be re-used without needing to be constantly recalculated
  */
 export class RevCachedCanvasRenderingContext2D {
+    /** Cache of CanvasRenderingContext2D values*/
+    readonly cache: RevCachedCanvasRenderingContext2D.Cache;
+
     /** @internal */
     private readonly _conditionalsStack: RevCachedCanvasRenderingContext2D.ConditionalsStack = [];
     /**
@@ -20,9 +23,6 @@ export class RevCachedCanvasRenderingContext2D {
      * @internal
      */
     private _fontTextHeightDefaultAndMap: RevCachedCanvasRenderingContext2D.FontTextHeightMap = new Map<string, RevCachedCanvasRenderingContext2D.TextHeightDefaultAndMap>;
-
-    /** Cache of CanvasRenderingContext2D values*/
-    readonly cache: RevCachedCanvasRenderingContext2D.Cache;
 
     /** @internal */
     constructor(private readonly canvasRenderingContext2D: CanvasRenderingContext2D) {

@@ -6,7 +6,6 @@ import { revSimpleDefaultGridSettings } from '../default/internal-api';
 export const revSimpleReadonlyDefaultBehavioredGridSettings: Readonly<RevSimpleBehavioredGridSettings> = {
     ...revSimpleDefaultGridSettings,
     ...revReadonlyBehavioredSettings,
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
     merge: () => false,
     clone: () => { return revSimpleReadonlyDefaultBehavioredGridSettings; }
 } as const;

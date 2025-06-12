@@ -109,8 +109,6 @@ export namespace RevTableField {
 
 /** @public */
 export class RevGenericTableField<
-    DataType extends number | string,
-    ValueClass extends RevGenericTableValue<DataType, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>,
     TextFormattableValueTypeId,
     TextFormattableValueAttributeTypeId
 > extends RevTableField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> {
@@ -119,6 +117,6 @@ export class RevGenericTableField<
         left: RevTableValue<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>,
         right: RevTableValue<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>
     ): number {
-        return compareValue<DataType>((left as ValueClass).definedData, (right as ValueClass).definedData);
+        return compareValue<number | string>((left as RevGenericTableValue<number | string, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>).definedData, (right as RevGenericTableValue<number | string, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>).definedData);
     }
 }

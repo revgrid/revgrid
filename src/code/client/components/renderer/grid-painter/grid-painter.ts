@@ -48,28 +48,6 @@ export abstract class RevGridPainter<BGS extends RevBehavioredGridSettings, BCS 
         return this._columnBundles;
     }
 
-    abstract paintCells(): void;
-
-    protected paintCell(
-        viewCell: RevViewCell<BCS, SF>,
-        prefillColor: string | undefined,
-    ): number | undefined {
-        const focus = this._focus;
-        const focusCell = focus.cell;
-        if (focusCell === viewCell) { // does cell have focus
-            const editor = focus.editor;
-            if (editor !== undefined) { // is editor active
-                if (editor.paint !== undefined) { // should editor be painted
-                    return editor.paint(viewCell, prefillColor);
-                } else {
-                    return undefined; // Cell does not need painting while editor is active
-                }
-            }
-        }
-        const cellPainter = viewCell.subgrid.getCellPainterEventer(viewCell);
-        return cellPainter.paint(viewCell, prefillColor);
-    }
-
     paintErrorCell(err: Error, vc: RevViewLayoutColumn<BCS, SF>, vr: RevViewLayoutRow<BCS, SF>) {
         const gc = this._renderingContext;
         const message = getErrorMessage(err);
@@ -338,6 +316,26 @@ export abstract class RevGridPainter<BGS extends RevBehavioredGridSettings, BCS 
         }
     }
 
+    protected paintCell(
+        viewCell: RevViewCell<BCS, SF>,
+        prefillColor: string | undefined,
+    ): number | undefined {
+        const focus = this._focus;
+        const focusCell = focus.cell;
+        if (focusCell === viewCell) { // does cell have focus
+            const editor = focus.editor;
+            if (editor !== undefined) { // is editor active
+                if (editor.paint !== undefined) { // should editor be painted
+                    return editor.paint(viewCell, prefillColor);
+                } else {
+                    return undefined; // Cell does not need painting while editor is active
+                }
+            }
+        }
+        const cellPainter = viewCell.subgrid.getCellPainterEventer(viewCell);
+        return cellPainter.paint(viewCell, prefillColor);
+    }
+
     protected stripeRows(stripeColor: RevOnlyGridSettings.Color, left: number, width: number) {
         const gc = this._renderingContext;
         const rows = this._viewLayout.rows;
@@ -407,6 +405,8 @@ export abstract class RevGridPainter<BGS extends RevBehavioredGridSettings, BCS 
         gc.cache.font = 'bold 6pt "arial narrow", verdana, geneva';
         gc.fillText(message, x + 4, y + height / 2 + 0.5);
     }
+
+    abstract paintCells(): void;
 }
 
 export namespace RevGridPainter {

@@ -275,8 +275,6 @@ export abstract class RevScrollDimension<BGS extends RevBehavioredGridSettings> 
         this.updateScrollable();
     }
 
-    protected abstract compute(): void;
-
     private ensureComputed(withinAnimationFrame: boolean) {
         if (this._computed) {
             return true;
@@ -310,6 +308,8 @@ export abstract class RevScrollDimension<BGS extends RevBehavioredGridSettings> 
         this.scrollerTargettedViewportStartChangedEventer();
         this.eventBehaviorTargettedViewportStartChangedEventer();
     }
+
+    protected abstract compute(): void;
 }
 
 export namespace RevScrollDimension {

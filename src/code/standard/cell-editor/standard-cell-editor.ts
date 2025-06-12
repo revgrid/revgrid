@@ -23,11 +23,6 @@ export abstract class RevStandardCellEditor<
         this.setReadonly(value); // defer this to a method which can be safely overridden (cannot override a getter or setter in Javascript without overriding both)
     }
 
-    abstract tryOpenCell(viewCell: RevViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined): boolean;
-    abstract closeCell(field: SF, subgridRowIndex: number, cancel: boolean): void;
-
-    abstract processGridKeyDownEvent(event: KeyboardEvent, fromEditor: boolean, field: SF, subgridRowIndex: number): boolean;
-
     protected setReadonly(value: boolean) { // make sure this is not a setter as overrided and JavaScript cannot override setters only
         this._readonly = value;
     }
@@ -57,4 +52,9 @@ export abstract class RevStandardCellEditor<
             return true;
         }
     }
+
+    abstract tryOpenCell(viewCell: RevViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined): boolean;
+    abstract closeCell(field: SF, subgridRowIndex: number, cancel: boolean): void;
+
+    abstract processGridKeyDownEvent(event: KeyboardEvent, fromEditor: boolean, field: SF, subgridRowIndex: number): boolean;
 }

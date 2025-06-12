@@ -7,7 +7,6 @@ export const revReadonlyDefaultBehavioredColumnSettings: Readonly<RevBehavioredC
     gridSettings: revDefaultGridSettings,
     ...revDefaultColumnSettings,
     ...revReadonlyBehavioredSettings,
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
     merge: () => false,
     clone: () => { return revReadonlyDefaultBehavioredColumnSettings; }
 } as const;

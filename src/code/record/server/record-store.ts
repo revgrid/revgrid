@@ -6,6 +6,9 @@ import { RevRecordFieldIndex, RevRecordIndex, RevRecordInvalidatedValue, RevReco
  * @public
  */
 export interface RevRecordStore {
+    /** Get the number of current records available */
+    readonly recordCount: number;
+
     setRecordEventers(recordsEventers: RevRecordStore.RecordsEventers): void;
 
     /**
@@ -20,9 +23,6 @@ export interface RevRecordStore {
      * The Grid Adapter will not modify the returned array
      */
     getRecords(): readonly RevRecord[];
-
-    /** Get the number of current records available */
-    readonly recordCount: number;
 }
 
 /** @public */

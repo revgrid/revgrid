@@ -578,7 +578,7 @@ export class RevEventBehavior<BGS extends RevBehavioredGridSettings, BCS extends
     }
 
     /** @internal */
-    private dispatchMouseHoverCellEvent<T extends RevDispatchableEvent.Name.MouseHoverCell>(eventName: T, event: MouseEvent | WheelEvent, cell: RevLinedHoverCell<BCS, SF> | null | undefined) {
+    private dispatchMouseHoverCellEvent(eventName: RevDispatchableEvent.Name.MouseHoverCell, event: MouseEvent | WheelEvent, cell: RevLinedHoverCell<BCS, SF> | null | undefined) {
         if (cell === null) {
             throw new RevAssertError('EVDMHCE50697');
         } else {
@@ -589,7 +589,7 @@ export class RevEventBehavior<BGS extends RevBehavioredGridSettings, BCS extends
                     mouseOverTopLine: cell.mouseOverTopLine,
                 }
             }
-            const detail = event as RevDispatchableEvent.Name.DetailMap<BCS, SF>[T];
+            const detail = event as RevDispatchableEvent.Name.DetailMap<BCS, SF>[RevDispatchableEvent.Name.MouseHoverCell];
             detail.revgridHoverCell = cell;
             return this.dispatchCustomEvent(eventName, false, detail);
         }

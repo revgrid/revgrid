@@ -14,7 +14,7 @@ export namespace RevModifierKey {
     export const meta = 'Meta';
     export const alt = 'Alt';
 
-    export function isDownInEvent<T extends MouseEvent | KeyboardEvent>(key: RevModifierKey | undefined, event: T) {
+    export function isDownInEvent(key: RevModifierKey | undefined, event: MouseEvent | KeyboardEvent) {
         switch (key) {
             case undefined: return false;
             case control: return event.ctrlKey;

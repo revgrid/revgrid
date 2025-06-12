@@ -6,7 +6,6 @@ import { revReadonlyBehavioredSettings } from './readonly-behaviored-settings';
 export const revReadonlyDefaultBehavioredGridSettings: Readonly<RevBehavioredGridSettings> = {
     ...revDefaultGridSettings,
     ...revReadonlyBehavioredSettings,
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
     merge: () => false,
     clone: () => { return revReadonlyDefaultBehavioredGridSettings; }
 } as const;

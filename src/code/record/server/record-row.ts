@@ -1,6 +1,6 @@
 import { RevRecordAssertError } from './record-error';
 import { RevRecordRowRecentChange, RevRecordValueRecentChange } from './record-recent-change';
-// eslint-disable-next-line import/no-cycle
+// eslint-disable-next-line import-x/no-cycle
 import { RevRecord } from './record';
 import { RevRecordFieldIndex, RevRecordRecentChangeTypeId, RevRecordValueRecentChangeTypeId } from './record-types';
 
