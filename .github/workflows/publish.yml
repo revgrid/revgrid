@@ -2,8 +2,8 @@ name: Publish
 
 on:
   workflow_dispatch:
-  release:
-    types: [created]
+  # release:
+  #   types: [created]
 
 jobs:
   build:
@@ -19,7 +19,7 @@ jobs:
       - uses: actions/setup-node@v1.4.4
         with:
           registry-url: 'https://registry.npmjs.org'
-          scope: '@eclipsetrading'
+          # scope: ''
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
