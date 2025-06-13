@@ -1,6 +1,6 @@
-# Introduction
-
-Welcome to the Revgrid website
+---
+title: 'Revgrid'
+---
 
 Revgrid is a canvas based virtual grid focusing on realtime data display and performance. Data is injected into the grid using server interfaces.
 
@@ -46,7 +46,7 @@ Note that the `lib` subfolder only holds the TypeScript declaration files genera
 # Test applications
 
 Revgrid has 3 test applications which can be easily built to see it in action:
-* **testapp**: Test application for the grid.
+* **clienttestapp**: Test application for the grid.
 * **recordtestapp**: Test application for the Record server set.
 * **dratestapp**: Test application which displays static JSON data from a Data Row Array server set and uses a Multi Heading server set to get headings from the property names within the JSON data.
 
@@ -62,8 +62,3 @@ Corresponding NPM scripts also exist in the package file to build the test appli
 
 UMD and ESM single file bundles can be generated for easier consumption without toolchain in-place. To do this, run `npm run bundles`, afterwards find the bundled files under `dist/bundles/`.
 Bundles are not built by default and are not included in the NPM package. It is recommended to consume the library through NPM and webpack.
-
-# Public API Interfaces are subject to change
-Many aspects of the code base still need to be cleaned up.  As part of this, it is possible that API interfaces and behaviour will change. Also, some features and convenience functions may be removed if they are deemed to not be inline with Revgrid's objectives.
-
-We will endeavour to document these API changes however this will probably only consist of dot points. You may need to examine the Revgrid source code to fully understand the implications of these API changes.
