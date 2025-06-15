@@ -1,0 +1,16 @@
+{
+  "extends": "../tsconfig.code.json",
+
+  "compilerOptions": {
+    "tsBuildInfoFile": "../../../tsbuildinfo/code-settings-implementations.tsbuildinfo"
+  },
+
+  "include": [
+    "index.ts",
+  ],
+
+  "references": [
+    { "path": "./readonly/tsconfig.json" },
+    { "path": "./in-memory/tsconfig.json" },
+  ]
+}
