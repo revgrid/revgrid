@@ -1,6 +1,5 @@
 import { RevSchemaField } from './schema-field';
 
-
 /** @public */
 export interface RevSchemaServer<SF extends RevSchemaField> {
     subscribeSchemaNotifications(client: RevSchemaServer.NotificationsClient<SF>): void;
@@ -9,7 +8,7 @@ export interface RevSchemaServer<SF extends RevSchemaField> {
     /**
      * Get list of fields.
      * @remarks
-     * The order of these fields defines the orders of columns in {@link RevClientGrid.fieldColumns}.
+     * The order of these fields defines the orders of field columns in Columns Manager.
      */
     getFields(): readonly SF[];
 }

@@ -10,7 +10,7 @@ export interface RevOnlyGridSettings {
     color: RevOnlyGridSettings.Color;
     /** The widest the column will be auto-sized to. */
     columnAutoSizingMax: number | undefined;
-    /** Set up a clipping region around each column before painting cells. */
+    /** Set up a clipping region around each column before painting cells. This will be interpretted differently by grid painters according to their algorithm*/
     columnClip: boolean | undefined;
     columnMoveDragPossibleCursorName: string | undefined;
     columnMoveDragPossibleTitleText: string | undefined;
@@ -30,7 +30,15 @@ export interface RevOnlyGridSettings {
     defaultRowHeight: number;
     /** Whether to automatically expand column width to accommodate widest rendered value. */
     defaultColumnAutoSizing: boolean;
+    /**
+     * This default column width is used when `width` property is undefined.
+     * (`width` is defined on column creation unless {@link defaultColumnAutoSizing} has been set to `false`.)
+     */
     defaultColumnWidth: number;
+    /**
+     * Default UiController automatically used by program.  Note that order of these in array is important as it
+     * defines the order in which UI Events are processed.
+     */
     defaultUiControllerTypeNames: string[];
     editable: boolean;
     /** Keyboard event key for editing a cell */
@@ -61,35 +69,35 @@ export interface RevOnlyGridSettings {
 
     fixedColumnCount: number;
     /**
-     * Define this property to style rule lines between fixed & scolling rows differently from {@link module:defaults.gridLinesHColor}.
+     * Define this property to style rule lines between fixed & scolling rows differently from {@link horizontalGridLinesColor}.
      */
     horizontalFixedLineColor: RevOnlyGridSettings.Color;
     /**
      * Define this property to render just the edges of the lines between non-scrollable rows & scrollable rows, creating a double-line effect.
      * The value is the thickness of the edges.
      * Undefined means no edge effect
-     * Typical definition would be `1` in tandem with setting {@link module:defaults.fixedLinesHWidth fixedLinesHWidth} to `3`.
+     * Typical definition would be `1` in tandem with setting {@link horizontalFixedLineWidth} to `3`.
      */
     horizontalFixedLineEdgeWidth: number | undefined;
     /**
-     * Define this property to style rule lines between non-scrollable rows and scrollable rows differently from {@link module:defaults.gridLinesHWidth gridLinesHWidth}.
+     * Define this property to style rule lines between non-scrollable rows and scrollable rows differently from {@link horizontalGridLinesWidth}.
      * Undefine it to show normal grid line in that position.
      */
     horizontalFixedLineWidth: number | undefined;
     /**
-     * Define this property to style rule lines between fixed & scolling columns differently from {@link module:defaults.gridLinesVColor}.
+     * Define this property to style rule lines between fixed & scolling columns differently from {@link verticalGridLinesColor}.
      */
     verticalFixedLineColor: RevOnlyGridSettings.Color;
     /**
      * Define this property to render just the edges of the lines between fixed & scrolling columns, creating a double-line effect.
      * The value is the thickness of the edges.
      * Undefined means no edge effect
-     * Typical definition would be `1` in tandem with setting {@link module:defaults.fixedLinesVWidth fixedLinesVWidth} to `3`.
-     * {@link module:defaults.fixedLinesVWidth}
+     * Typical definition would be `1` in tandem with setting {@link verticalFixedLineWidth} to `3`.
+     * {@link verticalFixedLineWidth}
      */
     verticalFixedLineEdgeWidth: number | undefined;
     /**
-     * Define this property to style rule lines between non-scrollable columns and scrollable columns differently from {@link module:defaults.gridLinesVWidth gridLinesVWidth}.
+     * Define this property to style rule lines between non-scrollable columns and scrollable columns differently from {@link verticalGridLinesWidth}.
      * Undefine it to show normal grid line in that position.
      */
     verticalFixedLineWidth: number | undefined;
@@ -101,11 +109,24 @@ export interface RevOnlyGridSettings {
     gridRightAligned: boolean;
     /** Color of horizontal grid lines. */
     horizontalGridLinesColor: RevOnlyGridSettings.Color;
-    /** Thickness of horizontal grid lines (pixels). */
+    /** Thickness of horizontal grid lines (pixels). Ignored if {@link horizontalGridLinesVisible} is false */
     horizontalGridLinesWidth: number;
+    /** Specifies whether horizontal grid lines are drawn */
     horizontalGridLinesVisible: boolean;
     horizontalWheelScrollingAllowed: RevHorizontalWheelScrollingAllowedId;
+    /**
+     * Minimum column width.
+     * Adjust this value for different fonts/sizes or exotic cell renderers.
+     * The default (`5`) is enough room for an ellipsis with default font size.
+     */
     minimumColumnWidth: number;
+    /**
+     * Maximum column width.
+     * When defined, column width is clamped to this value.
+     * Ignored when falsy.
+     * Respects {@link resizeColumnInPlace} but may cause user confusion when
+     * user can't make column narrower due to next column having reached its maximum.
+     */
     maximumColumnWidth: number | undefined;
     /** Cursor to appear when extending a selection with a mouse drag */
     mouseLastSelectionAreaExtendingDragActiveCursorName: string | undefined;
@@ -162,8 +183,9 @@ export interface RevOnlyGridSettings {
     useHiDPI: boolean;
     /** Color of vertical grid lines. */
     verticalGridLinesColor: RevOnlyGridSettings.Color;
+    /** Specifies whether vertical grid lines are drawn */
     verticalGridLinesVisible: boolean;
-    /** Thickness of vertical grid lines (pixels). */
+    /** Thickness of vertical grid lines (pixels). Is ignored if {@link verticalGridLinesVisible} is false */
     verticalGridLinesWidth: number;
     visibleColumnWidthAdjust: boolean;
     visibleVerticalGridLinesDrawnInFixedAndPreMainOnly: boolean;

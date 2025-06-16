@@ -20,10 +20,6 @@ Its main features are:
 
 Note that it is necessary to create a set of server interfaces in order to display data with Revgrid. The library contains 4 pre-built server interface sets and the test programs also demonstrate how to create server sets.
 
-## Installation
-The library can be installed into an application package with the npm command:\
-`npm i revgrid`
+An example of Revgrid is available at [Record Test App](/Examples/Record_Test/).  This app is used to test the [`Record`](/record) module.
 
-## More information
-For more information, please refer to the [Revgrid website](https://revgrid.github.io/revgrid/)
-
+More examples are available in the [Examples](/Examples/) documentation section.

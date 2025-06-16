@@ -17,7 +17,7 @@ export class RevFiltersUiController<BGS extends RevBehavioredGridSettings, BCS e
      * Navigate away from the filter cell when:
      * 1. Coming from a cell editor (`event.detail.editor` defined).
      * 2. The cell editor was for a filter cell.
-     * 3. The key (`event.detail.char) maps (through {@link module:defaults.navKeyMap|navKeyMap}) to one of:
+     * 3. The key (`event.detail.char) maps (through {link module:defaults.navKeyMap|navKeyMap}) to one of:
      *    * `'UP'` or `'DOWN'` - Selects first visible data cell under filter cell.
      *    * `'LEFT'` - Opens filter cell editor in previous filterable column; if nonesuch, selects first visible data cell under filter cell.
      *    * `'RIGHT'` - Opens filter cell editor in next filterable column; if nonesuch, selects first visible data cell under filter cell.

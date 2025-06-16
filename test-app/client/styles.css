@@ -6,12 +6,19 @@ html {
 }
 
 body {
+    display: flex;
+    flex-direction: column;
     height: 100%;
+    min-height: 0;
     width: 100%;
     margin: 0;
 }
 
-#bodySection {
+#heading {
+    font-weight: bold;
+}
+
+#controlsAndGrid {
     display: flex;
     flex-direction: row;
     height: 100%;

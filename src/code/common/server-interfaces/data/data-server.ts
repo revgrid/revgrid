@@ -84,7 +84,7 @@ export interface RevDataServer<
     /**
      * Get a field's value at the specified row in a format suitable for editing.
      * @remarks
-     * This function only needs to be implemented if cells can be edited.  See {@link RevCellEditor:interface} for more information about editing data.
+     * This function only needs to be implemented if cells can be edited.  See RevCellEditor for more information about editing data.
      * The core of the client does not need to know the type of the return value.  {@link getEditValue}() is called by the `Cell Editor` associated with the cell.
      * A cell editor expects a certain type of view value and casts the result accordingly.
      * @returns The value of the field at the specified row.

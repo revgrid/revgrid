@@ -6,6 +6,7 @@ import {
 } from '../..';
 import { RecordStore } from './record-store';
 
+// #region gridField
 export abstract class GridField implements RevRecordField {
     index = -1;
 
@@ -17,6 +18,7 @@ export abstract class GridField implements RevRecordField {
     abstract setEditValue(record: RecordStore.Record, value: RevDataServer.EditValue): void;
     abstract modifyValue(record: RecordStore.Record): RevRecordValueRecentChangeTypeId | undefined;
 }
+// #endregion gridField
 
 export class RecordIndexGridField extends GridField {
     constructor(columnSettings: RevSimpleBehavioredColumnSettings) {
@@ -44,6 +46,7 @@ export class RecordIndexGridField extends GridField {
     }
 }
 
+// #region intValGridField
 export class IntValGridField extends GridField {
     constructor(columnSettings: RevSimpleBehavioredColumnSettings) {
         super('IntVal', 'Int', columnSettings);
@@ -77,6 +80,7 @@ export class IntValGridField extends GridField {
         return valueRecentChangeTypeId;
     }
 }
+// #endregion intValGridField
 
 export class StrValGridField extends GridField {
     constructor(columnSettings: RevSimpleBehavioredColumnSettings) {

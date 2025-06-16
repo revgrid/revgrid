@@ -7,6 +7,20 @@ html {
 
 body {
     display: flex;
+    flex-direction: column;
+	height: 100%;
+    width: 100%;
+    min-height: 0;
+    margin: 0;
+    overflow-y: clip;
+}
+
+#heading {
+    font-weight: bold;
+}
+
+#controlsAndGrid {
+    display: flex;
 	height: 100%;
     width: 100%;
     margin: 0;

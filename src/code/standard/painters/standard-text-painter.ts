@@ -254,7 +254,7 @@ export class RevStandardTextPainter {
      * 2. Returns an object containing both the truncated string and the sum (rather than a number primitive containing the sum alone).
      * @param text - Text to measure.
      * @param width - Width of target cell; overflow point.
-     * @param truncateType - _Per {@link module:defaults.truncateTextWithEllipsis}._
+     * @param truncateType - Type of truncation to apply if text does not fit within `width`.
      * @param abort - Abort measuring upon overflow. Returned `width` sum will reflect truncated string rather than untruncated string. Note that returned `string` is truncated in either case.
      * @param truncateFromStart - by default it will truncate the string from the position 0
      */

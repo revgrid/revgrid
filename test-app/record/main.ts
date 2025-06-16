@@ -1,5 +1,4 @@
 import {
-    RevCellEditor,
     RevGridDefinition,
     RevGridOptions,
     RevPoint,
@@ -29,10 +28,6 @@ import { RecordStore } from './record-store';
 export class Main {
     private readonly _gridHostElement: HTMLElement;
 
-    // private readonly _fieldAdapter = new RevRecordFieldAdapter();
-    // private readonly _headerRecordAdapter = new RevRecordHeaderAdapter();
-    // private readonly _mainRecordAdapter: RevRecordMainAdapter;
-
     private readonly _recordStore: RecordStore;
     private readonly _schemaServer: RevRecordSchemaServer<GridField>;
     private readonly _headerDataServer: RevSingleHeadingDataServer<GridField>;
@@ -54,8 +49,6 @@ export class Main {
     private readonly _debugEnabled = true;
 
     private readonly _controls: Controls;
-
-    // private readonly _ctrlKeyMousemoveListener = (event: MouseEvent) => this.handleHypegridCtrlKeyMousemoveEvent(event.ctrlKey);
 
     constructor() {
         const gridHostElement = document.querySelector('#gridHost') as HTMLElement;
@@ -79,7 +72,6 @@ export class Main {
             columnHeaderBackgroundColor: columnHeaderBackgroundColor,
             columnHeaderForegroundColor: columnHeaderForegroundColor,
             selectionBackgroundColor: 'DarkSlateBlue',
-            // selectionRegionOutlineColor: '#D3D3D1',
             verticalGridLinesColor: '#595959',
             horizontalGridLinesColor: '#595959',
             grayedOutForegroundColor: '#595959',
@@ -179,33 +171,6 @@ export class Main {
         return this._headerCellPainter;
     }
 
-    private getCellEditor(
-        field: GridField,
-        _subgridRowIndex: number,
-        _subgrid: RevSubgrid<RevSimpleBehavioredColumnSettings, GridField>,
-        readonly: boolean,
-        _viewCell: RevViewCell<RevSimpleBehavioredColumnSettings, GridField> | undefined
-    ): RevCellEditor<RevSimpleBehavioredColumnSettings, GridField> | undefined {
-        return this.tryGetCellEditor(field.name, readonly);
-    }
-
-    private tryGetCellEditor(columnName: string, readonly: boolean): RevCellEditor<RevSimpleBehavioredColumnSettings, GridField> | undefined {
-        const editor = this.tryCreateCellEditor(columnName);
-        if (editor !== undefined) {
-            editor.readonly = readonly;
-        }
-        return editor;
-    }
-
-    private tryCreateCellEditor(columnName: string): RevCellEditor<RevSimpleBehavioredColumnSettings, GridField> | undefined {
-        return undefined;
-        // switch (columnName) {
-        //     case 'favoriteFood': return this._textInputEditor;
-        //     case 'restrictMovement': return this._checkboxEditor;
-        //     default: return undefined;
-        // }
-    }
-
     private handleCellFocusChanged(newPoint: RevPoint | undefined, oldPoint: RevPoint | undefined): void {
         const newText = newPoint === undefined ? '()' : `(${newPoint.x}, ${newPoint.y})`;
         const oldText = oldPoint === undefined ? '()' : `(${oldPoint.x}, ${oldPoint.y})`;
@@ -242,88 +207,6 @@ export class Main {
         this._mainDataServer.sortBy(headerOrFixedRowCell.viewLayoutColumn.column.field.index);
     }
 }
-
-// namespace CssVar {
-//     export const scrollbarThumbColor = '--scrollbar-thumb-color';
-//     export const scrollbarThumbInactiveOpacity = '--scrollbar-thumb-inactive-opacity';
-//     export const scrollbarVerticalLeft = '--scrollbar-vertical-left';
-//     export const scrollbarVerticalRight = '--scrollbar-vertical-right';
-//     export const scrollbarVerticalWidth = '--scrollbar-vertical-width';
-//     export const scrollbarVerticalThumbWidth = '--scrollbar-vertical-thumb-width';
-//     export const scrollbarHorizontalTop = '--scrollbar-horizontal-top';
-//     export const scrollbarHorizontalBottom = '--scrollbar-horizontal-bottom';
-//     export const scrollbarHorizontalHeight = '--scrollbar-horizontal-height';
-//     export const scrollbarHorizontalThumbHeight = '--scrollbar-horizontal-thumb-height';
-//     export const scrollbarMargin = '--scrollbar-margin';
-// }
-
-// const backgroundColor = '#212121';
-// const foregroundColor = '#f9f0f0';
-// const columnHeaderBackgroundColor = '#626262';
-// const columnHeaderForegroundColor = 'white';
-
-// const colorMap: RecordGridSettings.ColorMap = {
-//     // Grid colors
-//     backgroundColor: backgroundColor,
-//     color: foregroundColor,
-//     bkgdBaseAlt: '#2b2b2b',
-//     columnHeaderBackgroundColor: columnHeaderBackgroundColor,
-//     columnHeaderColor: columnHeaderForegroundColor,
-//     backgroundSelectionColor: backgroundColor,
-//     foregroundSelectionColor: foregroundColor,
-//     columnHeaderBackgroundSelectionColor: columnHeaderBackgroundColor,
-//     columnHeaderForegroundSelectionColor: columnHeaderForegroundColor,
-//     selectionRegionOutlineColor: '#D3D3D1',
-//     gridLinesVColor: '#595959',
-//     gridLinesHColor: '#595959',
-
-//     // Extra colors in painter
-//     bkgdGreyedOut: backgroundColor,
-//     foreGreyedOut: '#595959',
-//     bkgdFocusedRow: '#6e6835',
-//     bkgdFocusedRowBorder: '#C8B900',
-//     foreValueRecentlyModifiedBorder: '#8C5F46',
-//     foreValueRecentlyModifiedDownBorder: '#4646FF',
-//     foreValueRecentlyModifiedUpBorder: '#64FA64',
-//     foreRecordRecentlyUpdatedBorder: 'orange',
-//     foreRecordRecentlyInsertedBorder: 'pink',
-
-//     // Scrollbar colors
-//     foreScrollbarThumbColor: '#d3d3d3',
-//     scrollbarThumbShadowColor: 'black',
-// };
-
-// const defaultGridSettings: RecordGridSettings = {
-//     fontFamily: 'Tahoma, Geneva, sans-serif',
-//     fontSize: '13px',
-//     columnHeaderFontSize: '12px',
-//     defaultRowHeight: defaultGridProperties.defaultRowHeight,
-
-//     cellPadding: defaultGridProperties.cellPadding,
-//     fixedColumnCount: 1,
-//     scrollHorizontallySmoothly: defaultGridProperties.scrollHorizontallySmoothly,
-//     visibleColumnWidthAdjust: defaultGridProperties.visibleColumnWidthAdjust,
-//     gridRightAligned: defaultGridProperties.gridRightAligned,
-
-//     gridLinesH: defaultGridProperties.gridLinesH,
-//     gridLinesV: defaultGridProperties.gridLinesV,
-//     gridLinesHWidth: defaultGridProperties.gridLinesHWidth,
-//     gridLinesVWidth: defaultGridProperties.gridLinesVWidth,
-
-//     scrollbarHorizontalHeight: 11,
-//     scrollbarHorizontalThumbHeight: 7,
-//     scrollbarVerticalWidth: 11,
-//     scrollbarVerticalThumbWidth: 7,
-//     scrollbarThumbInactiveOpacity: 0.4,
-//     scrollbarMargin: 1,
-
-//     allChangedRecentDuration: 250,
-//     recordInsertedRecentDuration: 1000,
-//     recordUpdatedRecentDuration: 1000,
-//     valueChangedRecentDuration: 1000,
-
-//     colorMap,
-// }
 
 const backgroundColor = '#212121';
 const foregroundColor = '#f9f0f0';

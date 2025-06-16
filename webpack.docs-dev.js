@@ -7,5 +7,6 @@ module.exports = {
         static: {
             directory: path.join(__dirname, "docs"),
         },
+        port: 3001,
     },
 };

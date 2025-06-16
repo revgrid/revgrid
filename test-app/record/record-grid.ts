@@ -27,15 +27,6 @@ export class RecordGrid extends RevRecordGrid<
     columnsViewWidthsChangedEventer: RecordGrid.ColumnsViewWidthsChangedEventer | undefined;
     renderedEventer: RecordGrid.RenderedEventer | undefined;
 
-    // constructor(
-    //     gridElement: HTMLElement,
-    //     recordStore: RevRecordStore,
-    //     mainCellPainter: CellPainter,
-    //     gridSettings: GridSettings,
-    // ) {
-    //     super(gridElement, definition, settings)
-    // }
-
     get columnCount(): number { return this.activeColumnCount; }
 
     protected override descendantProcessColumnsWidthChanged(columns: RevColumn<RevSimpleBehavioredColumnSettings, GridField>[], ui: boolean) {
@@ -103,87 +94,6 @@ export class RecordGrid extends RevRecordGrid<
             this.renderedEventer();
         }
     }
-
-    // private createGridPropertiesFromSettings(settings: Partial<RecordGridSettings>): Partial<GridSettings> {
-    //     const properties: Partial<GridSettings> = {};
-
-    //     if (settings.fontFamily !== undefined) {
-    //         if (settings.fontSize !== undefined) {
-    //             const font = settings.fontSize + ' ' + settings.fontFamily;
-    //             properties.font = font;
-    //             properties.foregroundSelectionFont = font;
-    //         }
-
-    //         if (settings.columnHeaderFontSize !== undefined) {
-    //             const font = settings.columnHeaderFontSize + ' ' + settings.fontFamily;
-    //             properties.columnHeaderFont = font;
-    //             properties.columnHeaderForegroundSelectionFont = font;
-    //             properties.filterFont = font;
-    //         }
-    //     }
-
-    //     if (settings.defaultRowHeight !== undefined) {
-    //         properties.defaultRowHeight = settings.defaultRowHeight;
-    //     }
-
-    //     if (settings.cellPadding !== undefined) {
-    //         properties.cellPadding = settings.cellPadding;
-    //     }
-    //     if (settings.fixedColumnCount !== undefined) {
-    //         properties.fixedColumnCount = settings.fixedColumnCount;
-    //     }
-    //     if (settings.visibleColumnWidthAdjust !== undefined) {
-    //         properties.visibleColumnWidthAdjust = settings.visibleColumnWidthAdjust;
-    //     }
-    //     if (settings.gridRightAligned !== undefined) {
-    //         properties.gridRightAligned = settings.gridRightAligned;
-    //     }
-
-    //     if (settings.gridLinesH !== undefined) {
-    //         properties.gridLinesH = settings.gridLinesH;
-    //     }
-    //     if (settings.gridLinesHWidth !== undefined) {
-    //         properties.gridLinesHWidth = settings.gridLinesHWidth;
-    //     }
-    //     if (settings.gridLinesV !== undefined) {
-    //         properties.gridLinesV = settings.gridLinesV;
-    //     }
-    //     if (settings.gridLinesVWidth !== undefined) {
-    //         properties.gridLinesVWidth = settings.gridLinesVWidth;
-    //     }
-
-    //     if (settings.scrollHorizontallySmoothly !== undefined) {
-    //         properties.scrollHorizontallySmoothly = settings.scrollHorizontallySmoothly;
-    //     }
-
-    //     const colorMap = settings.colorMap;
-    //     if (colorMap !== undefined) {
-    //         properties.backgroundColor = colorMap.backgroundColor;
-    //         properties.color = colorMap.color;
-    //         properties.columnHeaderBackgroundColor = colorMap.columnHeaderBackgroundColor;
-    //         properties.columnHeaderColor = colorMap.columnHeaderColor;
-    //         properties.backgroundSelectionColor = colorMap.backgroundSelectionColor;
-    //         properties.foregroundSelectionColor = colorMap.foregroundSelectionColor;
-    //         properties.columnHeaderBackgroundSelectionColor = colorMap.columnHeaderBackgroundSelectionColor;
-    //         properties.columnHeaderForegroundSelectionColor = colorMap.columnHeaderForegroundSelectionColor;
-    //         properties.selectionRegionOutlineColor = colorMap.selectionRegionOutlineColor;
-    //         properties.gridLinesHColor = colorMap.gridLinesHColor;
-    //         properties.gridLinesVColor = colorMap.gridLinesVColor;
-    //         properties.fixedLinesHColor = colorMap.gridLinesHColor;
-    //         properties.fixedLinesVColor = colorMap.gridLinesVColor;
-    //         // uncomment below when row stripes are working
-    //         // properties.rowStripes = [
-    //         //     {
-    //         //         backgroundColor: colorMap.bkgdBase,
-    //         //     },
-    //         //     {
-    //         //         backgroundColor: colorMap.bkgdBaseAlt,
-    //         //     }
-    //         // ];
-    //     }
-
-    //     return properties;
-    // }
 }
 
 export namespace RecordGrid {
@@ -195,15 +105,10 @@ export namespace RecordGrid {
     export type CellDblClickEventer = (this: void, viewCell: RevViewCell<RevSimpleBehavioredColumnSettings, GridField>) => void;
     export type ResizedEventer = (this: void) => void;
     export type ColumnsViewWidthsChangedEventer = (this: void) => void;
-    export type RenderedEventer = (this: void/*, detail: Hypergrid.GridEventDetail*/) => void;
+    export type RenderedEventer = (this: void) => void;
     export type ColumnSortEventer = (this: void, headerOrFixedRowCell: RevViewCell<RevSimpleBehavioredColumnSettings, GridField>) => void;
     export type ColumnsWidthChangedEventer = (this: void, columns: RevColumn<RevSimpleBehavioredColumnSettings, GridField>[]) => void;
     export type FieldColumnListChanged = (typeId: RevListChangedTypeId, index: number, count: number, targetIndex: number) => void;
-
-    // export interface LayoutWithHeadersMap {
-    //     layout: ColumnLayout;
-    //     headersMap: FieldNameToHeaderMap;
-    // }
 
     export type RenderedCallback = (this: void) => void;
 }

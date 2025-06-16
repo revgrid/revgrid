@@ -27,12 +27,13 @@
   "projectDocuments": [
     "src-docs/overview/index.md",
     "src-docs/architecture/index.md",
-    "src-docs/guides/index.md"
+    "src-docs/guides/index.md",
+    "src-docs/examples/index.md"
   ],
   "out": "./docs",
   "navigationLinks": {
       "GitHub": "https://github.com/revgrid/revgrid",
       "NPM": "https://www.npmjs.com/package/revgrid",
-      "Sponsors": "/Overview/Sponsors/",
+      "Sponsors": "/revgrid/Overview/Sponsors/",
   },
 }

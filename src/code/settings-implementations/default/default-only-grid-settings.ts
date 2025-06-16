@@ -95,55 +95,25 @@ export const revDefaultOnlyGridSettings: RevOnlyGridSettings = {
     verticalGridLinesWidth: 1,
     verticalGridLinesColor: 'rgb(199, 199, 199)',
 
-    /**
-     * When {@link module:defaults.gridLinesV} is truthy, determines if lines render in the column headers area.
-     * @type {boolean}
-     * @default
-     */
     verticalGridLinesVisible: true,
     visibleVerticalGridLinesDrawnInFixedAndPreMainOnly: false,
-    /**
-     * When {@link module:defaults.gridLinesV} or {@link module:defaults.gridLinesH} are truthy, determines if lines render in the user data area.
-     * @type {boolean}
-     * @default
-     */
     horizontalGridLinesVisible: true,
     gridRightAligned: false,
     horizontalFixedLineWidth: 2,
     horizontalFixedLineEdgeWidth: undefined,
-    horizontalFixedLineColor: 'rgb(164,164,164)', // ~21% darker than {@link module:defaults.gridLinesHColor} default
+    horizontalFixedLineColor: 'rgb(164,164,164)', // ~21% darker than default
     verticalFixedLineWidth: 2,
     verticalFixedLineEdgeWidth: undefined,
-    verticalFixedLineColor: 'rgb(164,164,164)', // ~21% darker than {@link module:defaults.gridLinesVColor} default
+    verticalFixedLineColor: 'rgb(164,164,164)', // ~21% darker than default
     defaultRowHeight: 14,
 
-    /**
-     * This default column width is used when `width` property is undefined.
-     * (`width` is defined on column creation unless {@link module:defaults.columnAutoSizing columnAutoSizing} has been set to `false`.)
-     * @default
-     * @type {number}
-     */
     defaultColumnWidth: 50,
 
     /**
-     * Minimum column width.
-     * Adjust this value for different fonts/sizes or exotic cell renderers.
-     * _Must be defined._
      * The default (`5`) is enough room for an ellipsis with default font size.
-     * @default
-     * @type {number}
      */
     minimumColumnWidth: 5,
 
-    /**
-     * Maximum column width.
-     * _When defined,_ column width is clamped to this value by {@link Column#setWidth setWidth}).
-     * Ignored when falsy.
-     * Respects {@link module:defaults.resizeColumnInPlace resizeColumnInPlace} but may cause user confusion when
-     * user can't make column narrower due to next column having reached its maximum.
-     * @default
-     * @type {number}
-     */
     maximumColumnWidth: undefined,
 
     visibleColumnWidthAdjust: true,
@@ -252,92 +222,23 @@ export const revDefaultOnlyGridSettings: RevOnlyGridSettings = {
      */
     editOnDoubleClick: false,
 
-    /**
-     * Open cell editor when cell selected via keyboard navigation.
-     * @remarks Keyboard navigation always includes:
-     * 1. The four arrow keys -- but only when there is no active text cell editor open
-     * 2. Additional keys mapped to the four directs in {@link module:defaults.navKeyMap}
-     *
-     * Generally set at the grid level. If set at the column (or cell) level, note that the property pertains to the cell navigated _to,_ not the cell navigated _away from._
-     */
     editOnFocusCell: false,
-    /**
-     * Grid-level property.
-     * When user presses a "printable" keyboard character _or_ BACKSPACE _or_ DELETE:
-     * 1. Activate cell editor on current cell (i.e., origin of most recent selection).
-     * 2. If cell editor is a text editor:
-     *    1. Replace current value with the character the user typed; or
-     *    2. Clear it on BACKSPACE, DELETE, or other invalid character (_e.g._ when user types a letter but the cell editor only accepts digits).
-     *
-     * > In invoked, user has the option to back out by pressing the ESCAPE key.
-     */
     editOnKeyDown: true,
 
     editorClickableCursorName: 'pointer',
 
-    /* COLUMN SORTING */
-
-    /**
-     * Ignore sort handling in feature/ColumnSorting.js.
-     * Useful for excluding some columns but not other from participating in sorting.
-     *
-     * @default
-     * @type {boolean}
-     */
     sortOnClick: true,
     sortOnDoubleClick: false,
 
     multipleSelectionAreas: true,
 
-    /** Allow user to move columns .
-     * @remarks Columns can be reordered through either of two interfaces:
-     * * Column Dragging feature
-     * * behavior.columns API
-     */
     columnsReorderable: true,
     columnsReorderableHideable: false,
 
-    /** Set up a clipping region around each column before painting cells.
-     * @remarks One of:
-     * * `true` - Clip column.
-     * * `false` - Do not clip column.
-     * * `null` - Clip iff last active column.
-     *
-     * Clipping prevents text that overflows to the right of the cell from being rendered.
-     * If you can guarantee that none of your text will overflow, turn column clipping off
-     * for better performance. If not, you may still be able to get away without clipping.
-     * If the background color of the next column is opaque, you don't really need to clip,
-     * although text can leak out to the right of the last column. Clipping the last column
-     * only can help this but not solve it since the leaked text from (say) the column before
-     * the last column could stretch across the entire last column and leak out anyway.
-     * The solution to this is to clip the rendered string so at most only a partial character
-     * will overflow.
-     * @type {boolean|undefined}
-     * @default
-     */
     columnClip: true,
 
-    /**
-     * Repeating pattern of property overrides for grid rows.
-     * @remarks Notes:
-     * * "Grid row" refers to data rows.
-     * * Row index modulo is applied when dereferencing this array. In other words, this array represents a _repeating pattern_ of properties to be applied to the data rows.
-     * * For no row properties, specify a falsy value in place of the array.
-     * * Do not specify an empty array (will throw an error).
-     * * Each element of the array may be either:
-     *   * An object containing property overrides to be applied to every cell of the row; or
-     *   * A falsy value signifying that there are no row properties for this specific row.
-     * * Caveat: Row properties use `Object.assign()` to copy properties and therefore are not as performant as column properties which use prototype chain.
-     * * `Object.assign()` is a polyfill in older versions of Chrome (<45) and in all Internet Explorer (through 11).
-     * @type {undefined|object[]}
-     * @default
-     */
     rowStripeBackgroundColor: undefined,
 
-    /**
-     * Default UiController automatically used by program.  Note that order of these in array is important as it
-     * defines the order in which UI Events are processed.
-     */
     defaultUiControllerTypeNames: [
         'focusscroll',
         'selection',

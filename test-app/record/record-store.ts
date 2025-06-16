@@ -6,6 +6,7 @@ import {
     RevRecordValueRecentChangeTypeId
 } from '../..';
 
+// #region recordStore
 export class RecordStore implements RevRecordStore {
     private _records: RecordStore.Record[] = [];
     private _recordsEventers!: RevRecordStore.RecordsEventers;
@@ -139,6 +140,7 @@ export class RecordStore implements RevRecordStore {
         this._recordsEventers.allRecordsDeleted();
     }
 }
+// #endregion recordStore
 
 export namespace RecordStore {
     export type Integer = number;
@@ -156,6 +158,7 @@ export namespace RecordStore {
         data: Record.Data;
     }
 
+    // #region record
     export namespace Record {
         export type Data = [intVal: Integer, strVal: string, dblVal:number, dateVal: Date, statusId: TDataItemStatusId];
         export namespace Data {
@@ -173,6 +176,7 @@ export namespace RecordStore {
             }
         }
     }
+    // #endregion record
 
     export const initialValues: Record[] = [
         {

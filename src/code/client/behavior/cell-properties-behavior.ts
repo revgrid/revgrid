@@ -22,7 +22,7 @@ export class RevCellPropertiesBehavior<BGS extends RevBehavioredGridSettings, BC
      * Get the properties object for cell.
      * @remarks This is the cell's own properties object if found; else the column object.
      *
-     * If you are seeking a single specific property, consider calling {@link RevCellPropertiesBehavior#getCellProperty} instead (which calls this method).
+     * If you are seeking a single specific property, consider calling {link RevCellPropertiesBehavior#getCellProperty} instead (which calls this method).
      * @param rowIndex - Data row coordinate.
      * @returns The properties of the cell at x,y in the grid.
      */
@@ -231,7 +231,7 @@ export class RevCellPropertiesBehavior<BGS extends RevBehavioredGridSettings, BC
      * Get the properties object for cell.
      * @remarks This is the cell's own properties object if found else the column object.
      *
-     * If you are seeking a single specific property, consider calling {@link RevCellPropertiesBehavior#getCellProperty} instead.
+     * If you are seeking a single specific property, consider calling {link RevCellPropertiesBehavior#getCellProperty} instead.
      * @param viewCell - RevViewCell representing cell.
      * @returns The properties of the cell at x,y in the grid or falsy if not available.
      */

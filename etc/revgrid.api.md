@@ -669,13 +669,24 @@ export class RevCellClickUiController<BGS extends RevBehavioredGridSettings, BCS
     handleClick(event: MouseEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined): RevLinedHoverCell<BCS, SF> | null | undefined;
     // (undocumented)
     handlePointerMove(event: PointerEvent, cell: RevLinedHoverCell<BCS, SF> | null | undefined): RevLinedHoverCell<BCS, SF> | null | undefined;
-    // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
-    // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
-    // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
-    // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
-    // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
-    // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
-    // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
+    // Warning: (tsdoc-escape-right-brace) The "}" character should be escaped using a backslash to avoid confusion with a TSDoc inline tag
+    // Warning: (tsdoc-malformed-inline-tag) Expecting a TSDoc tag starting with "{@"
+    // Warning: (tsdoc-escape-right-brace) The "}" character should be escaped using a backslash to avoid confusion with a TSDoc inline tag
+    // Warning: (tsdoc-escape-right-brace) The "}" character should be escaped using a backslash to avoid confusion with a TSDoc inline tag
+    // Warning: (tsdoc-escape-right-brace) The "}" character should be escaped using a backslash to avoid confusion with a TSDoc inline tag
+    // Warning: (tsdoc-escape-right-brace) The "}" character should be escaped using a backslash to avoid confusion with a TSDoc inline tag
+    // Warning: (tsdoc-malformed-inline-tag) Expecting a TSDoc tag starting with "{@"
+    // Warning: (tsdoc-malformed-inline-tag) Expecting a TSDoc tag starting with "{@"
+    // Warning: (tsdoc-malformed-inline-tag) Expecting a TSDoc tag starting with "{@"
+    // Warning: (tsdoc-malformed-inline-tag) Expecting a TSDoc tag starting with "{@"
+    // Warning: (tsdoc-escape-right-brace) The "}" character should be escaped using a backslash to avoid confusion with a TSDoc inline tag
+    // Warning: (tsdoc-malformed-inline-tag) Expecting a TSDoc tag starting with "{@"
+    // Warning: (tsdoc-escape-right-brace) The "}" character should be escaped using a backslash to avoid confusion with a TSDoc inline tag
+    // Warning: (tsdoc-escape-right-brace) The "}" character should be escaped using a backslash to avoid confusion with a TSDoc inline tag
+    // Warning: (tsdoc-malformed-inline-tag) Expecting a TSDoc tag starting with "{@"
+    // Warning: (tsdoc-malformed-inline-tag) Expecting a TSDoc tag starting with "{@"
+    // Warning: (tsdoc-escape-right-brace) The "}" character should be escaped using a backslash to avoid confusion with a TSDoc inline tag
+    // Warning: (tsdoc-malformed-inline-tag) Expecting a TSDoc tag starting with "{@"
     openLink(viewCell: RevViewCell<BCS, SF>): boolean | null | undefined | Window;
     // (undocumented)
     readonly typeName = "cellclick";
@@ -764,6 +775,8 @@ export class RevCellPropertiesBehavior<BGS extends RevBehavioredGridSettings, BC
     deleteCellProperty(column: RevColumn<BCS, SF>, rowIndex: number, key: string, subgrid: RevSubgrid<BCS, SF>): void;
     // @internal (undocumented)
     getCellOwnProperties(column: RevColumn<BCS, SF>, rowIndex: number, subgrid: RevSubgrid<BCS, SF>): RevMetaServer.CellOwnProperties | undefined;
+    // Warning: (tsdoc-escape-right-brace) The "}" character should be escaped using a backslash to avoid confusion with a TSDoc inline tag
+    // Warning: (tsdoc-malformed-inline-tag) Expecting a TSDoc tag starting with "{@"
     getCellOwnPropertiesFromViewCell(viewCell: RevViewCell<BCS, SF>): RevMetaServer.CellOwnProperties | false | null | undefined;
     // (undocumented)
     getCellOwnPropertyFromViewCell(viewCell: RevViewCell<BCS, SF>, key: string): RevMetaServer.CellOwnProperty | undefined;
@@ -2250,7 +2263,6 @@ SF extends RevSchemaField> {
     // Warning: (tsdoc-undefined-tag) The TSDoc tag "@hidden" is not defined in this configuration
     fetchViewData?(rectangles: readonly RevRectangle[], callback?: (failure: boolean) => void): void;
     getCursorName?(field: SF, rowIndex: number): string;
-    // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
     getEditValue?(
     field: SF,
     rowIndex: number): RevDataServer.EditValue;
@@ -2983,7 +2995,8 @@ export class RevFiltersUiController<BGS extends RevBehavioredGridSettings, BCS e
     // (undocumented)
     handleDOWN(cellEvent: RevViewCell<BCS, SF>): void;
     // Warning: (tsdoc-code-span-missing-delimiter) The code span is missing its closing backtick
-    // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
+    // Warning: (tsdoc-escape-right-brace) The "}" character should be escaped using a backslash to avoid confusion with a TSDoc inline tag
+    // Warning: (tsdoc-malformed-inline-tag) Expecting a TSDoc tag starting with "{@"
     handleKeyDown(event: KeyboardEvent, fromEditor: boolean): void;
     // (undocumented)
     handleLEFT(cellEvent: RevViewCell<BCS, SF>): void;
@@ -4460,11 +4473,9 @@ export interface RevOnlyGridSettings {
     columnsReorderable: boolean;
     columnsReorderableHideable: boolean;
     defaultColumnAutoSizing: boolean;
-    // (undocumented)
     defaultColumnWidth: number;
     // (undocumented)
     defaultRowHeight: number;
-    // (undocumented)
     defaultUiControllerTypeNames: string[];
     // (undocumented)
     editable: boolean;
@@ -4496,22 +4507,16 @@ export interface RevOnlyGridSettings {
     // (undocumented)
     fixedRowCount: number;
     gridRightAligned: boolean;
-    // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
     horizontalFixedLineColor: RevOnlyGridSettings.Color;
-    // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
     horizontalFixedLineEdgeWidth: number | undefined;
-    // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
     horizontalFixedLineWidth: number | undefined;
     horizontalGridLinesColor: RevOnlyGridSettings.Color;
-    // (undocumented)
     horizontalGridLinesVisible: boolean;
     horizontalGridLinesWidth: number;
     // (undocumented)
     horizontalWheelScrollingAllowed: RevHorizontalWheelScrollingAllowedId;
-    // (undocumented)
     maximumColumnWidth: number | undefined;
     minimumAnimateTimeInterval: number;
-    // (undocumented)
     minimumColumnWidth: number;
     // (undocumented)
     mouseAddToggleExtendSelectionAreaDragModifierKey: RevModifierKey | undefined;
@@ -4556,15 +4561,10 @@ export interface RevOnlyGridSettings {
     switchNewRectangleSelectionToRowOrColumn: RevRowOrColumnSelectionAreaType | undefined;
     // (undocumented)
     useHiDPI: boolean;
-    // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
     verticalFixedLineColor: RevOnlyGridSettings.Color;
-    // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
-    // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
     verticalFixedLineEdgeWidth: number | undefined;
-    // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
     verticalFixedLineWidth: number | undefined;
     verticalGridLinesColor: RevOnlyGridSettings.Color;
-    // (undocumented)
     verticalGridLinesVisible: boolean;
     verticalGridLinesWidth: number;
     // (undocumented)
@@ -5929,14 +5929,8 @@ export namespace RevRowResizingUiController {
 // @public
 export function revSafeConvertUnknownToBoolean(value: unknown): boolean | null | undefined;
 
-// Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
-// Warning: (tsdoc-reference-missing-dot) Expecting a period before the next component of a declaration reference
-// Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
-//
 // @public
 export interface RevSchemaField {
-    // Warning: (tsdoc-reference-missing-dot) Expecting a period before the next component of a declaration reference
-    // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
     index: number;
     readonly name: string;
 }
@@ -9566,10 +9560,6 @@ export namespace RevWritablePoint {
     // (undocumented)
     export function create(x: number, y: number): RevWritablePoint;
 }
-
-// Warnings were encountered during analysis:
-//
-// src/code/standard/painters/standard-text-painter.ts:257:48 - (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
 
 // (No @packageDocumentation comment for this package)
 
