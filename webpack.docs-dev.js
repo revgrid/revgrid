@@ -1,3 +1,4 @@
+const { watch, watchFile } = require("fs");
 const path = require("path");
 
 module.exports = {
@@ -8,5 +9,8 @@ module.exports = {
             directory: path.join(__dirname, "docs"),
         },
         port: 3001,
+        watchFiles: {
+            paths: ["docs/**/*"],
+        }
     },
 };
