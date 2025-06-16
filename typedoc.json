@@ -34,6 +34,6 @@
   "navigationLinks": {
       "GitHub": "https://github.com/revgrid/revgrid",
       "NPM": "https://www.npmjs.com/package/revgrid",
-      "Sponsors": "/revgrid/Overview/Sponsors/",
+      "Sponsors": "https://revgrid.github.io/revgrid/Overview/Sponsors/",
   },
 }
