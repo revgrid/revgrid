@@ -4168,6 +4168,19 @@ export abstract class RevInMemoryBehavioredSettings implements RevBehavioredSett
 }
 
 // @public (undocumented)
+export class RevInMemorySettingsClientGrid extends RevClientGrid<RevInMemoryBehavioredGridSettings, RevInMemoryBehavioredColumnSettings, RevSchemaField> {
+}
+
+// @public (undocumented)
+export type RevInMemorySettingsGridDefinition = RevGridDefinition<RevInMemoryBehavioredColumnSettings, RevSchemaField>;
+
+// @public (undocumented)
+export type RevInMemorySettingsGridOptions = RevGridOptions<RevInMemoryBehavioredGridSettings, RevInMemoryBehavioredColumnSettings, RevSchemaField>;
+
+// @public (undocumented)
+export type RevInMemorySettingsViewCell = RevViewCell<RevInMemoryBehavioredColumnSettings, RevSchemaField>;
+
+// @public (undocumented)
 export const revInvalidServerNotificationId = -1;
 
 // Warning: (ae-internal-missing-underscore) The name "revIsDigit" should be prefixed with an underscore because the declaration is marked as @internal
@@ -7141,7 +7154,7 @@ export abstract class RevStandardCellEditor<BGS extends RevBehavioredGridSetting
 }
 
 // @public (undocumented)
-export abstract class RevStandardCellPainter<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> {
+export abstract class RevStandardCellPainter<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevCellPainter<BCS, SF> {
     constructor(_grid: RevClientGrid<BGS, BCS, SF>, _dataServer: RevDataServer<SF>);
     // (undocumented)
     protected readonly _dataServer: RevDataServer<SF>;
@@ -7943,21 +7956,8 @@ export namespace RevSubgridsManager {
 }
 
 // @public (undocumented)
-export class RevSymbolClientGrid extends RevClientGrid<RevInMemoryBehavioredGridSettings, RevInMemoryBehavioredColumnSettings, RevSchemaField> {
-}
-
-// @public (undocumented)
-export type RevSymbolGridDefinition = RevGridDefinition<RevInMemoryBehavioredColumnSettings, RevSchemaField>;
-
-// @public (undocumented)
-export type RevSymbolGridOptions = RevGridOptions<RevInMemoryBehavioredGridSettings, RevInMemoryBehavioredColumnSettings, RevSchemaField>;
-
-// @public (undocumented)
 export class RevSymbolTableGrid extends RevTableGrid<object, symbol, symbol, symbol, symbol, RevInMemoryBehavioredGridSettings, RevInMemoryBehavioredColumnSettings> {
 }
-
-// @public (undocumented)
-export type RevSymbolViewCell = RevViewCell<RevInMemoryBehavioredColumnSettings, RevSchemaField>;
 
 // @public (undocumented)
 export class RevTable<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> {

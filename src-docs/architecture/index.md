@@ -1,10 +1,18 @@
 ---
 title: Architecture
 children:
-    - ./client-server/index.md
+    - ./top-level/index.md
+    - ./client/index.md
+    - ./servers/index.md
+    - ./settings/index.md
+    - ./cell-painter/index.md
+    - ./cell-editor/index.md
+    - ./flows/index.md
+    - ./libraries/index.md
 ---
 
 # Architecture
 
-1. [**Client/Server**](./client-server/index.md)\
-Revgrid has a client/server architecture.  The client is the grid and the servers feed schema, data and do cell edits.
+1. [**Top Level**](./top-level/index.md)\
+
+ToDo

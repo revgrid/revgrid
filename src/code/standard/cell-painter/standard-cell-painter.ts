@@ -1,4 +1,4 @@
-import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevClientGrid, RevViewCell } from '../../client';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevCellPainter, RevClientGrid, RevViewCell } from '../../client';
 import { RevCachedCanvasRenderingContext2D, RevDataServer, RevRectangle, RevSchemaField } from '../../common';
 
 /** @public */
@@ -6,7 +6,7 @@ export abstract class RevStandardCellPainter<
     BGS extends RevBehavioredGridSettings,
     BCS extends RevBehavioredColumnSettings,
     SF extends RevSchemaField
-> {
+> implements RevCellPainter<BCS, SF> {
     protected readonly _gridSettings: BGS;
     protected readonly _renderingContext: RevCachedCanvasRenderingContext2D;
 
