@@ -6,17 +6,32 @@ Revgrid is a canvas based virtual grid focusing on realtime data display and per
 
 ## Features
 
+* Realtime
 * Speed
 * Virtual (supporting display of very large data sets)
 * Event driven (low CPU usage)
 * Multiple selections (rectangle, row and column)
 * Focus
+* Drawing
+* Editing
 * Smooth horizontal scrolling
-* Multiple subgrids (header, main, footer)
-* Fixed rows and columns
+* Multiple subgrids (eg. header, main, footer)
+* Fixed (non scrolling) rows and columns
+* Sorting and filtering
+* Highlight recent changes
+* Extendable settings
+* Fields can be of any type
 * Plug in cell painters
+* Plug in grid painters
 * Plug in cell editors
 * Plug in UI controllers
+* Comes with several predefined servers:
+    * Data Row Array
+    * Record
+    * Table
+    * Single Heading
+    * Multiple Heading
+* JavaScript grid implementations (no generic variables)
 
 ## Example
 

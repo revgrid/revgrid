@@ -20,7 +20,8 @@ Various configuration options control which selection types can be made, whether
 * **Smooth horizontal scrolling**
 * **Multiple subgrids (eg. header, main, footer)**
 * **Fixed rows and columns**
-* **Serialisation of grid configuration**
+* **Sorting and filtering**
+* **Highlight recent changes**
 * **Extendable settings**
 * **Fields can be of any type**
 * **Plug in cell painters**
