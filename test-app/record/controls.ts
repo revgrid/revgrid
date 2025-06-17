@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unnecessary-condition */
+/* eslint-disable @typescript-eslint/non-nullable-type-assertion-style */
 import { RevColumn, RevRecordDataServer, RevRecordSchemaServer, RevSimpleBehavioredColumnSettings } from '../..';
 import { defaultAppGridSettings } from './default-app-grid-settings';
 import { GridField, IntValGridField, RecordIndexGridField, StrValGridField } from './grid-field';
@@ -396,6 +398,10 @@ export class Controls {
         this._renderCountSpanElement.textContent = this._renderCount.toString();
     }
 
+    start(): void {
+        // no code needed
+    }
+
     // UI Handlers
     private handleUiInsertRecordAction(mouseEvent: MouseEvent) {
         const recordIndex = parseInt(this._insertRecordIndexTextboxElement.value);
@@ -448,10 +454,6 @@ export class Controls {
                 }
             }
         }
-    }
-
-    start(): void {
-        // no code needed
     }
 
     private handleGridResized(): void {
@@ -803,7 +805,7 @@ export class Controls {
 
     private getRandomRecordData(): RecordStore.Record.Data {
         const intVal = Math.floor(Math.random() * 200);
-        const strVal = 'Ins' + Number(Math.random() * 900);
+        const strVal = 'Ins' + Number(Math.random() * 900).toString();
         const dblVal = Math.random() * (10000.0 / 300.0);
         const dateVal = new Date(2018, 6, Math.floor(Math.random() * 20));
         const enumVal = Math.floor(Math.random() * 5) as RecordStore.TDataItemStatusId;

@@ -3,8 +3,6 @@ import { AppSchemaField } from './app-schema-field';
 import { MainRecord } from './main-record';
 
 export class AppSchemaServer implements RevSchemaServer<AppSchemaField> {
-    private readonly _schema: AppSchemaField[];
-
     readonly nameSchemaSchemaField: AppSchemaField;
     readonly typeSchemaSchemaField: AppSchemaField;
     readonly colorSchemaSchemaField: AppSchemaField;
@@ -12,6 +10,8 @@ export class AppSchemaServer implements RevSchemaServer<AppSchemaField> {
     readonly receiveDateSchemaField: AppSchemaField;
     readonly favoriteFoodSchemaField: AppSchemaField;
     readonly restrictMovementSchemaField: AppSchemaField;
+
+    private readonly _schema: AppSchemaField[];
 
     private notificationsClient: RevSchemaServer.NotificationsClient<AppSchemaField>;
 

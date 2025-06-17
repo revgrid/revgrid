@@ -6,9 +6,9 @@ declare global {
     }
 }
 
-if (document.readyState !== "loading") run();
+if (document.readyState !== 'loading') run();
 // in case the document is already rendered
-else document.addEventListener("DOMContentLoaded", run, { passive: true });
+else document.addEventListener('DOMContentLoaded', run, { passive: true });
 
 function run() {
     const main = new Main();

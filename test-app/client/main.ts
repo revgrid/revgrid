@@ -39,7 +39,6 @@ export class Main {
     private readonly _deleteRowIndexTextboxElement: HTMLInputElement;
     private readonly _addFishButtonElement: HTMLButtonElement;
     private readonly _gridHostElement: HTMLElement;
-    private readonly _getSettingsForNewColumnListener = (field: AppSchemaField) => this.getSettingsForNewColumn(field);
 
     private _gridSettings: RevSimpleBehavioredGridSettings = new RevSimpleInMemoryBehavioredGridSettings();
     private _schemaServer: AppSchemaServer;
@@ -169,7 +168,10 @@ export class Main {
         this.newGrid();
     }
 
+    private readonly _getSettingsForNewColumnListener = (field: AppSchemaField) => this.getSettingsForNewColumn(field);
+
     private newGrid() {
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         if (this._grid !== undefined) {
             this._grid.destroy();
         }

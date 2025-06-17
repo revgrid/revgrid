@@ -10,7 +10,7 @@ export interface MainRecord {
 }
 
 export namespace MainRecord {
-    export function compareField<K extends keyof MainRecord>(key: K, left: MainRecord, right: MainRecord) {
+    export function compareField(key: keyof MainRecord, left: MainRecord, right: MainRecord) {
         switch (key) {
             case 'id': return compareNumber(left.id, right.id);
             case 'name': return compareString(left.name, right.name);
@@ -22,7 +22,7 @@ export namespace MainRecord {
             case 'restrictMovement': return compareBoolean(left.restrictMovement, right.restrictMovement);
             default: {
                 const unsupportField: never = key;
-                throw new Error(`MainRecord: unsupport compare field: ${unsupportField as K}`);
+                throw new Error(`MainRecord: unsupport compare field: ${unsupportField as keyof MainRecord}`);
             }
         }
     }

@@ -17,6 +17,8 @@ export class RecordStore implements RevRecordStore {
         }
     }
 
+    get recordCount(): number { return this._records.length;}
+
     setRecordEventers(recordsEventers: RevRecordStore.RecordsEventers): void {
         this._recordsEventers = recordsEventers;
 
@@ -32,10 +34,6 @@ export class RecordStore implements RevRecordStore {
 
     getRecords(): RecordStore.Record[] {
         return this._records;
-    }
-
-    get recordCount(): number {
-        return this._records.length;
     }
 
     addRecordData(data: RecordStore.Record.Data): void {

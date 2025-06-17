@@ -1,7 +1,7 @@
 // @ts-check
 
 import eslint from '@eslint/js';
-// import { createTypeScriptImportResolver } from 'eslint-import-resolver-typescript';
+import { createTypeScriptImportResolver } from 'eslint-import-resolver-typescript';
 import { importX } from 'eslint-plugin-import-x';
 import tseslint from 'typescript-eslint';
 
@@ -14,26 +14,28 @@ export default tseslint.config(
     {
         ignores: [
             'eslint.config.mjs',
-            'bundles-webpack.config.js',
+            'webpack.bundles.js',
+            'webpack.docs-dev.js',
+            'docs/**/*',
             'lib/**/*.ts',
             'dist/**/*',
-            'test-app/**/*',
+            'test-app/**/out-tsc/**/*',
+            'test-app/**/*.js',
         ],
     },
     {
-        files: ['src/code/**/*.ts'],
+        files: ['src/code/**/*.ts', 'test-app/**/*.ts'],
         languageOptions: {
             parserOptions: {
                 tsconfigRootDir: import.meta.dirname,
                 projectService: true,
             },
         },
-        // settings: {
-        //     'import-x': importX,
-        //     'import-x/resolver-next': [
-        //         createTypeScriptImportResolver(),
-        //     ],
-        // },
+        settings: {
+            'import-x/resolver-next': [
+                createTypeScriptImportResolver(),
+            ],
+        },
 
         rules: {
             // "no-underscore-dangle": "off",

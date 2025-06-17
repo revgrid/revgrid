@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unnecessary-condition */
+/* eslint-disable @typescript-eslint/non-nullable-type-assertion-style */
 import { RevDataRowArrayGrid, RevPoint } from '../..';
 import { DataRowArrayGrid } from './data-row-array-grid';
 

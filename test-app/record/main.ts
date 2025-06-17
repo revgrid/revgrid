@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/non-nullable-type-assertion-style */
 import {
     RevGridDefinition,
     RevGridOptions,
@@ -52,6 +53,7 @@ export class Main {
 
     constructor() {
         const gridHostElement = document.querySelector('#gridHost') as HTMLElement;
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         if (gridHostElement === null) {
             throw new Error('gridHost not found');
         }
