@@ -44,5 +44,10 @@ module.exports = {
         new HtmlWebpackPlugin({
             template: path.resolve(__dirname, "index.html")
         }),
-    ]
+    ],
+
+    performance: {
+        maxAssetSize: 600000,
+        maxEntrypointSize: 600000,
+    },
 };
