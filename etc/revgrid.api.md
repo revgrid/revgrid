@@ -1808,8 +1808,6 @@ export class RevColumnsManager<BCS extends RevBehavioredColumnSettings, SF exten
     // @internal (undocumented)
     columnsWidthChangedEventer: RevColumnsManager.ColumnsWidthChangedEventer<BCS, SF>;
     // @internal (undocumented)
-    createColumns(): void;
-    // @internal (undocumented)
     createDummyColumn(): RevColumn<BCS, SF>;
     // @internal (undocumented)
     endSchemaChange(): void;
@@ -1861,8 +1859,6 @@ export class RevColumnsManager<BCS extends RevBehavioredColumnSettings, SF exten
     mergeFieldColumnSettings(fieldIndex: number, settings: Partial<BCS>, overrideGrid: boolean): boolean;
     // (undocumented)
     moveActiveColumn(fromIndex: number, toIndex: number, ui: boolean): void;
-    // @internal (undocumented)
-    newColumn(field: SF): RevColumn<BCS, SF>;
     // @internal (undocumented)
     removeBeforeCreateColumnsListener(listener: RevColumnsManager.BeforeCreateColumnsListener): void;
     // @internal (undocumented)
@@ -7654,7 +7650,7 @@ export interface RevSubgrid<BCS extends RevBehavioredColumnSettings, SF extends 
     // (undocumented)
     readonly fixedRowCount: number;
     // (undocumented)
-    getCellPainterEventer(viewCell: RevViewCell<BCS, SF>): RevCellPainter<BCS, SF>;
+    getCellPainterEventer: RevSubgrid.GetCellPainterEventer<BCS, SF>;
     // (undocumented)
     getDefaultRowHeight(): number;
     // (undocumented)

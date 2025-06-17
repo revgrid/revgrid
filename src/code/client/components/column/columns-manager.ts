@@ -170,46 +170,6 @@ export class RevColumnsManager<BCS extends RevBehavioredColumnSettings, SF exten
     }
 
     /** @internal */
-    newColumn(field: SF): RevColumn<BCS, SF> {
-        const columnSettings = this.getSettingsForNewColumnEventer(field);
-        return new RevColumnImplementation(
-            field,
-            columnSettings,
-            (column, ui) => { this.notifyColumnsWidthChanged([column], ui); },
-            () => { this.invalidateHorizontalViewLayoutEventer(true); },
-        );
-    }
-
-    /** @internal */
-    createColumns() {
-        this._beforeCreateColumnsListeners.forEach((listener) => { listener(); });
-
-        const fields = this.schemaServer.getFields();
-
-        this.clearColumns();
-
-        const count = fields.length;
-        this._activeColumns.length = count;
-        this._fieldColumns.length = count;
-
-        for (let i = 0; i < count; i++) {
-            const field = fields[i];
-            const column = this.newColumn(field);
-            this._activeColumns[i] = column;
-            const fieldIndex = field.index;
-            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-            if (this._fieldColumns[fieldIndex] !== undefined) {
-                throw new RevApiError('CMCC10197', `RevColumnsManager.createColumns: Duplicate column index ${fieldIndex}`);
-            } else {
-                this._fieldColumns[fieldIndex] = column;
-            }
-        }
-
-        this.notifyActiveColumnListChanged(RevListChangedTypeId.Set, 0, count, undefined, false);
-        this.fieldColumnListChangedEventer(RevListChangedTypeId.Set, 0, count, undefined);
-    }
-
-    /** @internal */
     createDummyColumn(): RevColumn<BCS, SF> {
         const field: SF = {
             name: '',
@@ -589,6 +549,46 @@ export class RevColumnsManager<BCS extends RevBehavioredColumnSettings, SF exten
     private notifyColumnsWidthChanged(columns: RevColumn<BCS, SF>[], ui: boolean) {
         this.columnsWidthChangedEventer(columns, ui);
         this.invalidateHorizontalViewLayoutEventer(true);
+    }
+
+    /** @internal */
+    private newColumn(field: SF): RevColumn<BCS, SF> {
+        const columnSettings = this.getSettingsForNewColumnEventer(field);
+        return new RevColumnImplementation(
+            field,
+            columnSettings,
+            (column, ui) => { this.notifyColumnsWidthChanged([column], ui); },
+            () => { this.invalidateHorizontalViewLayoutEventer(true); },
+        );
+    }
+
+    /** @internal */
+    private createColumns() {
+        this._beforeCreateColumnsListeners.forEach((listener) => { listener(); });
+
+        const fields = this.schemaServer.getFields();
+
+        this.clearColumns();
+
+        const count = fields.length;
+        this._activeColumns.length = count;
+        this._fieldColumns.length = count;
+
+        for (let i = 0; i < count; i++) {
+            const field = fields[i];
+            const column = this.newColumn(field);
+            this._activeColumns[i] = column;
+            const fieldIndex = field.index;
+            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+            if (this._fieldColumns[fieldIndex] !== undefined) {
+                throw new RevApiError('CMCC10197', `RevColumnsManager.createColumns: Duplicate column index ${fieldIndex}`);
+            } else {
+                this._fieldColumns[fieldIndex] = column;
+            }
+        }
+
+        this.notifyActiveColumnListChanged(RevListChangedTypeId.Set, 0, count, undefined, false);
+        this.fieldColumnListChangedEventer(RevListChangedTypeId.Set, 0, count, undefined);
     }
 }
 

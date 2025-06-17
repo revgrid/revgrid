@@ -31,6 +31,8 @@ export interface RevSubgrid<BCS extends RevBehavioredColumnSettings, SF extends 
     readonly rowHeightsCanDiffer: boolean;
     readonly fixedRowCount: number;
 
+    getCellPainterEventer: RevSubgrid.GetCellPainterEventer<BCS, SF>;
+
     isRowFixed(rowIndex: number): boolean;
 
     getRowCount(): number;
@@ -53,8 +55,6 @@ export interface RevSubgrid<BCS extends RevBehavioredColumnSettings, SF extends 
     getViewValue(column: RevColumn<BCS, SF>, rowIndex: number): RevDataServer.ViewValue;
 
     getViewValueFromDataRowAtColumn(dataRow: RevDataServer.ViewRow, column: RevColumn<BCS, SF>): RevDataServer.ViewValue;
-
-    getCellPainterEventer(viewCell: RevViewCell<BCS, SF>): RevCellPainter<BCS, SF>;
 }
 
 /** @public */
