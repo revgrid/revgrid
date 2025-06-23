@@ -37,4 +37,4 @@ Various configuration options control which selection types can be made, whether
     A server based on table definitions which supports 'joining' data sources.
     * **Single Heading**
     * **Multiple Heading**
-* **A JavaScript grid implementation (no generic variables)**
+* **A JavaScript grid implementation (no generic parameters)**

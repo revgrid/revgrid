@@ -31,7 +31,7 @@ Revgrid is a canvas based virtual grid focusing on realtime data display and per
     * Table
     * Single Heading
     * Multiple Heading
-* JavaScript grid implementations (no generic variables)
+* JavaScript grid implementations (no generic parameters)
 
 ## Example
 

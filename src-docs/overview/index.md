@@ -2,6 +2,7 @@
 title: Overview
 children:
     - ./features.md
+    - ./news.md
     - ./history.md
 ---
 
