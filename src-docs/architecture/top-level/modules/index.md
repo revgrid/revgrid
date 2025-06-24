@@ -39,6 +39,10 @@ Provides some standard libraries for: painters, [cell painters](../../cell-paint
 Demonstrates how to create a simple grid which [extends the client settings](../../settings/simple/index.md) that are then used in a custom [cell painter](../../cell-painter/index.md). Includes one grid which just extends the [client grid](../../client/grid/index.md) and another which extends the [Data Row Array](../../servers/data-row-array/index.md) grid.
 * **[JS](../../libraries/javascript/index.md)**\
 Provides a client grid and a table grid without any generic parameters.  These can be used in JavaScript applications.
+* **Common**\
+Code common to most modules
+* **Cell Content**\
+Utility classes and enumerations that assist with generating cell content.
 
 ## API
 

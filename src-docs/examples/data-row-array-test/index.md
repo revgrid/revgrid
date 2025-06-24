@@ -1,10 +1,31 @@
 ---
-title: Data Row Array Test
+title: Data Row Array Test App
 children:
     - ./app/index.md
 ---
 
-# [App](./app/index.md)
+# Data Row Array Test App
 
-The [Data Row Array Test app](./app/index.md) is used to test aspects of the [data-row-array](/data-row-array/) module.  It also includes some performance testing. It may be easier to open in another tab or window)
+The [Data Row Array Test app](./app/index.md) is used to test aspects of the [data-row-array](/data-row-array/) module.  DataRowArray grids have a [setData(data)](/sourced-field/RevMultiHeadingDataRowArraySourcedFieldGrid-1/#setdata) method which updates all the rows and cells in the grid at once.  Individual rows or cells cannot be updated.  The data is passed as an array of JSON objects of type ([DataRow](/data-row-array/RevDataRowArrayGrid/DataRow/)s).
 
+This app uses [`RevMultiHeadingDataRowArraySourcedFieldGrid`](/sourced-field/RevMultiHeadingDataRowArraySourcedFieldGrid-1/) which supports multi line headings.  If you only require one heading line, you can use [`RevSingleHeadingDataRowArraySourcedFieldGrid`](/sourced-field/RevSingleHeadingDataRowArraySourcedFieldGrid-1/).
+
+DataRowArray grids allow you to easily display static data in a grid.
+
+## Code
+
+### DataRowArrayGrid
+
+The grid itself extends from [`RevMultiHeadingDataRowArraySourcedFieldGrid`](/sourced-field/RevMultiHeadingDataRowArraySourcedFieldGrid-1/). This sub-class:
+* creates the grid fields,
+* creates the header cell painter,
+* creates the main cell painter,
+* processes various events from the base class by overriding various functions.
+
+{@includeCode ../../../test-app/data-row-array/data-row-array-grid.ts}
+
+### main
+
+The main class which ties everything together:
+
+{@includeCode ../../../test-app/data-row-array/main.ts}
