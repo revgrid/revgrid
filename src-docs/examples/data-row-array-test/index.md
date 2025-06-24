@@ -1,5 +1,5 @@
 ---
-title: Data Row Array Test App
+title: Data Row Array Test
 children:
     - ./app/index.md
 ---

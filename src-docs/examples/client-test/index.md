@@ -1,5 +1,5 @@
 ---
-title: Client Test App
+title: Client Test
 children:
     - ./app/index.md
 ---
