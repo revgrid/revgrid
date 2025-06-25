@@ -6,7 +6,9 @@ module.exports = {
     devServer: {
         static: {
             directory: path.join(__dirname, "docs"),
+            publicPath: "/revgrid",
         },
+
         port: 3001,
     },
 };

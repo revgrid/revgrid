@@ -6,9 +6,9 @@ children:
 
 # Data Row Array Test App
 
-The [Data Row Array Test app](./app/index.md) is used to test aspects of the [data-row-array](/data-row-array/) module.  DataRowArray grids have a [setData(data)](/sourced-field/RevMultiHeadingDataRowArraySourcedFieldGrid-1/#setdata) method which updates all the rows and cells in the grid at once.  Individual rows or cells cannot be updated.  The data is passed as an array of JSON objects of type ([DataRow](/data-row-array/RevDataRowArrayGrid/DataRow/)s).
+The [Data Row Array Test app](./app/index.md) is used to test aspects of the [data-row-array](/revgrid/data-row-array/) module.  DataRowArray grids have a [setData(data)](/revgrid/sourced-field/RevMultiHeadingDataRowArraySourcedFieldGrid-1/#setdata) method which updates all the rows and cells in the grid at once.  Individual rows or cells cannot be updated.  The data is passed as an array of JSON objects of type ([DataRow](/revgrid/data-row-array/RevDataRowArrayGrid/DataRow/)s).
 
-This app uses [`RevMultiHeadingDataRowArraySourcedFieldGrid`](/sourced-field/RevMultiHeadingDataRowArraySourcedFieldGrid-1/) which supports multi line headings.  If you only require one heading line, you can use [`RevSingleHeadingDataRowArraySourcedFieldGrid`](/sourced-field/RevSingleHeadingDataRowArraySourcedFieldGrid-1/).
+This app uses [`RevMultiHeadingDataRowArraySourcedFieldGrid`](/revgrid/sourced-field/RevMultiHeadingDataRowArraySourcedFieldGrid-1/) which supports multi line headings.  If you only require one heading line, you can use [`RevSingleHeadingDataRowArraySourcedFieldGrid`](/revgrid/sourced-field/RevSingleHeadingDataRowArraySourcedFieldGrid-1/).
 
 DataRowArray grids allow you to easily display static data in a grid.
 
@@ -16,7 +16,7 @@ DataRowArray grids allow you to easily display static data in a grid.
 
 ### DataRowArrayGrid
 
-The grid itself extends from [`RevMultiHeadingDataRowArraySourcedFieldGrid`](/sourced-field/RevMultiHeadingDataRowArraySourcedFieldGrid-1/). This sub-class:
+The grid itself extends from [`RevMultiHeadingDataRowArraySourcedFieldGrid`](/revgrid/sourced-field/RevMultiHeadingDataRowArraySourcedFieldGrid-1/). This sub-class:
 * creates the grid fields,
 * creates the header cell painter,
 * creates the main cell painter,
