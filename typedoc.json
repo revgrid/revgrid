@@ -31,6 +31,7 @@
     "src-docs/examples/index.md"
   ],
   "out": "./docs",
+  "hostedBaseUrl": "https://revgrid.github.io/revgrid/",
   "navigationLinks": {
       "GitHub": "https://github.com/revgrid/revgrid",
       "NPM": "https://www.npmjs.com/package/revgrid",
