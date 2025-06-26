@@ -41,4 +41,4 @@ More examples are available in the [Examples](https://revgrid.github.io/revgrid/
 
 ## Documentation
 
-[https://revgrid.github.io/revgrid/](https://revgrid.github.io/revgrid/)
+[https://revgrid.github.io/revgrid/Overview/](https://revgrid.github.io/revgrid/Overview/)
