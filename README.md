@@ -2,7 +2,7 @@
 
 [![NPM version](https://img.shields.io/npm/v/revgrid)](https://www.npmjs.com/package/revgrid) [![License](https://img.shields.io/github/license/revgrid/revgrid)](https://github.com/revgrid/revgrid/blob/main/LICENSE)
 
-Revgrid is a canvas based virtual grid focusing on realtime data display and performance. Data is injected into the grid using server interfaces.
+Revgrid is a canvas based virtual grid focusing on real-time data display and performance. Data is injected into the grid using server interfaces.
 
 ## Features
 
@@ -15,7 +15,7 @@ Revgrid is a canvas based virtual grid focusing on realtime data display and per
 * Drawing
 * Editing
 * Smooth horizontal scrolling
-* Multiple subgrids (eg. header, main, footer)
+* Multiple sub-grids (eg. header, main, footer)
 * Fixed (non scrolling) rows and columns
 * Sorting and filtering
 * Highlight recent changes
