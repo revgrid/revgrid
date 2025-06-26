@@ -3,7 +3,7 @@ import { RevSchemaField } from '../../../common';
 import { RevViewCellImplementation } from '../../components/view/view-cell-implementation';
 import { RevLinedHoverCell } from '../../interfaces/lined-hover-cell';
 import { RevViewCell } from '../../interfaces/view-cell';
-import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../../settings/internal-api';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../../settings';
 import { RevUiController } from './ui-controller';
 
 // Currently not used - kept in case this feature is re-instated in future

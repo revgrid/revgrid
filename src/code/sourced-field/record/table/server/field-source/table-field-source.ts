@@ -1,8 +1,8 @@
 import { Integer } from '@pbkware/js-utils';
-import { RevTextFormatter } from '../../../../../cell-content/server/internal-api';
-import { RevSourcedField, RevSourcedFieldCustomHeadings } from '../../../../sourced-field/server/internal-api';
-import { RevTableField } from '../field/internal-api';
-import { RevTableFieldSourceDefinition } from './definition/internal-api';
+import { RevTextFormatter } from '../../../../../cell-content/server';
+import { RevSourcedField, RevSourcedFieldCustomHeadings } from '../../../../sourced-field/server';
+import { RevTableField } from '../field';
+import { RevTableFieldSourceDefinition } from './definition';
 
 /** @public */
 export class RevTableFieldSource<TypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> {

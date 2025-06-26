@@ -1,7 +1,7 @@
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../../../client';
 import { RevRecordGrid } from '../../../record';
-import { RevSourcedFieldGrid } from '../../sourced-field/internal-api';
-import { RevAllowedRecordSourcedField, RevAllowedRecordSourcedFieldsColumnLayoutDefinition, RevRecordSourcedField } from './server/internal-api';
+import { RevSourcedFieldGrid } from '../../sourced-field';
+import { RevAllowedRecordSourcedField, RevAllowedRecordSourcedFieldsColumnLayoutDefinition, RevRecordSourcedField } from './server';
 
 /** @public */
 export class RevRecordSourcedFieldGrid<

@@ -3,7 +3,7 @@ import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevClientGrid, 
 import { RevColumnLayout, RevColumnLayoutOrReference, RevColumnLayoutOrReferenceDefinition, RevReferenceableColumnLayouts } from '../../../column-layout';
 import { RevApiError } from '../../../common';
 import { RevRecordGrid, RevRecordRowOrderDefinition } from '../../../record';
-import { RevAllowedRecordSourcedFieldsColumnLayoutDefinition, RevRecordSourcedField, RevRecordSourcedFieldGrid } from '../record/internal-api';
+import { RevAllowedRecordSourcedFieldsColumnLayoutDefinition, RevRecordSourcedField, RevRecordSourcedFieldGrid } from '../record';
 import {
     RevDataSource,
     RevDataSourceOrReference,
@@ -17,7 +17,7 @@ import {
     RevTableRecordSourceDefinitionFromJsonFactory,
     RevTableRecordSourceFactory,
     RevTableRecordStore,
-} from './server/internal-api';
+} from './server';
 
 /** @public */
 export class RevTableGrid<

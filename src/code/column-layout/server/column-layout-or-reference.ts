@@ -4,7 +4,7 @@ import { RevColumnLayout } from './column-layout';
 import {
     RevColumnLayoutDefinition,
     RevColumnLayoutOrReferenceDefinition
-} from './definition/internal-api';
+} from './definition';
 import { RevReferenceableColumnLayout } from './referenceable-column-layout';
 import { RevReferenceableColumnLayouts } from './referenceable-grid-columns';
 

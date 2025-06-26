@@ -2,9 +2,9 @@ import { RevGridDefinition, RevGridOptions, RevSubgrid, RevViewCell } from '../c
 import { RevDataRowArrayDataServer, RevDataRowArrayGrid, RevDataRowArraySchemaServer } from '../data-row-array';
 import { RevSingleHeadingDataServer, RevSingleHeadingField } from '../header';
 import { RevStandardHeaderTextCellPainter } from '../standard';
-import { RevSimpleAlphaTextCellPainter } from './cell-painter/internal-api';
-import { RevSimpleInMemoryBehavioredGridSettings, revSimpleReadonlyDefaultBehavioredColumnSettings } from './settings-implementations/internal-api';
-import { RevSimpleBehavioredColumnSettings, RevSimpleBehavioredGridSettings } from './settings/internal-api';
+import { RevSimpleAlphaTextCellPainter } from './cell-painter';
+import { RevSimpleBehavioredColumnSettings, RevSimpleBehavioredGridSettings } from './settings';
+import { RevSimpleInMemoryBehavioredGridSettings, revSimpleReadonlyDefaultBehavioredColumnSettings } from './settings-implementations';
 
 /** @public */
 export class RevSimpleDataRowArrayGrid extends RevDataRowArrayGrid<

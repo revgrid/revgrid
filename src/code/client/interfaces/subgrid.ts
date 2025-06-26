@@ -1,5 +1,5 @@
 import { RevDataServer, RevMetaServer, RevSchemaField, RevSchemaServer } from '../../common';
-import { RevBehavioredColumnSettings } from '../settings/internal-api';
+import { RevBehavioredColumnSettings } from '../settings';
 // eslint-disable-next-line import-x/no-cycle
 import { RevCellPainter } from './cell-painter';
 import { RevColumn } from './column';

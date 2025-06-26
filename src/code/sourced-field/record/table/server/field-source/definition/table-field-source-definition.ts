@@ -1,9 +1,9 @@
 import { Integer } from '@pbkware/js-utils';
 // import { GridRecordFieldState } from '../../../record/grid-record-internal-api';
-import { RevSourcedFieldDefinition } from '../../../../../sourced-field/server/internal-api';
-import { RevRecordSourcedFieldSourceDefinition } from '../../../../record/server/internal-api';
-import { RevTableField } from '../../field/internal-api';
-import { RevTableValue } from '../../value/internal-api';
+import { RevSourcedFieldDefinition } from '../../../../../sourced-field/server';
+import { RevRecordSourcedFieldSourceDefinition } from '../../../../record/server';
+import { RevTableField } from '../../field';
+import { RevTableValue } from '../../value';
 
 /** @public */
 export abstract class RevTableFieldSourceDefinition<TypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> extends RevRecordSourcedFieldSourceDefinition {

@@ -1,7 +1,7 @@
 import { ComparableList, Integer } from '@pbkware/js-utils';
-import { RevRecordInvalidatedValue } from '../../../../../record/server/internal-api';
-import { RevTableValueSource } from '../value-source/internal-api';
-import { RevTableValue, RevTableValuesRecord } from '../value/internal-api';
+import { RevRecordInvalidatedValue } from '../../../../../record/server';
+import { RevTableValue, RevTableValuesRecord } from '../value';
+import { RevTableValueSource } from '../value-source';
 
 /** @public */
 export class RevTableRecord<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> extends RevTableValuesRecord<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> {

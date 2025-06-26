@@ -1,5 +1,5 @@
 import { RevSchemaField } from '../../common';
-import { RevBehavioredColumnSettings } from '../settings/internal-api';
+import { RevBehavioredColumnSettings } from '../settings';
 // eslint-disable-next-line import-x/no-cycle
 import { RevViewCell } from './view-cell';
 

@@ -1,5 +1,5 @@
-import { RevRectangle } from '../../types-utils/internal-api';
-import { RevSchemaField } from '../schema/internal-api';
+import { RevRectangle } from '../../types-utils';
+import { RevSchemaField } from '../schema';
 
 /** Interface used by client to get data from a server */
 export interface RevDataServer<

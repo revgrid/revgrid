@@ -1,5 +1,5 @@
 import { LockItemByKeyList } from '@pbkware/js-utils';
-import { RevReferenceableColumnLayoutDefinition } from './definition/internal-api';
+import { RevReferenceableColumnLayoutDefinition } from './definition';
 import { RevReferenceableColumnLayout } from './referenceable-column-layout';
 
 /** @public */

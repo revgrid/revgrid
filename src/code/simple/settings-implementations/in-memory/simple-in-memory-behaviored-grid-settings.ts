@@ -1,7 +1,7 @@
-import { RevHorizontalAlign, RevHorizontalAlignId, RevTextTruncateType, RevTextTruncateTypeId } from '../../../cell-content/client/internal-api';
+import { RevHorizontalAlign, RevHorizontalAlignId, RevTextTruncateType, RevTextTruncateTypeId } from '../../../cell-content/client';
 import { RevGridSettings } from '../../../client';
 import { RevInMemoryBehavioredGridSettings } from '../../../settings-implementations';
-import { RevSimpleBehavioredGridSettings, RevSimpleGridSettings, RevSimpleOnlyGridSettings } from '../../settings/internal-api';
+import { RevSimpleBehavioredGridSettings, RevSimpleGridSettings, RevSimpleOnlyGridSettings } from '../../settings';
 
 /** @public */
 export class RevSimpleInMemoryBehavioredGridSettings extends RevInMemoryBehavioredGridSettings implements RevSimpleBehavioredGridSettings {

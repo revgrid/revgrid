@@ -6,7 +6,7 @@ import { RevSelection } from '../components/selection/selection';
 import { RevSubgridImplementation } from '../components/subgrid/subgrid-implementation';
 import { RevSubgridsManager } from '../components/subgrid/subgrids-manager';
 import { RevViewLayout } from '../components/view/view-layout';
-import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../settings/internal-api';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../settings';
 import { RevEventBehavior } from './event-behavior';
 import { RevReindexBehavior } from './reindex-behavior';
 

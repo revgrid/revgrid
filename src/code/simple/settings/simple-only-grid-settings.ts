@@ -1,6 +1,6 @@
-import { RevHorizontalAlign, RevHorizontalAlignId, RevTextTruncateType, RevTextTruncateTypeId } from '../../cell-content/client/internal-api';
+import { RevHorizontalAlign, RevHorizontalAlignId, RevTextTruncateType, RevTextTruncateTypeId } from '../../cell-content/client';
 import { RevGridSettings } from '../../client';
-import { RevStandardTextPainter } from '../../standard/painters/internal-api';
+import { RevStandardTextPainter } from '../../standard/painters';
 
 /** @public */
 export interface RevSimpleOnlyGridSettings extends RevStandardTextPainter.OnlyColumnSettings {

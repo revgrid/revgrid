@@ -2,8 +2,8 @@ import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevClientGrid, 
 import { RevAssertError } from '../../../common';
 import { RevDataRowArrayDataServer, RevDataRowArrayGrid, RevDataRowArraySchemaServer } from '../../../data-row-array';
 import { RevMultiHeadingDataServer } from '../../../header';
-import { RevSourcedFieldGrid } from '../../sourced-field/internal-api';
-import { RevAllowedMultiHeadingDataRowArraySourcedFieldsColumnLayoutDefinition, RevMultiHeadingDataRowArraySourcedField } from './server/internal-api';
+import { RevSourcedFieldGrid } from '../../sourced-field';
+import { RevAllowedMultiHeadingDataRowArraySourcedFieldsColumnLayoutDefinition, RevMultiHeadingDataRowArraySourcedField } from './server';
 
 /** @public */
 export class RevMultiHeadingDataRowArraySourcedFieldGrid<

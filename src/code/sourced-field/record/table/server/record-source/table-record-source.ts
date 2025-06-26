@@ -9,14 +9,14 @@ import {
     Result,
     UsableListChangeTypeId,
 } from '@pbkware/js-utils';
-import { RevTextFormatter } from '../../../../../cell-content/server/internal-api';
-import { RevSourcedFieldCustomHeadings } from '../../../../sourced-field/server/internal-api';
-import { RevAllowedRecordSourcedField } from '../../../record/server/internal-api';
-import { RevTableFieldSource, RevTableFieldSourceDefinitionCachingFactory } from '../field-source/internal-api';
-import { RevTableField } from '../field/internal-api';
-import { RevTableRecordDefinition } from '../record-definition/internal-api';
-import { RevTableRecord } from '../record/internal-api';
-import { RevTableRecordSourceDefinition } from './definition/internal-api';
+import { RevTextFormatter } from '../../../../../cell-content/server';
+import { RevSourcedFieldCustomHeadings } from '../../../../sourced-field/server';
+import { RevAllowedRecordSourcedField } from '../../../record/server';
+import { RevTableField } from '../field';
+import { RevTableFieldSource, RevTableFieldSourceDefinitionCachingFactory } from '../field-source';
+import { RevTableRecord } from '../record';
+import { RevTableRecordDefinition } from '../record-definition';
+import { RevTableRecordSourceDefinition } from './definition';
 
 /** @public */
 export abstract class RevTableRecordSource<Badness, TypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> implements CorrectnessState<Badness> {

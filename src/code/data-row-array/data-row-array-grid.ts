@@ -1,13 +1,13 @@
 import { Integer } from '@pbkware/js-utils';
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevClientGrid, RevGridDefinition, RevGridOptions } from '../client';
 import { RevColumnLayoutGrid } from '../column-layout';
-import { RevColumnLayout } from '../column-layout/server/internal-api';
+import { RevColumnLayout } from '../column-layout/server';
 import { RevDataServer } from '../common';
 import {
     RevDataRowArrayDataServer,
     RevDataRowArrayField,
     RevDataRowArraySchemaServer,
-} from './server/internal-api';
+} from './server';
 
 /** @public */
 export class RevDataRowArrayGrid<

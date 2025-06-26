@@ -1,10 +1,10 @@
 import { IndexedRecord, LockOpenListItem } from '@pbkware/js-utils';
-import { RevReferenceableColumnLayouts } from '../../../../../column-layout/server/internal-api';
-import { RevRecordRowOrderDefinition } from '../../../../../record/server/internal-api';
-import { RevTableFieldSourceDefinitionFactory } from '../field-source/internal-api';
-import { RevTableRecordSourceFactory } from '../record-source/internal-api';
+import { RevReferenceableColumnLayouts } from '../../../../../column-layout/server';
+import { RevRecordRowOrderDefinition } from '../../../../../record/server';
+import { RevTableFieldSourceDefinitionFactory } from '../field-source';
+import { RevTableRecordSourceFactory } from '../record-source';
 import { RevDataSource } from './data-source';
-import { RevReferenceableDataSourceDefinition } from './definition/internal-api';
+import { RevReferenceableDataSourceDefinition } from './definition';
 
 /** @public */
 export class RevReferenceableDataSource<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>

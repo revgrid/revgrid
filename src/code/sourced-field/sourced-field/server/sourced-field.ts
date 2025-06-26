@@ -1,9 +1,9 @@
 import {
     EnumInfoOutOfOrderError
 } from '@pbkware/js-utils';
-import { RevHorizontalAlignId } from '../../../cell-content/client/internal-api';
+import { RevHorizontalAlignId } from '../../../cell-content/client';
 import { RevSchemaField } from '../../../common';
-import { RevSourcedFieldDefinition } from './definition/internal-api';
+import { RevSourcedFieldDefinition } from './definition';
 import { RevSourcedFieldCustomHeadings } from './sourced-field-custom-headings';
 
 /** @public */

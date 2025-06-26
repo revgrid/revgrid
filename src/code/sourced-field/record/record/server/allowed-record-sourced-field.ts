@@ -1,5 +1,5 @@
 import { AssertInternalError, IndexedRecord } from '@pbkware/js-utils';
-import { RevTextFormattableValue } from '../../../../cell-content/client/internal-api';
+import { RevTextFormattableValue } from '../../../../cell-content/client';
 import { RevRecordSourcedField } from './record-sourced-field';
 
 // AllowedGridField is used in Column selector

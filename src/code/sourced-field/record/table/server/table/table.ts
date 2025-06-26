@@ -8,12 +8,12 @@ import {
     UsableListChangeTypeId,
     moveElementsInArray
 } from '@pbkware/js-utils';
-import { RevRecordInvalidatedValue } from '../../../../../record/server/internal-api';
-import { RevAllowedRecordSourcedField } from '../../../record/server/internal-api';
-import { RevTableField } from '../field/internal-api';
-import { RevTableRecordDefinition } from '../record-definition/internal-api';
-import { RevTableRecordSource } from '../record-source/internal-api';
-import { RevTableRecord } from '../record/internal-api';
+import { RevRecordInvalidatedValue } from '../../../../../record/server';
+import { RevAllowedRecordSourcedField } from '../../../record/server';
+import { RevTableField } from '../field';
+import { RevTableRecord } from '../record';
+import { RevTableRecordDefinition } from '../record-definition';
+import { RevTableRecordSource } from '../record-source';
 
 /** @public */
 export class RevTable<

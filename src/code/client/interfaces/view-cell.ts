@@ -1,5 +1,5 @@
 import { RevDataServer, RevRectangle, RevSchemaField } from '../../common';
-import { RevBehavioredColumnSettings } from '../settings/internal-api';
+import { RevBehavioredColumnSettings } from '../settings';
 // eslint-disable-next-line import-x/no-cycle
 import { RevSubgrid } from './subgrid';
 import { RevViewLayoutColumn } from './view-layout-column';

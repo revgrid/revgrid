@@ -1,5 +1,5 @@
 import { RevAssertError, RevCachedCanvasRenderingContext2D, RevClientObject, RevCssTypes, RevPoint, RevRectangle, RevUnreachableCaseError } from '../../../common';
-import { RevBehavioredGridSettings } from '../../settings/internal-api';
+import { RevBehavioredGridSettings } from '../../settings';
 
 /** @public */
 export class RevCanvas<BGS extends RevBehavioredGridSettings> implements RevClientObject {

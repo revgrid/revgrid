@@ -2,7 +2,7 @@ import { RevAssertError, RevClientObject, RevSchemaField, RevServerNotificationI
 import { RevSelection } from '../../components/selection/selection';
 import { RevSubgrid } from '../../interfaces/subgrid';
 import { RevViewCell } from '../../interfaces/view-cell';
-import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../../settings/internal-api';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../../settings';
 import { RevCanvas } from '../canvas/canvas';
 import { RevColumnsManager } from '../column/columns-manager';
 import { RevFocus } from '../focus/focus';

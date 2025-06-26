@@ -21,8 +21,8 @@ import { RevViewLayout } from './components/view/view-layout';
 import { RevGridDefinition } from './grid-definition';
 import { RevGridOptions } from './grid-options';
 import { RevIdGenerator } from './id-generator';
-import { RevCellMetaSettings, RevColumn, RevColumnAutoSizeableWidth, RevLinedHoverCell, RevMainSubgrid, RevSubgrid, RevViewCell } from './interfaces/internal-api';
-import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevColumnSettings } from './settings/internal-api';
+import { RevCellMetaSettings, RevColumn, RevColumnAutoSizeableWidth, RevLinedHoverCell, RevMainSubgrid, RevSubgrid, RevViewCell } from './interfaces';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevColumnSettings } from './settings';
 import { RevUiManager } from './ui/ui-controller-manager';
 
 /** @public */

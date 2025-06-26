@@ -1,6 +1,6 @@
 import { Integer } from '@pbkware/js-utils';
-import { RevColumnLayoutDefinition } from '../../../../column-layout/server/internal-api';
-import { RevAllowedSourcedFieldsColumnLayoutDefinition } from '../../../sourced-field/server/internal-api';
+import { RevColumnLayoutDefinition } from '../../../../column-layout/server';
+import { RevAllowedSourcedFieldsColumnLayoutDefinition } from '../../../sourced-field/server';
 import { RevSingleHeadingDataRowArraySourcedField } from './single-heading-data-row-array-sourced-field';
 
 /** @public */

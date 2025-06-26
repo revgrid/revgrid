@@ -1,5 +1,5 @@
 import { CorrectnessState } from '@pbkware/js-utils';
-import { RevTableRecordSourceDefinition } from './definition/internal-api';
+import { RevTableRecordSourceDefinition } from './definition';
 import { RevTableRecordSource } from './table-record-source';
 
 /** @public */

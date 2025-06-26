@@ -5,13 +5,13 @@ import {
     RevColumnLayoutOrReferenceDefinition,
     RevReferenceableColumnLayout,
     RevReferenceableColumnLayouts
-} from '../../../../../column-layout/server/internal-api';
-import { RevRecordRowOrderDefinition } from '../../../../../record/server/internal-api';
-import { RevSourcedFieldDefinition } from '../../../../sourced-field/server/internal-api';
-import { RevTableFieldSourceDefinitionFactory } from '../field-source/internal-api';
-import { RevTableRecordSource, RevTableRecordSourceDefinition, RevTableRecordSourceFactory } from '../record-source/internal-api';
-import { RevTable } from '../table/internal-api';
-import { RevDataSourceDefinition } from './definition/internal-api';
+} from '../../../../../column-layout/server';
+import { RevRecordRowOrderDefinition } from '../../../../../record/server';
+import { RevSourcedFieldDefinition } from '../../../../sourced-field/server';
+import { RevTableFieldSourceDefinitionFactory } from '../field-source';
+import { RevTableRecordSource, RevTableRecordSourceDefinition, RevTableRecordSourceFactory } from '../record-source';
+import { RevTable } from '../table';
+import { RevDataSourceDefinition } from './definition';
 
 /** @public */
 export class RevDataSource<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>

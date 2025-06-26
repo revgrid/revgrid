@@ -1,5 +1,5 @@
 import { RevBehavioredGridSettings } from '../../client';
-import { revDefaultGridSettings } from '../default/internal-api';
+import { revDefaultGridSettings } from '../default';
 import { revReadonlyBehavioredSettings } from './readonly-behaviored-settings';
 
 /** @public */

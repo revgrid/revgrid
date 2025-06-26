@@ -1,4 +1,4 @@
-import { RevColumnLayoutDefinition } from '../../../../../../column-layout/server/internal-api';
+import { RevColumnLayoutDefinition } from '../../../../../../column-layout/server';
 import { RevTableFieldSourceDefinition } from './table-field-source-definition';
 import { RevTableFieldSourceDefinitionFactory } from './table-field-source-definition-factory';
 

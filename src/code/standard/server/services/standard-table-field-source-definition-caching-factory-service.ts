@@ -1,5 +1,5 @@
-import { RevColumnLayoutDefinition } from '../../../column-layout/server/internal-api';
-import { RevTableFieldSourceDefinition, RevTableFieldSourceDefinitionFactory } from '../../../sourced-field/record/table/server/internal-api';
+import { RevColumnLayoutDefinition } from '../../../column-layout/server';
+import { RevTableFieldSourceDefinition, RevTableFieldSourceDefinitionFactory } from '../../../sourced-field/record/table/server';
 
 /** @public */
 export class RevStandardTableFieldSourceDefinitionCachingFactoryService<TypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> {

@@ -1,5 +1,5 @@
 import { RevSchemaField } from '../../common';
-import { RevBehavioredColumnSettings } from '../settings/internal-api';
+import { RevBehavioredColumnSettings } from '../settings';
 
 /** @public */
 export interface RevColumn<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> {

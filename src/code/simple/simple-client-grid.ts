@@ -1,6 +1,6 @@
 import { RevClientGrid } from '../client';
 import { RevSchemaField } from '../common';
-import { RevSimpleInMemoryBehavioredColumnSettings, RevSimpleInMemoryBehavioredGridSettings } from './settings-implementations/internal-api';
+import { RevSimpleInMemoryBehavioredColumnSettings, RevSimpleInMemoryBehavioredGridSettings } from './settings-implementations';
 
 /** @public */
 export class RevSimpleClientGrid<SF extends RevSchemaField> extends RevClientGrid<

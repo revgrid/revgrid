@@ -1,5 +1,5 @@
 import { RevBehavioredColumnSettings } from '../../client';
-import { revDefaultColumnSettings, revDefaultGridSettings } from '../default/internal-api';
+import { revDefaultColumnSettings, revDefaultGridSettings } from '../default';
 import { revReadonlyBehavioredSettings } from './readonly-behaviored-settings';
 
 /** @public */

@@ -1,7 +1,7 @@
 import { RevAssertError, RevClientObject, RevSchemaField } from '../../common';
 import { RevFocus } from '../components/focus/focus';
 import { RevSelection } from '../components/selection/selection';
-import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../settings/internal-api';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../settings';
 
 export class RevReindexBehavior<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {
     private _requestNestCount = 0;

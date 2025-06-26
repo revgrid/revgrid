@@ -2,11 +2,11 @@ import {
     Integer,
     compareValue
 } from '@pbkware/js-utils';
-import { RevHorizontalAlignId, RevTextFormattableValue } from '../../../../../cell-content/client/internal-api';
-import { RevTextFormatter } from '../../../../../cell-content/server/internal-api';
-import { RevSourcedFieldSourceDefinition } from '../../../../sourced-field/server/internal-api';
-import { RevRecordSourcedField, RevRecordSourcedFieldDefinition } from '../../../record/server/internal-api';
-import { RevGenericTableValue, RevTableValue, RevTableValuesRecord } from '../value/internal-api';
+import { RevHorizontalAlignId, RevTextFormattableValue } from '../../../../../cell-content/client';
+import { RevTextFormatter } from '../../../../../cell-content/server';
+import { RevSourcedFieldSourceDefinition } from '../../../../sourced-field/server';
+import { RevRecordSourcedField, RevRecordSourcedFieldDefinition } from '../../../record/server';
+import { RevGenericTableValue, RevTableValue, RevTableValuesRecord } from '../value';
 
 /** @public */
 export abstract class RevTableField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> extends RevRecordSourcedField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> {

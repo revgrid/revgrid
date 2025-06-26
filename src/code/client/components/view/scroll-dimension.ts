@@ -1,5 +1,5 @@
 import { RevAssertError } from '../../../common';
-import { RevBehavioredGridSettings, RevGridSettings } from '../../settings/internal-api';
+import { RevBehavioredGridSettings, RevGridSettings } from '../../settings';
 import { RevCanvas } from '../canvas/canvas';
 
 export abstract class RevScrollDimension<BGS extends RevBehavioredGridSettings> {

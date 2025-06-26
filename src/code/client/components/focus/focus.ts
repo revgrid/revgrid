@@ -1,6 +1,6 @@
 import { RevAssertError, RevClientObject, RevDataServer, RevPartialPoint, RevPoint, RevSchemaField, revCalculateAdjustmentForRangeMoved } from '../../../common';
-import { RevCellEditor, RevMainSubgrid, RevSubgrid, RevViewCell } from '../../interfaces/internal-api';
-import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevGridSettings } from '../../settings/internal-api';
+import { RevCellEditor, RevMainSubgrid, RevSubgrid, RevViewCell } from '../../interfaces';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevGridSettings } from '../../settings';
 import { RevCanvas } from '../canvas/canvas';
 import { RevColumnsManager } from '../column/columns-manager';
 import { RevViewLayout } from '../view/view-layout';

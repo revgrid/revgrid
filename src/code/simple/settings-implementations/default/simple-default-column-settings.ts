@@ -1,5 +1,5 @@
 import { revDefaultColumnSettings } from '../../../settings-implementations';
-import { RevSimpleColumnSettings } from '../../settings/internal-api';
+import { RevSimpleColumnSettings } from '../../settings';
 import { revSimpleDefaultOnlyColumnSettings } from './simple-default-only-column-settings';
 
 /** @public */

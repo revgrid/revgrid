@@ -1,4 +1,4 @@
-export * from './data-row-array/internal-api';
-export * from './record/internal-api';
-export * from './sourced-field/internal-api';
+export * from './data-row-array';
+export * from './record';
+export * from './sourced-field';
 

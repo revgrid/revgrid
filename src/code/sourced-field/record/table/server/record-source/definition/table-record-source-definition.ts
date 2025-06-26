@@ -1,8 +1,8 @@
 import { JsonElement, Result } from '@pbkware/js-utils';
-import { RevColumnLayoutDefinition } from '../../../../../../column-layout/server/internal-api';
-import { RevSourcedField, RevSourcedFieldCustomHeadings } from '../../../../../sourced-field/server/internal-api';
-import { RevAllowedRecordSourcedField } from '../../../../record/server/internal-api';
-import { RevTableFieldSourceDefinitionCachingFactory } from '../../field-source/internal-api';
+import { RevColumnLayoutDefinition } from '../../../../../../column-layout/server';
+import { RevSourcedField, RevSourcedFieldCustomHeadings } from '../../../../../sourced-field/server';
+import { RevAllowedRecordSourcedField } from '../../../../record/server';
+import { RevTableFieldSourceDefinitionCachingFactory } from '../../field-source';
 
 /** @public */
 export abstract class RevTableRecordSourceDefinition<TypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> {

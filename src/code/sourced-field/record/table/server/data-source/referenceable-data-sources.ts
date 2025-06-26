@@ -1,6 +1,6 @@
 import { LockItemByKeyList } from '@pbkware/js-utils';
 import { RevDataSource } from './data-source';
-import { RevReferenceableDataSourceDefinition } from './definition/internal-api';
+import { RevReferenceableDataSourceDefinition } from './definition';
 import { RevReferenceableDataSource } from './referenceable-data-source';
 
 /** @public */

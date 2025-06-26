@@ -5,7 +5,7 @@ import { RevMouse } from '../../components/mouse/mouse';
 import { RevLinedHoverCell } from '../../interfaces/lined-hover-cell';
 import { RevSubgrid } from '../../interfaces/subgrid';
 import { RevViewCell } from '../../interfaces/view-cell';
-import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevGridSettings } from '../../settings/internal-api';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevGridSettings } from '../../settings';
 import { RevUiController } from './ui-controller';
 
 /** @internal */

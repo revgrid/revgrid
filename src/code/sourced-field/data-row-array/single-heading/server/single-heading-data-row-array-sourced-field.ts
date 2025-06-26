@@ -1,7 +1,7 @@
-import { RevDataRowArrayField } from '../../../../data-row-array/server/internal-api';
-import { RevSingleHeadingField } from '../../../../header/server/internal-api';
-import { RevSourcedField } from '../../../sourced-field/server/internal-api';
-import { RevSingleHeadingDataRowArraySourcedFieldDefinition } from './definition/internal-api';
+import { RevDataRowArrayField } from '../../../../data-row-array/server';
+import { RevSingleHeadingField } from '../../../../header/server';
+import { RevSourcedField } from '../../../sourced-field/server';
+import { RevSingleHeadingDataRowArraySourcedFieldDefinition } from './definition';
 
 /** @public */
 export interface RevSingleHeadingDataRowArraySourcedField extends RevSourcedField, RevDataRowArrayField, RevSingleHeadingField {

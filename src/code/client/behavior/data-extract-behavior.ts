@@ -2,7 +2,7 @@ import { RevAssertError, RevClientObject, RevDataServer, RevSchemaField, RevSele
 import { RevColumnsManager } from '../components/column/columns-manager';
 import { RevSelection } from '../components/selection/selection';
 import { RevColumn } from '../interfaces/column';
-import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../settings/internal-api';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../settings';
 
 /** @public */
 export class RevDataExtractBehavior<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {

@@ -1,6 +1,6 @@
 import { RevSchemaField } from '../common';
 import { RevClientGrid } from './client-grid';
-import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from './settings/internal-api';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from './settings';
 
 /** @public */
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type

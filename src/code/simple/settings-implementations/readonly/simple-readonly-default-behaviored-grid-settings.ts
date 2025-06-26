@@ -1,6 +1,6 @@
-import { revReadonlyBehavioredSettings } from '../../../settings-implementations/readonly/internal-api';
-import { RevSimpleBehavioredGridSettings } from '../../settings/internal-api';
-import { revSimpleDefaultGridSettings } from '../default/internal-api';
+import { revReadonlyBehavioredSettings } from '../../../settings-implementations/readonly';
+import { RevSimpleBehavioredGridSettings } from '../../settings';
+import { revSimpleDefaultGridSettings } from '../default';
 
 /** @public */
 export const revSimpleReadonlyDefaultBehavioredGridSettings: Readonly<RevSimpleBehavioredGridSettings> = {

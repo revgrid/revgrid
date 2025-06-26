@@ -11,7 +11,7 @@ import { RevViewLayout } from '../components/view/view-layout';
 import { RevColumn } from '../interfaces/column';
 import { RevLinedHoverCell } from '../interfaces/lined-hover-cell';
 import { RevViewCell } from '../interfaces/view-cell';
-import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../settings/internal-api';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../settings';
 
 /** @public */
 export class RevEventBehavior<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {

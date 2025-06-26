@@ -1,4 +1,4 @@
-import { RevRecordDefinition } from '../../../../../record/server/internal-api';
+import { RevRecordDefinition } from '../../../../../record/server';
 
 /** @public */
 export interface RevTableRecordDefinition<TableFieldSourceDefinitionTypeId> extends RevRecordDefinition {

@@ -2,7 +2,7 @@ import { RevAssertError, RevSchemaField, RevUnreachableCaseError } from '../../.
 import { RevMouse } from '../../components/mouse/mouse';
 import { RevLinedHoverCell } from '../../interfaces/lined-hover-cell';
 import { RevViewLayoutColumn } from '../../interfaces/view-layout-column';
-import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../../settings/internal-api';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../../settings';
 import { RevUiController } from './ui-controller';
 
 /** @internal */

@@ -1,5 +1,5 @@
 import { Integer } from '@pbkware/js-utils';
-import { RevColumnLayoutDefinition } from '../../../column-layout/server/internal-api';
+import { RevColumnLayoutDefinition } from '../../../column-layout/server';
 import { RevSourcedField } from './sourced-field';
 
 /** @public */

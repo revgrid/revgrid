@@ -1,6 +1,6 @@
 import { RevAssertError, RevClientObject, RevCssTypes, RevDataServer, RevSchemaField, RevSchemaServer } from '../../common';
 import { RevSubgrid } from '../interfaces/subgrid';
-import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../settings/internal-api';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../settings';
 import { RevCanvas } from './canvas/canvas';
 import { RevColumnsManager } from './column/columns-manager';
 import { RevFocus } from './focus/focus';

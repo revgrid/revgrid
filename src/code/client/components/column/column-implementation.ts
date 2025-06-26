@@ -1,7 +1,7 @@
 // import { Column } from '../../interfaces/data/column';
 import { RevDataServer, RevSchemaField } from '../../../common';
 import { RevColumn } from '../../interfaces/column';
-import { RevBehavioredColumnSettings } from '../../settings/internal-api';
+import { RevBehavioredColumnSettings } from '../../settings';
 
 /** @internal */
 export class RevColumnImplementation<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevColumn<BCS, SF> {

@@ -2,7 +2,7 @@
 import { IndexSignatureHack } from '@pbkware/js-utils';
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevClientGrid, RevColumnSettings, RevGridSettings, RevViewCell } from '../../client';
 import { RevDataServer, RevRectangle, RevSchemaField, revSafeConvertUnknownToBoolean } from '../../common';
-import { RevStandardCheckboxPainter } from '../painters/internal-api';
+import { RevStandardCheckboxPainter } from '../painters';
 import { RevStandardCellPainter } from './standard-cell-painter';
 
 /** @public */

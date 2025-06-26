@@ -1,3 +1,3 @@
-export * from './server-interfaces/internal-api';
-export * from './types-utils/internal-api';
+export * from './server-interfaces';
+export * from './types-utils';
 

@@ -3,11 +3,11 @@ import {
     IndexedRecord,
     Integer
 } from '@pbkware/js-utils';
-import { RevTextFormattableValue } from '../../../../cell-content/client/internal-api';
+import { RevTextFormattableValue } from '../../../../cell-content/client';
 import { RevDataServer } from '../../../../common';
-import { RevRecordField } from '../../../../record/server/internal-api';
-import { RevSourcedField } from '../../../sourced-field/server/internal-api';
-import { RevRecordSourcedFieldDefinition } from './definition/internal-api';
+import { RevRecordField } from '../../../../record/server';
+import { RevSourcedField } from '../../../sourced-field/server';
+import { RevRecordSourcedFieldDefinition } from './definition';
 
 /** @public */
 export abstract class RevRecordSourcedField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> implements RevSourcedField, RevRecordField {

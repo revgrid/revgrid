@@ -1,5 +1,5 @@
 import { JsonElement } from '@pbkware/js-utils';
-import { RevSourcedFieldCustomHeadings } from '../../../sourced-field/sourced-field/server/internal-api';
+import { RevSourcedFieldCustomHeadings } from '../../../sourced-field/sourced-field/server';
 
 /** @public */
 export class RevStandardSourcedFieldCustomHeadingsService implements RevSourcedFieldCustomHeadings {

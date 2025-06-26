@@ -1,4 +1,4 @@
 export * from './column-layout-grid';
 export * from './i-column-layout-grid';
-export * from './server/internal-api';
+export * from './server';
 

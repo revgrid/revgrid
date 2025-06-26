@@ -1,6 +1,6 @@
 import { Integer } from '@pbkware/js-utils';
-import { RevHorizontalAlignId } from '../../../../../cell-content/client/internal-api';
-import { RevSourcedFieldDefinition } from '../../../../sourced-field/server/internal-api';
+import { RevHorizontalAlignId } from '../../../../../cell-content/client';
+import { RevSourcedFieldDefinition } from '../../../../sourced-field/server';
 import { RevRecordSourcedFieldSourceDefinition } from './record-sourced-field-source-definition';
 
 /** @public */

@@ -1,8 +1,8 @@
-import { RevHorizontalAlign, RevHorizontalAlignId, RevTextTruncateType, RevTextTruncateTypeId } from '../../../cell-content/client/internal-api';
+import { RevHorizontalAlign, RevHorizontalAlignId, RevTextTruncateType, RevTextTruncateTypeId } from '../../../cell-content/client';
 import { RevGridSettings } from '../../../client';
 import { RevInMemoryBehavioredColumnSettings } from '../../../settings-implementations';
 import { RevStandardCheckboxCellPainter, RevStandardHeaderTextCellPainter } from '../../../standard';
-import { RevSimpleBehavioredColumnSettings, RevSimpleColumnSettings, RevSimpleGridSettings, RevSimpleOnlyColumnSettings } from '../../settings/internal-api';
+import { RevSimpleBehavioredColumnSettings, RevSimpleColumnSettings, RevSimpleGridSettings, RevSimpleOnlyColumnSettings } from '../../settings';
 
 /** @public */
 export class RevSimpleInMemoryBehavioredColumnSettings extends RevInMemoryBehavioredColumnSettings

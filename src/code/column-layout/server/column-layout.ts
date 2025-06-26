@@ -13,7 +13,7 @@ import {
     moveElementsInArray,
     newGuid
 } from '@pbkware/js-utils';
-import { RevColumnLayoutDefinition } from './definition/internal-api';
+import { RevColumnLayoutDefinition } from './definition';
 
 /**
  * Provides access to a saved layout for a Grid

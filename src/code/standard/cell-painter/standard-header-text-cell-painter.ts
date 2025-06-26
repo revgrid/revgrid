@@ -1,9 +1,9 @@
 
 import { IndexSignatureHack } from '@pbkware/js-utils';
-import { RevHorizontalAlignId } from '../../cell-content/client/internal-api';
+import { RevHorizontalAlignId } from '../../cell-content/client';
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevClientGrid, RevColumnSettings, RevGridSettings, RevViewCell } from '../../client';
 import { RevDataServer, RevSchemaField } from '../../common';
-import { RevStandardTextPainter } from '../painters/internal-api';
+import { RevStandardTextPainter } from '../painters';
 import { RevStandardCellPainter } from './standard-cell-painter';
 
 /**

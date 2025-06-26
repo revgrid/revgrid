@@ -4,7 +4,7 @@ import { RevSelection } from '../components/selection/selection';
 import { RevViewLayout } from '../components/view/view-layout';
 import { RevSubgrid } from '../interfaces/subgrid';
 import { RevViewCell } from '../interfaces/view-cell';
-import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevGridSettings } from '../settings/internal-api';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevGridSettings } from '../settings';
 import { RevEventBehavior } from './event-behavior';
 
 export class RevFocusSelectBehavior<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {

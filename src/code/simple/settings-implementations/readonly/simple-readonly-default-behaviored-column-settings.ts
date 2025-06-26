@@ -1,6 +1,6 @@
 import { revReadonlyBehavioredSettings } from '../../../settings-implementations';
-import { RevSimpleBehavioredColumnSettings } from '../../settings/internal-api';
-import { revSimpleDefaultColumnSettings, revSimpleDefaultGridSettings } from '../default/internal-api';
+import { RevSimpleBehavioredColumnSettings } from '../../settings';
+import { revSimpleDefaultColumnSettings, revSimpleDefaultGridSettings } from '../default';
 
 /** @public */
 export const revSimpleReadonlyDefaultBehavioredColumnSettings: Readonly<RevSimpleBehavioredColumnSettings> = {

@@ -1,4 +1,4 @@
-import { RevHorizontalAlign, RevHorizontalAlignId, RevTextTruncateTypeId } from '../../cell-content/client/internal-api';
+import { RevHorizontalAlign, RevHorizontalAlignId, RevTextTruncateTypeId } from '../../cell-content/client';
 import { RevCachedCanvasRenderingContext2D, RevRectangle, RevUnreachableCaseError } from '../../common';
 
 /** @public */

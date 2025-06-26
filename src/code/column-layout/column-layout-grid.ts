@@ -1,7 +1,7 @@
 import { AssertInternalError, MultiEvent, UnreachableCaseError } from '@pbkware/js-utils';
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevClientGrid, RevColumn, RevColumnsManager } from '../client';
 import { RevListChangedTypeId, RevSchemaField } from '../common';
-import { RevColumnLayout, RevColumnLayoutDefinition } from './server/internal-api';
+import { RevColumnLayout, RevColumnLayoutDefinition } from './server';
 
 /** @public */
 export class RevColumnLayoutGrid<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevClientGrid<BGS, BCS, SF> {

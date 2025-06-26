@@ -5,7 +5,7 @@ import { RevSubgrid } from '../../interfaces/subgrid';
 import { RevViewCell } from '../../interfaces/view-cell';
 import { RevViewLayoutColumn } from '../../interfaces/view-layout-column';
 import { RevViewLayoutRow } from '../../interfaces/view-layout-row';
-import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../../settings/internal-api';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../../settings';
 import { RevCanvas } from '../canvas/canvas';
 import { RevColumnsManager } from '../column/columns-manager';
 import { RevSubgridsManager } from '../subgrid/subgrids-manager';

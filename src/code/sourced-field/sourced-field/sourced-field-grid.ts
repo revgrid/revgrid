@@ -1,6 +1,6 @@
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../../client';
 import { RevIColumnLayoutGrid } from '../../column-layout';
-import { RevAllowedSourcedFieldsColumnLayoutDefinition, RevSourcedField } from './server/internal-api';
+import { RevAllowedSourcedFieldsColumnLayoutDefinition, RevSourcedField } from './server';
 
 /** @public */
 export interface RevSourcedFieldGrid<

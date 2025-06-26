@@ -3,7 +3,7 @@ import { RevCachedCanvasRenderingContext2D, RevRectangle, RevSchemaField } from 
 import { RevViewCell } from '../../../interfaces/view-cell';
 import { RevViewLayoutColumn } from '../../../interfaces/view-layout-column';
 import { RevViewLayoutRow } from '../../../interfaces/view-layout-row';
-import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevGridSettings, RevOnlyGridSettings } from '../../../settings/internal-api';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevGridSettings, RevOnlyGridSettings } from '../../../settings';
 import { RevCanvas } from '../../canvas/canvas';
 import { RevFocus } from '../../focus/focus';
 import { RevMouse } from '../../mouse/mouse';

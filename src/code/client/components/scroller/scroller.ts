@@ -1,6 +1,6 @@
 import { numberToPixels } from '@pbkware/js-utils';
 import { RevAssertError, RevClientObject, RevCssTypes, RevSchemaField, RevSizeUnitId, RevSizeWithUnit, RevUnreachableCaseError } from '../../../common';
-import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../../settings/internal-api';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../../settings';
 import { RevCanvas } from '../canvas/canvas';
 import { RevScrollDimension } from '../view/scroll-dimension';
 import { RevViewLayout } from '../view/view-layout';

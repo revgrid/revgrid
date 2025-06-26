@@ -1,3 +1,3 @@
-export * from './server/internal-api';
+export * from './server';
 export * from './sourced-field-grid';
 

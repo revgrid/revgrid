@@ -1,5 +1,5 @@
-import { RevHorizontalAlignId, RevTextTruncateTypeId } from '../../../cell-content/client/internal-api';
-import { RevSimpleOnlyGridSettings } from '../../settings/internal-api';
+import { RevHorizontalAlignId, RevTextTruncateTypeId } from '../../../cell-content/client';
+import { RevSimpleOnlyGridSettings } from '../../settings';
 
 /** @public */
 export const revSimpleDefaultOnlyGridSettings: RevSimpleOnlyGridSettings = {

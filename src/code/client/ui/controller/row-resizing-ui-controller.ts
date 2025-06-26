@@ -1,7 +1,7 @@
 
 import { RevPoint, RevSchemaField } from '../../../common';
 import { RevSubgrid } from '../../interfaces/subgrid';
-import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../../settings/internal-api';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../../settings';
 import { RevUiController } from './ui-controller';
 
 /** @internal */

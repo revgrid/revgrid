@@ -1,6 +1,6 @@
 import { Integer } from '@pbkware/js-utils';
 import { RevColumnLayout } from './column-layout';
-import { RevReferenceableColumnLayoutDefinition } from './definition/internal-api';
+import { RevReferenceableColumnLayoutDefinition } from './definition';
 
 /** @public */
 export class RevReferenceableColumnLayout extends RevColumnLayout {

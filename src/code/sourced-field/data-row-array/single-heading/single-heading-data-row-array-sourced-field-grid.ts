@@ -2,8 +2,8 @@ import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevClientGrid, 
 import { RevApiError, RevAssertError } from '../../../common';
 import { RevDataRowArrayDataServer, RevDataRowArrayGrid, RevDataRowArraySchemaServer } from '../../../data-row-array';
 import { RevSingleHeadingDataServer } from '../../../header';
-import { RevSourcedFieldGrid } from '../../sourced-field/internal-api';
-import { RevAllowedSingleHeadingDataRowArraySourcedFieldsColumnLayoutDefinition, RevSingleHeadingDataRowArraySourcedField } from './server/internal-api';
+import { RevSourcedFieldGrid } from '../../sourced-field';
+import { RevAllowedSingleHeadingDataRowArraySourcedFieldsColumnLayoutDefinition, RevSingleHeadingDataRowArraySourcedField } from './server';
 
 /** @public */
 export class RevSingleHeadingDataRowArraySourcedFieldGrid<

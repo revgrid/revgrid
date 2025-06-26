@@ -4,7 +4,7 @@ import {
     Integer,
     MultiEvent,
 } from '@pbkware/js-utils';
-import { RevRecordFieldIndex, RevRecordIndex, RevRecordInvalidatedValue, RevRecordStore } from '../../../../../record/server/internal-api';
+import { RevRecordFieldIndex, RevRecordIndex, RevRecordInvalidatedValue, RevRecordStore } from '../../../../../record/server';
 import { RevTable } from './table';
 
 /** @public */

@@ -1,6 +1,6 @@
 import { RevMetaServer, RevRectangle, RevSchemaField } from '../../../common';
-import { RevSubgrid, RevViewCell, RevViewLayoutColumn, RevViewLayoutRow } from '../../interfaces/internal-api';
-import { RevBehavioredColumnSettings } from '../../settings/internal-api';
+import { RevSubgrid, RevViewCell, RevViewLayoutColumn, RevViewLayoutRow } from '../../interfaces';
+import { RevBehavioredColumnSettings } from '../../settings';
 import { RevColumnsManager } from '../column/columns-manager';
 
 /** @internal */

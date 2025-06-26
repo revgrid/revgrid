@@ -1,4 +1,4 @@
-import { RevSourcedFieldSourceDefinition } from '../../../../sourced-field/server/internal-api';
+import { RevSourcedFieldSourceDefinition } from '../../../../sourced-field/server';
 
 /** @public */
 export class RevRecordSourcedFieldSourceDefinition  implements RevSourcedFieldSourceDefinition {

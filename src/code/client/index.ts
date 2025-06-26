@@ -1,6 +1,6 @@
-export * from './behavior/internal-api';
+export * from './behavior';
 export * from './client-grid';
-export * from './components/internal-api';
+export * from './components';
 // export { RevCanvas } from './components/canvas/canvas';
 // export { RevColumnsManager } from './components/column/columns-manager';
 // export { RevDispatchableEvent } from './components/dispatchable-event/dispatchable-event';
@@ -19,7 +19,7 @@ export * from './components/internal-api';
 // export { RevViewLayout } from './components/view/view-layout';
 export * from './grid-definition';
 export * from './grid-options';
-export * from './interfaces/internal-api';
-export * from './settings/internal-api';
-export * from './ui/internal-api';
+export * from './interfaces';
+export * from './settings';
+export * from './ui';
 

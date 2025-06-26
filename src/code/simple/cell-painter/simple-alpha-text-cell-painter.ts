@@ -2,7 +2,7 @@ import { IndexSignatureHack, isArrayEqual } from '@pbkware/js-utils';
 import { RevClientGrid, RevViewCell } from '../../client';
 import { RevDataServer, RevRectangle, RevSchemaField } from '../../common';
 import { RevStandardCellPainter, RevStandardTextPainter } from '../../standard';
-import { RevSimpleBehavioredColumnSettings, RevSimpleBehavioredGridSettings } from '../settings/internal-api';
+import { RevSimpleBehavioredColumnSettings, RevSimpleBehavioredGridSettings } from '../settings';
 
 /**
  * A cell renderer for a text cell.

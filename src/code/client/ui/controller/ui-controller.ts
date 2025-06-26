@@ -18,8 +18,8 @@ import { RevSubgridsManager } from '../../components/subgrid/subgrids-manager';
 import { RevViewLayout } from '../../components/view/view-layout';
 import { RevLinedHoverCell } from '../../interfaces/lined-hover-cell';
 import { RevMainSubgrid } from '../../interfaces/main-subgrid';
-import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevGridSettings } from '../../settings/internal-api';
-import { RevUiControllerServices, RevUiControllerSharedState } from './common/internal-api';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevGridSettings } from '../../settings';
+import { RevUiControllerServices, RevUiControllerSharedState } from './common';
 
 /**
  * Instances of features are connected to one another to make a chain of responsibility for handling all the input to the hypergrid.

@@ -3,7 +3,7 @@ export * from './clipboard-ui-controller';
 export * from './column-moving-ui-controller';
 export * from './column-resizing-ui-controller';
 export * from './column-sorting-ui-controller';
-export * from './common/internal-api';
+export * from './common';
 export * from './filters-ui-controller';
 export * from './focus-scroll-ui-controller';
 export * from './hover-ui-controller';

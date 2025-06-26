@@ -1,4 +1,4 @@
-import { RevSimpleOnlyColumnSettings } from '../../settings/internal-api';
+import { RevSimpleOnlyColumnSettings } from '../../settings';
 import { revSimpleDefaultOnlyGridSettings } from './simple-default-only-grid-settings';
 
 /** @public */

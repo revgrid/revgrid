@@ -1,5 +1,5 @@
 import { RevMetaServer } from '../../common';
-import { RevColumnSettings } from '../settings/internal-api';
+import { RevColumnSettings } from '../settings';
 
 /** @public */
 export interface RevCellMetaSettings {

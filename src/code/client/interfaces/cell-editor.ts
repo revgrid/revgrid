@@ -1,5 +1,5 @@
 import { RevDataServer, RevRectangle, RevSchemaField } from '../../common';
-import { RevBehavioredColumnSettings } from '../settings/internal-api';
+import { RevBehavioredColumnSettings } from '../settings';
 import { RevCellPossiblyPaintable } from './cell-possibly-paintable';
 import { RevViewCell } from './view-cell';
 

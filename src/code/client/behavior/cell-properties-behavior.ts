@@ -7,7 +7,7 @@ import { RevCellMetaSettings } from '../interfaces/cell-meta-settings';
 import { RevColumn } from '../interfaces/column';
 import { RevSubgrid } from '../interfaces/subgrid';
 import { RevViewCell } from '../interfaces/view-cell';
-import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevColumnSettings } from '../settings/internal-api';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevColumnSettings } from '../settings';
 
 export class RevCellPropertiesBehavior<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {
     constructor(

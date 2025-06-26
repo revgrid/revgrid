@@ -1,7 +1,7 @@
 import { moveElementInArray } from '@pbkware/js-utils';
 import { RevApiError, RevAssertError, RevClientObject, RevListChangedEventer, RevListChangedTypeId, RevSchemaField, RevSchemaServer, RevUiableListChangedEventHandler as UiableListChangedEventer } from '../../../common';
 import { RevColumn, RevColumnAutoSizeableWidth } from '../../interfaces/column';
-import { RevBehavioredColumnSettings, RevColumnSettings, RevGridSettings } from '../../settings/internal-api';
+import { RevBehavioredColumnSettings, RevColumnSettings, RevGridSettings } from '../../settings';
 import { RevColumnImplementation } from './column-implementation';
 
 /** @public */

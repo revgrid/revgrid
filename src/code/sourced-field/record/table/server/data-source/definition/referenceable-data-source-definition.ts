@@ -1,10 +1,10 @@
 import { Err, Guid, JsonElement, Ok, Result, UnreachableCaseError } from '@pbkware/js-utils';
-import { RevColumnLayoutOrReferenceDefinition } from '../../../../../../column-layout/server/internal-api';
-import { RevRecordRowOrderDefinition } from '../../../../../../record/server/internal-api';
+import { RevColumnLayoutOrReferenceDefinition } from '../../../../../../column-layout/server';
+import { RevRecordRowOrderDefinition } from '../../../../../../record/server';
 import {
     RevTableRecordSourceDefinition,
     RevTableRecordSourceDefinitionFromJsonFactory
-} from '../../record-source/internal-api';
+} from '../../record-source';
 import { RevDataSourceDefinition } from './data-source-definition';
 
 /** @public */

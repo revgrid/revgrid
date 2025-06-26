@@ -1,5 +1,5 @@
 import { isArrayEqual } from '@pbkware/js-utils';
-import { RevTextFormattableValue } from '../../../../../cell-content/client/internal-api';
+import { RevTextFormattableValue } from '../../../../../cell-content/client';
 
 /** @public */
 export abstract class RevTableValue<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> {

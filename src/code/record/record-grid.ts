@@ -1,7 +1,7 @@
 import { AssertInternalError, Integer } from '@pbkware/js-utils';
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevClientGrid, RevGridDefinition, RevGridOptions, RevLinedHoverCell, RevViewCell } from '../client';
 import { RevColumnLayoutGrid } from '../column-layout';
-import { RevColumnLayout } from '../column-layout/server/internal-api';
+import { RevColumnLayout } from '../column-layout/server';
 import { RevApiError, RevDataServer, RevMetaServer } from '../common';
 import {
     RevRecordDataServer,
@@ -12,7 +12,7 @@ import {
     RevRecordSchemaServer,
     RevRecordSortDefinition,
     RevRecordStore
-} from './server/internal-api';
+} from './server';
 
 /** @public */
 export class RevRecordGrid<

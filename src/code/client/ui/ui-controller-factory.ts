@@ -1,7 +1,7 @@
 
 import { RevRegistry, RevSchemaField } from '../../common';
-import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../settings/internal-api';
-import { RevUiControllerServices } from './controller/common/internal-api';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../settings';
+import { RevUiControllerServices } from './controller/common';
 import { RevUiController } from './controller/ui-controller';
 
 /** @internal */

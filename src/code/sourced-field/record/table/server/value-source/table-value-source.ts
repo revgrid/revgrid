@@ -1,6 +1,6 @@
 import { Integer, } from '@pbkware/js-utils';
-import { RevRecordValueRecentChangeTypeId } from '../../../../../record/server/internal-api';
-import { RevTableValue } from '../value/internal-api';
+import { RevRecordValueRecentChangeTypeId } from '../../../../../record/server';
+import { RevTableValue } from '../value';
 
 /** @public */
 export abstract class RevTableValueSource<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> {

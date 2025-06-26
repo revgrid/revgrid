@@ -1,5 +1,5 @@
 import { CommaText, Err, Integer, Ok, Result, UnreachableCaseError } from '@pbkware/js-utils';
-import { RevHorizontalAlignId } from '../../../../cell-content/client/internal-api';
+import { RevHorizontalAlignId } from '../../../../cell-content/client';
 import { RevSourcedFieldSourceDefinition } from './sourced-field-source-definition';
 
 /** @public */

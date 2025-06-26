@@ -1,6 +1,6 @@
 import { AssertInternalError, Err, Guid, JsonElement, Ok, Result, UnreachableCaseError } from '@pbkware/js-utils';
-import { RevColumnLayoutOrReferenceDefinition } from '../../../../../../column-layout/server/internal-api';
-import { RevTableRecordSourceDefinitionFromJsonFactory } from '../../record-source/internal-api';
+import { RevColumnLayoutOrReferenceDefinition } from '../../../../../../column-layout/server';
+import { RevTableRecordSourceDefinitionFromJsonFactory } from '../../record-source';
 import { RevDataSourceDefinition } from './data-source-definition';
 
 /** @public */

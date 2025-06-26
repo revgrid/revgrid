@@ -1,6 +1,6 @@
 import { Integer } from '@pbkware/js-utils';
 import { RevSchemaField } from '../../common';
-import { RevBehavioredColumnSettings } from '../settings/internal-api';
+import { RevBehavioredColumnSettings } from '../settings';
 import { RevColumn } from './column';
 
 /** @public */

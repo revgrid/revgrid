@@ -15,7 +15,7 @@ import { RevScroller } from '../../../components/scroller/scroller';
 import { RevSelection } from '../../../components/selection/selection';
 import { RevSubgridsManager } from '../../../components/subgrid/subgrids-manager';
 import { RevViewLayout } from '../../../components/view/view-layout';
-import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevGridSettings } from '../../../settings/internal-api';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevGridSettings } from '../../../settings';
 import { RevUiControllerSharedState } from './ui-controller-shared-state';
 
 /** @public */

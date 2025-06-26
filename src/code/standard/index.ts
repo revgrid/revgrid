@@ -1,5 +1,5 @@
-export * from './cell-editor/internal-api';
-export * from './cell-painter/internal-api';
-export * from './painters/internal-api';
-export * from './server/internal-api';
+export * from './cell-editor';
+export * from './cell-painter';
+export * from './painters';
+export * from './server';
 

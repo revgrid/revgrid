@@ -1,6 +1,6 @@
 import { Integer } from '@pbkware/js-utils';
-import { RevHorizontalAlignId } from '../../../../../cell-content/client/internal-api';
-import { RevSourcedFieldDefinition, RevSourcedFieldSourceDefinition } from '../../../../sourced-field/server/internal-api';
+import { RevHorizontalAlignId } from '../../../../../cell-content/client';
+import { RevSourcedFieldDefinition, RevSourcedFieldSourceDefinition } from '../../../../sourced-field/server';
 
 /** @public */
 export interface RevSingleHeadingDataRowArraySourcedFieldDefinition extends RevSourcedFieldDefinition {
