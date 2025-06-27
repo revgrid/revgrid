@@ -333,7 +333,7 @@ export class RevRecordRowIndexMap {
 
     /**
 	 * Find the nearest valid left index to the left index
-	 * @param leftIndex -
+	 * @param rightIndex - The right index of the record
 	 * @remarks Approximately O(Log(N)) where N is the left length, worst O(Log(N) + M) where N and M are the left and right lengths
 	 */
     getNearestLeftIndex(rightIndex: number): number {

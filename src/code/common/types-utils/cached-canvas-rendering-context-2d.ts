@@ -271,7 +271,7 @@ export class RevCachedCanvasRenderingContext2D {
      * Conditionally clip a region
      * @remarks
      * The conditional paramater indicates whether a region is to be clipped.  If so, then the cache is saved to the stack.
-     * Always call a matching {@link clipRestore} to unwind this {@link clipSave} even if conditional was false
+     * Always call a matching {@link clipRestore} to unwind this `clipSave` even if conditional was false
      * @param conditional - if true, save cache to stack and clip region
      * @param x - left of region
      * @param y - top of region

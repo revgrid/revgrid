@@ -84,7 +84,7 @@ export interface RevGrid<BGS extends RevBehavioredGridSettings, BCS extends RevB
 
     /**
      * Retrieve all data rows from the data model.
-     * > Use with caution!
+     * Use with caution!
      */
     getViewData(): readonly RevDataServer.ViewRow[];
     getViewValue(x: Integer, y: Integer, subgrid?: RevSubgrid<BCS, SF>): RevDataServer.ViewValue;
@@ -103,7 +103,7 @@ export interface RevGrid<BGS extends RevBehavioredGridSettings, BCS extends RevB
      * @param rowIndex - The data row index.
      * @returns The given row is visible.
      */
-    isDataRowVisible(r: Integer, subgrid?: RevSubgrid<BCS, SF>): boolean;
+    isDataRowVisible(rowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>): boolean;
 
     /**
      * @param c - The column index in question.
@@ -114,7 +114,8 @@ export interface RevGrid<BGS extends RevBehavioredGridSettings, BCS extends RevB
 
     /**
      * Answer which data cell is under a pixel value mouse point.
-     * @param offset - The mouse point to interrogate.
+     * @param offsetX - X position of pixel in canvas.
+     * @param offsetY - Y position of pixel in canvas.
      */
     findLinedHoverCellAtCanvasOffset(offsetX: Integer, offsetY: Integer): RevLinedHoverCell<BCS, SF> | undefined;
 
@@ -147,52 +148,34 @@ export interface RevGrid<BGS extends RevBehavioredGridSettings, BCS extends RevB
      *
      * @remarks Adds one or several columns to the "active" column list.
      *
-     * @param isActiveColumnIndexes - Which list `columnIndexes` refers to:
-     * * `true` - The active column list. This can only move columns around within the active column list; it cannot add inactive columns (because it can only refer to columns in the active column list).
-     * * `false` - The full column list (as per column schema array). This inserts columns from the "inactive" column list, moving columns that are already active.
-     *
-     * @param columnIndexes - Column index(es) into list as determined by `isActiveColumnIndexes`. One of:
-     * * **Scalar column index** - Adds single column at insertion point.
-     * * **Array of column indexes** - Adds multiple consecutive columns at insertion point.
-     *
-     * This required parameter is promoted left one arg position when `isActiveColumnIndexes` omitted in which case it will be allColumnIndexes
-     *
-     * @param insertIndex - Insertion point, _i.e.,_ the element to insert before. A negative values skips the reinsert. Default is to insert new columns at end of active column list.
-     *
-     * _Promoted left one arg position when `isActiveColumnIndexes` omitted._
-     *
-     * @param allowDuplicateColumns - Unless true, already visible columns are removed first.
-     *
-     * _Promoted left one arg position when `isActiveColumnIndexes` omitted + one position when `referenceIndex` omitted._
+     * @param fieldColumnIndexes - A column index or array of field indices which are to be shown or hidden.
+     * @param insertIndex - Active index of column to insert before. Set to undefined to add new active columns at end of list. Set to -1 to hide specified columns.
+     * @param allowDuplicateColumns - If true, then if an existing column is already visible, it will not be removed and duplicates of that column will be present. Default: false.
+     * @param ui - Whether this was instigated by a UI action. Default: true.
      */
     showHideColumns(
-        /** A column index or array of field indices which are to be shown or hidden */
         fieldColumnIndexes: Integer | number[],
-        /** Set to undefined to add new active columns at end of list.  Set to -1 to hide specified columns */
         insertIndex?: Integer,
-        /** If true, then if an existing column is already visible, it will not be removed and duplicates of that column will be present. Default: false */
         allowDuplicateColumns?: boolean,
-        /** Whether this was instigated by a UI action. Default: true */
         ui?: boolean): void;
+    /**
+     * Show inactive column(s) or move active column(s).
+     *
+     * @remarks Adds one or several columns to the "active" column list.
+     *
+     * @param indexesAreActive - If true, then column indices specify active column indices.  Otherwise field column indices.
+     * @param columnIndexes - A column index or array of indices.  If undefined then all of the columns as per parameter indexesAreActive.
+     * @param insertIndex - Active index of column to insert before. Set to undefined to add new active columns at end of list. Set to -1 to hide specified columns.
+     * @param allowDuplicateColumns - If true, then if an existing column is already visible, it will not be removed and duplicates of that column will be present. Default: false.
+     * @param ui - Whether this was instigated by a UI action. Default: true.
+     */
     showHideColumns(
-        /** If true, then column indices specify active column indices.  Otherwise field column indices */
         indexesAreActive: boolean,
-        /** A column index or array of indices.  If undefined then all of the columns as per isActiveColumnIndexes */
         columnIndexes?: Integer | number[],
-        /** Set to undefined to add new active columns at end of list.  Set to -1 to hide specified columns */
         insertIndex?: Integer,
-        /** If true, then if an existing column is already visible, it will not be removed and duplicates of that column will be present. Default: false */
         allowDuplicateColumns?: boolean,
-        /** Whether this was instigated by a UI action. Default: true */
         ui?: boolean,
     ): void;
-    // showHideColumns(
-    //     fieldColumnIndexesOrIndexesAreActive: boolean | number | number[],
-    //     insertIndexOrColumnIndexes?: Integer | number[],
-    //     allowDuplicateColumnsOrInsertIndex?: boolean | number,
-    //     uiOrAllowDuplicateColumns?: boolean,
-    //     ui?: boolean,
-    // ): void;
 
     hideActiveColumn(activeColumnIndex: Integer, ui?: boolean): void;
 
@@ -226,7 +209,7 @@ export interface RevGrid<BGS extends RevBehavioredGridSettings, BCS extends RevB
 
     /**
      * Set the width of the given column.
-     * @param columnIndex - The untranslated column index.
+     * @param columnOrIndex - Column or active index of column.
      * @param width - The width in pixels.
      * @returns column if width changed otherwise undefined
      */

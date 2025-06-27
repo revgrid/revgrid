@@ -175,9 +175,8 @@ export class RevInexclusiveRectangle implements RevInexclusiveArea {
     }
 
     /**
-     * _(Formerly `isContainedWithinRectangle`.)_
-     * @returns {boolean} `true` iff `this` rect is entirely contained within given `rect`.
-     * @param {RevInexclusiveRectangle} rect - Rectangle to test against this rect.
+     * @returns `true` iff `this` rect is entirely contained within given `rect`.
+     * @param rect - Rectangle to test against this rect.
      */
     within(rect: RevInexclusiveRectangle): boolean {
         return (
@@ -251,8 +250,8 @@ export class RevInexclusiveRectangle implements RevInexclusiveArea {
     }
 
     /**
-     * @returns {RevInexclusiveRectangle} That is enlarged/shrunk by given `padding`.
-     * @param {number} padding - Amount by which to decrease (+) or increase (-) this rect.
+     * @returns That is enlarged/shrunk by given `padding`.
+     * @param padding - Amount by which to decrease (+) or increase (-) this rect.
      * @see The {@link RevInexclusiveRectangle#newGrownFromCenter|growBy} method.
      */
     newShrunkFromCenter(padding: number): RevInexclusiveRectangle {
@@ -260,8 +259,8 @@ export class RevInexclusiveRectangle implements RevInexclusiveArea {
     }
 
     /**
-     * @returns {RevInexclusiveRectangle} Bounding rect that contains both this rect and the given `rect`.
-     * @param {RevInexclusiveRectangle} rect - The rectangle to union with this rect.
+     * @returns Bounding rect that contains both this rect and the given `rect`.
+     * @param rect - The rectangle to union with this rect.
      */
     newUnioned(rect: RevInexclusiveRectangle): RevInexclusiveRectangle {
         const origin = RevPoint.min(this._topLeft, rect._topLeft);
@@ -324,8 +323,8 @@ export class RevInexclusiveRectangle implements RevInexclusiveArea {
     // }
 
     /**
-     * @returns {boolean} `true` iff this rect overlaps with given `rect`.
-     * @param {RevInexclusiveRectangle} rect - The rectangle to intersect with this rect.
+     * @returns `true` iff this rect overlaps with given `rect`.
+     * @param rect - The rectangle to intersect with this rect.
      */
     intersects(rect: RevInexclusiveRectangle): boolean {
         return (

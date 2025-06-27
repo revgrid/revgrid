@@ -26,7 +26,7 @@ export namespace RevSchemaServer {
         /**
          * Notifies schema has changed.
          * @remarks
-         * Try to use {@link fieldsInserted}, {@link fieldsDeleted}, {@link allFieldsDeleted} callbacks instead of {@link schemaChanged} callback. These provide better optimisations and control of selection.
+         * Try to use {@link fieldsInserted}, {@link fieldsDeleted}, {@link allFieldsDeleted} callbacks instead of `schemaChanged` callback. These provide better optimisations and control of selection.
          */
         schemaChanged: (this: void) => void;
         getActiveSchemaFields: (this: void) => readonly SF[];

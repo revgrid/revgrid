@@ -1,3 +1,4 @@
+export * from './effects';
 export { RevStandardCellEditor } from './standard-cell-editor';
 export { RevStandardColorInputCellEditor } from './standard-color-input-cell-editor';
 export { RevStandardDateInputCellEditor } from './standard-date-input-cell-editor';

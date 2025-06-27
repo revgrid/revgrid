@@ -24,8 +24,6 @@ import { RevGridPainter } from './grid-painter';
  * #### On subsequent calls
  *
  * Iterates through each cell, calling `_paintCell` with `undefined` prefill color. This signifies partial render to the XXX cell renderer, which only renders the cell when it's text, font, or colors have changed.
- *
- * @param {RevCanvas.CanvasRenderingContext2DEx} gc TODO need to remove any type
  */
 export class RevAsNeededGridPainter<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevGridPainter<BGS, BCS, SF> {
     // private _byColumnsAndRowsPainter: ByColumnsAndRowsGridPainter;

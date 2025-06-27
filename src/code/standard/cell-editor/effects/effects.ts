@@ -1,19 +1,11 @@
 import { numberToPixels } from '@pbkware/js-utils';
 import { RevApiError } from '../../../common';
-/** effectFunction
- * @remarks Element to perform transitions upon is `options.el` if defined or `this.el`.
- * @param {object} [options]
- * @param {HTMLElement} [options.el=this.el]
- * @param {function} [options.callback] Function to call at conclusion of transitions.
- * @param {string} [options.duration='0.065s'] - Duration of each transition.
- * @param {object} [options.styles=defaultGlowerStyles] - Hash of CSS styles and values to transition. (For {@link effects~glower|glower} only.
- */
 
 export abstract class RevStandardCellEffect {
-    protected readonly _callback: RevStandardCellEffect.Options.Callback | undefined;
+    protected readonly _finishedEventer: RevStandardCellEffect.Options.FinishedEventer | undefined;
 
     constructor(public readonly el: HTMLElement, public readonly options?: RevStandardCellEffect.Options) {
-        this._callback = options?.callback;
+        this._finishedEventer = options?.finishedEventer;
     }
 
     abstract start(): void;
@@ -21,11 +13,11 @@ export abstract class RevStandardCellEffect {
 
 export namespace RevStandardCellEffect {
     export interface Options {
-        callback?: Options.Callback;
+        finishedEventer?: Options.FinishedEventer;
     }
 
     export namespace Options {
-        export type Callback = (this: void) => void;
+        export type FinishedEventer = (this: void) => void;
     }
 
     export type Constructor = new(el: HTMLElement, options?: Options) => RevStandardCellEffect;
@@ -81,8 +73,8 @@ export class RevStandardShakerCellEffect extends RevStandardCellEffect {
         this.transitions.pop();
         el.style.transition = this.transitions.join(',');
         el.style.position = this.position;
-        if (this._callback !== undefined) {
-            this._callback();
+        if (this._finishedEventer !== undefined) {
+            this._finishedEventer();
         }
     }
 
@@ -154,8 +146,8 @@ export class RevStandardGlowerCellEffect extends RevStandardCellEffect {
         const el = this.el;
         el.removeEventListener('transitionend', this._transitionendListener);
         el.style.transition = this._originalTransitionStyle;
-        if (this._callback !== undefined) {
-            this._callback();
+        if (this._finishedEventer !== undefined) {
+            this._finishedEventer();
         }
     }
 

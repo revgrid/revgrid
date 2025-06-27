@@ -45,7 +45,7 @@
    *
    * SUPPORTED TOKENS: <projectFolder>, <packageName>, <unscopedPackageName>
    */
-  "mainEntryPointFilePath": "<projectFolder>/lib/public-api.d.ts",
+  "mainEntryPointFilePath": "<projectFolder>/lib/index.d.ts",
 
   /**
    * A list of NPM package names whose exports should be treated as part of this package.
@@ -383,83 +383,87 @@
       //
       // . . .
 
-      "tsdoc-undefined-tag": {
-        "logLevel": "none",
-        "addToApiReportFile": true
-      },
-      "tsdoc-param-tag-missing-hyphen": {
-        "logLevel": "none",
-        "addToApiReportFile": true
-      },
-      "tsdoc-malformed-inline-tag": {
-        "logLevel": "none",
-        "addToApiReportFile": true
-      },
-      "tsdoc-escape-right-brace": {
-        "logLevel": "none",
-        "addToApiReportFile": true
-      },
-      "tsdoc-inline-tag-missing-braces": {
-        "logLevel": "none",
-        "addToApiReportFile": true
-      },
-      "tsdoc-param-tag-with-invalid-type": {
-        "logLevel": "none",
-        "addToApiReportFile": true
-      },
-      "tsdoc-escape-greater-than": {
-        "logLevel": "none",
-        "addToApiReportFile": true
-      },
-      "tsdoc-reference-selector-missing-parens": {
-        "logLevel": "none",
-        "addToApiReportFile": true
-      },
-      "tsdoc-param-tag-with-invalid-optional-name": {
-        "logLevel": "none",
-        "addToApiReportFile": true
-      },
-      "tsdoc-reference-missing-dot": {
-        "logLevel": "none",
-        "addToApiReportFile": true
-      },
-      "tsdoc-link-tag-destination-syntax": {
-        "logLevel": "none",
-        "addToApiReportFile": true
-      },
-      "tsdoc-param-tag-with-invalid-name": {
-        "logLevel": "none",
-        "addToApiReportFile": true
-      },
-      "tsdoc-code-span-empty": {
-        "logLevel": "none",
-        "addToApiReportFile": true
-      },
-      "tsdoc-code-fence-missing-delimiter": {
-        "logLevel": "none",
-        "addToApiReportFile": true
-      },
-      "tsdoc-reference-selector-syntax": {
-        "logLevel": "none",
-        "addToApiReportFile": true
-      },
-      "tsdoc-code-span-missing-delimiter": {
-        "logLevel": "none",
-        "addToApiReportFile": true
-      },
-      "tsdoc-malformed-html-name": {
-        "logLevel": "none",
-        "addToApiReportFile": true
-      },
-      "tsdoc-inline-tag-missing-right-brace": {
-        "logLevel": "none",
-        "addToApiReportFile": true
-      },
-      "tsdoc-characters-after-block-tag": {
-        "logLevel": "none",
-        "addToApiReportFile": true
-      },
-      "tsdoc-tag-should-not-have-braces": {
+      // "tsdoc-undefined-tag": {
+      //   "logLevel": "none",
+      //   "addToApiReportFile": true
+      // },
+      // "tsdoc-param-tag-missing-hyphen": {
+      //   "logLevel": "none",
+      //   "addToApiReportFile": true
+      // },
+      // "tsdoc-malformed-inline-tag": {
+      //   "logLevel": "none",
+      //   "addToApiReportFile": true
+      // },
+      // "tsdoc-escape-right-brace": {
+      //   "logLevel": "none",
+      //   "addToApiReportFile": true
+      // },
+      // "tsdoc-inline-tag-missing-braces": {
+      //   "logLevel": "none",
+      //   "addToApiReportFile": true
+      // },
+      // "tsdoc-param-tag-with-invalid-type": {
+      //   "logLevel": "none",
+      //   "addToApiReportFile": true
+      // },
+      // "tsdoc-escape-greater-than": {
+      //   "logLevel": "none",
+      //   "addToApiReportFile": true
+      // },
+      // "tsdoc-reference-selector-missing-parens": {
+      //   "logLevel": "none",
+      //   "addToApiReportFile": true
+      // },
+      // "tsdoc-param-tag-with-invalid-optional-name": {
+      //   "logLevel": "none",
+      //   "addToApiReportFile": true
+      // },
+      // "tsdoc-reference-missing-dot": {
+      //   "logLevel": "none",
+      //   "addToApiReportFile": true
+      // },
+      // "tsdoc-link-tag-destination-syntax": {
+      //   "logLevel": "none",
+      //   "addToApiReportFile": true
+      // },
+      // "tsdoc-param-tag-with-invalid-name": {
+      //   "logLevel": "none",
+      //   "addToApiReportFile": true
+      // },
+      // "tsdoc-code-span-empty": {
+      //   "logLevel": "none",
+      //   "addToApiReportFile": true
+      // },
+      // "tsdoc-code-fence-missing-delimiter": {
+      //   "logLevel": "none",
+      //   "addToApiReportFile": true
+      // },
+      // "tsdoc-reference-selector-syntax": {
+      //   "logLevel": "none",
+      //   "addToApiReportFile": true
+      // },
+      // "tsdoc-code-span-missing-delimiter": {
+      //   "logLevel": "none",
+      //   "addToApiReportFile": true
+      // },
+      // "tsdoc-malformed-html-name": {
+      //   "logLevel": "none",
+      //   "addToApiReportFile": true
+      // },
+      // "tsdoc-inline-tag-missing-right-brace": {
+      //   "logLevel": "none",
+      //   "addToApiReportFile": true
+      // },
+      // "tsdoc-characters-after-block-tag": {
+      //   "logLevel": "none",
+      //   "addToApiReportFile": true
+      // },
+      // "tsdoc-tag-should-not-have-braces": {
+      //   "logLevel": "none",
+      //   "addToApiReportFile": true
+      // },
+      "tsdoc-reference-missing-hash": {
         "logLevel": "none",
         "addToApiReportFile": true
       }

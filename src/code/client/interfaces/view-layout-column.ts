@@ -5,7 +5,7 @@ import { RevColumn } from './column';
 
 /** @public */
 export interface RevViewLayoutColumn<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> {
-    /** A back reference to the element's array index in {@link RevViewLayout#columns}. */
+    /** A back reference to the element's array index in {@link client/components/view/view-layout!RevViewLayout:class#columns}. */
     index: Integer;
     /** Active index of column */
     activeColumnIndex: Integer;

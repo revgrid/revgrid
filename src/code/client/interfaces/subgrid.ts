@@ -11,9 +11,9 @@ export interface RevSubgrid<BCS extends RevBehavioredColumnSettings, SF extends 
     readonly dataServer: RevDataServer<SF>;
     readonly metaServer: RevMetaServer | undefined;
 
-    /** Only valid if {@link RevSubgrid:interface.viewRowCount} > 0 */
+    /** Only valid if {@link viewRowCount} \> 0 */
     readonly firstViewRowIndex: number;
-    /** Only valid if {@link RevSubgrid:interface.viewRowCount} > 0 */
+    /** Only valid if {@link viewRowCount} \> 0 */
     readonly firstViewableSubgridRowIndex: number;
     /** Number of Subgrid rows visible in viewport */
     readonly viewRowCount: number;

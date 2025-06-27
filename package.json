@@ -2,7 +2,8 @@
   "name": "revgrid",
   "version": "0.9.3",
   "description": "Canvas based high performance grid",
-  "module": "dist/code/public-api.js",
+  "module": "dist/code/index.js",
+  "browser": "dist/code/index.js",
   "typings": "dist/types/public-api.d.ts",
   "homepage": "https://revgrid.github.io/revgrid/",
   "repository": {

@@ -2,7 +2,7 @@
 /**
  * A "range" is defined as an Array(2) where:
  * element [0] is the beginning of the range
- * element [1] is the end of the range (inclusive) and is always >= element [0]
+ * element [1] is the end of the range (inclusive) and is always \>= element [0]
  */
 export type RevSelectionInclusiveRange = [start: number, stop: number];
 export interface RevSelectionRange extends RevSelectionInclusiveRange {

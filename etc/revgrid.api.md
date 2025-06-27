@@ -22,6 +22,9 @@ import { UnreachableCaseInternalError } from '@pbkware/js-utils';
 import { UsableListChangeTypeId } from '@pbkware/js-utils';
 
 // @public (undocumented)
+export const effectFactory: RevStandardCellEffectFactory;
+
+// @public (undocumented)
 export class RevAllowedMultiHeadingDataRowArraySourcedFieldsColumnLayoutDefinition extends RevColumnLayoutDefinition implements RevAllowedSourcedFieldsColumnLayoutDefinition {
     constructor(columns: readonly RevColumnLayoutDefinition.Column[], allowedFields: readonly RevMultiHeadingDataRowArraySourcedField[], fixedColumnCount: Integer);
     // (undocumented)
@@ -129,9 +132,6 @@ export class RevApiError extends InternalError {
     constructor(code: string, message: string);
 }
 
-// Warning: (tsdoc-param-tag-missing-hyphen) The @param block should be followed by a parameter name and then a hyphen
-// Warning: (tsdoc-param-tag-with-invalid-type) The @param block should not include a JSDoc-style '{type}'
-//
 // @public
 export class RevAsNeededGridPainter<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevGridPainter<BGS, BCS, SF> {
     constructor(gridSettings: RevGridSettings, canvas: RevCanvas<BGS>, subgridsManager: RevSubgridsManager<BCS, SF>, viewLayout: RevViewLayout<BGS, BCS, SF>, focus: RevFocus<BGS, BCS, SF>, selection: RevSelection<BGS, BCS, SF>, mouse: RevMouse<BGS, BCS, SF>, repaintAllRequiredEventer: RevGridPainter.RepaintAllRequiredEventer);
@@ -260,8 +260,6 @@ export namespace RevByColumnsDiscreteGridPainter {
     key = "by-columns-discrete";
 }
 
-// Warning: (tsdoc-malformed-html-name) Invalid HTML element: A space is not allowed here
-//
 // @public
 export class RevByColumnsGridPainter<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevGridPainter<BGS, BCS, SF> {
     constructor(gridSettings: RevGridSettings, canvas: RevCanvas<BGS>, subgridsManager: RevSubgridsManager<BCS, SF>, viewLayout: RevViewLayout<BGS, BCS, SF>, focus: RevFocus<BGS, BCS, SF>, selection: RevSelection<BGS, BCS, SF>, mouse: RevMouse<BGS, BCS, SF>, repaintAllRequiredEventer: RevGridPainter.RepaintAllRequiredEventer);
@@ -669,24 +667,6 @@ export class RevCellClickUiController<BGS extends RevBehavioredGridSettings, BCS
     handleClick(event: MouseEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined): RevLinedHoverCell<BCS, SF> | null | undefined;
     // (undocumented)
     handlePointerMove(event: PointerEvent, cell: RevLinedHoverCell<BCS, SF> | null | undefined): RevLinedHoverCell<BCS, SF> | null | undefined;
-    // Warning: (tsdoc-escape-right-brace) The "}" character should be escaped using a backslash to avoid confusion with a TSDoc inline tag
-    // Warning: (tsdoc-malformed-inline-tag) Expecting a TSDoc tag starting with "{@"
-    // Warning: (tsdoc-escape-right-brace) The "}" character should be escaped using a backslash to avoid confusion with a TSDoc inline tag
-    // Warning: (tsdoc-escape-right-brace) The "}" character should be escaped using a backslash to avoid confusion with a TSDoc inline tag
-    // Warning: (tsdoc-escape-right-brace) The "}" character should be escaped using a backslash to avoid confusion with a TSDoc inline tag
-    // Warning: (tsdoc-escape-right-brace) The "}" character should be escaped using a backslash to avoid confusion with a TSDoc inline tag
-    // Warning: (tsdoc-malformed-inline-tag) Expecting a TSDoc tag starting with "{@"
-    // Warning: (tsdoc-malformed-inline-tag) Expecting a TSDoc tag starting with "{@"
-    // Warning: (tsdoc-malformed-inline-tag) Expecting a TSDoc tag starting with "{@"
-    // Warning: (tsdoc-malformed-inline-tag) Expecting a TSDoc tag starting with "{@"
-    // Warning: (tsdoc-escape-right-brace) The "}" character should be escaped using a backslash to avoid confusion with a TSDoc inline tag
-    // Warning: (tsdoc-malformed-inline-tag) Expecting a TSDoc tag starting with "{@"
-    // Warning: (tsdoc-escape-right-brace) The "}" character should be escaped using a backslash to avoid confusion with a TSDoc inline tag
-    // Warning: (tsdoc-escape-right-brace) The "}" character should be escaped using a backslash to avoid confusion with a TSDoc inline tag
-    // Warning: (tsdoc-malformed-inline-tag) Expecting a TSDoc tag starting with "{@"
-    // Warning: (tsdoc-malformed-inline-tag) Expecting a TSDoc tag starting with "{@"
-    // Warning: (tsdoc-escape-right-brace) The "}" character should be escaped using a backslash to avoid confusion with a TSDoc inline tag
-    // Warning: (tsdoc-malformed-inline-tag) Expecting a TSDoc tag starting with "{@"
     openLink(viewCell: RevViewCell<BCS, SF>): boolean | null | undefined | Window;
     // (undocumented)
     readonly typeName = "cellclick";
@@ -775,8 +755,6 @@ export class RevCellPropertiesBehavior<BGS extends RevBehavioredGridSettings, BC
     deleteCellProperty(column: RevColumn<BCS, SF>, rowIndex: number, key: string, subgrid: RevSubgrid<BCS, SF>): void;
     // @internal (undocumented)
     getCellOwnProperties(column: RevColumn<BCS, SF>, rowIndex: number, subgrid: RevSubgrid<BCS, SF>): RevMetaServer.CellOwnProperties | undefined;
-    // Warning: (tsdoc-escape-right-brace) The "}" character should be escaped using a backslash to avoid confusion with a TSDoc inline tag
-    // Warning: (tsdoc-malformed-inline-tag) Expecting a TSDoc tag starting with "{@"
     getCellOwnPropertiesFromViewCell(viewCell: RevViewCell<BCS, SF>): RevMetaServer.CellOwnProperties | false | null | undefined;
     // (undocumented)
     getCellOwnPropertyFromViewCell(viewCell: RevViewCell<BCS, SF>, key: string): RevMetaServer.CellOwnProperty | undefined;
@@ -1041,7 +1019,6 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     getSelectedRowIndices(includeAllAuto?: boolean): number[];
     getSingletonViewDataRow(y: Integer, subgrid?: RevSubgrid<BCS, SF>): RevDataServer.ViewRow;
     getSubgridRowCount(subgrid: RevSubgrid<BCS, SF>): number;
-    // Warning: (tsdoc-escape-greater-than) The ">" character should be escaped using a backslash to avoid confusion with an HTML tag
     getViewData(): readonly RevDataServer.ViewRow[];
     // (undocumented)
     getViewValue(x: Integer, y: Integer, subgrid?: RevSubgrid<BCS, SF>): unknown;
@@ -1161,17 +1138,8 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     readonly settings: BGS;
     // (undocumented)
     setValue(x: Integer, y: Integer, value: RevDataServer.EditValue, subgrid?: RevSubgrid<BCS, SF>): void;
-    showHideColumns(
-    fieldColumnIndexes: Integer | Integer[],
-    insertIndex?: Integer,
-    allowDuplicateColumns?: boolean,
-    ui?: boolean): void;
-    showHideColumns(
-    indexesAreActive: boolean,
-    fieldColumnIndexes?: Integer | Integer[],
-    insertIndex?: Integer,
-    allowDuplicateColumns?: boolean,
-    ui?: boolean): void;
+    showHideColumns(fieldColumnIndexes: Integer | Integer[], insertIndex?: Integer, allowDuplicateColumns?: boolean, ui?: boolean): void;
+    showHideColumns(indexesAreActive: boolean, fieldColumnIndexes?: Integer | Integer[], insertIndex?: Integer, allowDuplicateColumns?: boolean, ui?: boolean): void;
     // (undocumented)
     readonly subgridsManager: RevSubgridsManager<BCS, SF>;
     // (undocumented)
@@ -1242,7 +1210,7 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
 export namespace RevClientGrid {
     // (undocumented)
     export type GetSettingsForNewColumnEventer<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> = RevColumnsManager.GetSettingsForNewColumnEventer<BCS, SF>;
-    const // Warning: (ae-forgotten-export) The symbol "RevIdGenerator" needs to be exported by the entry point public-api.d.ts
+    const // Warning: (ae-forgotten-export) The symbol "RevIdGenerator" needs to be exported by the entry point index.d.ts
     //
     // @internal (undocumented)
     idGenerator: RevIdGenerator;
@@ -2256,7 +2224,6 @@ export class RevDataRowArraySchemaServer<SF extends RevSchemaField> implements R
 export interface RevDataServer<
 /** Type used to specify a field the rows of data */
 SF extends RevSchemaField> {
-    // Warning: (tsdoc-undefined-tag) The TSDoc tag "@hidden" is not defined in this configuration
     fetchViewData?(rectangles: readonly RevRectangle[], callback?: (failure: boolean) => void): void;
     getCursorName?(field: SF, rowIndex: number): string;
     getEditValue?(
@@ -2268,8 +2235,6 @@ SF extends RevSchemaField> {
     getRowIndexFromId?(rowId: unknown): number | undefined;
     getTitleText?(field: SF, rowIndex: number): string;
     getViewData?(metadataFieldName?: string): readonly RevDataServer.ViewRow[];
-    // Warning: (tsdoc-escape-right-brace) The "}" character should be escaped using a backslash to avoid confusion with a TSDoc inline tag
-    // Warning: (tsdoc-malformed-inline-tag) Expecting a TSDoc tag starting with "{@"
     getViewRow?(rowIndex: number): RevDataServer.ViewRow;
     getViewValue(
     field: SF,
@@ -2990,9 +2955,6 @@ export class RevFiltersUiController<BGS extends RevBehavioredGridSettings, BCS e
     handleDblClick(event: MouseEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined): RevLinedHoverCell<BCS, SF> | null | undefined;
     // (undocumented)
     handleDOWN(cellEvent: RevViewCell<BCS, SF>): void;
-    // Warning: (tsdoc-code-span-missing-delimiter) The code span is missing its closing backtick
-    // Warning: (tsdoc-escape-right-brace) The "}" character should be escaped using a backslash to avoid confusion with a TSDoc inline tag
-    // Warning: (tsdoc-malformed-inline-tag) Expecting a TSDoc tag starting with "{@"
     handleKeyDown(event: KeyboardEvent, fromEditor: boolean): void;
     // (undocumented)
     handleLEFT(cellEvent: RevViewCell<BCS, SF>): void;
@@ -3443,6 +3405,346 @@ export abstract class RevGenericTableValue<T, TextFormattableValueTypeId, TextFo
 }
 
 // @public (undocumented)
+export interface RevGrid<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevClientObject {
+    // (undocumented)
+    activate(): void;
+    // (undocumented)
+    active: boolean;
+    // (undocumented)
+    readonly activeColumnCount: Integer;
+    // (undocumented)
+    readonly activeColumns: readonly RevColumn<BCS, SF>[];
+    // (undocumented)
+    readonly activeColumnsViewWidth: Integer;
+    // @internal (undocumented)
+    addCellOwnProperties(allX: Integer, y: Integer, properties: RevMetaServer.CellOwnProperties, subgrid: RevSubgrid<BCS, SF>): void;
+    // @internal
+    addCellOwnPropertiesUsingCellEvent(cell: RevViewCell<BCS, SF>, properties: RevMetaServer.CellOwnProperties): void;
+    // (undocumented)
+    addEventListener(eventName: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+    // (undocumented)
+    areColumnsOrRowsSelected(includeAllAuto?: boolean): boolean;
+    // (undocumented)
+    areColumnsSelected(includeAllAuto?: boolean): boolean;
+    // (undocumented)
+    areRowsSelected(includeAllAuto: boolean): boolean;
+    // (undocumented)
+    autoSizeActiveColumnWidths(widenOnly: boolean): void;
+    // (undocumented)
+    autoSizeFieldColumnWidth(fieldNameOrIndex: string | number, widenOnly: boolean): void;
+    beginSelectionChange(): void;
+    // (undocumented)
+    calculateActiveColumnsWidth(): Integer;
+    // (undocumented)
+    calculateActiveNonFixedColumnsWidth(): Integer;
+    // (undocumented)
+    calculateRowCount(): Integer;
+    // (undocumented)
+    readonly canvas: RevCanvas<BGS>;
+    // @internal
+    clearAllCellProperties(x?: Integer): void;
+    // (undocumented)
+    clearColumns(): void;
+    // (undocumented)
+    clearFocus(): void;
+    // (undocumented)
+    clearSelection(): void;
+    // (undocumented)
+    readonly clientId: string;
+    // (undocumented)
+    readonly columnScrollAnchorIndex: Integer;
+    // (undocumented)
+    readonly columnScrollAnchorOffset: Integer;
+    // (undocumented)
+    readonly columnsManager: RevColumnsManager<BCS, SF>;
+    // (undocumented)
+    deactivate(): void;
+    // (undocumented)
+    deselectCell(x: Integer, y: Integer, subgrid: RevSubgrid<BCS, SF>): void;
+    // (undocumented)
+    deselectColumn(x: Integer, subgrid: RevSubgrid<BCS, SF>): void;
+    // (undocumented)
+    deselectColumns(x: Integer, count: Integer, subgrid: RevSubgrid<BCS, SF>): void;
+    // (undocumented)
+    deselectRectangle(rectangle: RevRectangle, subgrid: RevSubgrid<BCS, SF>): void;
+    // (undocumented)
+    deselectRow(y: Integer, subgrid?: RevSubgrid<BCS, SF>): void;
+    // (undocumented)
+    deselectRows(y: Integer, count: Integer, subgrid?: RevSubgrid<BCS, SF>): void;
+    // (undocumented)
+    readonly destroyed: boolean;
+    endSelectionChange(): void;
+    // (undocumented)
+    readonly externalParent: unknown | undefined;
+    // (undocumented)
+    readonly fieldColumns: readonly RevColumn<BCS, SF>[];
+    findLinedHoverCellAtCanvasOffset(offsetX: Integer, offsetY: Integer): RevLinedHoverCell<BCS, SF> | undefined;
+    // (undocumented)
+    readonly fixedColumnsViewWidth: Integer;
+    // (undocumented)
+    readonly focus: RevFocus<BGS, BCS, SF>;
+    // (undocumented)
+    focusOnlySelectCell(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>, ensureFullyInView?: RevEnsureFullyInViewEnum): void;
+    // (undocumented)
+    focusOnlySelectRectangle(inexclusiveX: Integer, inexclusiveY: Integer, width: Integer, height: Integer, subgrid?: RevSubgrid<BCS, SF>, ensureFullyInView?: RevEnsureFullyInViewEnum): void;
+    // (undocumented)
+    focusReplaceLastArea(areaType: RevSelectionAreaType, inexclusiveX: Integer, inexclusiveY: Integer, width: Integer, height: Integer, subgrid?: RevSubgrid<BCS, SF>, ensureFullyInView?: RevEnsureFullyInViewEnum): void;
+    // (undocumented)
+    focusReplaceLastAreaWithRectangle(inexclusiveX: Integer, inexclusiveY: Integer, width: Integer, height: Integer, subgrid?: RevSubgrid<BCS, SF>, ensureFullyInView?: RevEnsureFullyInViewEnum): void;
+    // (undocumented)
+    focusSelectCell(x: Integer, y: Integer, subgrid?: RevSubgrid<BCS, SF>, ensureFullyInView?: RevEnsureFullyInViewEnum): void;
+    // (undocumented)
+    focusToggleSelectCell(originX: Integer, originY: Integer, subgrid?: RevSubgrid<BCS, SF>, ensureFullyInView?: RevEnsureFullyInViewEnum): boolean;
+    // (undocumented)
+    getActiveColumn(activeIndex: Integer): RevColumn<BCS, SF>;
+    // (undocumented)
+    getActiveColumnIndexByFieldIndex(fieldIndex: Integer): Integer;
+    // (undocumented)
+    getActiveColumns(begin?: Integer, end?: Integer): RevColumn<BCS, SF>[];
+    // (undocumented)
+    getActiveColumnSettings(activeColumnIndex: Integer): BCS;
+    // (undocumented)
+    getActiveColumnWidth(activeIndex: Integer): Integer;
+    // (undocumented)
+    getAllCellSelectionAreaTypeIds(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid: RevSubgrid<BCS, SF>): RevSelectionAreaType[];
+    // (undocumented)
+    getAllColumn(allX: Integer): RevColumn<BCS, SF>;
+    // (undocumented)
+    getBoundsOfCell(gridCell: RevPoint): RevRectangle;
+    // @internal
+    getCellOwnProperties(allXOrRenderedCell: Integer | RevViewCell<BCS, SF>, y?: Integer, subgrid?: RevSubgrid<BCS, SF>): RevMetaServer.CellOwnProperties | undefined;
+    // @internal
+    getCellOwnPropertiesFromRenderedCell(renderedCell: RevViewCell<BCS, SF>): RevMetaServer.CellOwnProperties | false | null | undefined;
+    // @internal (undocumented)
+    getCellOwnPropertyFromRenderedCell(renderedCell: RevViewCell<BCS, SF>, key: string): RevMetaServer.CellOwnProperty | undefined;
+    // @internal (undocumented)
+    getCellProperties(allX: Integer, y: Integer, subgrid: RevSubgrid<BCS, SF>): RevCellMetaSettings;
+    // @internal
+    getCellProperty(allX: Integer, y: Integer, key: string | number, subgrid: RevSubgrid<BCS, SF>): RevMetaServer.CellOwnProperty;
+    // @internal (undocumented)
+    getCellProperty<T extends keyof RevColumnSettings>(allX: Integer, y: Integer, key: T, subgrid: RevSubgrid<BCS, SF>): RevColumnSettings[T];
+    // @internal (undocumented)
+    getCellProperty<T extends keyof RevColumnSettings>(allX: Integer, y: Integer, key: string | T, subgrid: RevSubgrid<BCS, SF>): RevMetaServer.CellOwnProperty | RevColumnSettings[T];
+    // (undocumented)
+    getFieldColumnRange(begin?: Integer, end?: Integer): RevColumn<BCS, SF>[];
+    // (undocumented)
+    getHiddenColumns(): RevColumn<BCS, SF>[];
+    // (undocumented)
+    getHiDPI(): number;
+    // (undocumented)
+    getOneCellSelectionAreaType(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid: RevSubgrid<BCS, SF>): RevSelectionAreaType | undefined;
+    // (undocumented)
+    getRenderedData(): RevDataServer.ViewValue[][];
+    // (undocumented)
+    getRenderedHeight(rowIndex: Integer): Integer;
+    // (undocumented)
+    getRenderedWidth(colIndex: Integer): Integer;
+    // (undocumented)
+    getRowHeight(rowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>): Integer;
+    // (undocumented)
+    getSchema(): readonly RevSchemaField[];
+    // (undocumented)
+    getSelectedAllAutoRowCount(): Integer;
+    // (undocumented)
+    getSelectedAllAutoRowIndices(): Integer[];
+    // (undocumented)
+    getSelectedColumnIndices(includeAllAuto?: boolean): Integer[];
+    // (undocumented)
+    getSelectedRowCount(includeAllAuto?: boolean): Integer;
+    // (undocumented)
+    getSelectedRowIndices(includeAllAuto?: boolean): Integer[];
+    getSingletonViewDataRow(y: Integer, subgrid?: RevSubgrid<BCS, SF>): RevDataServer.ViewRow;
+    getSubgridRowCount(subgrid: RevSubgrid<BCS, SF>): Integer;
+    getViewData(): readonly RevDataServer.ViewRow[];
+    // (undocumented)
+    getViewValue(x: Integer, y: Integer, subgrid?: RevSubgrid<BCS, SF>): RevDataServer.ViewValue;
+    // (undocumented)
+    getVisibleColumnsCount(): Integer;
+    // (undocumented)
+    getVisibleRowsCount(): Integer;
+    // (undocumented)
+    hideActiveColumn(activeColumnIndex: Integer, ui?: boolean): void;
+    // (undocumented)
+    readonly horizontalScroller: RevScroller<BGS, BCS, SF>;
+    // (undocumented)
+    readonly hostElement: HTMLElement;
+    // (undocumented)
+    readonly id: string;
+    // (undocumented)
+    readonly internalParent: RevClientObject | undefined;
+    // (undocumented)
+    isActiveDocumentElement(): boolean;
+    // (undocumented)
+    isCellSelected(x: Integer, y: Integer, subgrid?: RevSubgrid<BCS, SF>): boolean;
+    // (undocumented)
+    isColumnVisible(activeIndex: Integer): boolean;
+    isDataRowVisible(rowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>): boolean;
+    // (undocumented)
+    isDataVisible(c: Integer, rn: Integer): boolean;
+    isOnlyThisCellSelected(x: Integer, y: Integer, subgrid?: RevSubgrid<BCS, SF>): boolean | undefined;
+    // (undocumented)
+    isSelectedCellTheOnlySelectedCell(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid: RevSubgrid<BCS, SF>, selectedType?: RevSelectionAreaType): boolean;
+    // (undocumented)
+    readonly mainDataServer: RevDataServer<SF>;
+    // (undocumented)
+    readonly mainSubgrid: RevMainSubgrid<BCS, SF>;
+    // (undocumented)
+    mergeFieldColumnSettings(fieldIndex: Integer, settings: Partial<BCS>): boolean;
+    // (undocumented)
+    readonly mouse: RevMouse<BGS, BCS, SF>;
+    // (undocumented)
+    moveActiveColumn(fromIndex: Integer, toIndex: Integer, ui: boolean): void;
+    // (undocumented)
+    readonly nonFixedColumnsViewWidth: Integer;
+    // (undocumented)
+    onlySelectCell(x: Integer, y: Integer, subgrid?: RevSubgrid<BCS, SF>): RevLastSelectionArea;
+    // (undocumented)
+    onlySelectColumn(activeColumnIndex: Integer): void;
+    // (undocumented)
+    onlySelectColumns(activeColumnIndex: Integer, count: Integer): void;
+    // (undocumented)
+    onlySelectRectangle(firstInexclusiveX: Integer, firstInexclusiveY: Integer, width: Integer, height: Integer, subgrid?: RevSubgrid<BCS, SF>): RevLastSelectionArea;
+    // (undocumented)
+    onlySelectRow(subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>): void;
+    // (undocumented)
+    onlySelectRows(subgridRowIndex: Integer, count: Integer, subgrid?: RevSubgrid<BCS, SF>): void;
+    // (undocumented)
+    onlySelectViewCell(viewLayoutColumnIndex: Integer, viewLayoutRowIndex: Integer): void;
+    // (undocumented)
+    registerGridPainter(key: string, constructor: RevGridPainter.Constructor<BGS, BCS, SF>): void;
+    // (undocumented)
+    removeEventListener(eventName: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    // (undocumented)
+    readonly renderer: RevRenderer<BGS, BCS, SF>;
+    // (undocumented)
+    reset(): void;
+    // (undocumented)
+    readonly schemaServer: RevSchemaServer<SF>;
+    // (undocumented)
+    scrollBottom(): boolean;
+    // (undocumented)
+    scrollFirstColumn(): boolean;
+    // (undocumented)
+    scrollLastColumn(): boolean;
+    // (undocumented)
+    scrollTop(): boolean;
+    // (undocumented)
+    selectAllRows(subgrid?: RevSubgrid<BCS, SF>): void;
+    // (undocumented)
+    selectCell(x: Integer, y: Integer, subgrid?: RevSubgrid<BCS, SF>): RevLastSelectionArea;
+    // (undocumented)
+    selectColumn(activeColumnIndex: Integer): void;
+    // (undocumented)
+    selectColumns(activeColumnIndex: Integer, count: Integer): void;
+    // (undocumented)
+    readonly selection: RevSelection<BGS, BCS, SF>;
+    // (undocumented)
+    selectionAllAuto: boolean;
+    // (undocumented)
+    selectRectangle(firstInexclusiveX: Integer, firstInexclusiveY: Integer, width: Integer, height: Integer, subgrid: RevSubgrid<BCS, SF>): RevLastSelectionArea;
+    // (undocumented)
+    selectRow(subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>): void;
+    // (undocumented)
+    selectRows(subgridRowIndex: Integer, count: Integer, subgrid?: RevSubgrid<BCS, SF>): void;
+    // (undocumented)
+    setActiveColumns(columnFieldNameOrFieldIndexArray: readonly (RevColumn<BCS, SF> | string | number)[]): void;
+    // (undocumented)
+    setActiveColumnsAndWidthsByFieldName(columnNameWidths: RevColumnsManager.FieldNameAndAutoSizableWidth[]): void;
+    // (undocumented)
+    setActiveColumnsAutoWidthSizing(widenOnly: boolean): void;
+    setActiveColumnWidth(columnOrIndex: Integer | RevColumn<BCS, SF>, width: Integer, ui: boolean): void;
+    // @internal (undocumented)
+    setCellOwnProperties(allX: Integer, y: Integer, properties: RevMetaServer.CellOwnProperties, subgrid: RevSubgrid<BCS, SF>): void;
+    // @internal
+    setCellOwnPropertiesUsingCellEvent(cell: RevViewCell<BCS, SF>, properties: RevMetaServer.CellOwnProperties): void;
+    // @internal
+    setCellProperty(cell: RevViewCell<BCS, SF>, key: string, value: RevMetaServer.CellOwnProperty): RevMetaServer.CellOwnProperties | undefined;
+    // @internal (undocumented)
+    setCellProperty(allX: Integer, dataY: Integer, key: string, value: RevMetaServer.CellOwnProperty, subgrid: RevSubgrid<BCS, SF>): RevMetaServer.CellOwnProperties | undefined;
+    // @internal (undocumented)
+    setCellProperty(allXOrCell: RevViewCell<BCS, SF> | number, yOrKey: string | number, keyOrValue: string | RevMetaServer.CellOwnProperty, value?: RevMetaServer.CellOwnProperty, subgrid?: RevSubgrid<BCS, SF>): RevMetaServer.CellOwnProperties | undefined;
+    // (undocumented)
+    setColumnScrollAnchor(index: Integer, offset: Integer): boolean;
+    // (undocumented)
+    setColumnWidths(columnWidths: RevColumnAutoSizeableWidth<BCS, SF>[]): boolean;
+    // (undocumented)
+    setColumnWidthsByName(columnNameWidths: RevColumnsManager.FieldNameAndAutoSizableWidth[]): boolean;
+    // (undocumented)
+    setFieldColumnSettings(fieldIndex: Integer, settings: BCS): boolean;
+    setRowHeight(rowIndex: Integer, rowHeight: Integer, subgrid?: RevSubgrid<BCS, SF>): void;
+    // (undocumented)
+    readonly settings: BGS;
+    // (undocumented)
+    setValue(x: Integer, y: Integer, value: RevDataServer.EditValue, subgrid?: RevSubgrid<BCS, SF>): void;
+    showHideColumns(fieldColumnIndexes: Integer | number[], insertIndex?: Integer, allowDuplicateColumns?: boolean, ui?: boolean): void;
+    showHideColumns(indexesAreActive: boolean, columnIndexes?: Integer | number[], insertIndex?: Integer, allowDuplicateColumns?: boolean, ui?: boolean): void;
+    // (undocumented)
+    readonly subgridsManager: RevSubgridsManager<BCS, SF>;
+    // (undocumented)
+    swapColumns(source: Integer, target: Integer): void;
+    // (undocumented)
+    toggleSelectCell(x: Integer, y: Integer, subgrid?: RevSubgrid<BCS, SF>): boolean;
+    // (undocumented)
+    toggleSelectColumn(activeColumnIndex: Integer): void;
+    // (undocumented)
+    toggleSelectRow(subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>): void;
+    // (undocumented)
+    tryExtendLastSelectionAreaAsCloseAsPossibleToFocus(): boolean;
+    // (undocumented)
+    tryFocusBottom(): boolean;
+    // (undocumented)
+    tryFocusFirstColumn(): boolean;
+    // (undocumented)
+    tryFocusLastColumn(): boolean;
+    // (undocumented)
+    tryFocusTop(): boolean;
+    // (undocumented)
+    tryFocusXAndEnsureInView(x: Integer): boolean;
+    // (undocumented)
+    tryFocusXYAndEnsureInView(x: Integer, y: Integer, cell?: RevViewCell<BCS, SF>): boolean;
+    // (undocumented)
+    tryFocusYAndEnsureInView(y: Integer): boolean;
+    // (undocumented)
+    tryMoveFocusDown(): boolean;
+    // (undocumented)
+    tryMoveFocusLeft(): boolean;
+    // (undocumented)
+    tryMoveFocusRight(): boolean;
+    // (undocumented)
+    tryMoveFocusUp(): boolean;
+    // (undocumented)
+    tryOnlySelectFocusedCell(): boolean;
+    // (undocumented)
+    tryPageFocusDown(): boolean;
+    // (undocumented)
+    tryPageFocusLeft(): boolean;
+    // (undocumented)
+    tryPageFocusRight(): boolean;
+    // (undocumented)
+    tryPageFocusUp(): boolean;
+    // (undocumented)
+    tryScrollDown(): boolean;
+    // (undocumented)
+    tryScrollLeft(): boolean;
+    // (undocumented)
+    tryScrollPageDown(): boolean;
+    // (undocumented)
+    tryScrollPageLeft(): boolean;
+    // (undocumented)
+    tryScrollPageRight(): boolean;
+    // (undocumented)
+    tryScrollPageUp(): boolean;
+    // (undocumented)
+    tryScrollRight(): boolean;
+    // (undocumented)
+    tryScrollUp(): boolean;
+    // (undocumented)
+    readonly verticalScroller: RevScroller<BGS, BCS, SF>;
+    // (undocumented)
+    readonly viewLayout: RevViewLayout<BGS, BCS, SF>;
+}
+
+// @public (undocumented)
 export interface RevGridDefinition<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> {
     // (undocumented)
     schemaServer: (RevSchemaServer<SF> | RevSchemaServer.Constructor<SF>);
@@ -3452,13 +3754,11 @@ export interface RevGridDefinition<BCS extends RevBehavioredColumnSettings, SF e
 
 // @public (undocumented)
 export interface RevGridOptions<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> {
-    // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
     canvasOverflowOverride?: RevCssTypes.Overflow;
     canvasRenderingContext2DSettings?: CanvasRenderingContext2DSettings;
     // (undocumented)
     customUiControllerDefinitions?: RevUiController.Definition<BGS, BCS, SF>[];
     externalParent?: unknown;
-    // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
     firstGeneratedIdFromBaseIsAlsoNumbered?: boolean;
     id?: string;
 }
@@ -3683,6 +3983,10 @@ export namespace RevHoverUiController {
 }
 
 // @public (undocumented)
+export interface RevIClientGrid<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevClientGrid<BGS, BCS, SF> {
+}
+
+// @public (undocumented)
 export interface RevIColumnLayoutGrid<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevColumnLayoutGrid<BGS, BCS, SF> {
 }
 
@@ -3735,26 +4039,14 @@ export class RevInexclusiveRectangle implements RevInexclusiveArea {
     get inclusiveBottomRight(): RevPoint;
     // (undocumented)
     get inclusiveRight(): number;
-    // Warning: (tsdoc-escape-right-brace) The "}" character should be escaped using a backslash to avoid confusion with a TSDoc inline tag
-    // Warning: (tsdoc-malformed-inline-tag) Expecting a TSDoc tag starting with "{@"
-    // Warning: (tsdoc-param-tag-with-invalid-type) The @param block should not include a JSDoc-style '{type}'
-    //
     // (undocumented)
     intersects(rect: RevInexclusiveRectangle): boolean;
     get left(): number;
     moveX(offset: number): void;
     moveY(offset: number): void;
     newGrownFromCenter(padding: number): RevInexclusiveRectangle;
-    // Warning: (tsdoc-escape-right-brace) The "}" character should be escaped using a backslash to avoid confusion with a TSDoc inline tag
-    // Warning: (tsdoc-malformed-inline-tag) Expecting a TSDoc tag starting with "{@"
-    // Warning: (tsdoc-param-tag-with-invalid-type) The @param block should not include a JSDoc-style '{type}'
-    //
     // (undocumented)
     newShrunkFromCenter(padding: number): RevInexclusiveRectangle;
-    // Warning: (tsdoc-escape-right-brace) The "}" character should be escaped using a backslash to avoid confusion with a TSDoc inline tag
-    // Warning: (tsdoc-malformed-inline-tag) Expecting a TSDoc tag starting with "{@"
-    // Warning: (tsdoc-param-tag-with-invalid-type) The @param block should not include a JSDoc-style '{type}'
-    //
     // (undocumented)
     newUnioned(rect: RevInexclusiveRectangle): RevInexclusiveRectangle;
     // (undocumented)
@@ -3769,9 +4061,7 @@ export class RevInexclusiveRectangle implements RevInexclusiveArea {
     // (undocumented)
     get topLeft(): RevPoint;
     get width(): number;
-    // Warning: (tsdoc-escape-right-brace) The "}" character should be escaped using a backslash to avoid confusion with a TSDoc inline tag
-    // Warning: (tsdoc-malformed-inline-tag) Expecting a TSDoc tag starting with "{@"
-    // Warning: (tsdoc-param-tag-with-invalid-type) The @param block should not include a JSDoc-style '{type}'
+    // (undocumented)
     within(rect: RevInexclusiveRectangle): boolean;
     // (undocumented)
     get x(): number;
@@ -4689,6 +4979,21 @@ export namespace RevRecord {
 }
 
 // @public (undocumented)
+export namespace RevRecordArrayUtil {
+    // (undocumented)
+    export function binarySearch<T>(values: T[], item: T, comparer: Comparer<T>): number;
+    export function binarySearchWithDuplicates<T>(values: T[], item: T, comparer: Comparer<T>): number;
+    // (undocumented)
+    export function binarySearchWithSkip<T>(values: T[], item: T, skipIndex: number, comparer: Comparer<T>, index?: number, count?: number): number;
+    // (undocumented)
+    export type Comparer<T> = (left: T, right: T) => number;
+    // (undocumented)
+    export function partialSort<T>(data: T[], offset: number, count: number, sortOffset: number, sortCount: number, comparer: Comparer<T>): void;
+    // (undocumented)
+    export function sort<T>(values: T[], comparer: Comparer<T>, index?: number, count?: number): void;
+}
+
+// @public (undocumented)
 export class RevRecordAssertError extends InternalError {
     constructor(code: string, message?: string);
 }
@@ -5233,6 +5538,33 @@ export class RevRecordRowError extends RevRecordExternalError {
     constructor(code: string, message: string);
 }
 
+// @public
+export class RevRecordRowIndexMap {
+    add(leftIndex: number | undefined, rightIndex: number | undefined): void;
+    // (undocumented)
+    static apply(nodes: number[], changes: Map<number, number>): void;
+    clear(): void;
+    getLeftIndex(rightIndex: number): number | undefined;
+    getNearestLeftIndex(rightIndex: number): number;
+    getNearestRightIndex(leftIndex: number): number;
+    getRightIndex(leftIndex: number): number | undefined;
+    static insert(nodes: number[], nodeIndex: number): number;
+    get leftCount(): number;
+    oneToOne(length: number): void;
+    populate<T>(left: readonly T[], right: readonly T[]): void;
+    static redistribute(nodes: number[], index: number): Map<number, number>;
+    remove(leftIndex: number | undefined, rightIndex: number | undefined): void;
+    removeAll(left: (number | undefined)[], right: (number | undefined)[]): void;
+    removeLeft(leftIndex: number): number | undefined;
+    removeRight(rightIndex: number): number | undefined;
+    get rightCount(): number;
+    static search(nodes: number[], ref: number): number;
+    updateLeft(leftIndex: number, rightIndex: number | null): number | null;
+    updateRight(leftIndex: number | null, rightIndex: number): number | null;
+    // (undocumented)
+    verify(): void;
+}
+
 // @public (undocumented)
 export class RevRecordRowMap {
     constructor(_recordRowBindingKey: symbol);
@@ -5740,10 +6072,6 @@ export class RevRegistry<T> {
     get all(): T[];
     // (undocumented)
     get(name: string): T | undefined;
-    // Warning: (tsdoc-param-tag-with-invalid-optional-name) The @param should not include a JSDoc-style optional name; it must not be enclosed in '[ ]' brackets.
-    // Warning: (tsdoc-param-tag-with-invalid-type) The @param block should not include a JSDoc-style '{type}'
-    // Warning: (tsdoc-param-tag-with-invalid-optional-name) The @param should not include a JSDoc-style optional name; it must not be enclosed in '[ ]' brackets.
-    // Warning: (tsdoc-escape-greater-than) The ">" character should be escaped using a backslash to avoid confusion with an HTML tag
     register(name: string, item: T): T;
 }
 
@@ -6455,8 +6783,6 @@ export const enum RevSelectionAreaTypeSpecifierId {
     Secondary = 1
 }
 
-// Warning: (tsdoc-escape-greater-than) The ">" character should be escaped using a backslash to avoid confusion with an HTML tag
-//
 // @public
 export type RevSelectionInclusiveRange = [start: number, stop: number];
 
@@ -6653,6 +6979,11 @@ export class RevSimpleClientGrid<SF extends RevSchemaField> extends RevClientGri
 
 // @public (undocumented)
 export interface RevSimpleColumnSettings extends RevSimpleOnlyColumnSettings, RevColumnSettings {
+}
+
+// @public (undocumented)
+export class RevSimpleDataRowArrayGrid extends RevDataRowArrayGrid<RevSimpleBehavioredGridSettings, RevSimpleBehavioredColumnSettings, RevSingleHeadingField> {
+    constructor(gridHostElement: HTMLElement, settings?: RevSimpleInMemoryBehavioredGridSettings, options?: RevGridOptions<RevSimpleBehavioredGridSettings, RevSimpleBehavioredColumnSettings, RevSingleHeadingField>);
 }
 
 // @public (undocumented)
@@ -7150,6 +7481,41 @@ export abstract class RevStandardCellEditor<BGS extends RevBehavioredGridSetting
 }
 
 // @public (undocumented)
+export abstract class RevStandardCellEffect {
+    constructor(el: HTMLElement, options?: RevStandardCellEffect.Options | undefined);
+    // (undocumented)
+    readonly el: HTMLElement;
+    // (undocumented)
+    protected readonly _finishedEventer: RevStandardCellEffect.Options.FinishedEventer | undefined;
+    // (undocumented)
+    readonly options?: RevStandardCellEffect.Options | undefined;
+    // (undocumented)
+    abstract start(): void;
+}
+
+// @public (undocumented)
+export namespace RevStandardCellEffect {
+    // (undocumented)
+    export type Constructor = new (el: HTMLElement, options?: Options) => RevStandardCellEffect;
+    // (undocumented)
+    export interface Options {
+        // (undocumented)
+        finishedEventer?: Options.FinishedEventer;
+    }
+    // (undocumented)
+    export namespace Options {
+        // (undocumented)
+        export type FinishedEventer = (this: void) => void;
+    }
+}
+
+// @public (undocumented)
+export class RevStandardCellEffectFactory {
+    // (undocumented)
+    create(name: string, el: HTMLElement, options?: RevStandardCellEffect.Options): RevStandardShakerCellEffect | RevStandardGlowerCellEffect;
+}
+
+// @public (undocumented)
 export abstract class RevStandardCellPainter<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevCellPainter<BCS, SF> {
     constructor(_grid: RevClientGrid<BGS, BCS, SF>, _dataServer: RevDataServer<SF>);
     // (undocumented)
@@ -7310,6 +7676,43 @@ export abstract class RevStandardElementCellEditor<BGS extends RevBehavioredGrid
 }
 
 // @public
+export class RevStandardGlowerCellEffect extends RevStandardCellEffect {
+    constructor(el: HTMLElement, options?: RevStandardGlowerCellEffect.Options);
+    // (undocumented)
+    destroy(): void;
+    // (undocumented)
+    glower(event: TransitionEvent): void;
+    // (undocumented)
+    start(): void;
+}
+
+// @public (undocumented)
+export namespace RevStandardGlowerCellEffect {
+    const // (undocumented)
+    typeName = "glower";
+    const // (undocumented)
+    duration = "0.25s";
+    // (undocumented)
+    export interface Options extends RevStandardCellEffect.Options {
+        // (undocumented)
+        duration: string;
+        // (undocumented)
+        styles: Styles;
+    }
+    // (undocumented)
+    export type Styles = Record<string, string>;
+    const // (undocumented)
+    defaultStyles: Styles;
+    // (undocumented)
+    export interface StyleWas {
+        // (undocumented)
+        style: string;
+        // (undocumented)
+        undo: boolean;
+    }
+}
+
+// @public
 export class RevStandardHeaderTextCellPainter<BGS extends RevBehavioredGridSettings, BCS extends RevStandardHeaderTextCellPainter.BehavioredColumnSettings, SF extends RevSchemaField> extends RevStandardCellPainter<BGS, BCS, SF> {
     constructor(grid: RevClientGrid<BGS, BCS, SF>, dataServer: RevDataServer<SF>);
     // (undocumented)
@@ -7413,6 +7816,30 @@ export class RevStandardRangeInputCellEditor<BGS extends RevBehavioredGridSettin
     closeCell(field: SF, subgridRowIndex: number, cancel: boolean): void;
     // (undocumented)
     tryOpenCell(cell: RevViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined): boolean;
+}
+
+// @public
+export class RevStandardShakerCellEffect extends RevStandardCellEffect {
+    constructor(el: HTMLElement, options?: RevStandardShakerCellEffect.Options);
+    // (undocumented)
+    destroy(): void;
+    // (undocumented)
+    shake(event?: TransitionEvent): void;
+    // (undocumented)
+    start(): void;
+}
+
+// @public (undocumented)
+export namespace RevStandardShakerCellEffect {
+    const // (undocumented)
+    typeName = "shaker";
+    const // (undocumented)
+    duration = "0.065s";
+    // (undocumented)
+    export interface Options extends RevStandardCellEffect.Options {
+        // (undocumented)
+        duration: string;
+    }
 }
 
 // @public
@@ -7641,11 +8068,7 @@ export namespace RevStartLength {
 export interface RevSubgrid<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> {
     // (undocumented)
     readonly dataServer: RevDataServer<SF>;
-    // Warning: (tsdoc-escape-greater-than) The ">" character should be escaped using a backslash to avoid confusion with an HTML tag
-    // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
     readonly firstViewableSubgridRowIndex: number;
-    // Warning: (tsdoc-escape-greater-than) The ">" character should be escaped using a backslash to avoid confusion with an HTML tag
-    // Warning: (tsdoc-reference-selector-missing-parens) Syntax error in declaration reference: the member selector must be enclosed in parentheses
     readonly firstViewRowIndex: number;
     // (undocumented)
     readonly fixedRowCount: number;

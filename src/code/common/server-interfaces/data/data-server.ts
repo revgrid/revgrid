@@ -21,7 +21,6 @@ export interface RevDataServer<
     unsubscribeDataNotifications?(client: RevDataServer.NotificationsClient): void;
 
     /**
-     * @hidden
      * Used to Prefetch data
      * @remarks
      * Tells dataModel what cells will be needed by subsequent calls to {@link RevDataServer#getViewValue}. This helps remote or virtualized data models fetch and cache data. If your data model doesn't need to know this, don't implement it.
@@ -45,7 +44,7 @@ export interface RevDataServer<
      * Get a row of data.
      *
      * The injected default implementation is an object of lazy getters.
-     * @returns {number} The data row corresponding to the given `rowIndex`. If row does not exist, then throw error.
+     * @returns The data row corresponding to the given `rowIndex`. If row does not exist, then throw error.
      */
     getViewRow?(rowIndex: number): RevDataServer.ViewRow;
 
@@ -70,7 +69,7 @@ export interface RevDataServer<
     /**
      * Get a field's value at the specified row in a format suitable for display.
      * @remarks
-     * The core of the client does not need to know the type of the return value.  {@link getViewValue}() is called by the `Cell Painter` associated with the cell/subgrid.
+     * The core of the client does not need to know the type of the return value.  `getViewValue()` is called by the `Cell Painter` associated with the cell/subgrid.
      * The cell painter expects a certain type of view value and casts the result accordingly.
      * @returns The value of the field at the specified row.
      */
@@ -85,7 +84,7 @@ export interface RevDataServer<
      * Get a field's value at the specified row in a format suitable for editing.
      * @remarks
      * This function only needs to be implemented if cells can be edited.  See RevCellEditor for more information about editing data.
-     * The core of the client does not need to know the type of the return value.  {@link getEditValue}() is called by the `Cell Editor` associated with the cell.
+     * The core of the client does not need to know the type of the return value.  `getEditValue()` is called by the `Cell Editor` associated with the cell.
      * A cell editor expects a certain type of view value and casts the result accordingly.
      * @returns The value of the field at the specified row.
      */
