@@ -22,7 +22,7 @@ The arrangment of modules gives an indication of dependency.  Modules are depend
 * **[Client](../../client/index.md)**\
 Draws the grid on the canvas using data supplied from server and handles UI.
 * **[Column Layout](../../servers/column-layout/index.md)**\
-Server that maps fields to columns allowing data to ignore column layout.  Also supports serialisation of column layout.
+Server that enables a column layout to be managed and serialised.  Determines which [fields](../../common/server-interfaces/schema/index.md) '[active columns](../../client/components/columns/index.md)' are linked to, and controls their order, visibility and width.
 * **[Data Row Array](../../servers/data-row-array/index.md)**\
 Server that provides rows of data from a an array of JSON objects. Each object contains the data for one row and all objects need to have the same keys/properties.  Only supports full grid data updates.
 * **[Record](../../servers/record/index.md)**\
@@ -39,8 +39,8 @@ Provides some standard libraries for: painters, [cell painters](../../cell-paint
 Demonstrates how to create a simple grid which [extends the client settings](../../settings/simple/index.md) that are then used in a custom [cell painter](../../cell-painter/index.md). Includes one grid which just extends the [client grid](../../client/grid/index.md) and another which extends the [Data Row Array](../../servers/data-row-array/index.md) grid.
 * **[JS](../../libraries/javascript/index.md)**\
 Provides a client grid and a table grid without any generic parameters.  These can be used in JavaScript applications.
-* **Common**\
-Code common to most modules
+* **[Common](../../common/index.md)**\
+Declares server interfaces used by client to access servers and provides types and utilities used by both server and client.
 * **Cell Content**\
 Utility classes and enumerations that assist with generating cell content.
 
