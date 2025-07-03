@@ -1,5 +1,5 @@
 ---
-title: Client Grid
+title: Grid
 children:
     - ./definition/index.md
 ---

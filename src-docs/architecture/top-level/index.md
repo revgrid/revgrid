@@ -13,4 +13,4 @@ Revgrid has a client/server architecture.  The client is the grid and the server
 A brief description of the top level modules within Revgrid and diagram their hierarchy.
 
 * [**Grid Classes**](./grid-classes/index.md)\
-Todo
+Revgrid base grid class is [RevClientGrid](/revgrid/client/client-grid/RevClientGrid-1/). It has several descendant classes which incorporate libraries or servers.

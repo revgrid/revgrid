@@ -1,5 +1,5 @@
 ---
-title: Client Components
+title: Components
 children:
     - ./canvas/index.md
     - ./columns/index.md
@@ -12,4 +12,4 @@ children:
     - ./view-layout/index.md
 ---
 
-ToDo
+# Client Components

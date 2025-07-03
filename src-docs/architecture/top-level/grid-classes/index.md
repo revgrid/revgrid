@@ -15,7 +15,7 @@ The colors indicate the module in which the class is declared:
 * **light mint green**: [Data Row Array](../../servers/data-row-array/index.md)
 * **green**: [Sourced Field](../../servers/sourced-field/index.md)
 * **pink**: [Simple](../../libraries/simple/index.md)
-* **purplse**: [JavaScript](../../libraries/javascript/index.md)
+* **purple**: [JavaScript](../../libraries/javascript/index.md)
 
 Grid classes inherit from classes below them in the diagram.  Note that [`RevSourcedFieldGrid`](/revgrid/sourced-field/sourced-field/sourced-field-grid/RevSourcedFieldGrid/) is an interface which is implemented by grid classes above it in the diagram.
 

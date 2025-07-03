@@ -17,11 +17,11 @@ children:
 1. [**Top Level**](./top-level/index.md)\
 Describe top level aspects of Revgrid design.
 1. [**Client**](./client/index.md)\
-Todo
+[RevClientGrid](/revgrid/client/client-grid/RevClientGrid-1/) is the base grid class in RevGrid. This section discusses its design and components.
 1. [**Servers**](./servers/index.md)\
-Todo
+Servers provide schema and data to the [client grid](./client/index.md).  Revgrid has several predefined servers.
 1. [**Common**](./common/index.md)\
-Todo
+Utilities and interfaces common to client, server and libraries.
 1. [**Settings**](./settings/index.md)\
 Todo
 1. [**Cell Painter**](./cell-painter/index.md)\
