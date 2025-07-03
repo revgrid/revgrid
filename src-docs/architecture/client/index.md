@@ -21,7 +21,7 @@ The grid class itself, ([RevClientGrid](/revgrid/client/client-grid/RevClientGri
 Handles UI events (mainly from [canvas](./components/canvas/index.md)) and updates UI using APIs from [behaviors](./behaviors/index.md) and [components](./components/index.md).
 
 * **[Behaviors](./behaviors/index.md)**\
-Provide behavior and APIs that cover more than one component.  Behaviours are generally stateless - nearly all state is maintained in [components](./components/index.md).
+Provide behavior and APIs that cover more than one component.  Behaviors are generally stateless - nearly all state is maintained in [components](./components/index.md).
 
 * **[Components](./components/index.md)**\
 The various parts of the client.

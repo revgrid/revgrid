@@ -4,6 +4,8 @@ title: News
 
 # News
 
+* *04 July 2025*: **[Client](../architecture/client/index.md) doc page written**
+
 * *01 July 2025*: **[Top level grid classes](../architecture/top-level/grid-classes/index.md) doc page written**
 
 * *27 June 2025*: **Switch to TypeDoc expand entryPointStrategy**\
