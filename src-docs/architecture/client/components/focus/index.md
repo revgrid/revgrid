@@ -1,5 +1,7 @@
 ---
-title: Focus Component
+title: Focus
 ---
+
+# Focus Component
 
 ToDo

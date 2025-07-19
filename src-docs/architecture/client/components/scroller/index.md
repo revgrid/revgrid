@@ -1,5 +1,7 @@
 ---
-title: Scroller Component
+title: Scroller
 ---
+
+# Scroller (Horizontal & Vertical) Components
 
 ToDo

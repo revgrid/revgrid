@@ -10,6 +10,7 @@
   ],
 
   "references": [
+    { "path": "../canvas/tsconfig.json" },
     { "path": "../view/tsconfig.json" },
     { "path": "../../../common/tsconfig.json" }
   ]

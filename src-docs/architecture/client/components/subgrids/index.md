@@ -1,5 +1,0 @@
----
-title: Subgrid Component
----
-
-ToDo

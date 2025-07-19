@@ -10,6 +10,7 @@
   ],
 
   "references": [
+    { "path": "../canvas/tsconfig.json" },
     { "path": "../column/tsconfig.json" },
     { "path": "../subgrid/tsconfig.json" },
     { "path": "../../interfaces/tsconfig.json" },

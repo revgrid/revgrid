@@ -1,5 +1,7 @@
 ---
-title: Selection Component
+title: Selection
 ---
+
+# Selection Component
 
 ToDo

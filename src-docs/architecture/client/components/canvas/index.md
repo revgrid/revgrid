@@ -1,5 +1,7 @@
 ---
-title: Canvas Component
+title: Canvas
 ---
+
+# Canvas Component
 
 ToDo

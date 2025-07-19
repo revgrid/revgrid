@@ -10,7 +10,7 @@ children:
 
 # Client
 
-The main elements that make up the client grid ([RevClientGrid](/revgrid/client/client-grid/RevClientGrid-1/)) are shown in the diagram below
+The Revgrid client grid, ([RevClientGrid](/revgrid/client/client-grid/RevClientGrid-1/)), gets real time schema and data from servers and draws a grid which displays this on a Canvas HTML element. It also manages UI interactions and updates the drawn grid accordingly.  Its main parts are:
 
 ![Client grid](client-grid.excalidraw.svg)
 
@@ -24,7 +24,7 @@ Handles UI events (mainly from [canvas](./components/canvas/index.md)) and updat
 Provide behavior and APIs that cover more than one component.  Behaviors are generally stateless - nearly all state is maintained in [components](./components/index.md).
 
 * **[Components](./components/index.md)**\
-The various parts of the client.
+Stateful components which together draw the grid and manage the view of the data. Also implement features such as focus, selection.
 
 * **[Interfaces](./interfaces.md)**\
 Various interfaces used in client, libraries and grids (but not servers).

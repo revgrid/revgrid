@@ -1,5 +1,7 @@
 ---
-title: View Layout Component
+title: View Layout
 ---
+
+# View Layout Component
 
 ToDo

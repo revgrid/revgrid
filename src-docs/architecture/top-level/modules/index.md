@@ -22,7 +22,7 @@ The arrangment of modules gives an indication of dependency.  Modules are depend
 * **[Client](../../client/index.md)**\
 Draws the grid on the canvas using data supplied from server and handles UI.
 * **[Column Layout](../../servers/column-layout/index.md)**\
-Server that enables a column layout to be managed and serialised.  Determines which [fields](../../common/server-interfaces/schema/index.md) '[active columns](../../client/components/columns/index.md)' are linked to, and controls their order, visibility and width.
+Server that enables a column layout to be managed and serialised.  Determines which [fields](../../common/server-interfaces/schema/index.md) '[active columns](../../client/components/columns-manager/index.md)' are linked to, and controls their order, visibility and width.
 * **[Data Row Array](../../servers/data-row-array/index.md)**\
 Server that provides rows of data from a an array of JSON objects. Each object contains the data for one row and all objects need to have the same keys/properties.  Only supports full grid data updates.
 * **[Record](../../servers/record/index.md)**\
@@ -30,7 +30,7 @@ Server that maps records to rows allowing data to ignore sorting and filtering o
 * **[Sourced Field](../../servers/sourced-field/index.md)**\
 Server supports joining fields from multiple sources into records/rows. It also contains a `Table` server which provides infrastructure for generating tables of realtime data for the client based on table definitions.
 * **[Header](../../servers/headings/index.md)**\
-Server that provides headings to a grid's header [subgrid](../../client/components/subgrids/index.md). Includes 2 servers: one for single row header and the other for multi row header.
+Server that provides headings to a grid's header [subgrid](../../client/components/subgrids-manager/index.md). Includes 2 servers: one for single row header and the other for multi row header.
 * **[Settings Implementation](../../settings/index.md)**\
 Provides several implementations for [settings](../../settings/index.md) used in client.  Includes: default, in-memory and readonly implementations.
 * **[Standard](../../libraries/standard/index.md)**\

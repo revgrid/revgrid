@@ -1,5 +1,0 @@
----
-title: Columns Component
----
-
-ToDo

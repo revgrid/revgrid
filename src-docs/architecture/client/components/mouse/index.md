@@ -1,5 +1,7 @@
 ---
-title: Mouse Component
+title: Mouse
 ---
+
+# Mouse Component
 
 ToDo
