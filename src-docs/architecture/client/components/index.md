@@ -27,7 +27,7 @@ ToDo
 * **[View Layout](./view-layout/index.md)**\
 ToDo
 * **[Focus](./focus/index.md)**\
-ToDo
+Manages cell focus and cell editing within a grid component.
 * **[Mouse](./mouse/index.md)**\
 ToDo
 * **[Scroller (Horizontal & Vertical)](./scroller/index.md)**\

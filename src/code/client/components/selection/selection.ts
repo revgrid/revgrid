@@ -282,7 +282,7 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
                         break;
                     }
                     case RevSelectionAreaTypeId.column: {
-                        this.deselectColumns(lastArea.x, lastArea.width, subgrid);
+                        this.deselectColumns(lastArea.x, lastArea.width);
                         break;
                     }
                     case RevSelectionAreaTypeId.row: {
@@ -389,9 +389,9 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
         }
     }
 
-    deselectRows(y: number, count: number, subgrid: RevSubgrid<BCS, SF>) {
+    deselectRows(subgridRowIndex: number, count: number, subgrid: RevSubgrid<BCS, SF>) {
         if (subgrid === this._subgrid) {
-            const changed = this._rows.delete(y, count);
+            const changed = this._rows.delete(subgridRowIndex, count);
             if (changed) {
                 this.beginChange();
                 const lastArea = this._lastArea;
@@ -459,50 +459,48 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
         return lastArea;
     }
 
-    deselectColumns(x: number, count: number, subgrid: RevSubgrid<BCS, SF>) {
-        if (subgrid === this._subgrid) {
-            const changed = this._columns.delete(x, count);
-            if (changed) {
-                this.beginChange();
-                const lastArea = this._lastArea;
-                if (lastArea !== undefined && lastArea.areaTypeId === RevSelectionAreaTypeId.column) {
-                    const oldFirst = lastArea.exclusiveFirst;
-                    const oldLast = lastArea.exclusiveLast;
-                    const oldStart = oldFirst.x;
-                    const oldLength = oldLast.x - oldStart;
-                    const overlapRange = this._columns.calculateOverlapRange(oldStart, oldLength);
-                    if (overlapRange === undefined) {
-                        this._lastArea = undefined;
+    deselectColumns(activeColumnIndex: number, count: number) {
+        const changed = this._columns.delete(activeColumnIndex, count);
+        if (changed) {
+            this.beginChange();
+            const lastArea = this._lastArea;
+            if (lastArea !== undefined && lastArea.areaTypeId === RevSelectionAreaTypeId.column) {
+                const oldFirst = lastArea.exclusiveFirst;
+                const oldLast = lastArea.exclusiveLast;
+                const oldStart = oldFirst.x;
+                const oldLength = oldLast.x - oldStart;
+                const overlapRange = this._columns.calculateOverlapRange(oldStart, oldLength);
+                if (overlapRange === undefined) {
+                    this._lastArea = undefined;
+                } else {
+                    const lastY = oldFirst.y;
+                    const lastHeight = oldLast.y - lastY;
+                    const overlapStart = overlapRange.start;
+                    const overlapLength = overlapRange.length;
+                    let lastInexclusiveX: number;
+                    let lastWidth: number;
+                    // set lastX and lastWidth so that last area still specifies the same corner
+                    if (oldLength >= 0) {
+                        lastInexclusiveX = overlapStart;
+                        lastWidth = overlapLength;
                     } else {
-                        const lastY = oldFirst.y;
-                        const lastHeight = oldLast.y - lastY;
-                        const overlapStart = overlapRange.start;
-                        const overlapLength = overlapRange.length;
-                        let lastInexclusiveX: number;
-                        let lastWidth: number;
-                        // set lastX and lastWidth so that last area still specifies the same corner
-                        if (oldLength >= 0) {
-                            lastInexclusiveX = overlapStart;
-                            lastWidth = overlapLength;
-                        } else {
-                            lastInexclusiveX = overlapStart + overlapLength;
-                            lastWidth = -overlapLength;
-                        }
-
-                        this._lastArea = new RevLastSelectionArea(RevSelectionAreaTypeId.column, lastInexclusiveX, lastY, lastWidth, lastHeight);
+                        lastInexclusiveX = overlapStart + overlapLength;
+                        lastWidth = -overlapLength;
                     }
+
+                    this._lastArea = new RevLastSelectionArea(RevSelectionAreaTypeId.column, lastInexclusiveX, lastY, lastWidth, lastHeight);
                 }
-                this.flagChanged(false);
-                this.endChange();
             }
+            this.flagChanged(false);
+            this.endChange();
         }
     }
 
-    toggleSelectColumn(x: number, y: number, subgrid: RevSubgrid<BCS, SF>) {
-        if (this._columns.includesIndex(x)) {
-            this.deselectColumns(x, 1, subgrid);
+    toggleSelectColumn(activeColumnIndex: number, y: number, subgrid: RevSubgrid<BCS, SF>) {
+        if (this._columns.includesIndex(activeColumnIndex)) {
+            this.deselectColumns(activeColumnIndex, 1);
         } else {
-            this.selectColumns(x, y, 1, 1, subgrid);
+            this.selectColumns(activeColumnIndex, y, 1, 1, subgrid);
         }
     }
 
@@ -546,11 +544,11 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
         }
     }
 
-    toggleSelectCell(originX: number, originY: number, subgrid: RevSubgrid<BCS, SF>): boolean {
-        const cellCoveringSelectionAreas = this.getAreasCoveringCell(originX, originY, subgrid);
+    toggleSelectCell(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): boolean {
+        const cellCoveringSelectionAreas = this.getAreasCoveringCell(activeColumnIndex, subgridRowIndex, subgrid);
         const priorityCoveringArea = RevSelectionArea.getTogglePriorityCellCoveringSelectionArea(cellCoveringSelectionAreas);
         if (priorityCoveringArea === undefined) {
-            this.selectCell(originX, originY, subgrid);
+            this.selectCell(activeColumnIndex, subgridRowIndex, subgrid);
             return true;
         } else {
             this.beginChange();
@@ -566,11 +564,11 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
                         break;
                     }
                     case RevSelectionAreaTypeId.column: {
-                        this.deselectColumns(originX, originX, subgrid);
+                        this.deselectColumns(activeColumnIndex, 1);
                         break;
                     }
                     case RevSelectionAreaTypeId.row: {
-                        this.deselectRows(originY, 1, subgrid);
+                        this.deselectRows(subgridRowIndex, 1, subgrid);
                         break;
                     }
                 }
@@ -802,7 +800,7 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
     //     this.rectangleList.getFlattenedYs();
     // }
 
-    getAreasCoveringCell(x: number, y: number, subgrid: RevSubgrid<BCS, SF> | undefined) {
+    getAreasCoveringCell(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF> | undefined): RevSelectionArea[] {
         let result: RevSelectionArea[];
         if (subgrid !== undefined && subgrid !== this._subgrid) {
             result = [];
@@ -815,7 +813,7 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
                     result = [area];
                 }
             } else {
-                const range = this._rows.findRangeWithIndex(y);
+                const range = this._rows.findRangeWithIndex(subgridRowIndex);
                 if (range === undefined) {
                     result = [];
                 } else {
@@ -824,13 +822,13 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
                 }
             }
 
-            const columnRange = this._columns.findRangeWithIndex(x);
+            const columnRange = this._columns.findRangeWithIndex(activeColumnIndex);
             if (columnRange !== undefined) {
                 const area = this.createAreaFromColumnRange(columnRange);
                 result.push(area);
             }
 
-            const rectangles =  this._rectangleList.getRectanglesContainingPoint(x, y);
+            const rectangles =  this._rectangleList.getRectanglesContainingPoint(activeColumnIndex, subgridRowIndex);
             for (const rectangle of rectangles) {
                 result.push(rectangle);
             }

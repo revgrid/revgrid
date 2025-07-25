@@ -1,13 +1,23 @@
 import { RevSchemaField } from './schema-field';
 
-/** @public */
+/**
+ * Interface representing a schema server.
+ *
+ * @typeParam SF - The type of schema field used to specify the field columns.
+ *
+ * Client grid uses this interface to retrieve the schema fields which are the field columns in the grid.  It also uses
+ * it to get notified about changes to the schema.
+ *
+ * @see [Schema Server Interface](../../../../../Architecture/Common/Server_Interfaces/Schema/)
+ * @public
+ */
 export interface RevSchemaServer<SF extends RevSchemaField> {
     subscribeSchemaNotifications(client: RevSchemaServer.NotificationsClient<SF>): void;
     unsubscribeSchemaNotifications?(client: RevSchemaServer.NotificationsClient<SF>): void;
 
     /**
      * Get list of fields.
-     * @remarks
+     *
      * The order of these fields defines the orders of field columns in Columns Manager.
      */
     getFields(): readonly SF[];

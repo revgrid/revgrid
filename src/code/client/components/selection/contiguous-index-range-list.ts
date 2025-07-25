@@ -1,24 +1,25 @@
 import { RevContiguousIndexRange } from './contiguous-index-range';
 
 /**
- * This object models selection of "cells" within an abstract single-dimensional matrix.
+ * Manages a list of non-overlapping, non-abutting, and ordered contiguous index ranges.
  *
- * @remarks
- * Disjoint selections can be built with calls to the following methods:
- * {@link RevContiguousIndexRangeList#add|add(exclusiveStart, stop)} - Add a range to the matrix.
+ * This class provides methods to add, delete, and query ranges of indices, as well as to adjust
+ * the ranges in response to insertions, deletions, and moves of indices. Ranges are represented
+ * by `RevContiguousIndexRange` objects and are always kept in order by their starting index.
  *
- * {@link RevContiguousIndexRangeList#clear|clear()} the matrix
+ * Key features:
+ * - Ranges do not overlap or abut, and are always ordered by their start index.
+ * - Supports adding and deleting ranges, with automatic merging and splitting as needed.
+ * - Provides methods to check for inclusion, count indices, and enumerate all indices.
+ * - Can adjust ranges for inserted, deleted, or moved indices, maintaining consistency.
  *
- * Internally, the selection is run-length-encoded. It is therefore a "sparse" matrix
- * with undefined bounds. A single data property called `selection` is an array that
- * contains all the "ranges" of selected cells albeit in no particular order.
- * This property should not normally need to be accessed directly.
+ * Used to manage row and column selections.
  */
 export class RevContiguousIndexRangeList {
     // Ranges do not overlap, do not abut, and are ordered by start
     readonly ranges = new Array<RevContiguousIndexRange>(0);
 
-    assign(other: RevContiguousIndexRangeList) {
+    assign(other: RevContiguousIndexRangeList): void {
         this.clear();
         const otherRanges = other.ranges;
         const count = otherRanges.length;
@@ -29,19 +30,38 @@ export class RevContiguousIndexRangeList {
         }
     }
 
-    clear() {
+    /**
+     * Removes all index ranges from the list, effectively clearing the selection.
+     */
+    clear(): void {
         this.ranges.length = 0;
     }
 
-    isEmpty() {
+    /**
+     * Determines whether the list of contiguous index ranges is empty.
+     * @returns `true` if there are no ranges in the list; otherwise, `false`.
+     */
+    isEmpty(): boolean {
         return this.ranges.length === 0;
     }
 
-    hasIndices() {
+    /**
+     * Determines whether there are any index ranges present in the list.
+     *
+     * @returns `true` if the list contains at least one range; otherwise, `false`.
+     */
+    hasIndices(): boolean {
         return this.ranges.length > 0;
     }
 
-    hasMoreThanOneIndex() {
+    /**
+     * Determines whether the list of contiguous index ranges contains more than one index in total.
+     * Returns `true` if there is at least one range with a length greater than one,
+     * or if there are multiple single-index ranges.
+     *
+     * @returns `true` if there is more than one index represented in the ranges; otherwise, `false`.
+     */
+    hasMoreThanOneIndex(): boolean {
         const ranges = this.ranges;
         let gotOne = false;
         for (const range of ranges) {
@@ -58,14 +78,26 @@ export class RevContiguousIndexRangeList {
         return false;
     }
 
-    add(exclusiveStart: number, length: number) {
+    /**
+     * Adds a contiguous range of indices to the list, merging with existing ranges if necessary.
+     *
+     * The range is specified by an reversable start index and a length. If the length is negative,
+     * the range is added in reverse order (excluding the start index). The method ensures that overlapping or adjacent ranges
+     * are merged into a single range, and prevents adding a range that is already fully contained
+     * within an existing range.
+     *
+     * @param reversableStart - The start index of the range to add. If the length is negative, this is the excluded end index of the range.
+     * @param length - The length of the range to add. Can be negative to indicate reverse direction.
+     * @returns `true` if the range was added or merged; `false` if the range was already contained and no change was made.
+     */
+    add(reversableStart: number, length: number): boolean {
         let start: number;
         let after: number;
         if (length >= 0) {
-            start = exclusiveStart;
+            start = reversableStart;
             after = start + length;
         } else {
-            after = exclusiveStart;
+            after = reversableStart;
             start = after + length; // length is negative
             length = -length;
         }
@@ -164,13 +196,24 @@ export class RevContiguousIndexRangeList {
         return true;
     }
 
-    delete(start: number, length: number) {
+    /**
+     * Deletes a contiguous range of indices from the selection.
+     *
+     * The method updates the internal ranges to reflect the deletion, splitting or resizing ranges as necessary.
+     *
+     * @param reversableStart - The start index of the range to add. If the length is negative, this is the excluded end index of the range.
+     * @param length - The length of the range to add. Can be negative to indicate reverse direction.
+     * @returns `true` if any ranges were deleted or modified; `false` if the deletion did not affect any ranges.
+     */
+    delete(reversableStart: number, length: number): boolean {
         let after: number;
+        let start: number;
         if (length >= 0) {
+            start = reversableStart;
             after = start + length;
         } else {
-            after = start;
-            start += length;
+            after = reversableStart;
+            start = after + length; // length is negative
             length = - length;
         }
         const ranges = this.ranges;
@@ -256,7 +299,7 @@ export class RevContiguousIndexRangeList {
         }
     }
 
-    includesIndex(index: number) {
+    includesIndex(index: number): boolean {
         const ranges = this.ranges;
         const rangeCount = this.ranges.length;
         for (let i = 0; i < rangeCount; i++) {
@@ -268,7 +311,7 @@ export class RevContiguousIndexRangeList {
         return false;
     }
 
-    findRangeWithIndex(index: number) {
+    findRangeWithIndex(index: number): RevContiguousIndexRange | undefined {
         const ranges = this.ranges;
         const rangeCount = this.ranges.length;
         for (let i = 0; i < rangeCount; i++) {
@@ -280,7 +323,7 @@ export class RevContiguousIndexRangeList {
         return undefined;
     }
 
-    getIndexCount() {
+    getIndexCount(): number {
         let result = 0;
         const ranges = this.ranges;
         for (const range of ranges) {
@@ -289,7 +332,7 @@ export class RevContiguousIndexRangeList {
         return result;
     }
 
-    getIndices() {
+    getIndices(): number[] {
         const indexCount = this.getIndexCount();
         const result = new Array<number>(indexCount);
         const ranges = this.ranges;

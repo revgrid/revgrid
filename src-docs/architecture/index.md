@@ -17,7 +17,7 @@ children:
 1. [**Top Level**](./top-level/index.md)\
 Describe top level aspects of Revgrid design.
 1. [**Client**](./client/index.md)\
-[RevClientGrid](/revgrid/client/client-grid/RevClientGrid-1/) is the base grid class in RevGrid. This section discusses its design and components.
+{@link client/client-grid!RevClientGrid:class RevClientGrid} is the base grid class in RevGrid. This section discusses its design and components.
 1. [**Servers**](./servers/index.md)\
 Servers provide schema and data to the [client grid](./client/index.md).  Revgrid has several predefined servers.
 1. [**Common**](./common/index.md)\

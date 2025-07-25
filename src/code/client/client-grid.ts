@@ -1142,18 +1142,12 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
         this.selection.deselectRows(y, count, subgrid);
     }
 
-    deselectColumn(x: Integer, subgrid?: RevSubgrid<BCS, SF>) {
-        if (subgrid === undefined) {
-            subgrid = this.mainSubgrid;
-        }
-        this.selection.deselectColumns(x, 1, subgrid);
+    deselectColumn(activeColumnIndex: Integer) {
+        this.selection.deselectColumns(activeColumnIndex, 1);
     }
 
-    deselectColumns(x: Integer, count: Integer, subgrid?: RevSubgrid<BCS, SF>) {
-        if (subgrid === undefined) {
-            subgrid = this.mainSubgrid;
-        }
-        this.selection.deselectColumns(x, count, subgrid);
+    deselectColumns(activeColumnIndex: Integer, count: Integer) {
+        this.selection.deselectColumns(activeColumnIndex, count);
     }
 
     isCellSelected(x: Integer, y: Integer, subgrid?: RevSubgrid<BCS, SF>): boolean {

@@ -327,11 +327,24 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
         }
     }
 
-    get lastScrollableRowIndex() {
+    /**
+     * Gets the index of the last row that can be scrolled to in the view.
+     * Ensures that vertical computations are performed outside of the animation frame before returning the value.
+     *
+     * @returns The index of the last scrollable row, or `undefined` if not available.
+     */
+    get lastScrollableRowIndex(): number | undefined {
         this.ensureVerticalComputedOutsideAnimationFrame();
         return this._lastScrollableRowIndex;
     }
-    get lastScrollableRowSubgridRowIndex() {
+    /**
+     * Gets the subgrid row index of the last scrollable row.
+     *
+     * Ensures that vertical computations are up-to-date before accessing the value.
+     * Returns `undefined` if there is no last scrollable row, otherwise returns the
+     * corresponding subgrid row index.
+     */
+    get lastScrollableRowSubgridRowIndex(): number | undefined {
         this.ensureVerticalComputedOutsideAnimationFrame();
         const lastScrollableRowIndex = this._lastScrollableRowIndex;
         if (lastScrollableRowIndex === undefined) {
@@ -735,6 +748,15 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
         }
     }
 
+    /**
+     * Ensures that both the specified column and row are visible within the viewport.
+     * If either the column or row is not currently in view, adjusts the viewport to bring them into view.
+     *
+     * @param activeColumnIndex - The index of the active column to ensure is visible.
+     * @param mainSubgridRowIndex - The index of the row in main subgrid to ensure is visible.
+     * @param maximally - If true, attempts to maximize the visibility of the column and row within the viewport.
+     * @returns `true` if the viewport start position was changed to bring the column or row into view; otherwise, `false`.
+     */
     ensureColumnRowAreInView(activeColumnIndex: number, mainSubgridRowIndex: number, maximally: boolean) {
         let viewportStartChanged = this.ensureColumnIsInView(activeColumnIndex, maximally);
         if (this.ensureRowIsInView(mainSubgridRowIndex, maximally)) {
@@ -936,7 +958,19 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
         this.setRowScrollAnchor(viewportStart - this._preMainRowCount, 0);
     }
 
-    ensureRowIsInView(mainSubgridRowIndex: number, maximally: boolean) {
+    /**
+     * Ensures that the specified row index is visible within the viewport of the grid.
+     * If the row is within the fixed rows, no scrolling occurs. Otherwise, the method
+     * scrolls the grid to bring the row into view, considering whether the scrolling
+     * should be maximal (i.e., align the row at the top of the viewport) and handling
+     * edge cases where the viewport size is not an exact multiple of the row height.
+     *
+     * @param mainSubgridRowIndex - The index of the row in the main subgrid to ensure is visible.
+     * @param maximally - If `true`, ensure the row is fully in view; otherwise do not scroll if it is already partially visible.
+     * @returns `true` if scrolling was performed to bring the row into view; `false` otherwise.
+     * @throws If the scrollable row indices are inconsistent.
+     */
+    ensureRowIsInView(mainSubgridRowIndex: number, maximally: boolean): boolean {
         const fixedRowCount = this._gridSettings.fixedRowCount;
         // scroll only if target not in fixed rows
         if (mainSubgridRowIndex < fixedRowCount) {

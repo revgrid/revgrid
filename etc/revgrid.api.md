@@ -927,9 +927,9 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     // (undocumented)
     deselectCell(x: Integer, y: Integer, subgrid: RevSubgrid<BCS, SF>): void;
     // (undocumented)
-    deselectColumn(x: Integer, subgrid?: RevSubgrid<BCS, SF>): void;
+    deselectColumn(activeColumnIndex: Integer): void;
     // (undocumented)
-    deselectColumns(x: Integer, count: Integer, subgrid?: RevSubgrid<BCS, SF>): void;
+    deselectColumns(activeColumnIndex: Integer, count: Integer): void;
     // (undocumented)
     deselectRectangle(rectangle: RevRectangle, subgrid?: RevSubgrid<BCS, SF>): void;
     // (undocumented)
@@ -1969,8 +1969,7 @@ export class RevContiguousIndexRange {
 
 // @public
 export class RevContiguousIndexRangeList {
-    // (undocumented)
-    add(exclusiveStart: number, length: number): boolean;
+    add(reversableStart: number, length: number): boolean;
     // (undocumented)
     adjustForDeleted(start: number, count: number): boolean;
     // (undocumented)
@@ -1985,23 +1984,18 @@ export class RevContiguousIndexRangeList {
     calculateLastOverlapRange(start: number, length: number): RevContiguousIndexRange | undefined;
     // (undocumented)
     calculateOverlapRange(start: number, length: number): RevContiguousIndexRange | undefined;
-    // (undocumented)
     clear(): void;
-    // (undocumented)
-    delete(start: number, length: number): boolean;
+    delete(reversableStart: number, length: number): boolean;
     // (undocumented)
     findRangeWithIndex(index: number): RevContiguousIndexRange | undefined;
     // (undocumented)
     getIndexCount(): number;
     // (undocumented)
     getIndices(): number[];
-    // (undocumented)
     hasIndices(): boolean;
-    // (undocumented)
     hasMoreThanOneIndex(): boolean;
     // (undocumented)
     includesIndex(index: number): boolean;
-    // (undocumented)
     isEmpty(): boolean;
     // (undocumented)
     readonly ranges: RevContiguousIndexRange[];
@@ -2696,16 +2690,13 @@ export namespace RevDispatchableEvent {
     }
 }
 
-// @public (undocumented)
+// @public
 export type RevEnsureFullyInView = keyof typeof RevEnsureFullyInViewEnum;
 
-// @public (undocumented)
+// @public
 export const enum RevEnsureFullyInViewEnum {
-    // (undocumented)
     Always = "Always",
-    // (undocumented)
     IfNotVisible = "IfNotVisible",
-    // (undocumented)
     Never = "Never"
 }
 
@@ -3333,7 +3324,6 @@ export class RevFocusSelectBehavior<BGS extends RevBehavioredGridSettings, BCS e
     constructor(clientId: string, internalParent: RevClientObject, _gridSettings: RevGridSettings, _selection: RevSelection<BGS, BCS, SF>, _focus: RevFocus<BGS, BCS, SF>, _viewLayout: RevViewLayout<BGS, BCS, SF>);
     // (undocumented)
     readonly clientId: string;
-    // (undocumented)
     focusOnlySelectCell(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>, ensureFullyInView: RevEnsureFullyInView): void;
     // (undocumented)
     focusOnlySelectRectangle(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid: RevSubgrid<BCS, SF>, ensureFullyInView: RevEnsureFullyInView): void;
@@ -3343,8 +3333,7 @@ export class RevFocusSelectBehavior<BGS extends RevBehavioredGridSettings, BCS e
     focusReplaceLastAreaWithRectangle(inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid: RevSubgrid<BCS, SF>, ensureFullyInView: RevEnsureFullyInView): void;
     // (undocumented)
     focusSelectCell(x: number, y: number, subgrid: RevSubgrid<BCS, SF>, ensureFullyInView: RevEnsureFullyInView): void;
-    // (undocumented)
-    focusToggleSelectCell(originX: number, originY: number, subgrid: RevSubgrid<BCS, SF>, ensureFullyInView: RevEnsureFullyInView): boolean;
+    focusToggleSelectCell(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>, ensureFullyInView: RevEnsureFullyInView): boolean;
     // (undocumented)
     readonly internalParent: RevClientObject;
     // (undocumented)
@@ -6266,13 +6255,17 @@ export namespace RevRowResizingUiController {
 // @public
 export function revSafeConvertUnknownToBoolean(value: unknown): boolean | null | undefined;
 
+// Warning: (tsdoc-reference-missing-hash) The declaration reference appears to contain a package name or import path, but it is missing the "#" delimiter
+// Warning: (tsdoc-reference-missing-hash) The declaration reference appears to contain a package name or import path, but it is missing the "#" delimiter
+// Warning: (tsdoc-reference-missing-hash) The declaration reference appears to contain a package name or import path, but it is missing the "#" delimiter
+//
 // @public
 export interface RevSchemaField {
     index: number;
     readonly name: string;
 }
 
-// @public (undocumented)
+// @public
 export interface RevSchemaServer<SF extends RevSchemaField> {
     getFields(): readonly SF[];
     // (undocumented)
@@ -6594,13 +6587,13 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
     // (undocumented)
     deselectCell(x: number, y: number, subgrid: RevSubgrid<BCS, SF>): void;
     // (undocumented)
-    deselectColumns(x: number, count: number, subgrid: RevSubgrid<BCS, SF>): void;
+    deselectColumns(activeColumnIndex: number, count: number): void;
     // (undocumented)
     deselectLastArea(): void;
     // (undocumented)
     deselectRectangle(rectangle: RevRectangle, subgrid: RevSubgrid<BCS, SF>): void;
     // (undocumented)
-    deselectRows(y: number, count: number, subgrid: RevSubgrid<BCS, SF>): void;
+    deselectRows(subgridRowIndex: number, count: number, subgrid: RevSubgrid<BCS, SF>): void;
     // @internal (undocumented)
     destroy(): void;
     endChange(): void;
@@ -6617,7 +6610,7 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
     // (undocumented)
     getAllCellSelectionAreaTypeIds(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): RevSelectionAreaTypeId[];
     // (undocumented)
-    getAreasCoveringCell(x: number, y: number, subgrid: RevSubgrid<BCS, SF> | undefined): RevSelectionArea[];
+    getAreasCoveringCell(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF> | undefined): RevSelectionArea[];
     // (undocumented)
     getColumnIndices(includeAllAuto: boolean): number[];
     // (undocumented)
@@ -6678,9 +6671,9 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
     // (undocumented)
     get subgrid(): RevSubgrid<BCS, SF> | undefined;
     // (undocumented)
-    toggleSelectCell(originX: number, originY: number, subgrid: RevSubgrid<BCS, SF>): boolean;
+    toggleSelectCell(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): boolean;
     // (undocumented)
-    toggleSelectColumn(x: number, y: number, subgrid: RevSubgrid<BCS, SF>): void;
+    toggleSelectColumn(activeColumnIndex: number, y: number, subgrid: RevSubgrid<BCS, SF>): void;
     // (undocumented)
     toggleSelectRow(x: number, y: number, subgrid: RevSubgrid<BCS, SF>): void;
 }
@@ -9574,11 +9567,9 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
     endUiControlTracking(): void;
     // (undocumented)
     ensureColumnIsInView(activeColumnIndex: number, maximally: boolean): boolean;
-    // (undocumented)
     ensureColumnRowAreInView(activeColumnIndex: number, mainSubgridRowIndex: number, maximally: boolean): boolean;
     // @internal (undocumented)
     ensureComputedInsideAnimationFrame(): void;
-    // (undocumented)
     ensureRowIsInView(mainSubgridRowIndex: number, maximally: boolean): boolean;
     // (undocumented)
     findCellAtCanvasOffset(x: number, y: number): RevViewCell<BCS, SF> | undefined;
@@ -9703,9 +9694,7 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
     get lastScrollableColumnIndex(): number | undefined;
     // (undocumented)
     get lastScrollableColumnRightOverflow(): number | undefined;
-    // (undocumented)
     get lastScrollableRowIndex(): number | undefined;
-    // (undocumented)
     get lastScrollableRowSubgridRowIndex(): number | undefined;
     // (undocumented)
     get lastScrollableVisibleColumnMaximallyVisible(): boolean;

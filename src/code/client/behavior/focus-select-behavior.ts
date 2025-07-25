@@ -105,12 +105,13 @@ export class RevFocusSelectBehavior<BGS extends RevBehavioredGridSettings, BCS e
         this._selection.endChange();
     }
 
+    /** Select only a single cell and try to focus it. If focused, ensure it is in view. */
     focusOnlySelectCell(
         activeColumnIndex: number,
         subgridRowIndex: number,
         subgrid: RevSubgrid<BCS, SF>,
         ensureFullyInView: RevEnsureFullyInView,
-    ) {
+    ): void {
         this._selection.beginChange();
         const focused = this._focus.trySetXY(activeColumnIndex, subgridRowIndex, subgrid, undefined, undefined, undefined);
         this._selection.onlySelectCell(activeColumnIndex, subgridRowIndex, subgrid);
@@ -124,7 +125,7 @@ export class RevFocusSelectBehavior<BGS extends RevBehavioredGridSettings, BCS e
         this._selection.endChange();
     }
 
-    onlySelectViewCell(viewLayoutColumnIndex: number, viewLayoutRowIndex: number) {
+    onlySelectViewCell(viewLayoutColumnIndex: number, viewLayoutRowIndex: number): void {
         const viewLayoutColumns = this._viewLayout.columns;
         if (viewLayoutColumnIndex < viewLayoutColumns.length) {
             const vc = this._viewLayout.columns[viewLayoutColumnIndex]
@@ -136,7 +137,7 @@ export class RevFocusSelectBehavior<BGS extends RevBehavioredGridSettings, BCS e
         }
     }
 
-    focusSelectCell(x: number, y: number, subgrid: RevSubgrid<BCS, SF>, ensureFullyInView: RevEnsureFullyInView) {
+    focusSelectCell(x: number, y: number, subgrid: RevSubgrid<BCS, SF>, ensureFullyInView: RevEnsureFullyInView): void {
         this._selection.beginChange();
         const focused = this._focus.trySetXY(x, y, subgrid, undefined, undefined, undefined);
         this._selection.selectCell(x, y, subgrid);
@@ -150,14 +151,25 @@ export class RevFocusSelectBehavior<BGS extends RevBehavioredGridSettings, BCS e
         this._selection.endChange();
     }
 
-    focusToggleSelectCell(originX: number, originY: number, subgrid: RevSubgrid<BCS, SF>, ensureFullyInView: RevEnsureFullyInView): boolean {
+    /**
+     * Toggles the selection state of a cell at the specified coordinates and attempts to set focus to it.
+     * If the cell becomes selected and focus is successfully set, optionally ensures the cell is fully visible in the view.
+     * Also flags the selection as focus-linked if focus is set.
+     *
+     * @param activeColumnIndex - The active column index of the cell.
+     * @param subgridRowIndex - The row index within the subgrid of the cell.
+     * @param subgrid - The subgrid containing the cell.
+     * @param ensureFullyInView - Specifies whether to scroll to ensure the cell is visible in the view.
+     * @returns `true` if the cell is selected after toggling; otherwise, `false`.
+     */
+    focusToggleSelectCell(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>, ensureFullyInView: RevEnsureFullyInView): boolean {
         this._selection.beginChange();
-        const selected = this._selection.toggleSelectCell(originX, originY, subgrid);
+        const selected = this._selection.toggleSelectCell(activeColumnIndex, subgridRowIndex, subgrid);
         if (selected) {
-            const focused = this._focus.trySetXY(originX, originY, subgrid, undefined, undefined, undefined);
+            const focused = this._focus.trySetXY(activeColumnIndex, subgridRowIndex, subgrid, undefined, undefined, undefined);
             if (focused) {
                 if (ensureFullyInView !== RevEnsureFullyInViewEnum.Never) {
-                    this._viewLayout.ensureColumnRowAreInView(originX, originY, ensureFullyInView === RevEnsureFullyInViewEnum.Always);
+                    this._viewLayout.ensureColumnRowAreInView(activeColumnIndex, subgridRowIndex, ensureFullyInView === RevEnsureFullyInViewEnum.Always);
                 }
 
                 this._selection.flagFocusLinked();
@@ -167,7 +179,7 @@ export class RevFocusSelectBehavior<BGS extends RevBehavioredGridSettings, BCS e
         return selected;
     }
 
-    tryOnlySelectFocusedCell() {
+    tryOnlySelectFocusedCell(): boolean {
         const focusPoint = this._focus.current;
         if (focusPoint === undefined) {
             return false;
