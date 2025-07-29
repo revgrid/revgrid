@@ -33,6 +33,6 @@ ToDo
 * **[Scroller (Horizontal & Vertical)](./scroller/index.md)**\
 ToDo
 * **[Selection](./selection/index.md)**\
-ToDo
+Manages selection logic for a grid component.
 * **[Renderer](./renderer/index.md)**\
 ToDo

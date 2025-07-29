@@ -6,9 +6,9 @@ import { RevSelectionArea } from './selection-area';
 export class RevLastSelectionArea extends RevFirstCornerRectangle implements RevSelectionArea {
     constructor(
         readonly areaTypeId: RevSelectionAreaTypeId,
-        firstInexclusiveX: number, firstInexclusiveY: number, width: number, height: number,
+        leftOrExRight: number, topOrExBottom: number, width: number, height: number,
     ) {
-        super(firstInexclusiveX, firstInexclusiveY, width, height);
+        super(leftOrExRight, topOrExBottom, width, height);
     }
 
     get size() { return this.area; }

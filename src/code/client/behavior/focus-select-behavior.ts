@@ -84,15 +84,15 @@ export class RevFocusSelectBehavior<BGS extends RevBehavioredGridSettings, BCS e
     }
 
     focusOnlySelectRectangle(
-        inexclusiveX: number,
-        inexclusiveY: number,
+        leftOrExRightActiveColumnIndex: number,
+        topOrExBottomSubgridRowIndex: number,
         width: number,
         height: number,
         subgrid: RevSubgrid<BCS, SF>,
         ensureFullyInView: RevEnsureFullyInView,
     ) {
         this._selection.beginChange();
-        const area = this._selection.selectRectangle(inexclusiveX, inexclusiveY, width, height, subgrid);
+        const area = this._selection.selectRectangle(leftOrExRightActiveColumnIndex, topOrExBottomSubgridRowIndex, width, height, subgrid);
         const focusPoint = area.inclusiveFirst;
         const focused = this._focus.trySet(focusPoint, subgrid, undefined, undefined);
         if (focused) {

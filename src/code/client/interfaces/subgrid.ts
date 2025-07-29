@@ -33,26 +33,26 @@ export interface RevSubgrid<BCS extends RevBehavioredColumnSettings, SF extends 
 
     getCellPainterEventer: RevSubgrid.GetCellPainterEventer<BCS, SF>;
 
-    isRowFixed(rowIndex: number): boolean;
+    isRowFixed(subgridRowIndex: number): boolean;
 
     getRowCount(): number;
-    getSingletonViewDataRow(rowIndex: number): RevDataServer.ViewRow;
+    getSingletonViewDataRow(subgridRowIndex: number): RevDataServer.ViewRow;
 
     getDefaultRowHeight(): number;
 
-    getRowMetadata(rowIndex: number): RevMetaServer.RowMetadata | undefined;
-    setRowMetadata(rowIndex: number, newMetadata: RevMetaServer.RowMetadata | undefined): void;
+    getRowMetadata(subgridRowIndex: number): RevMetaServer.RowMetadata | undefined;
+    setRowMetadata(subgridRowIndex: number, newMetadata: RevMetaServer.RowMetadata | undefined): void;
 
-    getRowProperties(rowIndex: number): RevMetaServer.RowProperties | undefined;
-    setRowProperties(rowIndex: number, properties: RevMetaServer.RowProperties | undefined): boolean;
+    getRowProperties(subgridRowIndex: number): RevMetaServer.RowProperties | undefined;
+    setRowProperties(subgridRowIndex: number, properties: RevMetaServer.RowProperties | undefined): boolean;
 
     // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-    getRowProperty(rowIndex: number, key: string): unknown | undefined;
-    getRowHeight(rowIndex: number): number;
+    getRowProperty(subgridRowIndex: number, key: string): unknown | undefined;
+    getRowHeight(subgridRowIndex: number): number;
 
-    setRowProperty(y: number, key: string, isHeight: boolean, value: unknown): boolean;
+    setRowProperty(subgridRowIndex: number, key: string, isHeight: boolean, value: unknown): boolean;
 
-    getViewValue(column: RevColumn<BCS, SF>, rowIndex: number): RevDataServer.ViewValue;
+    getViewValue(column: RevColumn<BCS, SF>, subgridRowIndex: number): RevDataServer.ViewValue;
 
     getViewValueFromDataRowAtColumn(dataRow: RevDataServer.ViewRow, column: RevColumn<BCS, SF>): RevDataServer.ViewValue;
 }

@@ -8,7 +8,7 @@ import { RevSchemaField } from './schema-field';
  * Client grid uses this interface to retrieve the schema fields which are the field columns in the grid.  It also uses
  * it to get notified about changes to the schema.
  *
- * @see [Schema Server Interface](../../../../../Architecture/Common/Server_Interfaces/Schema/)
+ * @see [Schema Server Interface Documentation](../../../../../Architecture/Common/Server_Interfaces/Schema/)
  * @public
  */
 export interface RevSchemaServer<SF extends RevSchemaField> {

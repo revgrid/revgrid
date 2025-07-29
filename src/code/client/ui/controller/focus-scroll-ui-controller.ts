@@ -85,7 +85,7 @@ export class RevFocusScrollUiController<BGS extends RevBehavioredGridSettings, B
                 return super.handleDblClick(event, hoverCell);
             } else {
                 if (viewCell.columnSettings.editOnDoubleClick && viewCell.subgrid.isMain && !viewCell.isFixed) {
-                    this._focus.tryOpenEditor(viewCell);
+                    this._focus.tryOpenEditorAtViewCell(viewCell);
                     return hoverCell;
                 } else {
                     return super.handleDblClick(event, hoverCell);

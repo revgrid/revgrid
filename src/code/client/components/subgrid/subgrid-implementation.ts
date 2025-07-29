@@ -108,18 +108,18 @@ export class RevSubgridImplementation<BCS extends RevBehavioredColumnSettings, S
         return false;
     }
 
-    getViewValue(column: RevColumn<BCS, SF>, rowIndex: number): RevDataServer.ViewValue {
-        return this.dataServer.getViewValue(column.field, rowIndex);
+    getViewValue(column: RevColumn<BCS, SF>, subgridRowIndex: number): RevDataServer.ViewValue {
+        return this.dataServer.getViewValue(column.field, subgridRowIndex);
     }
 
     /**
      * Since this may return RowProxy, can only have one of these rows active at any time
      */
-    getSingletonViewDataRow(rowIndex: number) {
+    getSingletonViewDataRow(subgridRowIndex: number) {
         if (this.dataServer.getViewRow !== undefined) {
-            return this.dataServer.getViewRow(rowIndex);
+            return this.dataServer.getViewRow(subgridRowIndex);
         } else {
-            this._viewDataRowProxy.____rowIndex = rowIndex;
+            this._viewDataRowProxy.____rowIndex = subgridRowIndex;
             return this._viewDataRowProxy;
         }
     }
@@ -136,14 +136,14 @@ export class RevSubgridImplementation<BCS extends RevBehavioredColumnSettings, S
         return this.dataServer.getRowCount();
     }
 
-    getRowMetadata(rowIndex: number) {
+    getRowMetadata(subgridRowIndex: number) {
         if (this.metaServer === undefined) {
             return undefined;
         } else {
             if (this.metaServer.getRowMetadata === undefined) {
                 return undefined;
             } else {
-                const metadata = this.metaServer.getRowMetadata(rowIndex);
+                const metadata = this.metaServer.getRowMetadata(subgridRowIndex);
                 if (metadata === null) {
                     throw new RevAssertError('SGRMN99441'); // Row itself does not exist
                 } else {
@@ -157,15 +157,15 @@ export class RevSubgridImplementation<BCS extends RevBehavioredColumnSettings, S
         }
     }
 
-    setRowMetadata(rowIndex: number, newMetadata: RevMetaServer.RowMetadata | undefined) {
+    setRowMetadata(subgridRowIndex: number, newMetadata: RevMetaServer.RowMetadata | undefined) {
         // eslint-disable-next-line @typescript-eslint/prefer-optional-chain
         if (this.metaServer !== undefined && this.metaServer.setRowMetadata !== undefined) {
-            this.metaServer.setRowMetadata(rowIndex, newMetadata);
+            this.metaServer.setRowMetadata(subgridRowIndex, newMetadata);
         }
     }
 
     /**
-     * @param yOrCellEvent - Data row index local to `dataModel`; or a `CellEvent` object.
+     * @param subgridRowIndex - Data row index local to `dataModel`; or a `CellEvent` object.
      * @param rowPropertiesPrototype - Prototype for a new properties object when one does not already exist. If you don't define this and one does not already exist, this call will return `undefined`.
      * Typical defined value is `null`, which creates a plain object with no prototype, or `Object.prototype` for a more "natural" object.
      * _(Required when 3rd param provided.)_
@@ -175,8 +175,8 @@ export class RevSubgridImplementation<BCS extends RevBehavioredColumnSettings, S
      * * `null` - row does not exist
      * * `undefined` - row exists but does not have any properties
      */
-    getRowProperties(rowIndex: number): RevMetaServer.RowProperties | undefined {
-        const metadata = this.getRowMetadata(rowIndex);
+    getRowProperties(subgridRowIndex: number): RevMetaServer.RowProperties | undefined {
+        const metadata = this.getRowMetadata(subgridRowIndex);
         if (metadata === undefined) {
             return undefined;
         } else {
@@ -184,17 +184,17 @@ export class RevSubgridImplementation<BCS extends RevBehavioredColumnSettings, S
         }
     }
 
-    setRowProperties(rowIndex: number, properties: RevMetaServer.RowProperties | undefined) {
-        const metadata = this.getRowMetadata(rowIndex);
-        return this.setRowMetadataRowProperties(rowIndex, metadata, properties);
+    setRowProperties(subgridRowIndex: number, properties: RevMetaServer.RowProperties | undefined) {
+        const metadata = this.getRowMetadata(subgridRowIndex);
+        return this.setRowMetadataRowProperties(subgridRowIndex, metadata, properties);
         // if (metadata) {
         //     metadata.__ROW = Object.create(this._rowPropertiesPrototype);
         // }
     }
 
-    getRowProperty(rowIndex: number, key: string) {
+    getRowProperty(subgridRowIndex: number, key: string) {
         // undefined return means there is no row properties object OR no such row property `[key]`
-        const rowProps = this.getRowProperties(rowIndex);
+        const rowProps = this.getRowProperties(subgridRowIndex);
         if (rowProps === undefined) {
             return undefined;
         } else {
@@ -203,13 +203,13 @@ export class RevSubgridImplementation<BCS extends RevBehavioredColumnSettings, S
     }
 
     /**
-     * @param yOrCellEvent - Data row index local to `dataModel`.
+     * @param subgridRowIndex - Data row index local to `dataModel`.
      * @returns The row height in pixels.
      */
-    getRowHeight(rowIndex: number) {
+    getRowHeight(subgridRowIndex: number) {
         let rowHeight: number | undefined;
         if (this.rowHeightsCanDiffer) {
-            const rowProps = this.getRowProperties(rowIndex);
+            const rowProps = this.getRowProperties(subgridRowIndex);
             if (rowProps !== undefined) {
                 rowHeight = rowProps.height;
                 if (rowHeight !== undefined) {
@@ -276,8 +276,8 @@ export class RevSubgridImplementation<BCS extends RevBehavioredColumnSettings, S
         }
     }
 
-    setRowProperty(y: number, key: string, isHeight: boolean, value: unknown) {
-        let metadata = this.getRowMetadata(y);
+    setRowProperty(subgridRowIndex: number, key: string, isHeight: boolean, value: unknown) {
+        let metadata = this.getRowMetadata(subgridRowIndex);
         if (metadata === undefined) {
             metadata = Object.create(this._rowPropertiesPrototype) as RevMetaServer.RowMetadata;
         }
@@ -300,7 +300,7 @@ export class RevSubgridImplementation<BCS extends RevBehavioredColumnSettings, S
             }
         }
 
-        return this.setRowMetadataRowProperties(y, metadata, properties);
+        return this.setRowMetadataRowProperties(subgridRowIndex, metadata, properties);
     }
 
     /** @internal */

@@ -6,6 +6,17 @@ import { RevColumnsManager } from '../column/columns-manager';
 import { RevViewLayout } from '../view/view-layout';
 
 /** @public */
+/**
+ * Manages the focus state within a grid, including the currently focused cell, row, and column,
+ * as well as the cell editor lifecycle and related events. Handles navigation, editing, and
+ * synchronization of focus with grid changes such as row/column insertion, deletion, and movement.
+ *
+ * @typeParam BGS - Behaviored grid settings type.
+ * @typeParam BCS - Behaviored column settings type.
+ * @typeParam SF - Schema field type.
+ *
+ * @see [Focus Component Documentation](../../../../../Architecture/Client/Components/Focus/)
+ */
 export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {
     getCellEditorEventer: RevFocus.GetCellEditorEventer<BCS, SF> | undefined;
     editorKeyDownEventer: RevFocus.EditorKeyDownEventer;
@@ -135,7 +146,7 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
                 this._cell = cell;
 
                 if (cell.viewLayoutColumn.column.settings.editOnFocusCell) {
-                    this.tryOpenEditorAtFocusedCell(cell, undefined, undefined);
+                    this.tryOpenEditorAtFocusedViewCell(cell, undefined, undefined);
                 }
 
                 this.viewCellRenderInvalidatedEventer(cell);
@@ -183,7 +194,7 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
                 this._cell = cell;
 
                 if (cell.viewLayoutColumn.column.settings.editOnFocusCell) {
-                    this.tryOpenEditorAtFocusedCell(cell, undefined, undefined);
+                    this.tryOpenEditorAtFocusedViewCell(cell, undefined, undefined);
                 }
 
                 this.viewCellRenderInvalidatedEventer(cell);
@@ -228,7 +239,7 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
                 this._cell = cell;
 
                 if (cell.viewLayoutColumn.column.settings.editOnFocusCell) {
-                    this.tryOpenEditorAtFocusedCell(cell, undefined, undefined);
+                    this.tryOpenEditorAtFocusedViewCell(cell, undefined, undefined);
                 }
 
                 this.viewCellRenderInvalidatedEventer(cell);
@@ -279,7 +290,7 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
                 this._cell = cell;
 
                 if (cell.viewLayoutColumn.column.settings.editOnFocusCell) {
-                    this.tryOpenEditorAtFocusedCell(cell, undefined, undefined);
+                    this.tryOpenEditorAtFocusedViewCell(cell, undefined, undefined);
                 }
 
                 this.viewCellRenderInvalidatedEventer(cell);
@@ -332,35 +343,27 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
         );
     }
 
-    tryOpenEditor(cell: RevViewCell<BCS, SF>) {
-        if (cell !== this._cell) {
-            // Can only open editor at Focused cell
-            throw new RevAssertError('FTOE34349');
+    /**
+     * Attempts to open the editor at the currently focused cell.
+     *
+     * For a successful operation, the focused cell must be visible and editable.
+     *
+     * @returns Returns `true` if the editor was successfully opened (including if it was already open), or `false` if there is open operation failed.
+     */
+    tryOpenEditor(): boolean {
+        if (this._cell === undefined) {
+            return false; // cannot open editor if focused cell is not visible
         } else {
-            return this.tryOpenEditorAtFocusedCell(cell, undefined, undefined)
+            return this.tryOpenEditorAtFocusedViewCell(this._cell, undefined, undefined);
         }
     }
 
-    closeEditor(editor: RevCellEditor<BCS, SF>, cancel: boolean, focusCanvas: boolean) {
-        const activeColumnIndex = this._editorActiveColumnIndex;
-        const subgridRowIndex = this._editorSubgridRowIndex;
-        if (activeColumnIndex === undefined || subgridRowIndex === undefined) {
-            throw new RevAssertError('FCE40199');
-        } else {
-            this._editor = undefined;
-            this._editorActiveColumnIndex = undefined;
-            this._editorSubgridRowIndex = undefined;
-            const column = this._columnsManager.getActiveColumn(activeColumnIndex);
-            editor.closeCell(column.field, subgridRowIndex, cancel);
-            this.finaliseEditor(editor);
-
-            if (this._cell !== undefined) {
-                this.viewCellRenderInvalidatedEventer(this._cell);
-            }
-
-            if (focusCanvas) {
-                this._canvas.element.focus();
-            }
+    /**
+     * Closes the currently active editor, if one exists.
+     */
+    closeEditor(): void {
+        if (this._editor !== undefined) {
+            this.closeSpecifiedEditor(this._editor, false, true);
         }
     }
 
@@ -397,6 +400,16 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
     }
 
     /** @internal */
+    tryOpenEditorAtViewCell(cell: RevViewCell<BCS, SF>): boolean {
+        if (cell !== this._cell) {
+            // Can only open editor at Focused cell
+            throw new RevAssertError('FTOE34349');
+        } else {
+            return this.tryOpenEditorAtFocusedViewCell(cell, undefined, undefined)
+        }
+    }
+
+    /** @internal */
     checkEditorWantsKeyDownEvent(event: KeyboardEvent, fromEditor: boolean): boolean {
         const editor = this._editor;
         if (editor === undefined) {
@@ -406,10 +419,10 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
             } else {
                 const key = event.key;
                 if (key === this._gridSettings.editKey) {
-                    return this.tryOpenEditorAtFocusedCell(cell, undefined, undefined);
+                    return this.tryOpenEditorAtFocusedViewCell(cell, undefined, undefined);
                 } else {
                     if (cell.columnSettings.editOnKeyDown) {
-                        return this.tryOpenEditorAtFocusedCell(cell, event, undefined);
+                        return this.tryOpenEditorAtFocusedViewCell(cell, event, undefined);
                     } else {
                         return false;
                     }
@@ -429,11 +442,11 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
                 } else {
                     switch (key) {
                         case RevFocus.ActionKeyboardKey.enter: {
-                            this.closeEditor(editor, false, true);
+                            this.closeSpecifiedEditor(editor, false, true);
                             return true;
                         }
                         case RevFocus.ActionKeyboardKey.escape: {
-                            this.closeEditor(editor, true, true);
+                            this.closeSpecifiedEditor(editor, true, true);
                             return true;
                         }
                         default:
@@ -454,7 +467,7 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
                 if (!focusedCell.columnSettings.editOnClick) {
                     return false;
                 } else {
-                    return this.tryOpenEditorAtFocusedCell(focusedCell, undefined, event);
+                    return this.tryOpenEditorAtFocusedViewCell(focusedCell, undefined, event);
                 }
             } else {
                 if (editor.processGridClickEvent === undefined) {
@@ -527,7 +540,7 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
                         this._editorSubgridRowIndex = editorSubgridRowIndex - rowCount;
                     } else {
                         if (this._editor !== undefined) {
-                            this.closeEditor(this._editor, false, true)
+                            this.closeSpecifiedEditor(this._editor, true, true)
                         }
                     }
                 }
@@ -597,7 +610,7 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
                     this._editorActiveColumnIndex = editorActiveColumnIndex - columnCount;
                 } else {
                     if (this._editor !== undefined) {
-                        this.closeEditor(this._editor, false, true)
+                        this.closeSpecifiedEditor(this._editor, true, true)
                     }
                 }
             }
@@ -804,7 +817,7 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
     }
 
     /** @internal */
-    private tryOpenEditorAtFocusedCell(focusedCell: RevViewCell<BCS, SF>, keyDownEvent: KeyboardEvent | undefined, clickEvent: MouseEvent | undefined) {
+    private tryOpenEditorAtFocusedViewCell(focusedCell: RevViewCell<BCS, SF>, keyDownEvent: KeyboardEvent | undefined, clickEvent: MouseEvent | undefined) {
         if (this._editor !== undefined) {
             return true;
         } else {
@@ -870,7 +883,7 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
     private closeFocus() {
         // in future, there may be scenarios where focus is not transferred to canvas if editor is closed
         if (this._editor !== undefined) {
-            this.closeEditor(this._editor, false, true)
+            this.closeSpecifiedEditor(this._editor, true, true)
         }
 
         const cell = this._cell;
@@ -878,6 +891,30 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
             this.viewCellRenderInvalidatedEventer(cell);
         }
         this._cell = undefined;
+    }
+
+    /** @internal */
+    private closeSpecifiedEditor(editor: RevCellEditor<BCS, SF>, cancel: boolean, focusCanvas: boolean) {
+        const activeColumnIndex = this._editorActiveColumnIndex;
+        const subgridRowIndex = this._editorSubgridRowIndex;
+        if (activeColumnIndex === undefined || subgridRowIndex === undefined) {
+            throw new RevAssertError('FCE40199');
+        } else {
+            this._editor = undefined;
+            this._editorActiveColumnIndex = undefined;
+            this._editorSubgridRowIndex = undefined;
+            const column = this._columnsManager.getActiveColumn(activeColumnIndex);
+            editor.closeCell(column.field, subgridRowIndex, cancel);
+            this.finaliseEditor(editor);
+
+            if (this._cell !== undefined) {
+                this.viewCellRenderInvalidatedEventer(this._cell);
+            }
+
+            if (focusCanvas) {
+                this._canvas.element.focus();
+            }
+        }
     }
 
     /** @internal */

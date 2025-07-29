@@ -13,11 +13,15 @@ import { RevSelectionRectangle } from './selection-rectangle';
 import { RevSelectionRectangleList } from './selection-rectangle-list';
 
 /**
+ * Manages the selection state for a grid, supporting selection of rows, columns, rectangles, and the entire grid.
  *
- * We represent selections as a list of rectangles because large areas can be represented and tested against quickly with a minimal amount of memory usage. Also we need to maintain the selection rectangles flattened counter parts so we can test for single dimension contains. This is how we know to highlight the fixed regions on the edges of the grid.
+ * @typeParam BGS - Type of the grid settings.
+ * @typeParam BCS - Type of the column settings.
+ * @typeParam SF - Type of the schema field.
+ *
+ * @see [Selection Component Documentation](../../../../../Architecture/Client/Components/Selection/)
  * @public
  */
-
 export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {
     /** @internal */
     changedEventerForRenderer: RevSelection.ChangedEventer;
@@ -67,12 +71,12 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
         }
     }
 
-    get subgrid() { return this._subgrid; }
+    get subgrid(): RevSubgrid<BCS, SF> | undefined { return this._subgrid; }
 
     get areaCount(): number { return this._rectangleList.areaCount + this._rows.areaCount + this._columns.areaCount; }
-    get lastArea() { return this._lastArea; }
+    get lastArea(): RevLastSelectionArea | undefined { return this._lastArea; }
 
-    get allAuto() { return this._allAuto; }
+    get allAuto(): boolean { return this._allAuto; }
     set allAuto(value: boolean) {
         if (value !== this._allAuto) {
             this.beginChange();
@@ -94,21 +98,21 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
     get rectangles(): readonly RevSelectionRectangle[] { return this._rectangleList.rectangles; }
 
     /** @internal */
-    destroy() {
+    destroy(): void {
         //
     }
 
     /** Call before multiple selection changes to consolidate RevSelection Change events.
      * Pair with endChange().
      */
-    beginChange() {
+    beginChange(): void {
         ++this._beginChangeCount;
     }
 
     /** Call after multiple selection changes to consolidate SelectionChange events.
      * Pair with beginSelectionChange().
      */
-    endChange() {
+    endChange(): void {
         if (--this._beginChangeCount === 0) {
             if (this._changed) {
                 this._changed = false;
@@ -127,6 +131,9 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
         }
     }
 
+    /**
+     * Creates a stash object representing the current selection in a format which is not affected by sorting, filtering or reordering.
+     */
     createStash(): RevSelection.Stash<BCS, SF> {
         const lastRectangleFirstCell = this.createLastRectangleFirstCellStash();
         const rowIds = this.createRowsStash();
@@ -141,7 +148,17 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
         };
     }
 
-    restoreStash(stash: RevSelection.Stash<BCS, SF>, allRowsKept: boolean) {
+    /**
+     * Restores the selection state from a given stash object.
+     *
+     * This method begins a change transaction, clears the current selection,
+     * and restores the subgrid, auto-selection state, last rectangle's first cell,
+     * selected rows, and selected columns from the provided stash.
+     *
+     * @param stash - The stash object containing the selection state to restore.
+     * @param allRowsKept - Indicates whether all rows are kept during restoration. If true, an exception is thrown if the stash contains rows that are not present in the current subgrid.
+     */
+    restoreStash(stash: RevSelection.Stash<BCS, SF>, allRowsKept: boolean): void {
         this.beginChange();
         try {
             this.clear();
@@ -155,14 +172,14 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
         }
     }
 
-    getLastRectangle() {
+    getLastRectangle(): RevSelectionRectangle | undefined {
         return this._rectangleList.getLastRectangle();
     }
 
     /**
-     * empty out all our state
+     * Clears the selection
      */
-    clear() {
+    clear(): void {
         this.beginChange();
         try {
             let changed = false;
@@ -208,31 +225,48 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
         }
     }
 
-    onlySelectCell(x: number, y: number, subgrid: RevSubgrid<BCS, SF>) {
+    /**
+     * Selects only the specified cell in the given subgrid, clearing any previous selection.
+     *
+     * @param activeColumnIndex - The column index of the cell to select.
+     * @param subgridRowIndex - The row index of the cell to select.
+     * @param subgrid - The subgrid containing the cell to select.
+     * @returns The last selection area after selecting the cell.
+     */
+    onlySelectCell(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): RevLastSelectionArea {
         this.beginChange();
         try {
             this.clear();
-            return this.selectCell(x, y, subgrid);
+            return this.selectCell(activeColumnIndex, subgridRowIndex, subgrid);
         } finally {
             this.endChange();
         }
     }
 
-    selectCell(x: number, y: number, subgrid: RevSubgrid<BCS, SF>) {
-        return this.selectRectangle(x, y, 1, 1, subgrid);
+    /**
+     * Create a selection area for a single cell and add the new area to the selection. If the subgrid is not the same as the active subgrid or multiple selection areas
+     * are not allowed, clear the selection before adding the new selection area.
+     *
+     * @param activeColumnIndex - The index of the active column of the cell.
+     * @param subgridRowIndex - The index of the row of the cell within the subgrid.
+     * @param subgrid - The subgrid containing the cell.
+     * @returns The selection area representing the selected cell.
+     */
+    selectCell(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): RevLastSelectionArea {
+        return this.selectRectangle(activeColumnIndex, subgridRowIndex, 1, 1, subgrid);
     }
 
-    deselectCell(x: number, y: number, subgrid: RevSubgrid<BCS, SF>) {
+    deselectCell(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): void {
         const rectangle: RevRectangle = {
-            x,
-            y,
+            x: activeColumnIndex,
+            y: subgridRowIndex,
             width: 1,
             height: 1,
         }
         this.deselectRectangle(rectangle, subgrid);
     }
 
-    selectArea(areaTypeId: RevSelectionAreaTypeId, firstInexclusiveX: number, firstExclusiveY: number, width: number, height: number, subgrid: RevSubgrid<BCS, SF>) {
+    selectArea(areaTypeId: RevSelectionAreaTypeId, leftOrExRightActiveColumnIndex: number, topOrBottomSubgridRowIndex: number, width: number, height: number, subgrid: RevSubgrid<BCS, SF>): RevSelectionArea | undefined {
         this.beginChange();
         try {
             let area: RevSelectionArea | undefined;
@@ -243,15 +277,15 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
                     break;
                 }
                 case RevSelectionAreaTypeId.rectangle: {
-                    area = this.selectRectangle(firstInexclusiveX, firstExclusiveY, width, height, subgrid,);
+                    area = this.selectRectangle(leftOrExRightActiveColumnIndex, topOrBottomSubgridRowIndex, width, height, subgrid,);
                     break;
                 }
                 case RevSelectionAreaTypeId.column: {
-                    area = this.selectColumns(firstInexclusiveX, firstExclusiveY, width, height, subgrid);
+                    area = this.selectColumns(leftOrExRightActiveColumnIndex, topOrBottomSubgridRowIndex, width, height, subgrid);
                     break;
                 }
                 case RevSelectionAreaTypeId.row: {
-                    area = this.selectRows(firstInexclusiveX, firstExclusiveY, width, height, subgrid);
+                    area = this.selectRows(leftOrExRightActiveColumnIndex, topOrBottomSubgridRowIndex, width, height, subgrid);
                     break;
                 }
                 default:
@@ -264,7 +298,7 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
         }
     }
 
-    deselectLastArea() {
+    deselectLastArea(): void {
         const lastArea = this._lastArea;
         this._lastArea = undefined;
         if (lastArea !== undefined) {
@@ -296,24 +330,24 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
         }
     }
 
-    onlySelectRectangle(firstInexclusiveX: number, firstInexclusiveY: number, width: number, height: number, subgrid: RevSubgrid<BCS, SF>) {
+    onlySelectRectangle(leftOrExRightActiveColumnIndex: number, topOrExBottomSubgridRowIndex: number, width: number, height: number, subgrid: RevSubgrid<BCS, SF>): RevLastSelectionArea {
         this.beginChange();
         try {
             this.clear();
-            return this.selectRectangle(firstInexclusiveX, firstInexclusiveY, width, height, subgrid);
+            return this.selectRectangle(leftOrExRightActiveColumnIndex, topOrExBottomSubgridRowIndex, width, height, subgrid);
         } finally {
             this.endChange();
         }
     }
 
-    selectRectangle(firstInexclusiveX: number, firstInexclusiveY: number, width: number, height: number, subgrid: RevSubgrid<BCS, SF>, silent = false) {
+    selectRectangle(leftOrExRightActiveColumnIndex: number, topOrExBottomSubgridRowIndex: number, width: number, height: number, subgrid: RevSubgrid<BCS, SF>, silent = false): RevLastSelectionArea {
         this.beginChange();
         try {
             const switchNewRectangleSelectionToRowOrColumn = this._gridSettings.switchNewRectangleSelectionToRowOrColumn;
             if (switchNewRectangleSelectionToRowOrColumn !== undefined) {
                 switch (switchNewRectangleSelectionToRowOrColumn) {
-                    case 'row': return this.selectRows(firstInexclusiveX, firstInexclusiveY, width, height, subgrid);
-                    case 'column': return this.selectColumns(firstInexclusiveX, firstInexclusiveY, width, height, subgrid);
+                    case 'row': return this.selectRows(leftOrExRightActiveColumnIndex, topOrExBottomSubgridRowIndex, width, height, subgrid);
+                    case 'column': return this.selectColumns(leftOrExRightActiveColumnIndex, topOrExBottomSubgridRowIndex, width, height, subgrid);
                     default: throw new RevUnreachableCaseError('SSR50591', switchNewRectangleSelectionToRowOrColumn);
                 }
             } else {
@@ -326,9 +360,9 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
                     this.clear();
                 }
 
-                const rectangle = new RevSelectionRectangle(firstInexclusiveX, firstInexclusiveY, width, height);
+                const rectangle = new RevSelectionRectangle(leftOrExRightActiveColumnIndex, topOrExBottomSubgridRowIndex, width, height);
                 this._rectangleList.push(rectangle);
-                this._lastArea = new RevLastSelectionArea(RevSelectionAreaTypeId.rectangle, firstInexclusiveX, firstInexclusiveY, width, height);
+                this._lastArea = new RevLastSelectionArea(RevSelectionAreaTypeId.rectangle, leftOrExRightActiveColumnIndex, topOrExBottomSubgridRowIndex, width, height);
 
                 this.flagChanged(silent);
             }
@@ -356,8 +390,20 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
         }
     }
 
-    /** Parameters specify a rectangle in Data, the rows of which will be selected */
-    selectRows(x: number, inexclusiveY: number, width: number, height: number, subgrid: RevSubgrid<BCS, SF>) {
+    /**
+     * Create a row selection area and add the new area to the selection. If the subgrid is not the same as the active subgrid or multiple selection areas
+     * are not allowed, clear the selection before adding the new selection area.
+     *
+     * While the leftOrExRightActiveColumnIndex and width parameters are needed to specify the rows, they are needed to create a selection area.  Normally they are set to specify all columns in the subgrid.
+     *
+     * @param leftOrExRightActiveColumnIndex - The starting index of the range of active column indices to include if `width` is positive, or the exclusive end index if `width` is negative.
+     * @param topOrExclusiveBottomSubgridRowIndex - The starting index of the range of subgrid row index to include if `height` is positive, or the exclusive end index if `height` is negative.
+     * @param width - The number of active columns to include in the new selection area.
+     * @param height - The number of subgrid rows to include in the new selection area.
+     * @param subgrid - The subgrid in which the new selection area is made.
+     * @returns The last selection area representing the selected rows.
+     */
+    selectRows(leftOrExRightActiveColumnIndex: number, topOrExclusiveBottomSubgridRowIndex: number, width: number, height: number, subgrid: RevSubgrid<BCS, SF>): RevLastSelectionArea {
         this.beginChange();
         try {
             if (subgrid !== this._subgrid) {
@@ -369,8 +415,8 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
                 this.clear();
             }
 
-            const changed = this._rows.add(inexclusiveY, height);
-            const lastArea = new RevLastSelectionArea(RevSelectionAreaTypeId.row, x, inexclusiveY, width, height);
+            const changed = this._rows.add(topOrExclusiveBottomSubgridRowIndex, height);
+            const lastArea = new RevLastSelectionArea(RevSelectionAreaTypeId.row, leftOrExRightActiveColumnIndex, topOrExclusiveBottomSubgridRowIndex, width, height);
             if (changed) {
                 this._lastArea = lastArea;
                 this.flagChanged(false);
@@ -382,16 +428,27 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
         }
     }
 
-    selectAllRows(x: number, width: number, subgrid: RevSubgrid<BCS, SF>) {
+    /**
+     * Selects all rows within the specified subgrid.
+     *
+     * The leftOrExRightActiveColumnIndex and width parameters are needed to create a selection area.  Normally they are set to specify all columns in the subgrid.
+     *
+     * Note that while this selects all cells in the subgrid, it differs from {@link allAuto} in that this selection area will not include new rows subsequently added to the subgrid.
+     *
+     * @param leftOrExRightActiveColumnIndex - The starting index of the range of active column indices to include if `width` is positive, or the exclusive end index if `width` is negative.
+     * @param width - The number of active columns to include in the new selection area.
+     * @param subgrid - The subgrid instance containing the rows to be selected.
+     */
+    selectAllRows(leftOrExRightActiveColumnIndex: number, width: number, subgrid: RevSubgrid<BCS, SF>): void {
         const subgridRowCount = subgrid.getRowCount();
         if (subgridRowCount > 0) {
-            this.selectRows(x, 0, width, subgridRowCount, subgrid);
+            this.selectRows(leftOrExRightActiveColumnIndex, 0, width, subgridRowCount, subgrid);
         }
     }
 
-    deselectRows(subgridRowIndex: number, count: number, subgrid: RevSubgrid<BCS, SF>) {
+    deselectRows(topOrExBottomSubgridRowIndex: number, count: number, subgrid: RevSubgrid<BCS, SF>) {
         if (subgrid === this._subgrid) {
-            const changed = this._rows.delete(subgridRowIndex, count);
+            const changed = this._rows.delete(topOrExBottomSubgridRowIndex, count);
             if (changed) {
                 this.beginChange();
                 const lastArea = this._lastArea;
@@ -428,15 +485,15 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
         }
     }
 
-    toggleSelectRow(x: number, y: number, subgrid: RevSubgrid<BCS, SF>) {
-        if (this._rows.includesIndex(y)) {
-            this.deselectRows(y, 1, subgrid);
+    toggleSelectRow(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): void {
+        if (this._rows.includesIndex(subgridRowIndex)) {
+            this.deselectRows(subgridRowIndex, 1, subgrid);
         } else {
-            this.selectRows(x, y, 1, 1, subgrid);
+            this.selectRows(activeColumnIndex, subgridRowIndex, 1, 1, subgrid);
         }
     }
 
-    selectColumns(inexclusiveX: number, y: number, width: number, height: number, subgrid: RevSubgrid<BCS, SF>) {
+    selectColumns(inexclusiveX: number, y: number, width: number, height: number, subgrid: RevSubgrid<BCS, SF>): RevLastSelectionArea {
         this.beginChange();
 
         if (subgrid !== this._subgrid) {
@@ -459,7 +516,7 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
         return lastArea;
     }
 
-    deselectColumns(activeColumnIndex: number, count: number) {
+    deselectColumns(activeColumnIndex: number, count: number): void {
         const changed = this._columns.delete(activeColumnIndex, count);
         if (changed) {
             this.beginChange();
@@ -496,7 +553,7 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
         }
     }
 
-    toggleSelectColumn(activeColumnIndex: number, y: number, subgrid: RevSubgrid<BCS, SF>) {
+    toggleSelectColumn(activeColumnIndex: number, y: number, subgrid: RevSubgrid<BCS, SF>): void {
         if (this._columns.includesIndex(activeColumnIndex)) {
             this.deselectColumns(activeColumnIndex, 1);
         } else {
@@ -504,7 +561,7 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
         }
     }
 
-    replaceLastArea(areaTypeId: RevSelectionAreaTypeId, inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid: RevSubgrid<BCS, SF>) {
+    replaceLastArea(areaTypeId: RevSelectionAreaTypeId, inexclusiveX: number, inexclusiveY: number, width: number, height: number, subgrid: RevSubgrid<BCS, SF>): RevSelectionArea | undefined {
         this.beginChange();
         try {
             this.deselectLastArea();
@@ -763,7 +820,13 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
         }
     }
 
-    hasColumns(includeAllAuto: boolean) {
+    /**
+     * Determines whether selection includes any column selection areas.
+     *
+     * @param includeAllAuto - If `true`, considers then any active columns are considered as column selection areas.
+     * @returns `true` if selection contains one or more column selection areas, otherwise `false`.
+     */
+    hasColumns(includeAllAuto: boolean): boolean {
         if (this._columns.hasIndices()) {
             return true;
         } else {
@@ -775,7 +838,7 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
         }
     }
 
-    getColumnIndices(includeAllAuto: boolean) {
+    getColumnIndices(includeAllAuto: boolean): number[] {
         if (includeAllAuto && this._allAuto) {
             return this.getAllAutoColumnIndices();
         } else {
@@ -783,7 +846,7 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
         }
     }
 
-    getAllAutoColumnIndices() {
+    getAllAutoColumnIndices(): number[] {
         if (!this._allAuto) {
             return [];
         } else {
@@ -838,12 +901,20 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
         return result;
     }
 
-    isPointInLastArea(x: number, y: number) {
+    /**
+     * Determines whether the specified cell, identified by its column and row indices,
+     * is within the bounds of the last selection area.
+     *
+     * @param activeColumnIndex - The index of the column to check.
+     * @param subgridRowIndex - The index of the row within the subgrid to check.
+     * @returns `true` if the cell is within the last selection area; otherwise, `false`.
+     */
+    isPointInLastArea(activeColumnIndex: number, subgridRowIndex: number): boolean {
         const lastArea = this._lastArea;
         if (lastArea === undefined) {
             return false;
         } else {
-            return lastArea.containsXY(x, y);
+            return lastArea.containsXY(activeColumnIndex, subgridRowIndex);
         }
     }
 

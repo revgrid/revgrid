@@ -1,5 +1,19 @@
 import { Integer } from '@pbkware/js-utils';
-import { RevApiError, RevAssertError, RevClientObject, RevCssTypes, RevDataServer, RevEnsureFullyInViewEnum, RevListChangedTypeId, RevMetaServer, RevPoint, RevRectangle, RevSchemaField, RevSchemaServer, RevSelectionAreaType } from '../common';
+import {
+    RevApiError,
+    RevAssertError,
+    RevClientObject,
+    RevCssTypes,
+    RevDataServer,
+    RevEnsureFullyInViewEnum,
+    RevListChangedTypeId,
+    RevMetaServer,
+    RevPoint,
+    RevRectangle,
+    RevSchemaField,
+    RevSchemaServer,
+    RevSelectionAreaType,
+} from '../common';
 import { RevBehaviorManager } from './behavior/behavior-manager';
 import { RevCellPropertiesBehavior } from './behavior/cell-properties-behavior';
 import { RevDataExtractBehavior } from './behavior/data-extract-behavior';
@@ -15,6 +29,7 @@ import { RevMouse } from './components/mouse/mouse';
 import { RevGridPainter } from './components/renderer/grid-painter/grid-painter';
 import { RevRenderer } from './components/renderer/renderer';
 import { RevScroller } from './components/scroller/scroller';
+import { RevLastSelectionArea } from './components/selection/last-selection-area';
 import { RevSelection } from './components/selection/selection';
 import { RevSubgridsManager } from './components/subgrid/subgrids-manager';
 import { RevViewLayout } from './components/view/view-layout';
@@ -1107,18 +1122,18 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
         return this.selection.toggleSelectCell(x, y, subgrid);
     }
 
-    onlySelectRectangle(firstInexclusiveX: Integer, firstInexclusiveY: Integer, width: Integer, height: Integer, subgrid?: RevSubgrid<BCS, SF>) {
+    onlySelectRectangle(leftOrExRightActiveColumnIndex: Integer, topOrExBottomSubgridRowIndex: Integer, width: Integer, height: Integer, subgrid?: RevSubgrid<BCS, SF>): RevLastSelectionArea {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
-        return this.selection.onlySelectRectangle(firstInexclusiveX, firstInexclusiveY, width, height, subgrid);
+        return this.selection.onlySelectRectangle(leftOrExRightActiveColumnIndex, topOrExBottomSubgridRowIndex, width, height, subgrid);
     }
 
-    selectRectangle(firstInexclusiveX: Integer, firstInexclusiveY: Integer, width: Integer, height: Integer, subgrid?: RevSubgrid<BCS, SF>) {
+    selectRectangle(leftOrExRightActiveColumnIndex: Integer, topOrExBottomSubgridRowIndex: Integer, width: Integer, height: Integer, subgrid?: RevSubgrid<BCS, SF>): RevLastSelectionArea {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
-        return this.selection.selectRectangle(firstInexclusiveX, firstInexclusiveY, width, height, subgrid);
+        return this.selection.selectRectangle(leftOrExRightActiveColumnIndex, topOrExBottomSubgridRowIndex, width, height, subgrid);
     }
 
     deselectRectangle(rectangle: RevRectangle, subgrid?: RevSubgrid<BCS, SF>) {
@@ -1292,11 +1307,11 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
         this._focusSelectBehavior.toggleSelectRow(subgridRowIndex, subgrid);
     }
 
-    focusOnlySelectRectangle(inexclusiveX: Integer, inexclusiveY: Integer, width: Integer, height: Integer, subgrid?: RevSubgrid<BCS, SF>, ensureFullyInView = RevEnsureFullyInViewEnum.Never) {
+    focusOnlySelectRectangle(leftOrExRight: Integer, topOrExBottom: Integer, width: Integer, height: Integer, subgrid?: RevSubgrid<BCS, SF>, ensureFullyInView = RevEnsureFullyInViewEnum.Never) {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
-        this._focusSelectBehavior.focusOnlySelectRectangle(inexclusiveX, inexclusiveY, width, height, subgrid, ensureFullyInView);
+        this._focusSelectBehavior.focusOnlySelectRectangle(leftOrExRight, topOrExBottom, width, height, subgrid, ensureFullyInView);
     }
 
     focusOnlySelectCell(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>, ensureFullyInView = RevEnsureFullyInViewEnum.Never) {

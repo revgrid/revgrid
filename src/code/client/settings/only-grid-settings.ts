@@ -26,6 +26,8 @@ export interface RevOnlyGridSettings {
     columnsReorderable: boolean;
     /** Columns can be hidden when being reordered. */
     columnsReorderableHideable: boolean;
+    /** If defined, when new rectangle selection areas are added to a selection, they will be converted to a row or column area type as
+     * specified by this setting.  This allows you to restrict selections to rows or columns. */
     switchNewRectangleSelectionToRowOrColumn: RevRowOrColumnSelectionAreaType | undefined;
     defaultRowHeight: number;
     /** Whether to automatically expand column width to accommodate widest rendered value. */
@@ -137,10 +139,12 @@ export interface RevOnlyGridSettings {
     /** Enables column selections with mouse */
     mouseColumnSelectionEnabled: boolean;
     mouseColumnSelectionModifierKey: RevModifierKey | undefined;
-    /** Enables row selections with mouse */
+    /** Enables row selections with mouse
+     * @defaultValue true
+     */
     mouseRowSelectionEnabled: boolean;
     mouseRowSelectionModifierKey: RevModifierKey | undefined;
-    /** Allow multiple cell region selections. */
+    /** Allows multiple areas in a selection. If false, a selection will be cleared when a new area is added. */
     multipleSelectionAreas: boolean;
     /** The area type that is added to a selection by default in a UI operation. Can also be specified in API calls which add an area to a RevSelection. */
     primarySelectionAreaType: RevSelectionAreaType;
@@ -167,8 +171,8 @@ export interface RevOnlyGridSettings {
     /** Anchor column does not need to align with edge of grid */
     scrollHorizontallySmoothly: boolean;
     scrollingEnabled: boolean;
-    /** The alternative area type that can be added to a selection in a UI operation. Can also be specified in API calls which add an area to a RevSelection. */
     secondarySelectionAreaTypeSpecifierModifierKey: RevModifierKey | undefined;
+    /** The alternative area type that can be added to a selection in a UI operation. Can also be specified in API calls which add an area to a RevSelection. */
     secondarySelectionAreaType: RevSelectionAreaType;
     /** Stroke color for last selection overlay. */
     selectionRegionOutlineColor: RevOnlyGridSettings.Color | undefined;

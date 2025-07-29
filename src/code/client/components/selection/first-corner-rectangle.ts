@@ -5,8 +5,8 @@ import { RevFirstCornerArea } from './first-corner-area';
 export class RevFirstCornerRectangle extends RevInexclusiveRectangle implements RevFirstCornerArea {
     readonly firstCorner: RevFirstCornerArea.CornerId;
 
-    constructor(firstInexclusiveX: number, firstInexclusiveY: number, width: number, height: number) {
-        super(firstInexclusiveX, firstInexclusiveY, width, height);
+    constructor(leftOrExRight: number, topOrExBottom: number, width: number, height: number) {
+        super(leftOrExRight, topOrExBottom, width, height);
         this.firstCorner = RevFirstCornerArea.Corner.calculateFromWidthHeight(width, height);
     }
 

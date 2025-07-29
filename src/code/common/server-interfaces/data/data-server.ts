@@ -1,7 +1,6 @@
-import { RevRectangle } from '../../types-utils';
 import { RevSchemaField } from '../schema';
 
-/** Interface used by client to get data from a server */
+/** Interface used by client to get data from a server or update values */
 export interface RevDataServer<
     /** Type used to specify a field the rows of data */
     SF extends RevSchemaField
@@ -14,61 +13,53 @@ export interface RevDataServer<
 
     /**
      * Unsubscribe from data notifications.
-     * @remarks
-     * Unsubscribe is optional as it is not required when the client and server are closely bound together and destroyed at the same time.
-     * @param client - A reference to the handler originally provided to {@link RevDataServer#subscribeDataNotifications}.
+     *
+     * Optional as it is not required when the client and server are closely bound together and destroyed at the same time.
+     * @param client - A reference to the handler originally provided to {@link subscribeDataNotifications}.
      */
     unsubscribeDataNotifications?(client: RevDataServer.NotificationsClient): void;
 
     /**
-     * Used to Prefetch data
-     * @remarks
-     * Tells dataModel what cells will be needed by subsequent calls to {@link RevDataServer#getViewValue}. This helps remote or virtualized data models fetch and cache data. If your data model doesn't need to know this, don't implement it.
-     * @param rectangles - Unordered list of rectangular regions of cells to fetch in a single (atomic) operation.
-     * @param callback - Optional callback. If provided, implementation calls it with `false` on success (requested data fully fetched) or `true` on failure.
+     * Get all data from the server as a readonly array of {@link RevDataServer.ViewRow}.
+     *
+     * If not implemented, all data can still obtain by retrieving one row at a time using {@link getViewRow} or
+     * one cell at a time using {@link getViewValue}.
      */
-    fetchViewData?(rectangles: readonly RevRectangle[], callback?: (failure: boolean) => void): void;
+    getViewData?(): readonly RevDataServer.ViewRow[];
 
     /**
-     * _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
+     * Get a row of data from the server.
      *
-     * All grid data.
-     * @param metadataFieldName - If provided, the output will include the row metadata object in a "hidden" field with this name.
-     * @returns All the grid's data rows.
+     * If this method is implemented, it allows the client to retrieve an entire row of data from the server instead of having to
+     * retrieve the value each cell in the row individually.  Used by `RevSubgridImplementation.getSingletonViewDataRow`.
+     * @param subgridRowIndex - Subgrid row index.
      */
-    getViewData?(metadataFieldName?: string): readonly RevDataServer.ViewRow[];
+    getViewRow?(subgridRowIndex: number): RevDataServer.ViewRow;
 
     /**
-     * _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
-     *
-     * Get a row of data.
-     *
-     * The injected default implementation is an object of lazy getters.
-     * @returns The data row corresponding to the given `rowIndex`. If row does not exist, then throw error.
-     */
-    getViewRow?(rowIndex: number): RevDataServer.ViewRow;
-
-    /**
-     * The current count of rows data in the server.
-     * @returns Number of data rows.
+     * Gets current count of rows in the associated subgrid at the server.
      */
     getRowCount(): number;
 
     /**
-     * _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
+     * Gets a unique identifier for a row which is not affected by sorting, filtering or reordering.
      *
-     * Only called by Hypergrid when it receives the `data-prereindex` or `data-postreindex` events.
-     * These events are typically triggered before and after data model remaps the rows (in its `apply` method).
-     * #### Parameters:
-     * @param rowIndex - Grid row index.
-     * @returns Unique Id of row specified by rowIndex.
+     * This optional method needs to be implemented for selection and focus to be preserved across row sorting, filtering and reordering.
+     * @param subgridRowIndex - Subgrid row index.
      */
-    getRowIdFromIndex?(rowIndex: number): unknown;
+    getRowIdFromIndex?(subgridRowIndex: number): unknown;
+    /**
+     * Gets the current subgrid row index of a row from a row identifier.
+     *
+     * This optional method does not need to be implemented for selection and focus to be preserved row across sorting, filtering and reordering
+     * however, if implemented, it will make restoring focus and selection more efficient.
+     * @param rowId - Id previously obtained from {@link getRowIdFromIndex}.
+     */
     getRowIndexFromId?(rowId: unknown): number | undefined;
 
     /**
      * Get a field's value at the specified row in a format suitable for display.
-     * @remarks
+     *
      * The core of the client does not need to know the type of the return value.  `getViewValue()` is called by the `Cell Painter` associated with the cell/subgrid.
      * The cell painter expects a certain type of view value and casts the result accordingly.
      * @returns The value of the field at the specified row.
@@ -82,11 +73,10 @@ export interface RevDataServer<
 
     /**
      * Get a field's value at the specified row in a format suitable for editing.
-     * @remarks
+     *
      * This function only needs to be implemented if cells can be edited.  See RevCellEditor for more information about editing data.
      * The core of the client does not need to know the type of the return value.  `getEditValue()` is called by the `Cell Editor` associated with the cell.
      * A cell editor expects a certain type of view value and casts the result accordingly.
-     * @returns The value of the field at the specified row.
      */
     getEditValue?(
         /** The field from which to get the value */
@@ -95,27 +85,11 @@ export interface RevDataServer<
         rowIndex: number
     ): RevDataServer.EditValue;
     /**
-     * _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
-     *
      * Set a cell's value given its column schema & row indexes and a new value.
+     *
+     * If not implemented, the cell cannot be edited.
      */
     setEditValue?(field: SF, rowIndex: number, value: RevDataServer.EditValue): void;
-
-    /**
-     * _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
-     *
-     * @param data - An array of congruent raw data objects.
-     * @param schema - Ordered array of column schema.
-     */
-    // setData?(data: RevDataServer.DataRowObject[], columnSchema: RevDataServer.RawColumnSchema[]): void;
-
-    /**
-     * _IMPLEMENTATION OF THIS METHOD IS OPTIONAL._
-     *
-     * Update a row in place, without deleting the row (and without affecting succeeding rows' indexes).
-     * @param dataRow - Updated row value
-     */
-    setViewRow?(rowIndex: number, dataRow: RevDataServer.ViewRow): void;
 
     /** Cursor to be displayed when mouse hovers over cell containing data point */
     getCursorName?(field: SF, rowIndex: number): string;

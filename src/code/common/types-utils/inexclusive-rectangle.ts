@@ -3,8 +3,8 @@ import { RevPoint } from './point';
 
 /** @public */
 export class RevInexclusiveRectangle implements RevInexclusiveArea {
-    private _x: number;
-    private _y: number;
+    private _x: number; // left
+    private _y: number; // top
 
     /**
      * Upper left corner of this rect.
@@ -28,51 +28,35 @@ export class RevInexclusiveRectangle implements RevInexclusiveArea {
     private _exclusiveBottomRight: RevPoint;
 
     /**
-     * This object represents a rectangular area within an abstract 2-dimensional matrix.
+     * This object represents a rectangular area within an 2-dimensional space.
      *
-     * @remarks
-     * The unit of measure is typically pixels.
-     * (If used to model computer graphics, vertical coordinates are typically measured downwards
-     * from the top of the window. This convention however is not inherent in this object.)
-     *
-     * Normally, the `x` and `y` parameters to the constructor describe the upper left corner of the rect.
-     * However, negative values of `width` and `height` will be added to the given `x` and `y`. That is,
-     * a negative value of the `width` parameter will extend the rect to the left of the given `x` and
-     * a negative value of the `height` parameter will extend the rect above the given `y`.
-     * In any case, after instantiation the following are guaranteed to always be true:
-     * * The `extent`, `width`, and `height` properties _always_ give positive values.
-     * * The `origin`, `top`, and `left` properties _always_ reflect the upper left corner.
-     * * The `corner`, `bottom`, and `right` properties _always_ reflect the lower right corner.
-     *
-     * Note: This object should be instantiated with the `new` keyword.
-     *
-     * @param inexclusiveX - Horizontal coordinate of some corner of the rect.
-     * @param inexclusiveY - Vertical coordinate of some corner of the rect.
-     * @param width - Width of the new rect. May be negative (see above).
-     * @param height - Height of the new rect. May be negative (see above).
+     * @param leftOrExRight - The left X coordinate of the rectangle if width is positive, or the exclusive right X coordinate if width is negative.
+     * @param topOrExBottom - The top Y coordinate of the rectangle if height is positive, or the exclusive bottom Y coordinate if height is negative.
+     * @param width - Width of the rectangle. May be negative.
+     * @param height - Height of the rectangley. May be negative.
      */
-    constructor(inexclusiveX: number, inexclusiveY: number, width: number, height: number) {
-        let x: number;
+    constructor(leftOrExRight: number, topOrExBottom: number, width: number, height: number) {
+        let left: number;
         if (width >= 0) {
-            x = inexclusiveX;
+            left = leftOrExRight;
         } else {
-            x = inexclusiveX + width;
+            left = leftOrExRight + width;
             width = -width;
         }
-        this._x = x;
+        this._x = left;
 
-        let y: number;
+        let top: number;
         if (height >= 0) {
-            y = inexclusiveY;
+            top = topOrExBottom;
         } else {
-            y = inexclusiveY + height;
+            top = topOrExBottom + height;
             height = -height;
         }
-        this._y = y;
+        this._y = top;
 
-        this._topLeft = RevPoint.create(x, y);
+        this._topLeft = RevPoint.create(left, top);
         this._extent = RevPoint.create(width, height);
-        this._exclusiveBottomRight = RevPoint.create(x + width, y + height);
+        this._exclusiveBottomRight = RevPoint.create(left + width, top + height);
     }
 
     get x() { return this._x; }
@@ -85,41 +69,41 @@ export class RevInexclusiveRectangle implements RevInexclusiveArea {
     get extent() { return this._extent; }
 
     /**
-     * Minimum vertical coordinate of this rect.
+     * Top co-ordinate of rectangle (same as {@link y}).
      */
     get top() {
         return this._y;
     }
 
     /**
-     * Minimum horizontal coordinate of this rect.
+     * Left co-ordinate of rectangle (same as {@link x}).
      */
     get left() {
         return this._x;
     }
 
+    /** Bottom co-ordinate of rectangle. */
     get inclusiveBottom() {
         return this._exclusiveBottomRight.y - 1;
     }
 
+    /** Exclusive bottom co-ordinate of rectangle. ({@link inclusiveBottom} + 1) */
     get exclusiveBottom() {
         return this._exclusiveBottomRight.y;
     }
 
+    /** Right co-ordinate of rectangle. */
     get inclusiveRight() {
         return this._exclusiveBottomRight.x - 1;
     }
 
-    /**
-     * For exclusive, maximum horizontal coordinate of this rect + 1.
-     * For inclusive, maximum horizontal coordinate of this rect.
-     */
+    /** Exclusive right co-ordinate of rectangle. ({@link inclusiveRight} + 1) */
     get exclusiveRight() {
         return this._exclusiveBottomRight.x;
     }
 
     /**
-     * Width of this rect (always positive).
+     * Width of this rectangle (always positive).
      */
     get width() {
         return this._extent.x;
@@ -133,26 +117,36 @@ export class RevInexclusiveRectangle implements RevInexclusiveArea {
     }
 
     /**
-     * Area of this rect.
+     * Area of this rectangle.
      */
     get area() {
         return this.width * this.height;
     }
 
-    createCopy() {
+    /**
+     * Creates and returns a new `RevInexclusiveRectangle` instance that is a copy of the current rectangle.
+     */
+    createCopy(): RevInexclusiveRectangle {
         return new RevInexclusiveRectangle(this._x, this._y, this._extent.x, this._extent.y);
     }
 
     /**
-     * Tests whether this rectangle contains a point
-     * @returns true if point is within rectangle
+     * Determines whether the specified point is contained within the rectangle.
      * @param point - The point or rect to test for containment.
+     * @returns `true` if the point is within the rectangle; otherwise, `false`.
      */
     containsPoint(point: RevPoint): boolean {
         return this.containsXY(point.x, point.y);
     }
 
-    containsXY(x: number, y: number) {
+    /**
+     * Determines whether the specified point (x, y) is contained within the rectangle.
+     *
+     * @param x - The x-coordinate of the point to test.
+     * @param y - The y-coordinate of the point to test.
+     * @returns `true` if the point is within the rectangle; otherwise, `false`.
+     */
+    containsXY(x: number, y: number): boolean {
         const topLeftX = this._topLeft.x;
         const topLeftY = this._topLeft.y;
 
@@ -164,12 +158,24 @@ export class RevInexclusiveRectangle implements RevInexclusiveArea {
         );
     }
 
-    containsX(x: number) {
+    /**
+     * Determines whether the specified x-coordinate is within the horizontal bounds of the rectangle.
+     *
+     * @param x - The x-coordinate to test.
+     * @returns `true` if the x-coordinate is within the rectangle's horizontal bounds; otherwise, `false`.
+     */
+    containsX(x: number): boolean {
         const topLeftX = this._topLeft.x;
         return (x >= topLeftX && x < topLeftX + this._extent.x);
     }
 
-    containsY(y: number) {
+    /**
+     * Determines whether the specified y-coordinate is within the vertical bounds of the rectangle.
+     *
+     * @param y - The y-coordinate to test.
+     * @returns `true` if the y-coordinate is within the rectangle's vertical bounds; otherwise, `false`.
+     */
+    containsY(y: number): boolean {
         const topLeftY = this._topLeft.y;
         return (y >= topLeftY && y < topLeftY + this._extent.y);
     }
@@ -186,27 +192,27 @@ export class RevInexclusiveRectangle implements RevInexclusiveArea {
     }
 
     /** Moves this Rectangle in x direction */
-    moveX(offset: number) {
+    moveX(offset: number): void {
         this._x += offset;
         RevPoint.moveX(this.topLeft, offset);
         RevPoint.moveX(this.exclusiveBottomRight, offset);
     }
 
     /** Moves this Rectangle in y direction */
-    moveY(offset: number) {
+    moveY(offset: number): void {
         this._y += offset;
         RevPoint.moveY(this.topLeft, offset);
         RevPoint.moveY(this.exclusiveBottomRight, offset);
     }
 
     /** Grows this Rectangle in x direction with let staying fixed */
-    growFromLeft(widthIncrease: number) {
+    growFromLeft(widthIncrease: number): void {
         RevPoint.moveX(this._extent, widthIncrease);
         RevPoint.moveX(this._exclusiveBottomRight, widthIncrease);
     }
 
     /** Grows this Rectangle in y direction with top staying fixed */
-    growFromTop(heightIncrease: number) {
+    growFromTop(heightIncrease: number): void {
         RevPoint.moveY(this._extent, heightIncrease);
         RevPoint.moveY(this._exclusiveBottomRight, heightIncrease);
     }

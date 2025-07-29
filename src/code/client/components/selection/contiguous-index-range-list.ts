@@ -81,23 +81,23 @@ export class RevContiguousIndexRangeList {
     /**
      * Adds a contiguous range of indices to the list, merging with existing ranges if necessary.
      *
-     * The range is specified by an reversable start index and a length. If the length is negative,
+     * The range is specified by an start or excluded end index, and a length. If the length is negative,
      * the range is added in reverse order (excluding the start index). The method ensures that overlapping or adjacent ranges
      * are merged into a single range, and prevents adding a range that is already fully contained
      * within an existing range.
      *
-     * @param reversableStart - The start index of the range to add. If the length is negative, this is the excluded end index of the range.
-     * @param length - The length of the range to add. Can be negative to indicate reverse direction.
+     * @param startOrExEnd - The starting index of the range to add if `length` is positive, or the exclusive end index if `length` is negative.
+     * @param length - The length of the range. If negative, the range is specified from its exclusive end.
      * @returns `true` if the range was added or merged; `false` if the range was already contained and no change was made.
      */
-    add(reversableStart: number, length: number): boolean {
+    add(startOrExEnd: number, length: number): boolean {
         let start: number;
         let after: number;
         if (length >= 0) {
-            start = reversableStart;
+            start = startOrExEnd;
             after = start + length;
         } else {
-            after = reversableStart;
+            after = startOrExEnd;
             start = after + length; // length is negative
             length = -length;
         }
@@ -201,18 +201,18 @@ export class RevContiguousIndexRangeList {
      *
      * The method updates the internal ranges to reflect the deletion, splitting or resizing ranges as necessary.
      *
-     * @param reversableStart - The start index of the range to add. If the length is negative, this is the excluded end index of the range.
-     * @param length - The length of the range to add. Can be negative to indicate reverse direction.
+     * @param startOrExEnd - The starting index of the range to delete if `length` is positive, or the exclusive end index if `length` is negative.
+     * @param length - The length of the range. If negative, the range is specified from its exclusive end.
      * @returns `true` if any ranges were deleted or modified; `false` if the deletion did not affect any ranges.
      */
-    delete(reversableStart: number, length: number): boolean {
+    delete(startOrExEnd: number, length: number): boolean {
         let after: number;
         let start: number;
         if (length >= 0) {
-            start = reversableStart;
+            start = startOrExEnd;
             after = start + length;
         } else {
-            after = reversableStart;
+            after = startOrExEnd;
             start = after + length; // length is negative
             length = - length;
         }
@@ -299,6 +299,12 @@ export class RevContiguousIndexRangeList {
         }
     }
 
+    /**
+     * Determines whether the specified index is included within any of the contiguous index ranges.
+     *
+     * @param index - The index to check for inclusion.
+     * @returns `true` if the index is included in any range; otherwise, `false`.
+     */
     includesIndex(index: number): boolean {
         const ranges = this.ranges;
         const rangeCount = this.ranges.length;
@@ -311,6 +317,12 @@ export class RevContiguousIndexRangeList {
         return false;
     }
 
+    /**
+     * Searches for and returns the first contiguous index range that includes the specified index.
+     *
+     * @param index - The index to search for within the list of contiguous index ranges.
+     * @returns The {@link RevContiguousIndexRange} that contains the given index, or `undefined` if no such range exists.
+     */
     findRangeWithIndex(index: number): RevContiguousIndexRange | undefined {
         const ranges = this.ranges;
         const rangeCount = this.ranges.length;
@@ -323,6 +335,14 @@ export class RevContiguousIndexRangeList {
         return undefined;
     }
 
+    /**
+     * Calculates and returns the total number of indices across all contiguous index ranges.
+     *
+     * Iterates through each range in the `ranges` array and sums their lengths to determine
+     * the total count of selected indices.
+     *
+     * @returns The total count of indices in all ranges.
+     */
     getIndexCount(): number {
         let result = 0;
         const ranges = this.ranges;
@@ -332,6 +352,12 @@ export class RevContiguousIndexRangeList {
         return result;
     }
 
+    /**
+     * Returns an array containing all indices represented by the current list of contiguous index ranges.
+     * The indices are collected from each range in order and combined into a single array.
+     *
+     * @returns An array of indices covered by all ranges in this list.
+     */
     getIndices(): number[] {
         const indexCount = this.getIndexCount();
         const result = new Array<number>(indexCount);
@@ -345,19 +371,42 @@ export class RevContiguousIndexRangeList {
         return result;
     }
 
-    calculateOverlapRange(start: number, length: number) {
+    /**
+     * Calculates and returns the first or last overlapping range between the given range and the existing ranges.
+     * If the length is non-negative, it calculates the first overlapping range.
+     * If the length is negative, it calculates the last overlapping range.
+     *
+     * @param startOrExEnd - The starting index or exclusive ending index of the range to check for overlap.
+     * @param length - The length of the range. If negative, the range is specified from its exclusive end.
+     * @returns The overlapping contiguous index range, or `undefined` if there is no overlap.
+     */
+    calculateOverlapRange(startOrExEnd: number, length: number): RevContiguousIndexRange | undefined {
         if (length >= 0) {
-            return this.calculateFirstOverlapRange(start, length);
+            return this.calculateFirstOverlapRange(startOrExEnd, length);
         } else {
-            return this.calculateLastOverlapRange(start, -length);
+            return this.calculateLastOverlapRange(startOrExEnd, -length);
         }
     }
 
-    calculateFirstOverlapRange(start: number, length: number) {
-        if (length < 0) {
-            start += length;
+    /**
+     * Calculates and returns the first overlapping range between the given range and the existing ranges.
+     *
+     * Given a starting index (or exclusive end index) and a length, this method searches the list of
+     * contiguous index ranges in order and returns the first range that overlaps with the specified range.
+     *
+     * @param startOrExEnd - The starting index of the range, or the exclusive end index if `length` is negative.
+     * @param length - The length of the range. If negative, the range is specified from its exclusive end.
+     * @returns A new `RevContiguousIndexRange` representing the first overlapping range, or `undefined` if there is no overlap.
+     */
+    calculateFirstOverlapRange(startOrExEnd: number, length: number): RevContiguousIndexRange | undefined {
+        let start: number;
+        if (length >= 0) {
+            start = startOrExEnd;
+        } else {
+            start = startOrExEnd + length; // length is negative
             length = -length;
         }
+
         const ranges = this.ranges;
         for (const range of ranges) {
             const rangeAfter = range.after;
@@ -382,13 +431,25 @@ export class RevContiguousIndexRangeList {
         return undefined;
     }
 
-    calculateLastOverlapRange(start: number, length: number) {
+    /**
+     * Calculates the last overlapping range between the specified range and the existing ranges.
+     *
+     * Given a starting index (or exclusive end index) and a length, this method searches the list of
+     * contiguous index ranges in reverse order and returns the last range that overlaps with the specified range.
+     *
+     * @param startOrExEnd - The starting index of the range if `length` is positive, or the exclusive end index if `length` is negative.
+     * @param length - The length of the range. If negative, the range is specified from its exclusive end.
+     * @returns A new `RevContiguousIndexRange` representing the last overlapping range, or `undefined` if there is no overlap.
+     */
+    calculateLastOverlapRange(startOrExEnd: number, length: number): RevContiguousIndexRange | undefined {
+        let start: number;
         let after: number;
         if (length >= 0) {
+            start = startOrExEnd;
             after = start + length;
         } else {
-            after = start;
-            start += length;
+            after = startOrExEnd;
+            start = after + length; // length is negative
             length = -length;
         }
         const ranges = this.ranges;
@@ -416,6 +477,16 @@ export class RevContiguousIndexRangeList {
         return undefined;
     }
 
+    /**
+     * Adjusts the index ranges in the list to account for the insertion of new items.
+     *
+     * This method updates all ranges that are at or above the insertion point by moving them up by the specified count.
+     * If the insertion point falls within an existing range, that range is grown to include the new items.
+     *
+     * @param start - The index at which new items are inserted.
+     * @param count - The number of items inserted.
+     * @returns `true` if any ranges were changed; otherwise, `false`.
+     */
     adjustForInserted(start: number, count: number): boolean {
         const ranges = this.ranges;
         const rangeCount = ranges.length;
@@ -440,6 +511,20 @@ export class RevContiguousIndexRangeList {
         return changed;
     }
 
+    /**
+     * Adjusts the list of contiguous index ranges to account for a deletion of items.
+     *
+     * This method updates the internal ranges to reflect the removal of a contiguous block of items,
+     * starting at the specified `start` index and spanning `count` items. It shifts, shrinks, or removes
+     * ranges as necessary to maintain consistency after the deletion. If any ranges are fully enclosed
+     * within the deleted region, they are removed. Ranges that overlap the deleted region are shrunk,
+     * and ranges above the deleted region are shifted down. If possible, adjacent ranges are merged after
+     * the adjustment.
+     *
+     * @param start - The starting index of the deleted region.
+     * @param count - The number of contiguous items deleted.
+     * @returns `true` if any ranges were changed as a result of the deletion; otherwise, `false`.
+     */
     adjustForDeleted(start: number, count: number): boolean {
         const ranges = this.ranges;
         const rangeCount = ranges.length;
@@ -517,6 +602,18 @@ export class RevContiguousIndexRangeList {
         return changed;
     }
 
+    /**
+     * Adjusts the current index ranges to account for a contiguous block of items being moved
+     * from one position to another within a collection.
+     *
+     * This method first removes the specified range from its old position, then inserts it at the new position.
+     * It returns whether any changes were made to the selection as a result of the move.
+     *
+     * @param oldIndex - The starting index of the block being moved.
+     * @param newIndex - The index at which the block should be inserted.
+     * @param count - The number of contiguous items being moved.
+     * @returns `true` if the selection was changed as a result of the move; otherwise, `false`.
+     */
     adjustForMoved(oldIndex: number, newIndex: number, count: number): boolean {
         let changed = this.adjustForDeleted(oldIndex, count);
         if (this.adjustForInserted(newIndex, count)) {
