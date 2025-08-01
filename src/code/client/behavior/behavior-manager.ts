@@ -97,6 +97,7 @@ export class RevBehaviorManager<BGS extends RevBehavioredGridSettings, BCS exten
             this.clientId,
             this,
             gridSettings,
+            columnsManager,
             selection,
             focus,
             viewLayout,

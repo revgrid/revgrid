@@ -121,7 +121,7 @@ export class RevDataExtractBehavior<BGS extends RevBehavioredGridSettings, BCS e
     }
 
     getAllSelectionMatrix() {
-        const rowIndices = this._selection.getAllAutoRowIndices();
+        const rowIndices = this._selection.getAllAreaRowIndices();
         return this.getRowIndicesMatrix(rowIndices);
     }
 

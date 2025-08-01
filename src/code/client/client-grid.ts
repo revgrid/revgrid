@@ -221,8 +221,8 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     get activeColumnsViewWidth() { return this.viewLayout.columnsViewWidth; }
 
     // RevSelection getters/setters
-    get selectionAllAuto() { return this.selection.allAuto; }
-    set selectionAllAuto(value: boolean) { this.selection.allAuto = value; }
+    get selectionAllAreaActive() { return this.selection.allAreaActive; }
+    set selectionAllAreaActive(value: boolean) { this.selection.allAreaActive = value; }
 
     get activeColumnCount() { return this.columnsManager.activeColumnCount; }
 
@@ -1105,14 +1105,11 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
         return this.selection.selectCell(x, y, subgrid);
     }
 
-    deselectCell(x: Integer, y: Integer, subgrid: RevSubgrid<BCS, SF>) {
-        const rectangle: RevRectangle = {
-            x,
-            y,
-            width: 1,
-            height: 1,
+    deleteCellSelectionArea(x: Integer, y: Integer, subgrid?: RevSubgrid<BCS, SF>) {
+        if (subgrid === undefined) {
+            subgrid = this.mainSubgrid;
         }
-        this.selection.deselectRectangle(rectangle, subgrid);
+        this.selection.deleteCellArea(x, y, subgrid);
     }
 
     toggleSelectCell(x: Integer, y: Integer, subgrid?: RevSubgrid<BCS, SF>): boolean {
@@ -1136,11 +1133,11 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
         return this.selection.selectRectangle(leftOrExRightActiveColumnIndex, topOrExBottomSubgridRowIndex, width, height, subgrid);
     }
 
-    deselectRectangle(rectangle: RevRectangle, subgrid?: RevSubgrid<BCS, SF>) {
+    deleteRectangleSelectionArea(rectangle: RevRectangle, subgrid?: RevSubgrid<BCS, SF>) {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
-        this.selection.deselectRectangle(rectangle, subgrid);
+        this.selection.deleteRectangleArea(rectangle, subgrid);
     }
 
     deselectRow(y: Integer, subgrid?: RevSubgrid<BCS, SF>) {
@@ -1157,12 +1154,27 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
         this.selection.deselectRows(y, count, subgrid);
     }
 
+    /**
+     * Removes a columns from the selection.
+     *
+     * The list of column selection areas will be updated to reflect the necessary deletion, splitting or resizing required.
+     *
+     * @param activeColumnIndex - The index of the active column to remove.
+     */
     deselectColumn(activeColumnIndex: Integer) {
         this.selection.deselectColumns(activeColumnIndex, 1);
     }
 
-    deselectColumns(activeColumnIndex: Integer, count: Integer) {
-        this.selection.deselectColumns(activeColumnIndex, count);
+    /**
+     * Removes a range of columns from the selection.
+     *
+     * The list of column selection areas will be updated to reflect the necessary deletion, splitting or resizing required.
+     *
+     * @param leftOrExRightActiveColumnIndex - The start index of the range of active columns to deselect if `count` is positive, or the exclusive end index if `count` is negative.
+     * @param count - The number of columns to deselect. If negative, `count` is in reverse direction from the exclusive end index.
+     */
+    deselectColumns(leftOrExRightActiveColumnIndex: Integer, count: Integer) {
+        this.selection.deselectColumns(leftOrExRightActiveColumnIndex, count);
     }
 
     isCellSelected(x: Integer, y: Integer, subgrid?: RevSubgrid<BCS, SF>): boolean {
@@ -1211,36 +1223,36 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
         return this.selection.isSelectedCellTheOnlySelectedCell(activeColumnIndex, subgridRowIndex, subgrid, selectedTypeId)
     }
 
-    areColumnsOrRowsSelected(includeAllAuto = true) {
-        return this.selection.hasColumnsOrRows(includeAllAuto);
+    areColumnsOrRowsSelected(includeAllAreaIfActiveActive = true) {
+        return this.selection.hasColumnsOrRows(includeAllAreaIfActiveActive);
     }
 
-    areRowsSelected(includeAllAuto = true) {
-        return this.selection.hasRows(includeAllAuto);
+    areRowsSelected(includeAllAreaIfActive = true) {
+        return this.selection.hasRows(includeAllAreaIfActive);
     }
 
-    getSelectedRowCount(includeAllAuto = true) {
-        return this.selection.getRowCount(includeAllAuto);
+    getSelectedRowCount(includeAllAreaIfActive = true) {
+        return this.selection.getRowCount(includeAllAreaIfActive);
     }
 
-    getSelectedAllAutoRowCount() {
-        return this.selection.getAllAutoRowCount();
+    getSelectedAllAreaRowCount() {
+        return this.selection.getAllAreaRowCount();
     }
 
-    getSelectedRowIndices(includeAllAuto = true) {
-        return this.selection.getRowIndices(includeAllAuto);
+    getSelectedRowIndices(includeAllAreaIfActive = true) {
+        return this.selection.getRowIndices(includeAllAreaIfActive);
     }
 
-    getSelectedAllAutoRowIndices() {
-        return this.selection.getAllAutoRowIndices();
+    getSelectedAllAreaRowIndices() {
+        return this.selection.getAllAreaRowIndices();
     }
 
-    areColumnsSelected(includeAllAuto = true) {
-        return this.selection.hasColumns(includeAllAuto);
+    areColumnsSelected(includeAllAreaIfActive = true) {
+        return this.selection.hasColumns(includeAllAreaIfActive);
     }
 
-    getSelectedColumnIndices(includeAllAuto = true) {
-        return this.selection.getColumnIndices(includeAllAuto);
+    getSelectedColumnIndices(includeAllAreaIfActive = true) {
+        return this.selection.getColumnIndices(includeAllAreaIfActive);
     }
 
     // RevFocusSelectBehavior
@@ -1345,8 +1357,8 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
 
     focusReplaceLastArea(
         areaType: RevSelectionAreaType,
-        inexclusiveX: Integer,
-        inexclusiveY: Integer,
+        leftOrExRightActiveColumnIndex: Integer,
+        topOrExBottomSubgridRowIndex: Integer,
         width: Integer,
         height: Integer,
         subgrid?: RevSubgrid<BCS, SF>,
@@ -1356,12 +1368,12 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
             subgrid = this.mainSubgrid;
         }
         const areaTypeId = RevSelectionAreaType.toId(areaType);
-        this._focusSelectBehavior.focusReplaceLastArea(areaTypeId, inexclusiveX, inexclusiveY, width, height, subgrid, ensureFullyInView);
+        this._focusSelectBehavior.focusReplaceLastArea(areaTypeId, leftOrExRightActiveColumnIndex, topOrExBottomSubgridRowIndex, width, height, subgrid, ensureFullyInView);
     }
 
     focusReplaceLastAreaWithRectangle(
-        inexclusiveX: Integer,
-        inexclusiveY: Integer,
+        leftOrExRightActiveColumnIndex: Integer,
+        topOrExBottomSubgridRowIndex: Integer,
         width: Integer,
         height: Integer,
         subgrid?: RevSubgrid<BCS, SF>,
@@ -1370,7 +1382,7 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
-        this._focusSelectBehavior.focusReplaceLastAreaWithRectangle(inexclusiveX, inexclusiveY, width, height, subgrid, ensureFullyInView);
+        this._focusSelectBehavior.focusReplaceLastAreaWithRectangle(leftOrExRightActiveColumnIndex, topOrExBottomSubgridRowIndex, width, height, subgrid, ensureFullyInView);
     }
 
     tryExtendLastSelectionAreaAsCloseAsPossibleToFocus() {

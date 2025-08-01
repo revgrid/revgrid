@@ -1,11 +1,11 @@
-import { RevInexclusiveRectangle, revCalculateNumberArrayUniqueCount } from '../../../common';
+import { RevCornerRectangle, revCalculateNumberArrayUniqueCount } from '../../../common';
 import { RevSelectionAreaList } from './selection-area-list';
 import { RevSelectionRectangle } from './selection-rectangle';
 
 export class RevSelectionRectangleList implements RevSelectionAreaList {
     readonly rectangles: RevSelectionRectangle[] = [];
-    private readonly _flattenedX = new Array<RevInexclusiveRectangle>();
-    private readonly _flattenedY = new Array<RevInexclusiveRectangle>();
+    private readonly _flattenedX = new Array<RevCornerRectangle>();
+    private readonly _flattenedY = new Array<RevCornerRectangle>();
 
     get has() { return this.rectangles.length !== 0; }
     get areaCount() { return this.rectangles.length; }
@@ -84,7 +84,6 @@ export class RevSelectionRectangleList implements RevSelectionAreaList {
     }
     push(rectangle: RevSelectionRectangle) {
         this.rectangles.push(rectangle);
-        // Following can be cast as InexclusiveRectangle constructor used which uses unchanged extent
         this._flattenedX.push(rectangle.newXFlattened(0));
         this._flattenedY.push(rectangle.newYFlattened(0));
     }
@@ -125,15 +124,15 @@ export class RevSelectionRectangleList implements RevSelectionAreaList {
     }
 
     containsY(y: number): boolean {
-        return RevInexclusiveRectangle.arrayContainsPoint(this._flattenedX, 0, y);
+        return RevCornerRectangle.arrayContainsPoint(this._flattenedX, 0, y);
     }
 
     containsX(x: number): boolean {
-        return RevInexclusiveRectangle.arrayContainsPoint(this._flattenedY, x, 0);
+        return RevCornerRectangle.arrayContainsPoint(this._flattenedY, x, 0);
     }
 
     containsPoint(x: number, y: number) {
-        return RevInexclusiveRectangle.arrayContainsPoint(this.rectangles, x, y);
+        return RevCornerRectangle.arrayContainsPoint(this.rectangles, x, y);
     }
 
     getUniqueXIndices() {

@@ -1,8 +1,8 @@
-import { RevInexclusiveArea } from './inexclusive-area';
+import { RevCornerArea } from './corner-area';
 import { RevPoint } from './point';
 
 /** @public */
-export class RevInexclusiveRectangle implements RevInexclusiveArea {
+export class RevCornerRectangle implements RevCornerArea {
     private _x: number; // left
     private _y: number; // top
 
@@ -18,7 +18,7 @@ export class RevInexclusiveRectangle implements RevInexclusiveArea {
      * This object might be more legitimately typed as something like `Area` with properties `width` and `height`; however we wanted it to be able to use it efficiently with a point's `plus` and `minus` methods (that is, without those methods having to check and branch on the type of its parameter).
      *
      * Created upon instantiation by the constructor.
-     * @see The {@link RevInexclusiveRectangle#_exclusiveBottomRight|corner} method.
+     * @see The {@link RevCornerRectangle#_exclusiveBottomRight|corner} method.
      */
     private _extent: RevPoint;
 
@@ -32,8 +32,8 @@ export class RevInexclusiveRectangle implements RevInexclusiveArea {
      *
      * @param leftOrExRight - The left X coordinate of the rectangle if width is positive, or the exclusive right X coordinate if width is negative.
      * @param topOrExBottom - The top Y coordinate of the rectangle if height is positive, or the exclusive bottom Y coordinate if height is negative.
-     * @param width - Width of the rectangle. May be negative.
-     * @param height - Height of the rectangley. May be negative.
+     * @param width - Width of the rectangle. If negative, width is in reverse direction from the exclusive right.
+     * @param height - Height of the rectangle. If negative, height is in reverse direction from the exclusive bottom.
      */
     constructor(leftOrExRight: number, topOrExBottom: number, width: number, height: number) {
         let left: number;
@@ -124,10 +124,10 @@ export class RevInexclusiveRectangle implements RevInexclusiveArea {
     }
 
     /**
-     * Creates and returns a new `RevInexclusiveRectangle` instance that is a copy of the current rectangle.
+     * Creates and returns a new `RevCornerRectangle` instance that is a copy of the current rectangle.
      */
-    createCopy(): RevInexclusiveRectangle {
-        return new RevInexclusiveRectangle(this._x, this._y, this._extent.x, this._extent.y);
+    createCopy(): RevCornerRectangle {
+        return new RevCornerRectangle(this._x, this._y, this._extent.x, this._extent.y);
     }
 
     /**
@@ -184,7 +184,7 @@ export class RevInexclusiveRectangle implements RevInexclusiveArea {
      * @returns `true` iff `this` rect is entirely contained within given `rect`.
      * @param rect - Rectangle to test against this rect.
      */
-    within(rect: RevInexclusiveRectangle): boolean {
+    within(rect: RevCornerRectangle): boolean {
         return (
             RevPoint.lessThanOrEqualTo(rect._topLeft, this._topLeft) &&
             RevPoint.greaterThanOrEqualTo(rect._exclusiveBottomRight, this._exclusiveBottomRight)
@@ -221,34 +221,34 @@ export class RevInexclusiveRectangle implements RevInexclusiveArea {
      * @returns A copy of this rect but with horizontal position reset to given `x` and no width.
      * @param x - Horizontal coordinate of the new rect.
      */
-    newXFlattened(x: number): RevInexclusiveRectangle {
-        return new RevInexclusiveRectangle(x, this._topLeft.y, 0, this._extent.y);
+    newXFlattened(x: number): RevCornerRectangle {
+        return new RevCornerRectangle(x, this._topLeft.y, 0, this._extent.y);
     }
 
     /**
      * @returns A copy of this rect but with vertical position reset to given `y` and no height.
      * @param y - Vertical coordinate of the new rect.
      */
-    newYFlattened(y: number): RevInexclusiveRectangle {
-        return new RevInexclusiveRectangle(this._topLeft.x, y, this._extent.x, 0);
+    newYFlattened(y: number): RevCornerRectangle {
+        return new RevCornerRectangle(this._topLeft.x, y, this._extent.x, 0);
     }
 
-    newXMoved(xOffset: number): RevInexclusiveRectangle {
-        return new RevInexclusiveRectangle(this._x + xOffset, this._y, this.width, this.height);
+    newXMoved(xOffset: number): RevCornerRectangle {
+        return new RevCornerRectangle(this._x + xOffset, this._y, this.width, this.height);
     }
 
-    newYMoved(yOffset: number): RevInexclusiveRectangle {
-        return new RevInexclusiveRectangle(this._x, this._y + yOffset, this.width, this.height);
+    newYMoved(yOffset: number): RevCornerRectangle {
+        return new RevCornerRectangle(this._x, this._y + yOffset, this.width, this.height);
     }
 
     /**
      * _(Formerly: `insetBy`.)_
      * @returns That is enlarged/shrunk by given `padding`.
      * @param padding - Amount by which to increase (+) or decrease (-) this rect
-     * @see The {@link RevInexclusiveRectangle#newShrunkFromCenter|shrinkBy} method.
+     * @see The {@link RevCornerRectangle#newShrunkFromCenter|shrinkBy} method.
      */
-    newGrownFromCenter(padding: number): RevInexclusiveRectangle {
-        return new RevInexclusiveRectangle(
+    newGrownFromCenter(padding: number): RevCornerRectangle {
+        return new RevCornerRectangle(
             this._x - padding,
             this._y - padding,
             this.width + 2 * padding,
@@ -258,9 +258,9 @@ export class RevInexclusiveRectangle implements RevInexclusiveArea {
     /**
      * @returns That is enlarged/shrunk by given `padding`.
      * @param padding - Amount by which to decrease (+) or increase (-) this rect.
-     * @see The {@link RevInexclusiveRectangle#newGrownFromCenter|growBy} method.
+     * @see The {@link RevCornerRectangle#newGrownFromCenter|growBy} method.
      */
-    newShrunkFromCenter(padding: number): RevInexclusiveRectangle {
+    newShrunkFromCenter(padding: number): RevCornerRectangle {
         return this.newGrownFromCenter(-padding);
     }
 
@@ -268,12 +268,12 @@ export class RevInexclusiveRectangle implements RevInexclusiveArea {
      * @returns Bounding rect that contains both this rect and the given `rect`.
      * @param rect - The rectangle to union with this rect.
      */
-    newUnioned(rect: RevInexclusiveRectangle): RevInexclusiveRectangle {
+    newUnioned(rect: RevCornerRectangle): RevCornerRectangle {
         const origin = RevPoint.min(this._topLeft, rect._topLeft);
         const corner = RevPoint.max(this._exclusiveBottomRight, rect._exclusiveBottomRight);
         const extent = RevPoint.minus(corner, origin);
 
-        return new RevInexclusiveRectangle(
+        return new RevCornerRectangle(
             origin.x, origin.y,
             extent.x, extent.y
         );
@@ -297,15 +297,15 @@ export class RevInexclusiveRectangle implements RevInexclusiveArea {
     // }
 
     /**
-     * @returns {RevInexclusiveRectangle} One of:
+     * @returns {RevCornerRectangle} One of:
      * * _If this rect intersects with the given `rect`:_
      *      a new rect representing that intersection.
      * * _If it doesn't intersect and `ifNoneAction` defined:_
      *      result of calling `ifNoneAction`.
      * * _If it doesn't intersect and `ifNoneAction` undefined:_
      *      `null`.
-     * @param {RevInexclusiveRectangle} rect - The rectangle to intersect with this rect.
-     * @param {function(RevInexclusiveRectangle)} [ifNoneAction] - When no intersection, invoke and return result.
+     * @param {RevCornerRectangle} rect - The rectangle to intersect with this rect.
+     * @param {function(RevCornerRectangle)} [ifNoneAction] - When no intersection, invoke and return result.
      * Bound to `context` when given; otherwise bound to this rect.
      * Invoked with `rect` as sole parameter.
      * @param {object} [context=this] - Context to bind to `ifNoneAction` (when not `this`).
@@ -332,7 +332,7 @@ export class RevInexclusiveRectangle implements RevInexclusiveArea {
      * @returns `true` iff this rect overlaps with given `rect`.
      * @param rect - The rectangle to intersect with this rect.
      */
-    intersects(rect: RevInexclusiveRectangle): boolean {
+    intersects(rect: RevCornerRectangle): boolean {
         return (
             rect._exclusiveBottomRight.x > this._topLeft.x &&
             rect._exclusiveBottomRight.y > this._topLeft.y &&
@@ -476,8 +476,8 @@ export class RevInexclusiveRectangle implements RevInexclusiveArea {
 }
 
 /** @public */
-export namespace RevInexclusiveRectangle {
-    export function arrayContainsPoint(rectangles: RevInexclusiveRectangle[], x: number, y: number) {
+export namespace RevCornerRectangle {
+    export function arrayContainsPoint(rectangles: RevCornerRectangle[], x: number, y: number) {
         for (const rectangle of rectangles) {
             if (rectangle.containsXY(x, y)) {
                 return true;

@@ -9,7 +9,7 @@ export interface RevSelectionArea extends RevFirstCornerArea {
 
 /** @public */
 export namespace RevSelectionArea {
-    export function isEqual(left: RevSelectionArea, right: RevSelectionArea) {
+    export function isEqual(left: RevSelectionArea, right: RevSelectionArea): boolean {
         const leftTopLeft = left.topLeft;
         const rightTopLeft = right.topLeft;
         return (
@@ -20,7 +20,7 @@ export namespace RevSelectionArea {
         );
     }
 
-    export function getTogglePriorityCellCoveringSelectionArea(areas: RevSelectionArea[]) {
+    export function getTogglePriorityCellCoveringSelectionArea(areas: RevSelectionArea[]): RevSelectionArea | undefined {
         const areaCount = areas.length;
         switch (areaCount) {
             case 0: return undefined;
@@ -38,7 +38,7 @@ export namespace RevSelectionArea {
         }
     }
 
-    export function isCellCoveringSelectionAreaHigherTogglePriority(area: RevSelectionArea, referenceArea: RevSelectionArea) {
+    export function isCellCoveringSelectionAreaHigherTogglePriority(area: RevSelectionArea, referenceArea: RevSelectionArea): boolean {
         // Order of priority is:
         // 1 Row
         // 2 Column

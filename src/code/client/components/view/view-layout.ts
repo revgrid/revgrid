@@ -1,4 +1,4 @@
-import { RevAssertError, RevClientObject, RevDataServer, RevInexclusiveRectangle, RevRectangle, RevSchemaField, RevUnreachableCaseError } from '../../../common';
+import { RevAssertError, RevClientObject, RevCornerRectangle, RevDataServer, RevRectangle, RevSchemaField, RevUnreachableCaseError } from '../../../common';
 import { RevColumn } from '../../interfaces/column';
 import { RevLinedHoverCell } from '../../interfaces/lined-hover-cell';
 import { RevSubgrid } from '../../interfaces/subgrid';
@@ -358,7 +358,7 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
         return this._horizontalScrollDimension.start;
     }
 
-    get scrollableCanvasBounds(): RevInexclusiveRectangle | undefined {
+    get scrollableCanvasBounds(): RevCornerRectangle | undefined {
         if (!this._horizontalScrollDimension.scrollable) {
             return undefined;
         } else {
@@ -369,7 +369,7 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
             } else {
                 const width = this._horizontalScrollDimension.viewportSize;
                 const height = this._canvas.flooredHeight - y; // this does not handle situation where rows do not fill the view
-                return new RevInexclusiveRectangle(x, y, width, height);
+                return new RevCornerRectangle(x, y, width, height);
             }
         }
     }

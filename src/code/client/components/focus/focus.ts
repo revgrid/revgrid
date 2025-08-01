@@ -91,7 +91,13 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
         this.clear();
     }
 
-    clear() {
+    /**
+     * Clears the current focus.
+     *
+     * The previous focus is set to the current focus before clearing it.
+     * Listeners are notified if the current focus was changed.
+     */
+    clear(): void {
         this.closeFocus();
         const newPrevious = this._current;
         this._previous = newPrevious;
@@ -102,7 +108,7 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
         }
     }
 
-    trySet(newFocusPoint: RevPoint, subgrid: RevSubgrid<BCS, SF>, cell: RevViewCell<BCS, SF> | undefined, canvasPoint: RevPartialPoint | undefined) {
+    setOrClear(newFocusPoint: RevPoint, subgrid: RevSubgrid<BCS, SF>, cell: RevViewCell<BCS, SF> | undefined, canvasPoint: RevPartialPoint | undefined): boolean {
         if (subgrid === this.subgrid && this.isPointFocusable(newFocusPoint)) {
             this.set(newFocusPoint, cell, canvasPoint);
             return true;
@@ -112,7 +118,7 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
         }
     }
 
-    set(newFocusPoint: RevPoint, cell: RevViewCell<BCS, SF> | undefined, canvasPoint: RevPartialPoint | undefined) {
+    set(newFocusPoint: RevPoint, cell: RevViewCell<BCS, SF> | undefined, canvasPoint: RevPartialPoint | undefined): void {
         const newCurrentActiveColumnIndex = newFocusPoint.x;
         const newCurrentSubgridRowIndex = newFocusPoint.y;
         const newPrevious = this._current;
@@ -159,7 +165,7 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
         }
     }
 
-    trySetX(activeColumnIndex: number, subgrid: RevSubgrid<BCS, SF>, cell: RevViewCell<BCS, SF> | undefined, canvasX: number | undefined) {
+    trySetX(activeColumnIndex: number, subgrid: RevSubgrid<BCS, SF>, cell: RevViewCell<BCS, SF> | undefined, canvasX: number | undefined): boolean {
         if (subgrid === this.subgrid && this.isXFocusable(activeColumnIndex)) {
             this.setX(activeColumnIndex, cell, canvasX);
             return true;
@@ -169,7 +175,7 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
         }
     }
 
-    setX(activeColumnIndex: number, cell: RevViewCell<BCS, SF> | undefined, canvasX: number | undefined) {
+    setX(activeColumnIndex: number, cell: RevViewCell<BCS, SF> | undefined, canvasX: number | undefined): void {
         const newPrevious = this._current;
         const newPreviousDefined = newPrevious !== undefined;
         if (!newPreviousDefined || newPrevious.x !== activeColumnIndex) {
@@ -204,7 +210,7 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
         }
     }
 
-    trySetY(subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>, cell: RevViewCell<BCS, SF> | undefined, canvasY: number | undefined) {
+    trySetY(subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>, cell: RevViewCell<BCS, SF> | undefined, canvasY: number | undefined): boolean {
         if (subgrid === this.subgrid && this.isYFocusable(subgridRowIndex)) {
             this.setY(subgridRowIndex, cell, canvasY);
             return true;
@@ -214,7 +220,7 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
         }
     }
 
-    setY(subgridRowIndex: number, cell: RevViewCell<BCS, SF> | undefined, canvasY: number | undefined) {
+    setY(subgridRowIndex: number, cell: RevViewCell<BCS, SF> | undefined, canvasY: number | undefined): void {
         const newPrevious = this._current;
         const newPreviousDefined = newPrevious !== undefined;
         const newPreviousSubgridRowIndex = newPreviousDefined ? newPrevious.y : undefined;
@@ -250,7 +256,7 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
         }
     }
 
-    trySetXY(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>, cell: RevViewCell<BCS, SF> | undefined, canvasX: number | undefined, canvasY: number | undefined) {
+    trySetXY(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>, cell: RevViewCell<BCS, SF> | undefined, canvasX: number | undefined, canvasY: number | undefined): boolean {
         if (subgrid === this.subgrid && this.isXFocusable(activeColumnIndex)) {
             this.setXY(activeColumnIndex, subgridRowIndex, cell, canvasX, canvasY);
             return true;
@@ -260,7 +266,7 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
         }
     }
 
-    setXY(activeColumnIndex: number, subgridRowIndex: number, cell: RevViewCell<BCS, SF> | undefined, canvasX: number | undefined, canvasY: number | undefined) {
+    setXY(activeColumnIndex: number, subgridRowIndex: number, cell: RevViewCell<BCS, SF> | undefined, canvasX: number | undefined, canvasY: number | undefined): void {
         const newPrevious = this._current;
         const newPreviousDefined = newPrevious !== undefined;
         const newPreviousActiveColumnIndex = newPreviousDefined ? newPrevious.x : undefined;
@@ -303,44 +309,45 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
         }
     }
 
-    isPointFocusable(point: RevPoint) {
+    isPointFocusable(point: RevPoint): boolean {
         return this.isXFocusable(point.x) && this.isYFocusable(point.y);
     }
 
-    isXFocusable(x: number) {
-        return x >= this._gridSettings.fixedColumnCount && x < this._columnsManager.activeColumnCount
+    isXFocusable(activeColumnIndex: number): boolean {
+        return activeColumnIndex >= this._gridSettings.fixedColumnCount && activeColumnIndex < this._columnsManager.activeColumnCount;
     }
 
-    isYFocusable(y: number) {
-        return y >= this._gridSettings.fixedRowCount && y < this._mainSubgrid.getRowCount()
+    isYFocusable(subgridRowIndex: number): boolean {
+        return subgridRowIndex >= this._gridSettings.fixedRowCount && subgridRowIndex < this.subgrid.getRowCount();
     }
 
-    isActiveColumnFocused(activeColumnIndex: number) {
+    isActiveColumnFocused(activeColumnIndex: number): boolean {
         return this._current !== undefined && activeColumnIndex === this._current.x;
     }
 
-    isSubgridRowFocused(subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>) {
-        return subgrid === this._mainSubgrid && this.isMainSubgridRowFocused(subgridRowIndex);
+    isSubgridRowFocused(subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): boolean {
+        return subgrid === this.subgrid && this._current !== undefined && subgridRowIndex === this._current.y;
     }
 
-    isMainSubgridRowFocused(mainSubgridRowIndex: number) {
-        return this._current !== undefined && mainSubgridRowIndex === this._current.y;
+    isMainSubgridRowFocused(mainSubgridRowIndex: number): boolean {
+        return this.isSubgridRowFocused(mainSubgridRowIndex, this._mainSubgrid);
     }
 
-    isCellFocused(cell: RevViewCell<BCS, SF>) {
+    isCellFocused(cell: RevViewCell<BCS, SF>): boolean {
         return cell === this._cell;
     }
 
-    isGridPointFocused(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>) {
-        return subgrid === this._mainSubgrid && this.isMainSubgridGridPointFocused(activeColumnIndex, subgridRowIndex);
-    }
-
-    isMainSubgridGridPointFocused(activeColumnIndex: number, mainSubgridRowIndex: number) {
+    isGridPointFocused(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): boolean {
         return (
+            subgrid === this.subgrid &&
             this._current !== undefined &&
             activeColumnIndex === this._current.x &&
-            mainSubgridRowIndex === this._current.y
+            subgridRowIndex === this._current.y
         );
+    }
+
+    isMainSubgridGridPointFocused(activeColumnIndex: number, mainSubgridRowIndex: number): boolean {
+        return this.isGridPointFocused(activeColumnIndex, mainSubgridRowIndex, this._mainSubgrid);
     }
 
     /**
@@ -499,7 +506,7 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
 
     /** @internal */
     adjustForRowsInserted(rowIndex: number, rowCount: number, dataServer: RevDataServer<SF>) {
-        if (dataServer === this._mainSubgrid.dataServer) {
+        if (dataServer === this.subgrid.dataServer) {
             if (this._current !== undefined) {
                 RevPoint.adjustForYRangeInserted(this._current, rowIndex, rowCount);
             }
@@ -519,7 +526,7 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
 
     /** @internal */
     adjustForRowsDeleted(rowIndex: number, rowCount: number, dataServer: RevDataServer<SF>) {
-        if (dataServer === this._mainSubgrid.dataServer) {
+        if (dataServer === this.subgrid.dataServer) {
             if (this._current !== undefined) {
                 const positionInDeletionRange = RevPoint.adjustForYRangeDeleted(this._current, rowIndex, rowCount);
                 if (positionInDeletionRange !== undefined) {
@@ -552,7 +559,7 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
 
     /** @internal */
     adjustForRowsMoved(oldRowIndex: number, newRowIndex: number, count: number, dataServer: RevDataServer<SF>) {
-        if (dataServer === this._mainSubgrid.dataServer) {
+        if (dataServer === this.subgrid.dataServer) {
             if (this._current !== undefined) {
                 RevPoint.adjustForYRangeMoved(this._current, oldRowIndex, newRowIndex, count);
             }
@@ -919,7 +926,7 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
 
     /** @internal */
     private createStashPoint(point: RevPoint): RevFocus.Stash.Point | undefined {
-        const dataServer = this._mainSubgrid.dataServer;
+        const dataServer = this.subgrid.dataServer;
         if (dataServer.getRowIdFromIndex === undefined) {
             return undefined;
         } else {
@@ -937,7 +944,7 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
         if (activeColumnIndex < 0) {
             return undefined;
         } else {
-            const dataServer = this._mainSubgrid.dataServer;
+            const dataServer = this.subgrid.dataServer;
             if (dataServer.getRowIndexFromId !== undefined) {
                 const rowIndex = dataServer.getRowIndexFromId(stashedRowId);
                 if (rowIndex === undefined) {
@@ -954,7 +961,7 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
                 }
             } else {
                 if (dataServer.getRowIdFromIndex !== undefined) {
-                    const rowCount = this._mainSubgrid.getRowCount();
+                    const rowCount = this.subgrid.getRowCount();
                     for (let rowIndex = 0; rowIndex < rowCount; ++rowIndex) {
                         const rowId = dataServer.getRowIdFromIndex(rowIndex);
                         if (rowId === stashedRowId) {
@@ -979,6 +986,11 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
 
 /** @public */
 export namespace RevFocus {
+    // export interface Point<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> {
+    //     readonly activeColumnIndex: number;
+    //     readonly subgridRowIndex: number;
+    //     readonly subgrid: RevSubgrid<BCS, SF>;
+    // }
     export type EditorKeyDownEventer = (this: void, event: KeyboardEvent) => void;
     export type GetCellEditorEventer<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> = (
         this: void,

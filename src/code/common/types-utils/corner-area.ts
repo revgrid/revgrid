@@ -2,7 +2,7 @@ import { RevPoint } from './point';
 import { RevRectangle } from './rectangle';
 
 /** @public */
-export interface RevInexclusiveArea extends RevRectangle {
+export interface RevCornerArea extends RevRectangle {
     readonly topLeft: RevPoint;
     readonly exclusiveBottomRight: RevPoint;
 

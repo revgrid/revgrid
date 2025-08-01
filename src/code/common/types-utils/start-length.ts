@@ -6,7 +6,7 @@ export interface RevStartLength {
 
 /** @public */
 export namespace RevStartLength {
-    export function createExclusiveFromFirstLast(first: number, last: number): RevStartLength {
+    export function createFromReversableFirstLast(first: number, last: number): RevStartLength {
         if (last >= first) {
             return {
                 start: first,
@@ -20,16 +20,16 @@ export namespace RevStartLength {
         }
     }
 
-    export function createFromExclusive(exclusive: RevStartLength): RevStartLength {
-        const length = exclusive.length;
+    export function ensureLengthIsNotNegative(startLength: RevStartLength): RevStartLength {
+        const length = startLength.length;
         if (length >= 0) {
             return {
-                start: exclusive.start,
+                start: startLength.start,
                 length,
             };
         } else {
             return {
-                start: exclusive.start + length,
+                start: startLength.start + length,
                 length: -length,
             };
         }

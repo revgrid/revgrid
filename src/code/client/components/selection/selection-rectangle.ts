@@ -11,7 +11,7 @@ export class RevSelectionRectangle extends RevFirstCornerRectangle implements Re
     }
 
     override createCopy() {
-        const { x, y, width, height } = RevFirstCornerRectangle.calculateXYWidthHeightForCorner(this.x, this.y, this.width, this.height, this.firstCorner);
+        const { x, y, width, height } = RevFirstCornerRectangle.createExclusiveRectangle(this.x, this.y, this.width, this.height, this.firstCorner);
         return new RevSelectionRectangle(x, y, width, height);
     }
 }
