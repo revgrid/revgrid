@@ -28,13 +28,13 @@ export interface RevCellEditor<
     /** Provide the initial data to the editor. This is done after all events have been subscribed to - so editor can start running */
     tryOpenCell(viewCell: RevViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined): boolean;
     /** Close the editor - returns data that was in editor or undefined if cancel specified */
-    closeCell(field: SF, subgridRowIndex: number, cancel: boolean): void;
+    closeCell(field: SF, dataServerRowIndex: number, cancel: boolean): void;
 
     /** Server data value has changed since being provided to editor or pulled by editor */
     invalidateValue?(): void;
 
     /** See if the editor wants the key down event.  If fromEditor is true, then this editor generated the event in the first place */
-    processGridKeyDownEvent(event: KeyboardEvent, fromEditor: boolean, field: SF, subgridRowIndex: number): boolean;
+    processGridKeyDownEvent(event: KeyboardEvent, fromEditor: boolean, field: SF, dataServerRowIndex: number): boolean;
     /** See if the editor wants the mouse down event.  If fromEditor is true, then this editor generated the event in the first place */
     processGridClickEvent?(event: MouseEvent, viewCell: RevViewCell<BCS, SF>): boolean;
     /** See if the editor wants the mouse move event.  If fromEditor is true, then this editor generated the event in the first place */

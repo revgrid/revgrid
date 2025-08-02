@@ -52,7 +52,7 @@ export class RevDataRowArrayGrid<
     get recordFocused() { return this.focus.current !== undefined; }
 
     get focusedRecordIndex(): Integer | undefined {
-        return this.focus.currentY;
+        return this.focus.currentSubgridRowIndex;
     }
 
     get mainRowCount(): number { return this.mainDataServer.getRowCount(); }

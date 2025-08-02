@@ -6,7 +6,7 @@ export interface RevStartLength {
 
 /** @public */
 export namespace RevStartLength {
-    export function createFromReversableFirstLast(first: number, last: number): RevStartLength {
+    export function createFromInclusiveFirstLast(first: number, last: number): RevStartLength {
         if (last >= first) {
             return {
                 start: first,
@@ -15,7 +15,7 @@ export namespace RevStartLength {
         } else {
             return {
                 start: first + 1,
-                length: last - first - 1, // same as -(first - (last - 1))
+                length: last - first - 1, // same as -(first + 1 - last)
             };
         }
     }

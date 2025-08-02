@@ -20,20 +20,20 @@ export class RevFocusSelectBehavior<BGS extends RevBehavioredGridSettings, BCS e
     ) {
     }
 
-    selectColumn(activeColumnIndex: number) {
+    selectColumn(activeColumnIndex: number): void {
         this.selectColumns(activeColumnIndex, 1);
     }
 
-    selectColumns(activeColumnIndex: number, count: number) {
+    selectColumns(activeColumnIndex: number, count: number): void {
         const height = this.getSelectionSubgridRowCount();
         this._selection.selectColumns(activeColumnIndex, 0, count, height);
     }
 
-    onlySelectColumn(activeColumnIndex: number) {
+    onlySelectColumn(activeColumnIndex: number): void {
         this.onlySelectColumns(activeColumnIndex, 1);
     }
 
-    onlySelectColumns(activeColumnIndex: number, count: number) {
+    onlySelectColumns(activeColumnIndex: number, count: number): void {
         const height = this.getSelectionSubgridRowCount();
         const selection = this._selection;
         selection.beginChange();
@@ -45,28 +45,28 @@ export class RevFocusSelectBehavior<BGS extends RevBehavioredGridSettings, BCS e
         }
     }
 
-    toggleSelectColumn(activeColumnIndex: number) {
+    toggleSelectColumn(activeColumnIndex: number): void {
         const height = this.getSelectionSubgridRowCount();
         this._selection.toggleSelectColumn(activeColumnIndex, 0, height);
     }
 
-    selectRow(subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>) {
+    selectRow(subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): void {
         this.selectRows(subgridRowIndex, 1, subgrid)
     }
 
-    selectRows(subgridRowIndex: number, count: number, subgrid: RevSubgrid<BCS, SF>) {
+    selectRows(subgridRowIndex: number, count: number, subgrid: RevSubgrid<BCS, SF>): void {
         this._selection.selectRows(0, subgridRowIndex, this._columnsManager.activeColumnCount, count, subgrid);
     }
 
-    selectAllRows(subgrid: RevSubgrid<BCS, SF>) {
+    selectAllRows(subgrid: RevSubgrid<BCS, SF>): void {
         this._selection.selectAllRows(0, this._columnsManager.activeColumnCount, subgrid);
     }
 
-    onlySelectRow(subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>) {
+    onlySelectRow(subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): void {
         this.onlySelectRows(subgridRowIndex, 1, subgrid)
     }
 
-    onlySelectRows(subgridRowIndex: number, count: number, subgrid: RevSubgrid<BCS, SF>) {
+    onlySelectRows(subgridRowIndex: number, count: number, subgrid: RevSubgrid<BCS, SF>): void {
         const selection = this._selection;
         selection.beginChange();
         try {
@@ -77,7 +77,7 @@ export class RevFocusSelectBehavior<BGS extends RevBehavioredGridSettings, BCS e
         }
     }
 
-    toggleSelectRow(subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>) {
+    toggleSelectRow(subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): void {
         this._selection.toggleSelectRow(0, subgridRowIndex, this._columnsManager.activeColumnCount, subgrid);
     }
 
@@ -88,14 +88,14 @@ export class RevFocusSelectBehavior<BGS extends RevBehavioredGridSettings, BCS e
         height: number,
         subgrid: RevSubgrid<BCS, SF>,
         ensureFullyInView: RevEnsureFullyInView,
-    ) {
+    ): void {
         this._selection.beginChange();
         const area = this._selection.selectRectangle(leftOrExRightActiveColumnIndex, topOrExBottomSubgridRowIndex, width, height, subgrid);
-        const focusPoint = area.inclusiveFirst;
-        const focused = this._focus.setOrClear(focusPoint, subgrid, undefined, undefined);
+        const focusSubgridPoint = area.inclusiveFirst;
+        const focused = this._focus.setPointOrClear(focusSubgridPoint, subgrid, undefined, undefined);
         if (focused) {
             if (ensureFullyInView !== RevEnsureFullyInViewEnum.Never) {
-                this._viewLayout.ensureColumnRowAreInView(focusPoint.x, focusPoint.y, ensureFullyInView === RevEnsureFullyInViewEnum.Always);
+                this._viewLayout.ensureColumnRowAreInView(focusSubgridPoint.x, focusSubgridPoint.y, ensureFullyInView === RevEnsureFullyInViewEnum.Always);
             }
 
             this._selection.flagFocusLinked();
@@ -111,7 +111,7 @@ export class RevFocusSelectBehavior<BGS extends RevBehavioredGridSettings, BCS e
         ensureFullyInView: RevEnsureFullyInView,
     ): void {
         this._selection.beginChange();
-        const focused = this._focus.trySetXY(activeColumnIndex, subgridRowIndex, subgrid, undefined, undefined, undefined);
+        const focused = this._focus.setColumnRowOrClear(activeColumnIndex, subgridRowIndex, subgrid, undefined, undefined, undefined);
         this._selection.onlySelectCell(activeColumnIndex, subgridRowIndex, subgrid);
         if (focused) {
             if (ensureFullyInView !== RevEnsureFullyInViewEnum.Never) {
@@ -137,7 +137,7 @@ export class RevFocusSelectBehavior<BGS extends RevBehavioredGridSettings, BCS e
 
     focusSelectCell(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>, ensureFullyInView: RevEnsureFullyInView): void {
         this._selection.beginChange();
-        const focused = this._focus.trySetXY(activeColumnIndex, subgridRowIndex, subgrid, undefined, undefined, undefined);
+        const focused = this._focus.setColumnRowOrClear(activeColumnIndex, subgridRowIndex, subgrid, undefined, undefined, undefined);
         this._selection.selectCell(activeColumnIndex, subgridRowIndex, subgrid);
         if (focused) {
             if (ensureFullyInView !== RevEnsureFullyInViewEnum.Never) {
@@ -164,7 +164,7 @@ export class RevFocusSelectBehavior<BGS extends RevBehavioredGridSettings, BCS e
         this._selection.beginChange();
         const selected = this._selection.toggleSelectCell(activeColumnIndex, subgridRowIndex, subgrid);
         if (selected) {
-            const focused = this._focus.trySetXY(activeColumnIndex, subgridRowIndex, subgrid, undefined, undefined, undefined);
+            const focused = this._focus.setColumnRowOrClear(activeColumnIndex, subgridRowIndex, subgrid, undefined, undefined, undefined);
             if (focused) {
                 if (ensureFullyInView !== RevEnsureFullyInViewEnum.Never) {
                     this._viewLayout.ensureColumnRowAreInView(activeColumnIndex, subgridRowIndex, ensureFullyInView === RevEnsureFullyInViewEnum.Always);
@@ -182,10 +182,11 @@ export class RevFocusSelectBehavior<BGS extends RevBehavioredGridSettings, BCS e
         if (focusPoint === undefined) {
             return false;
         } else {
-            const focusX = focusPoint.x;
-            const focusY = focusPoint.y;
+            const activeColumnIndex = focusPoint.x;
+            const subgridRowIndex = focusPoint.y;
+            const subgrid = focusPoint.subgrid;
             this._selection.beginChange();
-            this._selection.onlySelectCell(focusX, focusY, this._focus.subgrid);
+            this._selection.onlySelectCell(activeColumnIndex, subgridRowIndex, subgrid);
             this._selection.flagFocusLinked();
             this._selection.endChange();
             return true;
@@ -200,12 +201,12 @@ export class RevFocusSelectBehavior<BGS extends RevBehavioredGridSettings, BCS e
         height: number,
         subgrid: RevSubgrid<BCS, SF>,
         ensureFullyInView: RevEnsureFullyInView,
-    ) {
+    ): void {
         this._selection.beginChange();
         const area = this._selection.replaceLastArea(areaTypeId, leftOrExRightActiveColumnIndex, topOrExBottomSubgridRowIndex, width, height, subgrid);
         if (area !== undefined) {
             const focusPoint = area.inclusiveFirst;
-            const focused = this._focus.setOrClear(focusPoint, subgrid, undefined, undefined);
+            const focused = this._focus.setPointOrClear(focusPoint, subgrid, undefined, undefined);
             if (focused) {
                 if (ensureFullyInView !== RevEnsureFullyInViewEnum.Never) {
                     this._viewLayout.ensureColumnRowAreInView(focusPoint.x, focusPoint.y, ensureFullyInView === RevEnsureFullyInViewEnum.Always);
@@ -224,11 +225,11 @@ export class RevFocusSelectBehavior<BGS extends RevBehavioredGridSettings, BCS e
         height: number,
         subgrid: RevSubgrid<BCS, SF>,
         ensureFullyInView: RevEnsureFullyInView
-    ) {
+    ): void {
         this._selection.beginChange();
         const area = this._selection.replaceLastAreaWithRectangle(leftOrExRightActiveColumnIndex, topOrExBottomSubgridRowIndex, width, height, subgrid);
         const focusPoint = area.inclusiveFirst;
-        const focused = this._focus.setOrClear(focusPoint, subgrid, undefined, undefined);
+        const focused = this._focus.setPointOrClear(focusPoint, subgrid, undefined, undefined);
         if (focused) {
             if (ensureFullyInView !== RevEnsureFullyInViewEnum.Never) {
                 this._viewLayout.ensureColumnRowAreInView(focusPoint.x, focusPoint.y, ensureFullyInView === RevEnsureFullyInViewEnum.Always);
@@ -239,47 +240,52 @@ export class RevFocusSelectBehavior<BGS extends RevBehavioredGridSettings, BCS e
         this._selection.endChange();
     }
 
-    tryExtendLastSelectionAreaAsCloseAsPossibleToFocus() {
-        const focusPoint = this._focus.current;
-        if (focusPoint === undefined) {
+    tryExtendLastSelectionAreaAsCloseAsPossibleToFocus(): boolean {
+        const currentFocusPoint = this._focus.current;
+        if (currentFocusPoint === undefined) {
             return false;
         } else {
             const lastArea = this._selection.lastArea;
             if (lastArea === undefined) {
                 return false;
             } else {
-                let newLastX = focusPoint.x;
-                let newLastY = focusPoint.y;
+                const focusSubgrid = currentFocusPoint.subgrid;
+                if (focusSubgrid !== lastArea.subgrid) {
+                    return false;
+                } else {
+                    let newActiveColumnIndex = currentFocusPoint.x;
+                    let newSubgridRowIndex = currentFocusPoint.y;
 
-                if (!this._gridSettings.scrollingEnabled) {
-                    const limitedNewX = this._viewLayout.limitActiveColumnIndexToView(newLastX);
-                    const limitedNewY = this._viewLayout.limitRowIndexToView(newLastY);
-                    if (limitedNewX === undefined || limitedNewY === undefined) {
-                        throw new RevAssertError('SUBMSS33398');
-                    } else {
-                        newLastX = limitedNewX;
-                        newLastY = limitedNewY;
+                    if (focusSubgrid.scrollable && !this._gridSettings.scrollingEnabled) {
+                        const limitedActiveColumnIndex = this._viewLayout.limitActiveColumnIndexToView(newActiveColumnIndex);
+                        const limitedSubgridRowIndex = this._viewLayout.limitRowIndexToView(newSubgridRowIndex);
+                        if (limitedActiveColumnIndex === undefined || limitedSubgridRowIndex === undefined) {
+                            throw new RevAssertError('SUBMSS33398');
+                        } else {
+                            newActiveColumnIndex = limitedActiveColumnIndex;
+                            newSubgridRowIndex = limitedSubgridRowIndex;
+                        }
                     }
+
+                    const firstPoint = lastArea.inclusiveFirst;
+                    const xStartLength = RevStartLength.createFromInclusiveFirstLast(firstPoint.x, newActiveColumnIndex);
+                    const yStartLength = RevStartLength.createFromInclusiveFirstLast(firstPoint.y, newSubgridRowIndex);
+                    this._selection.replaceLastAreaWithRectangle(
+                        xStartLength.start,
+                        yStartLength.start,
+                        xStartLength.length,
+                        yStartLength.length,
+                        focusSubgrid
+                    );
+
+                    this._viewLayout.ensureColumnRowAreInView(newActiveColumnIndex, newSubgridRowIndex, true);
+                    return true;
                 }
-
-                const firstPoint = lastArea.inclusiveFirst;
-                const xStartLength = RevStartLength.createFromReversableFirstLast(firstPoint.x, newLastX);
-                const yStartLength = RevStartLength.createFromReversableFirstLast(firstPoint.y, newLastY);
-                this._selection.replaceLastAreaWithRectangle(
-                    xStartLength.start,
-                    yStartLength.start,
-                    xStartLength.length,
-                    yStartLength.length,
-                    this._focus.subgrid
-                );
-
-                this._viewLayout.ensureColumnRowAreInView(newLastX, newLastY, true);
-                return true;
             }
         }
     }
 
-    isMouseAddToggleExtendSelectionAreaAllowed(event: MouseEvent) {
+    isMouseAddToggleExtendSelectionAreaAllowed(event: MouseEvent): boolean {
         return !RevEventBehavior.isSecondaryMouseButton(event) && this._gridSettings.mouseAddToggleExtendSelectionAreaEnabled;
     }
 

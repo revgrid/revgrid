@@ -73,6 +73,9 @@ export default tseslint.config(
             "@typescript-eslint/prefer-nullish-coalescing": ["off", {
                 ignoreTernaryTests: true,
             }],
+            "@typescript-eslint/preferprefer-optional-chain": ["warn", {
+                checkBoolean: true,
+            }],
             // "@typescript-eslint/no-empty-object-type": ["warn", {
             //     allowInterfaces: 'always',
             // }],

@@ -12,6 +12,8 @@ export class RevSubgridImplementation<BCS extends RevBehavioredColumnSettings, S
     readonly isSummary: boolean = false;
     readonly isFooter: boolean = false;
 
+    readonly scrollable: boolean;
+
     firstViewRowIndex = -1; // only valid if viewRowCount > 0
     firstViewableSubgridRowIndex = -1; // only valid if viewRowCount > 0
     viewRowCount = 0;
@@ -39,6 +41,7 @@ export class RevSubgridImplementation<BCS extends RevBehavioredColumnSettings, S
         readonly schemaServer: RevSchemaServer<SF>,
         readonly dataServer: RevDataServer<SF>,
         readonly metaServer: RevMetaServer | undefined,
+        readonly focusable: boolean,
         readonly selectable: boolean,
         readonly definitionDefaultRowHeight: number | undefined,
         readonly rowHeightsCanDiffer: boolean,
@@ -66,6 +69,8 @@ export class RevSubgridImplementation<BCS extends RevBehavioredColumnSettings, S
                 const never: never = role
             }
         }
+
+        this.scrollable = this.isMain;
 
         this._viewDataRowProxy = new RevSubgridImplementation.ViewDataRowProxy<SF>(this.schemaServer, this.dataServer);
 

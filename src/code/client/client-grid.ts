@@ -288,13 +288,13 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     /**
      * Retrieve a data row from the main data model.
      * @returns The data row object at y index.
-     * @param y - the row index of interest
+     * @param subgridRowIndex - the row index of interest
      */
-    getSingletonViewDataRow(y: Integer, subgrid?: RevSubgrid<BCS, SF>): RevDataServer.ViewRow {
+    getSingletonViewDataRow(subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>): RevDataServer.ViewRow {
         if (subgrid === undefined) {
-            return this.mainSubgrid.getSingletonViewDataRow(y);
+            return this.mainSubgrid.getSingletonViewDataRow(subgridRowIndex);
         } else {
-            return subgrid.getSingletonViewDataRow(y);
+            return subgrid.getSingletonViewDataRow(subgridRowIndex);
         }
     }
 
@@ -311,59 +311,59 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
         }
     }
 
-    getViewValue(x: Integer, y: Integer, subgrid?: RevSubgrid<BCS, SF>) {
+    getViewValue(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>) {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
-        return this._componentsManager.getViewValue(x, y, subgrid);
+        return this._componentsManager.getViewValue(activeColumnIndex, subgridRowIndex, subgrid);
     }
 
-    setValue(x: Integer, y: Integer, value: RevDataServer.EditValue, subgrid?: RevSubgrid<BCS, SF>) {
+    setValue(activeColumnIndex: Integer, subgridRowIndex: Integer, value: RevDataServer.EditValue, subgrid?: RevSubgrid<BCS, SF>) {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
-        this._componentsManager.setValue(x, y, value, subgrid);
+        this._componentsManager.setValue(activeColumnIndex, subgridRowIndex, value, subgrid);
     }
 
     /**
-     * @param activeIndex - The column index in question.
+     * @param activeColumnIndex - The column index in question.
      * @returns The given column is fully visible.
      */
-    isColumnVisible(activeIndex: Integer) {
-        return this.viewLayout.isActiveColumnVisible(activeIndex);
+    isColumnVisible(activeColumnIndex: Integer) {
+        return this.viewLayout.isActiveColumnVisible(activeColumnIndex);
     }
 
     /**
      * Get the visibility of the row matching the provided data row index.
      * @remarks Requested row may not be visible due to being scrolled out of view.
      * Determines visibility of a row.
-     * @param rowIndex - The data row index.
+     * @param subgridRowIndex - The data row index.
      * @returns The given row is visible.
      */
-    isDataRowVisible(rowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>) {
+    isSubgridRowVisible(subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>) {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
 
-        return this.viewLayout.isDataRowVisible(rowIndex, subgrid);
+        return this.viewLayout.isDataRowVisible(subgridRowIndex, subgrid);
     }
 
     /**
-     * @param c - The column index in question.
-     * @param rn - The grid row index in question.
+     * @param activeColumnIndex - The column index in question.
+     * @param subgridRowIndex - The grid row index in question.
      * @returns The given cell is fully is visible.
      */
-    isDataVisible(c: Integer, rn: Integer) {
-        return this.isDataRowVisible(rn) && this.isColumnVisible(c);
+    isCellVisible(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid = this.mainSubgrid): boolean {
+        return this.isSubgridRowVisible(subgridRowIndex, subgrid) && this.isColumnVisible(activeColumnIndex);
     }
 
     /**
      * Find cell under offset position in canvas
-     * @param offsetX - X position of pixel in canvas.
-     * @param offsetY - Y position of pixel in canvas.
+     * @param canvasXOffset - X position of pixel in canvas.
+     * @param canvasYOffset - Y position of pixel in canvas.
      */
-    findLinedHoverCellAtCanvasOffset(offsetX: Integer, offsetY: Integer) {
-        return this.viewLayout.findLinedHoverCellAtCanvasOffset(offsetX, offsetY);
+    findLinedHoverCellAtCanvasOffset(canvasXOffset: Integer, canvasYOffset: Integer) {
+        return this.viewLayout.findLinedHoverCellAtCanvasOffset(canvasXOffset, canvasYOffset);
     }
 
     /**
@@ -791,117 +791,117 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     }
 
     // Focus
-    clearFocus() {
+    clearFocus(): void {
         this.focus.clear();
     }
 
     // RevFocusScrollBehavior
 
-    tryFocusXYAndEnsureInView(x: Integer, y: Integer, cell?: RevViewCell<BCS, SF>) {
-        return this._focusScrollBehavior.tryFocusXYAndEnsureInView(x, y, cell);
+    tryFocusColumnRowAndEnsureInView(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid = this.mainSubgrid, cell?: RevViewCell<BCS, SF>): boolean {
+        return this._focusScrollBehavior.tryFocusColumnRowAndEnsureInView(activeColumnIndex, subgridRowIndex, subgrid, cell);
     }
 
-    tryFocusXAndEnsureInView(x: Integer) {
-        return this._focusScrollBehavior.tryFocusXAndEnsureInView(x);
+    tryFocusXAndEnsureInView(activeColumnIndex: Integer): boolean {
+        return this._focusScrollBehavior.tryFocusColumnAndEnsureInView(activeColumnIndex);
     }
 
-    tryFocusYAndEnsureInView(y: Integer) {
-        return this._focusScrollBehavior.tryFocusYAndEnsureInView(y);
+    tryFocusSubgridRowAndEnsureInView(subgridRowIndex: Integer, subgrid = this.mainSubgrid): boolean {
+        return this._focusScrollBehavior.tryFocusSubgridRowAndEnsureInView(subgridRowIndex, subgrid);
     }
 
-    tryMoveFocusLeft() {
+    tryMoveFocusLeft(): boolean {
         return this._focusScrollBehavior.tryMoveFocusLeft();
     }
 
-    tryMoveFocusRight() {
+    tryMoveFocusRight(): boolean {
         return this._focusScrollBehavior.tryMoveFocusRight();
     }
 
-    tryMoveFocusUp() {
+    tryMoveFocusUp(): boolean {
         return this._focusScrollBehavior.tryMoveFocusUp();
     }
 
-    tryMoveFocusDown() {
+    tryMoveFocusDown(): boolean {
         return this._focusScrollBehavior.tryMoveFocusDown();
     }
 
-    tryFocusFirstColumn() {
+    tryFocusFirstColumn(): boolean {
         return this._focusScrollBehavior.tryFocusFirstColumn();
     }
 
-    tryFocusLastColumn() {
+    tryFocusLastColumn(): boolean {
         return this._focusScrollBehavior.tryFocusLastColumn();
     }
 
-    tryFocusTop() {
+    tryFocusTop(): boolean {
         return this._focusScrollBehavior.tryFocusTop();
     }
 
-    tryFocusBottom() {
+    tryFocusBottom(): boolean {
         return this._focusScrollBehavior.tryFocusBottom();
     }
 
-    tryPageFocusLeft() {
+    tryPageFocusLeft(): boolean {
         return this._focusScrollBehavior.tryPageFocusLeft();
     }
 
-    tryPageFocusRight() {
+    tryPageFocusRight(): boolean {
         return this._focusScrollBehavior.tryPageFocusRight();
     }
 
-    tryPageFocusUp() {
+    tryPageFocusUp(): boolean {
         return this._focusScrollBehavior.tryPageFocusUp();
     }
 
-    tryPageFocusDown() {
+    tryPageFocusDown(): boolean {
         return this._focusScrollBehavior.tryPageFocusDown();
     }
 
-    tryScrollLeft() {
+    tryScrollLeft(): boolean {
         return this._focusScrollBehavior.tryScrollLeft();
     }
 
-    tryScrollRight() {
+    tryScrollRight(): boolean {
         return this._focusScrollBehavior.tryScrollRight();
     }
 
-    tryScrollUp() {
+    tryScrollUp(): boolean {
         return this._focusScrollBehavior.tryScrollUp();
     }
 
-    tryScrollDown() {
+    tryScrollDown(): boolean {
         return this._focusScrollBehavior.tryScrollDown();
     }
 
-    scrollFirstColumn() {
+    scrollFirstColumn(): boolean {
         return this._focusScrollBehavior.scrollFirstColumn();
     }
 
-    scrollLastColumn() {
+    scrollLastColumn(): boolean {
         return this._focusScrollBehavior.scrollLastColumn();
     }
 
-    scrollTop() {
+    scrollTop(): boolean {
         return this._focusScrollBehavior.scrollTop();
     }
 
-    scrollBottom() {
+    scrollBottom(): boolean {
         return this._focusScrollBehavior.scrollBottom();
     }
 
-    tryScrollPageLeft() {
+    tryScrollPageLeft(): boolean {
         return this._focusScrollBehavior.tryScrollPageLeft();
     }
 
-    tryScrollPageRight() {
+    tryScrollPageRight(): boolean {
         return this._focusScrollBehavior.tryScrollPageRight();
     }
 
-    tryScrollPageUp() {
+    tryScrollPageUp(): boolean {
         return this._focusScrollBehavior.tryScrollPageUp();
     }
 
-    tryScrollPageDown() {
+    tryScrollPageDown(): boolean {
         return this._focusScrollBehavior.tryScrollPageDown();
     }
 
@@ -948,9 +948,9 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     }
 
     /** @internal */
-    getCellProperties(allX: Integer, y: Integer, subgrid: RevSubgrid<BCS, SF>): RevCellMetaSettings {
+    getCellProperties(allX: Integer, subgridRowIndex: Integer, subgrid: RevSubgrid<BCS, SF>): RevCellMetaSettings {
         const column = this.columnsManager.getFieldColumn(allX);
-        return this._cellPropertiesBehavior.getCellPropertiesAccessor(column, y, subgrid);
+        return this._cellPropertiesBehavior.getCellPropertiesAccessor(column, subgridRowIndex, subgrid);
     }
 
     /** @internal */
@@ -963,25 +963,25 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
      * Return a specific cell property.
      * @remarks If there is no cell properties object, defers to column properties object.
      * @param allX - Data x coordinate.
-     * @param y - Subgrid row coordinate.
+     * @param subgridRowIndex - Subgrid row coordinate.
      * @param key - Name of property to get.
      * @param subgrid - Subgrid in which contains cell
      * @returns The specified property for the cell at x,y in the grid.
      * @internal
      */
-    getCellProperty(allX: Integer, y: Integer, key: string | number, subgrid: RevSubgrid<BCS, SF>): RevMetaServer.CellOwnProperty;
+    getCellProperty(allX: Integer, subgridRowIndex: Integer, key: string | number, subgrid: RevSubgrid<BCS, SF>): RevMetaServer.CellOwnProperty;
     /** @internal */
-    getCellProperty<T extends keyof RevColumnSettings>(allX: Integer, y: Integer, key: T, subgrid: RevSubgrid<BCS, SF>): RevColumnSettings[T];
+    getCellProperty<T extends keyof RevColumnSettings>(allX: Integer, subgridRowIndex: Integer, key: T, subgrid: RevSubgrid<BCS, SF>): RevColumnSettings[T];
     /** @internal */
     getCellProperty<T extends keyof RevColumnSettings>(
         allX: Integer,
-        y: Integer,
+        subgridRowIndex: Integer,
         key: string | T,
         subgrid: RevSubgrid<BCS, SF>
         // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
     ): RevMetaServer.CellOwnProperty | RevColumnSettings[T] {
         const column = this.columnsManager.getFieldColumn(allX);
-        return this._cellPropertiesBehavior.getCellProperty(column, y, key, subgrid);
+        return this._cellPropertiesBehavior.getCellProperty(column, subgridRowIndex, key, subgrid);
     }
 
     /**
@@ -997,9 +997,9 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
         this._cellPropertiesBehavior.setCellOwnProperties(column, cell.viewLayoutRow.subgridRowIndex, properties, cell.subgrid);
     }
     /** @internal */
-    setCellOwnProperties(allX: Integer, y: Integer, properties: RevMetaServer.CellOwnProperties, subgrid: RevSubgrid<BCS, SF>) {
+    setCellOwnProperties(allX: Integer, subgridRowIndex: Integer, properties: RevMetaServer.CellOwnProperties, subgrid: RevSubgrid<BCS, SF>) {
         const column = this.columnsManager.getFieldColumn(allX);
-        this._cellPropertiesBehavior.setCellOwnProperties(column, y, properties, subgrid);
+        this._cellPropertiesBehavior.setCellOwnProperties(column, subgridRowIndex, properties, subgrid);
     }
 
     /**
@@ -1015,9 +1015,9 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
         this._cellPropertiesBehavior.addCellOwnProperties(column, cell.viewLayoutRow.subgridRowIndex, properties, cell.subgrid);
     }
     /** @internal */
-    addCellOwnProperties(allX: Integer, y: Integer, properties: RevMetaServer.CellOwnProperties, subgrid: RevSubgrid<BCS, SF>) {
+    addCellOwnProperties(allX: Integer, subgridRowIndex: Integer, properties: RevMetaServer.CellOwnProperties, subgrid: RevSubgrid<BCS, SF>) {
         const column = this.columnsManager.getFieldColumn(allX);
-        this._cellPropertiesBehavior.addCellOwnProperties(column, y, properties, subgrid);
+        this._cellPropertiesBehavior.addCellOwnProperties(column, subgridRowIndex, properties, subgrid);
     }
 
     /**
@@ -1076,47 +1076,47 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     /** Call before multiple selection changes to consolidate SelectionChange events.
      * Pair with endSelectionChange().
      */
-    beginSelectionChange() {
+    beginSelectionChange(): void {
         this.selection.beginChange();
     }
 
     /** Call after multiple selection changes to consolidate SelectionChange events.
      * Pair with beginSelectionChange().
      */
-    endSelectionChange() {
+    endSelectionChange(): void {
         this.selection.endChange();
     }
 
-    clearSelection() {
+    clearSelection(): void {
         this.selection.clear();
     }
 
-    onlySelectCell(x: Integer, y: Integer, subgrid?: RevSubgrid<BCS, SF>) {
+    onlySelectCell(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>): RevLastSelectionArea {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
-        return this.selection.onlySelectCell(x, y, subgrid);
+        return this.selection.onlySelectCell(activeColumnIndex, subgridRowIndex, subgrid);
     }
 
-    selectCell(x: Integer, y: Integer, subgrid?: RevSubgrid<BCS, SF>) {
+    selectCell(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>): RevLastSelectionArea {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
-        return this.selection.selectCell(x, y, subgrid);
+        return this.selection.selectCell(activeColumnIndex, subgridRowIndex, subgrid);
     }
 
-    deleteCellSelectionArea(x: Integer, y: Integer, subgrid?: RevSubgrid<BCS, SF>) {
+    deleteCellSelectionArea(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>): void {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
-        this.selection.deleteCellArea(x, y, subgrid);
+        this.selection.deleteCellArea(activeColumnIndex, subgridRowIndex, subgrid);
     }
 
-    toggleSelectCell(x: Integer, y: Integer, subgrid?: RevSubgrid<BCS, SF>): boolean {
+    toggleSelectCell(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>): boolean {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
-        return this.selection.toggleSelectCell(x, y, subgrid);
+        return this.selection.toggleSelectCell(activeColumnIndex, subgridRowIndex, subgrid);
     }
 
     onlySelectRectangle(leftOrExRightActiveColumnIndex: Integer, topOrExBottomSubgridRowIndex: Integer, width: Integer, height: Integer, subgrid?: RevSubgrid<BCS, SF>): RevLastSelectionArea {
@@ -1133,25 +1133,22 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
         return this.selection.selectRectangle(leftOrExRightActiveColumnIndex, topOrExBottomSubgridRowIndex, width, height, subgrid);
     }
 
-    deleteRectangleSelectionArea(rectangle: RevRectangle, subgrid?: RevSubgrid<BCS, SF>) {
-        if (subgrid === undefined) {
-            subgrid = this.mainSubgrid;
-        }
+    deleteRectangleSelectionArea(rectangle: RevRectangle, subgrid = this.mainSubgrid): void {
         this.selection.deleteRectangleArea(rectangle, subgrid);
     }
 
-    deselectRow(y: Integer, subgrid?: RevSubgrid<BCS, SF>) {
+    deselectRow(subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>): void {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
-        this.selection.deselectRows(y, 1, subgrid);
+        this.selection.deselectRows(subgridRowIndex, 1, subgrid);
     }
 
-    deselectRows(y: Integer, count: Integer, subgrid?: RevSubgrid<BCS, SF>) {
+    deselectRows(subgridRowIndex: Integer, count: Integer, subgrid?: RevSubgrid<BCS, SF>): void {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
-        this.selection.deselectRows(y, count, subgrid);
+        this.selection.deselectRows(subgridRowIndex, count, subgrid);
     }
 
     /**
@@ -1161,7 +1158,7 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
      *
      * @param activeColumnIndex - The index of the active column to remove.
      */
-    deselectColumn(activeColumnIndex: Integer) {
+    deselectColumn(activeColumnIndex: Integer): void {
         this.selection.deselectColumns(activeColumnIndex, 1);
     }
 
@@ -1173,23 +1170,23 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
      * @param leftOrExRightActiveColumnIndex - The start index of the range of active columns to deselect if `count` is positive, or the exclusive end index if `count` is negative.
      * @param count - The number of columns to deselect. If negative, `count` is in reverse direction from the exclusive end index.
      */
-    deselectColumns(leftOrExRightActiveColumnIndex: Integer, count: Integer) {
+    deselectColumns(leftOrExRightActiveColumnIndex: Integer, count: Integer): void {
         this.selection.deselectColumns(leftOrExRightActiveColumnIndex, count);
     }
 
-    isCellSelected(x: Integer, y: Integer, subgrid?: RevSubgrid<BCS, SF>): boolean {
+    isCellSelected(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>): boolean {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
-        return this.selection.isCellSelected(x, y, subgrid);
+        return this.selection.isCellSelected(activeColumnIndex, subgridRowIndex, subgrid);
     }
 
     /** Returns undefined if not selected, false if selected with others, true if the only cell selected */
-    isOnlyThisCellSelected(x: Integer, y: Integer, subgrid?: RevSubgrid<BCS, SF>): boolean | undefined {
+    isOnlyThisCellSelected(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>): boolean | undefined {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
-        return this.selection.isOnlyThisCellSelected(x, y, subgrid);
+        return this.selection.isOnlyThisCellSelected(activeColumnIndex, subgridRowIndex, subgrid);
     }
 
     getOneCellSelectionAreaType(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>): RevSelectionAreaType | undefined {
@@ -1218,140 +1215,147 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
         subgridRowIndex: Integer,
         subgrid: RevSubgrid<BCS, SF>,
         selectedType: RevSelectionAreaType = 'rectangle',
-    ) {
+    ): boolean {
         const selectedTypeId = RevSelectionAreaType.toId(selectedType);
         return this.selection.isSelectedCellTheOnlySelectedCell(activeColumnIndex, subgridRowIndex, subgrid, selectedTypeId)
     }
 
-    areColumnsOrRowsSelected(includeAllAreaIfActiveActive = true) {
+    areColumnsOrRowsSelected(includeAllAreaIfActiveActive = true): boolean {
         return this.selection.hasColumnsOrRows(includeAllAreaIfActiveActive);
     }
 
-    areRowsSelected(includeAllAreaIfActive = true) {
+    areRowsSelected(includeAllAreaIfActive = true): boolean {
         return this.selection.hasRows(includeAllAreaIfActive);
     }
 
-    getSelectedRowCount(includeAllAreaIfActive = true) {
+    getSelectedRowCount(includeAllAreaIfActive = true): number {
         return this.selection.getRowCount(includeAllAreaIfActive);
     }
 
-    getSelectedAllAreaRowCount() {
+    getSelectedAllAreaRowCount(): number {
         return this.selection.getAllAreaRowCount();
     }
 
-    getSelectedRowIndices(includeAllAreaIfActive = true) {
+    getSelectedRowIndices(includeAllAreaIfActive = true): number[] {
         return this.selection.getRowIndices(includeAllAreaIfActive);
     }
 
-    getSelectedAllAreaRowIndices() {
+    getSelectedAllAreaRowIndices(): number[] {
         return this.selection.getAllAreaRowIndices();
     }
 
-    areColumnsSelected(includeAllAreaIfActive = true) {
+    areColumnsSelected(includeAllAreaIfActive = true): boolean {
         return this.selection.hasColumns(includeAllAreaIfActive);
     }
 
-    getSelectedColumnIndices(includeAllAreaIfActive = true) {
+    getSelectedColumnIndices(includeAllAreaIfActive = true): number[] {
         return this.selection.getColumnIndices(includeAllAreaIfActive);
     }
 
     // RevFocusSelectBehavior
 
-    selectColumn(activeColumnIndex: Integer) {
+    selectColumn(activeColumnIndex: Integer): void {
         this._focusSelectBehavior.selectColumn(activeColumnIndex);
     }
 
-    selectColumns(activeColumnIndex: Integer, count: Integer) {
+    selectColumns(activeColumnIndex: Integer, count: Integer): void {
         this._focusSelectBehavior.selectColumns(activeColumnIndex, count);
     }
 
-    onlySelectColumn(activeColumnIndex: Integer) {
+    onlySelectColumn(activeColumnIndex: Integer): void {
         this._focusSelectBehavior.onlySelectColumn(activeColumnIndex);
     }
 
-    onlySelectColumns(activeColumnIndex: Integer, count: Integer) {
+    onlySelectColumns(activeColumnIndex: Integer, count: Integer): void {
         this._focusSelectBehavior.onlySelectColumns(activeColumnIndex, count);
     }
 
-    toggleSelectColumn(activeColumnIndex: Integer) {
+    toggleSelectColumn(activeColumnIndex: Integer): void {
         this._focusSelectBehavior.toggleSelectColumn(activeColumnIndex);
     }
 
-    selectRow(subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>) {
+    selectRow(subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>): void {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
         this._focusSelectBehavior.selectRow(subgridRowIndex, subgrid);
     }
 
-    selectRows(subgridRowIndex: Integer, count: Integer, subgrid?: RevSubgrid<BCS, SF>) {
+    selectRows(subgridRowIndex: Integer, count: Integer, subgrid?: RevSubgrid<BCS, SF>): void {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
         this._focusSelectBehavior.selectRows(subgridRowIndex, count, subgrid);
     }
 
-    selectAllRows(subgrid?: RevSubgrid<BCS, SF>) {
+    selectAllRows(subgrid?: RevSubgrid<BCS, SF>): void {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
         this._focusSelectBehavior.selectAllRows(subgrid);
     }
 
-    onlySelectRow(subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>) {
+    onlySelectRow(subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>): void {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
         this._focusSelectBehavior.onlySelectRow(subgridRowIndex, subgrid);
     }
 
-    onlySelectRows(subgridRowIndex: Integer, count: Integer, subgrid?: RevSubgrid<BCS, SF>) {
+    onlySelectRows(subgridRowIndex: Integer, count: Integer, subgrid?: RevSubgrid<BCS, SF>): void {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
         this._focusSelectBehavior.onlySelectRows(subgridRowIndex, count, subgrid);
     }
 
-    toggleSelectRow(subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>) {
+    toggleSelectRow(subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>): void {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
         this._focusSelectBehavior.toggleSelectRow(subgridRowIndex, subgrid);
     }
 
-    focusOnlySelectRectangle(leftOrExRight: Integer, topOrExBottom: Integer, width: Integer, height: Integer, subgrid?: RevSubgrid<BCS, SF>, ensureFullyInView = RevEnsureFullyInViewEnum.Never) {
+    focusOnlySelectRectangle(
+        leftOrExRightActiveColumnIndex: Integer,
+        topOrExBottomSubgridRowIndex: Integer,
+        width: Integer,
+        height: Integer,
+        subgrid?: RevSubgrid<BCS, SF>,
+        ensureFullyInView = RevEnsureFullyInViewEnum.Never
+    ): void {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
-        this._focusSelectBehavior.focusOnlySelectRectangle(leftOrExRight, topOrExBottom, width, height, subgrid, ensureFullyInView);
+        this._focusSelectBehavior.focusOnlySelectRectangle(leftOrExRightActiveColumnIndex, topOrExBottomSubgridRowIndex, width, height, subgrid, ensureFullyInView);
     }
 
-    focusOnlySelectCell(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>, ensureFullyInView = RevEnsureFullyInViewEnum.Never) {
+    focusOnlySelectCell(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>, ensureFullyInView = RevEnsureFullyInViewEnum.Never): void {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
         this._focusSelectBehavior.focusOnlySelectCell(activeColumnIndex, subgridRowIndex, subgrid, ensureFullyInView);
     }
 
-    onlySelectViewCell(viewLayoutColumnIndex: Integer, viewLayoutRowIndex: Integer) {
-        this._focusSelectBehavior.onlySelectViewCell(viewLayoutColumnIndex, viewLayoutRowIndex)
+    onlySelectViewCell(viewLayoutColumnIndex: Integer, viewLayoutRowIndex: Integer): void {
+        this._focusSelectBehavior.onlySelectViewCell(viewLayoutColumnIndex, viewLayoutRowIndex);
     }
 
-    focusSelectCell(x: Integer, y: Integer, subgrid?: RevSubgrid<BCS, SF>, ensureFullyInView = RevEnsureFullyInViewEnum.Never) {
+    focusSelectCell(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>, ensureFullyInView = RevEnsureFullyInViewEnum.Never): void {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
-        this._focusSelectBehavior.focusSelectCell(x, y, subgrid, ensureFullyInView);
+        this._focusSelectBehavior.focusSelectCell(activeColumnIndex, subgridRowIndex, subgrid, ensureFullyInView);
     }
 
-    focusToggleSelectCell(originX: Integer, originY: Integer, subgrid?: RevSubgrid<BCS, SF>, ensureFullyInView = RevEnsureFullyInViewEnum.Never): boolean {
+    focusToggleSelectCell(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>, ensureFullyInView = RevEnsureFullyInViewEnum.Never): boolean {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
-        return this._focusSelectBehavior.focusToggleSelectCell(originX, originY, subgrid, ensureFullyInView);
+        return this._focusSelectBehavior.focusToggleSelectCell(activeColumnIndex, subgridRowIndex, subgrid, ensureFullyInView);
     }
 
-    tryOnlySelectFocusedCell() {
+    tryOnlySelectFocusedCell(): boolean {
         return this._focusSelectBehavior.tryOnlySelectFocusedCell();
     }
 
@@ -1363,7 +1367,7 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
         height: Integer,
         subgrid?: RevSubgrid<BCS, SF>,
         ensureFullyInView = RevEnsureFullyInViewEnum.Never,
-    ) {
+    ): void {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
@@ -1378,7 +1382,7 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
         height: Integer,
         subgrid?: RevSubgrid<BCS, SF>,
         ensureFullyInView = RevEnsureFullyInViewEnum.Never,
-    ) {
+    ): void {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }

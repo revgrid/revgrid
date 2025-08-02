@@ -49,10 +49,10 @@ export class RevStandardNumberInputCellEditor<
         }
     }
 
-    override closeCell(field: SF, subgridRowIndex: number, cancel: boolean) {
+    override closeCell(field: SF, dataServerRowIndex: number, cancel: boolean) {
         if (!cancel && !this.readonly && this._dataServer.setEditValue !== undefined) {
-            this._dataServer.setEditValue(field, subgridRowIndex, this._element.valueAsNumber);
+            this._dataServer.setEditValue(field, dataServerRowIndex, this._element.valueAsNumber);
         }
-        super.closeCell(field, subgridRowIndex, cancel);
+        super.closeCell(field, dataServerRowIndex, cancel);
     }
 }

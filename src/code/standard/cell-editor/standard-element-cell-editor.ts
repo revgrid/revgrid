@@ -23,7 +23,7 @@ export abstract class RevStandardElementCellEditor<
         return true;
     }
 
-    override closeCell(_schemaColumn: SF, _subgridRowIndex: number, _cancel: boolean) {
+    override closeCell(_schemaColumn: SF, _dataServerRowIndex: number, _cancel: boolean) {
         this._grid.canvas.hostElement.removeChild(this._element);
     }
 

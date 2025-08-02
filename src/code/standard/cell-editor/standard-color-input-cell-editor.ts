@@ -49,10 +49,10 @@ export class RevStandardColorInputCellEditor<
         }
     }
 
-    override closeCell(field: SF, subgridRowIndex: number, cancel: boolean) {
+    override closeCell(field: SF, dataServerRowIndex: number, cancel: boolean) {
         if (!cancel && !this.readonly && this._dataServer.setEditValue !== undefined) {
-            this._dataServer.setEditValue(field, subgridRowIndex, this._element.value);
+            this._dataServer.setEditValue(field, dataServerRowIndex, this._element.value);
         }
-        super.closeCell(field, subgridRowIndex, cancel);
+        super.closeCell(field, dataServerRowIndex, cancel);
     }
 }

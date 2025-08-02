@@ -1,5 +1,5 @@
 import { RevCornerArea } from './corner-area';
-import { RevPoint } from './point';
+import { RevPoint, RevWritablePoint } from './point';
 
 /** @public */
 export class RevCornerRectangle implements RevCornerArea {
@@ -9,7 +9,7 @@ export class RevCornerRectangle implements RevCornerArea {
     /**
      * Upper left corner of this rect.
      */
-    private _topLeft: RevPoint;
+    private _topLeft: RevWritablePoint;
 
     /**
      * this rect's width and height.
@@ -20,12 +20,12 @@ export class RevCornerRectangle implements RevCornerArea {
      * Created upon instantiation by the constructor.
      * @see The {@link RevCornerRectangle#_exclusiveBottomRight|corner} method.
      */
-    private _extent: RevPoint;
+    private _extent: RevWritablePoint;
 
     /**
      * One pixel out from bottom right of rectangle.
      */
-    private _exclusiveBottomRight: RevPoint;
+    private _exclusiveBottomRight: RevWritablePoint;
 
     /**
      * This object represents a rectangular area within an 2-dimensional space.
@@ -54,19 +54,19 @@ export class RevCornerRectangle implements RevCornerArea {
         }
         this._y = top;
 
-        this._topLeft = RevPoint.create(left, top);
-        this._extent = RevPoint.create(width, height);
-        this._exclusiveBottomRight = RevPoint.create(left + width, top + height);
+        this._topLeft = RevWritablePoint.create(left, top);
+        this._extent = RevWritablePoint.create(width, height);
+        this._exclusiveBottomRight = RevWritablePoint.create(left + width, top + height);
     }
 
     get x() { return this._x; }
     get y() { return this._y; }
-    get topLeft() { return this._topLeft; }
-    get exclusiveBottomRight() { return this._exclusiveBottomRight; }
+    get topLeft(): RevPoint { return this._topLeft; }
+    get exclusiveBottomRight(): RevPoint { return this._exclusiveBottomRight; }
     get inclusiveBottomRight(): RevPoint {
         return { x: this._exclusiveBottomRight.x - 1, y: this._exclusiveBottomRight.y - 1 };
     }
-    get extent() { return this._extent; }
+    get extent(): RevPoint { return this._extent; }
 
     /**
      * Top co-ordinate of rectangle (same as {@link y}).
@@ -194,27 +194,27 @@ export class RevCornerRectangle implements RevCornerArea {
     /** Moves this Rectangle in x direction */
     moveX(offset: number): void {
         this._x += offset;
-        RevPoint.moveX(this.topLeft, offset);
-        RevPoint.moveX(this.exclusiveBottomRight, offset);
+        RevWritablePoint.moveX(this.topLeft, offset);
+        RevWritablePoint.moveX(this.exclusiveBottomRight, offset);
     }
 
     /** Moves this Rectangle in y direction */
     moveY(offset: number): void {
         this._y += offset;
-        RevPoint.moveY(this.topLeft, offset);
-        RevPoint.moveY(this.exclusiveBottomRight, offset);
+        RevWritablePoint.moveY(this.topLeft, offset);
+        RevWritablePoint.moveY(this.exclusiveBottomRight, offset);
     }
 
     /** Grows this Rectangle in x direction with let staying fixed */
     growFromLeft(widthIncrease: number): void {
-        RevPoint.moveX(this._extent, widthIncrease);
-        RevPoint.moveX(this._exclusiveBottomRight, widthIncrease);
+        RevWritablePoint.moveX(this._extent, widthIncrease);
+        RevWritablePoint.moveX(this._exclusiveBottomRight, widthIncrease);
     }
 
     /** Grows this Rectangle in y direction with top staying fixed */
     growFromTop(heightIncrease: number): void {
-        RevPoint.moveY(this._extent, heightIncrease);
-        RevPoint.moveY(this._exclusiveBottomRight, heightIncrease);
+        RevWritablePoint.moveY(this._extent, heightIncrease);
+        RevWritablePoint.moveY(this._exclusiveBottomRight, heightIncrease);
     }
 
     /**

@@ -26,7 +26,9 @@ export interface RevSubgrid<BCS extends RevBehavioredColumnSettings, SF extends 
     readonly isSummary: boolean;
     readonly isFooter: boolean;
 
+    readonly focusable: boolean;
     readonly selectable: boolean;
+    readonly scrollable: boolean;
 
     readonly rowHeightsCanDiffer: boolean;
     readonly fixedRowCount: number;
@@ -69,6 +71,7 @@ export namespace RevSubgrid {
         role?: RevSubgrid.Role;
         dataServer: RevDataServer<SF> | RevDataServer.Constructor<SF>;
         metaServer?: RevMetaServer | RevMetaServer.Constructor;
+        focusable?: boolean;
         selectable?: boolean;
         defaultRowHeight?: number;
         rowPropertiesCanSpecifyRowHeight?: boolean;

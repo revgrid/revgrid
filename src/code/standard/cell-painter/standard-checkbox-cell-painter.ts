@@ -39,9 +39,9 @@ export class RevStandardCheckboxCellPainter<
         let borderColor = columnSettings.cellFocusedBorderColor;
         if (borderColor !== undefined) {
             const subgrid = cell.subgrid;
-            if (subgrid.isMain) {
+            if (subgrid.focusable) {
                 const activeColumnIndex = viewLayoutColumn.activeColumnIndex;
-                const cellFocused = this._grid.focus.isMainSubgridGridPointFocused(activeColumnIndex, subgridRowIndex);
+                const cellFocused = this._grid.focus.isGridPointFocused(activeColumnIndex, subgridRowIndex, subgrid);
                 if (!cellFocused) {
                     borderColor = undefined;
                 }

@@ -1,10 +1,9 @@
 import { RevClientObject, RevSchemaField } from '../../common';
-import { RevColumnsManager } from '../components/column/columns-manager';
-import { RevFocus } from '../components/focus/focus';
-import { RevSubgridsManager } from '../components/subgrid/subgrids-manager';
-import { RevViewLayout } from '../components/view/view-layout';
-import { RevMainSubgrid } from '../interfaces/main-subgrid';
-import { RevViewCell } from '../interfaces/view-cell';
+import { RevColumnsManager } from '../components/column';
+import { RevFocus } from '../components/focus';
+import { RevSubgridsManager } from '../components/subgrid';
+import { RevViewLayout } from '../components/view';
+import { RevMainSubgrid, RevSubgrid, RevViewCell } from '../interfaces';
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevGridSettings } from '../settings';
 
 export class RevFocusScrollBehavior<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {
@@ -22,171 +21,245 @@ export class RevFocusScrollBehavior<BGS extends RevBehavioredGridSettings, BCS e
         this._mainSubgrid = this._subgridsManager.mainSubgrid;
     }
 
-    tryFocusXYAndEnsureInView(x: number, y: number, cell: RevViewCell<BCS, SF> | undefined) {
-        const xScrollable = this.isXScrollable(x);
-        const yScrollable = this.isYScrollable(y);
-        if (xScrollable) {
-            if (yScrollable) {
-                this._viewLayout.ensureColumnRowAreInView(x, y, true)
-                this._focus.setXY(x, y, cell, undefined, undefined);
+    tryFocusColumnRowAndEnsureInView(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>, cell: RevViewCell<BCS, SF> | undefined): boolean {
+        const columnFocusable = this._focus.isColumnFocusable(activeColumnIndex);
+        const rowFocusable = this._focus.isSubgridRowFocusable(subgridRowIndex, subgrid);
+        if (columnFocusable) {
+            if (rowFocusable) {
+                if (this.isColumnScrollable(activeColumnIndex) && this.isRowScrollable(subgridRowIndex, subgrid)) {
+                    this._viewLayout.ensureColumnRowAreInView(activeColumnIndex, subgridRowIndex, true);
+                }
+                return this._focus.trySetColumnRow(activeColumnIndex, subgridRowIndex, subgrid, cell, undefined, undefined);
             } else {
-                this._viewLayout.ensureColumnIsInView(x, true)
-                this._focus.setX(x, undefined, undefined);
+                if (this.isColumnScrollable(activeColumnIndex)) {
+                    this._viewLayout.ensureColumnIsInView(activeColumnIndex, true)
+                }
+                return this._focus.trySetColumnIndex(activeColumnIndex, undefined, undefined);
             }
-            return true;
         } else {
-            if (yScrollable) {
-                this._viewLayout.ensureRowIsInView(y, true)
-                this._focus.setY(y, undefined, undefined);
-                return true;
+            if (rowFocusable) {
+                if (this.isRowScrollable(subgridRowIndex, subgrid)) {
+                    this._viewLayout.ensureRowIsInView(subgridRowIndex, true);
+                }
+                return this._focus.trySetSubgridRowIndex(subgridRowIndex, subgrid, undefined, undefined);
             } else {
-                return false;
+                return false; // neither column nor row is focusable
             }
         }
     }
 
-    tryFocusXAndEnsureInView(x: number) {
-        if (this.isXScrollable(x)) {
-            this._viewLayout.ensureColumnIsInView(x, true)
-            this._focus.setX(x, undefined, undefined);
-            return true;
-        } else {
+    tryFocusColumnAndEnsureInView(activeColumnIndex: number): boolean {
+        if (!this._focus.isColumnFocusable(activeColumnIndex)) {
             return false;
+        } else {
+            // Try to ensure column is in view first so that focus immediately gets ViewCell
+            if (this.isColumnScrollable(activeColumnIndex)) {
+                this._viewLayout.ensureColumnIsInView(activeColumnIndex, true);
+            }
+            return this._focus.trySetColumnIndex(activeColumnIndex, undefined, undefined);
         }
     }
 
-    tryFocusYAndEnsureInView(y: number) {
-        if (this.isYScrollable(y)) {
-            this._viewLayout.ensureRowIsInView(y, true)
-            this._focus.setY(y, undefined, undefined);
-            return true;
-        } else {
+    tryFocusSubgridRowAndEnsureInView(subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): boolean {
+        if (!this._focus.isSubgridRowFocusable(subgridRowIndex, subgrid)) {
             return false;
+        } else {
+            // Try to ensure row is in view first so that focus immediately gets ViewCell
+            if (this.isRowScrollable(subgridRowIndex, subgrid)) {
+                this._viewLayout.ensureRowIsInView(subgridRowIndex, true);
+            }
+            return this._focus.trySetSubgridRowIndex(subgridRowIndex, subgrid, undefined, undefined);
         }
     }
 
-    tryMoveFocusLeft() {
+    tryMoveFocusLeft(): boolean {
         const currentFocusPoint = this._focus.current;
         if (currentFocusPoint !== undefined) {
             const newX = currentFocusPoint.x - 1;
-            return this.tryFocusXAndEnsureInView(newX);
+            return this.tryFocusColumnAndEnsureInView(newX);
         } else {
             return false;
         }
     }
 
-    tryMoveFocusRight() {
+    tryMoveFocusRight(): boolean {
         const currentFocusPoint = this._focus.current;
         if (currentFocusPoint !== undefined) {
             const newX = currentFocusPoint.x + 1;
-            return this.tryFocusXAndEnsureInView(newX);
+            return this.tryFocusColumnAndEnsureInView(newX);
         } else {
             return false;
         }
     }
 
-    tryMoveFocusUp() {
+    tryMoveFocusUp(): boolean {
         const currentFocusPoint = this._focus.current;
         if (currentFocusPoint !== undefined) {
             const newY = currentFocusPoint.y - 1;
-            return this.tryFocusYAndEnsureInView(newY);
+            return this.tryFocusSubgridRowAndEnsureInView(newY, currentFocusPoint.subgrid);
         } else {
             return false;
         }
     }
 
-    tryMoveFocusDown() {
+    tryMoveFocusDown(): boolean {
         const currentFocusPoint = this._focus.current;
         if (currentFocusPoint !== undefined) {
             const newY = currentFocusPoint.y + 1;
-            return this.tryFocusYAndEnsureInView(newY);
+            return this.tryFocusSubgridRowAndEnsureInView(newY, currentFocusPoint.subgrid);
         } else {
             return false;
         }
     }
 
-    tryFocusFirstColumn() {
+    tryFocusFirstColumn(): boolean {
         const newX = this._gridSettings.fixedColumnCount;
-        return this.tryFocusYAndEnsureInView(newX);
+        return this.tryFocusColumnAndEnsureInView(newX);
     }
 
-    tryFocusLastColumn() {
+    tryFocusLastColumn(): boolean {
         const newX = this._columnsManager.activeColumnCount - 1;
-        return this.tryFocusYAndEnsureInView(newX);
+        return this.tryFocusColumnAndEnsureInView(newX);
     }
 
-    tryFocusTop() {
-        const newY = this._gridSettings.fixedRowCount;
-        return this.tryFocusYAndEnsureInView(newY);
-    }
+    tryFocusTop(): boolean {
+        const subgrids = this._subgridsManager.subgrids;
+        const subgridCount = subgrids.length;
+        for (let i = 0; i < subgridCount; i++) {
+            const subgrid = subgrids[i];
+            if (subgrid.focusable) {
+                const rowCount = subgrid.getRowCount();
+                let newY: number | undefined;
+                if (subgrid.scrollable) {
+                    const fixedRowCount = this._gridSettings.fixedRowCount;
+                    if (rowCount > fixedRowCount) {
+                        newY = fixedRowCount;
+                    }
+                } else {
+                    if (rowCount > 0) {
+                        newY = 0;
+                    }
+                }
 
-    tryFocusBottom() {
-        const newY = this._mainSubgrid.getRowCount() - 1;
-        return this.tryFocusYAndEnsureInView(newY);
-    }
-
-    tryPageFocusLeft() {
-        const anchor = this._viewLayout.calculatePageLeftColumnAnchor();
-        if (anchor === undefined) {
-            return false;
-        } else {
-            const activeColumnIndex = anchor.index;
-            this._viewLayout.setColumnScrollAnchor(activeColumnIndex, anchor.offset);
-            this._focus.setX(activeColumnIndex, undefined, undefined);
-            return true;
-        }
-    }
-
-    tryPageFocusRight() {
-        const anchor = this._viewLayout.calculatePageRightColumnAnchor();
-        if (anchor === undefined) {
-            return false;
-        } else {
-            const activeColumnIndex = anchor.index;
-            this._viewLayout.setColumnScrollAnchor(activeColumnIndex, anchor.offset);
-            this._focus.setX(activeColumnIndex, undefined, undefined);
-            return true;
-        }
-    }
-
-    tryPageFocusUp() {
-        const anchor = this._viewLayout.calculatePageUpRowAnchor();
-        if (anchor === undefined) {
-            return false;
-        } else {
-            const rowIndex = anchor.index;
-            this._viewLayout.setRowScrollAnchor(rowIndex, anchor.offset);
-            this._focus.setY(rowIndex, undefined, undefined);
-            return true;
-        }
-    }
-
-    tryPageFocusDown() {
-        let focusY = this._focus.currentY;
-        if (focusY === undefined) {
-            focusY = this._viewLayout.lastScrollableRowSubgridRowIndex;
-        }
-        if (focusY === undefined) {
-            return false;
-        } else {
-            let newAnchorIndex = focusY;
-            const dimension = this._viewLayout.verticalScrollDimension;
-            const dimensionSize = dimension.size;
-            const dimensionViewportSize = dimension.viewportSize;
-            let newFocusY: number;
-            if (newAnchorIndex + dimension.viewportSize <= dimensionSize) {
-                newFocusY = focusY + dimensionViewportSize - 1;
-            } else {
-                newAnchorIndex = dimensionSize - dimensionViewportSize;
-                newFocusY = dimensionSize - 1;
+                if (newY === undefined) {
+                    return false; // zero rows or only fixed rows
+                } else {
+                    return this.tryFocusSubgridRowAndEnsureInView(newY, subgrid);
+                }
             }
-            this._viewLayout.setRowScrollAnchor(newAnchorIndex, 0);
-            this._focus.setY(newFocusY, undefined, undefined);
-            return true;
+        }
+        return false; // no focusable subgrid
+    }
+
+    tryFocusBottom(): boolean {
+        const subgrids = this._subgridsManager.subgrids;
+        const subgridCount = subgrids.length;
+        for (let i = subgridCount - 1; i >= 0; i--) {
+            const subgrid = subgrids[i];
+            if (subgrid.focusable) {
+                const rowCount = subgrid.getRowCount();
+                let newY: number | undefined;
+                if (subgrid.scrollable) {
+                    const fixedRowCount = this._gridSettings.fixedRowCount;
+                    if (rowCount > fixedRowCount) {
+                        newY = rowCount - 1;
+                    }
+                } else {
+                    if (rowCount > 0) {
+                        newY = rowCount - 1;
+                    }
+                }
+
+                if (newY === undefined) {
+                    return false; // zero rows or only fixed rows
+                } else {
+                    return this.tryFocusSubgridRowAndEnsureInView(newY, subgrid);
+                }
+            }
+        }
+        return false; // no focusable subgrid
+    }
+
+    tryPageFocusLeft(): boolean {
+        const currentFocusPoint = this._focus.current;
+        if (currentFocusPoint === undefined) {
+            return false;
+        } else {
+            const anchor = this._viewLayout.calculatePageLeftColumnAnchor();
+            if (anchor === undefined) {
+                return false;
+            } else {
+                const activeColumnIndex = anchor.index;
+                this._viewLayout.setColumnScrollAnchor(activeColumnIndex, anchor.offset);
+                return this._focus.trySetColumnIndex(activeColumnIndex, undefined, undefined);
+            }
         }
     }
 
-    tryScrollLeft() {
+    tryPageFocusRight(): boolean {
+        const currentFocusPoint = this._focus.current;
+        if (currentFocusPoint === undefined) {
+            return false;
+        } else {
+            const anchor = this._viewLayout.calculatePageRightColumnAnchor();
+            if (anchor === undefined) {
+                return false;
+            } else {
+                const activeColumnIndex = anchor.index;
+                this._viewLayout.setColumnScrollAnchor(activeColumnIndex, anchor.offset);
+                return this._focus.trySetColumnIndex(activeColumnIndex, undefined, undefined);
+            }
+        }
+    }
+
+    tryPageFocusUp(): boolean {
+        const currentFocusPoint = this._focus.current;
+        if (currentFocusPoint === undefined) {
+            return false;
+        } else {
+            const anchor = this._viewLayout.calculatePageUpRowAnchor();
+            if (anchor === undefined) {
+                return false;
+            } else {
+                const subgridRowIndex = anchor.index;
+                this._viewLayout.setRowScrollAnchor(subgridRowIndex, anchor.offset);
+                this._focus.trySetSubgridRowIndex(subgridRowIndex, currentFocusPoint.subgrid, undefined, undefined);
+                return true;
+            }
+        }
+    }
+
+    tryPageFocusDown(): boolean {
+        const currentFocusPoint = this._focus.current;
+        if (currentFocusPoint === undefined) {
+            return false;
+        } else {
+            let focusSubgridRowIndex = this._focus.currentSubgridRowIndex;
+            if (focusSubgridRowIndex === undefined) {
+                focusSubgridRowIndex = this._viewLayout.lastScrollableRowSubgridRowIndex;
+            }
+            if (focusSubgridRowIndex === undefined) {
+                return false;
+            } else {
+                let newAnchorIndex = focusSubgridRowIndex;
+                const dimension = this._viewLayout.verticalScrollDimension;
+                const dimensionSize = dimension.size;
+                const dimensionViewportSize = dimension.viewportSize;
+                let newFocusSubgridRowIndex: number;
+                if (newAnchorIndex + dimension.viewportSize <= dimensionSize) {
+                    newFocusSubgridRowIndex = focusSubgridRowIndex + dimensionViewportSize - 1;
+                } else {
+                    newAnchorIndex = dimensionSize - dimensionViewportSize;
+                    newFocusSubgridRowIndex = dimensionSize - 1;
+                }
+                this._viewLayout.setRowScrollAnchor(newAnchorIndex, 0);
+                this._focus.trySetSubgridRowIndex(newFocusSubgridRowIndex, currentFocusPoint.subgrid, undefined, undefined);
+                return true;
+            }
+        }
+    }
+
+    tryScrollLeft(): boolean {
         const activeColumnIndex = this._viewLayout.firstScrollableActiveColumnIndex;
         if (activeColumnIndex !== undefined) {
             return this._viewLayout.setColumnScrollAnchor(activeColumnIndex - 1, 0); // viewLayout will limit
@@ -195,7 +268,7 @@ export class RevFocusScrollBehavior<BGS extends RevBehavioredGridSettings, BCS e
         }
     }
 
-    tryScrollRight() {
+    tryScrollRight(): boolean {
         const activeColumnIndex = this._viewLayout.firstScrollableActiveColumnIndex;
         if (activeColumnIndex !== undefined) {
             return this._viewLayout.setColumnScrollAnchor(activeColumnIndex + 1, 0); // viewLayout will limit
@@ -204,7 +277,7 @@ export class RevFocusScrollBehavior<BGS extends RevBehavioredGridSettings, BCS e
         }
     }
 
-    tryScrollUp() {
+    tryScrollUp(): boolean {
         const rowIndex = this._viewLayout.firstScrollableSubgridRowIndex;
         if (rowIndex !== undefined) {
             return this._viewLayout.setRowScrollAnchor(rowIndex - 1, 0); // viewLayout will limit
@@ -213,7 +286,7 @@ export class RevFocusScrollBehavior<BGS extends RevBehavioredGridSettings, BCS e
         }
     }
 
-    tryScrollDown() {
+    tryScrollDown(): boolean {
         const rowIndex = this._viewLayout.firstScrollableSubgridRowIndex;
         if (rowIndex !== undefined) {
             return this._viewLayout.setRowScrollAnchor(rowIndex + 1, 0); // viewLayout will limit
@@ -222,23 +295,23 @@ export class RevFocusScrollBehavior<BGS extends RevBehavioredGridSettings, BCS e
         }
     }
 
-    scrollFirstColumn() {
+    scrollFirstColumn(): boolean {
         return this._viewLayout.setColumnScrollAnchor(this._gridSettings.fixedColumnCount, 0); // viewLayout will limit
     }
 
-    scrollLastColumn() {
+    scrollLastColumn(): boolean {
         return this._viewLayout.setColumnScrollAnchor(this._columnsManager.activeColumnCount, 0); // viewLayout will limit
     }
 
-    scrollTop() {
+    scrollTop(): boolean {
         return this._viewLayout.setRowScrollAnchor(this._gridSettings.fixedRowCount, 0);
     }
 
-    scrollBottom() {
+    scrollBottom(): boolean {
         return this._viewLayout.setRowScrollAnchor(this._mainSubgrid.getRowCount(), 0); // viewLayout will limit
     }
 
-    tryScrollPageLeft() {
+    tryScrollPageLeft(): boolean {
         const anchor = this._viewLayout.calculatePageLeftColumnAnchor();
         if (anchor !== undefined) {
             return this._viewLayout.setColumnScrollAnchor(anchor.index, anchor.offset);
@@ -247,7 +320,7 @@ export class RevFocusScrollBehavior<BGS extends RevBehavioredGridSettings, BCS e
         }
     }
 
-    tryScrollPageRight() {
+    tryScrollPageRight(): boolean {
         const anchor = this._viewLayout.calculatePageRightColumnAnchor();
         if (anchor !== undefined) {
             return this._viewLayout.setColumnScrollAnchor(anchor.index, anchor.offset);
@@ -256,7 +329,7 @@ export class RevFocusScrollBehavior<BGS extends RevBehavioredGridSettings, BCS e
         }
     }
 
-    tryScrollPageUp() {
+    tryScrollPageUp(): boolean {
         const anchor = this._viewLayout.calculatePageUpRowAnchor();
         if (anchor !== undefined) {
             return this._viewLayout.setRowScrollAnchor(anchor.index, anchor.offset);
@@ -265,7 +338,7 @@ export class RevFocusScrollBehavior<BGS extends RevBehavioredGridSettings, BCS e
         }
     }
 
-    tryScrollPageDown() {
+    tryScrollPageDown(): boolean {
         const anchor = this._viewLayout.calculatePageDownRowAnchor();
         if (anchor !== undefined) {
             return this._viewLayout.setRowScrollAnchor(anchor.index, anchor.offset);
@@ -387,7 +460,7 @@ export class RevFocusScrollBehavior<BGS extends RevBehavioredGridSettings, BCS e
     //     }
     // }
 
-    tryStepScroll(directionCanvasOffsetX: number, directionCanvasOffsetY: number) {
+    tryStepScroll(directionCanvasOffsetX: number, directionCanvasOffsetY: number): boolean {
         let stepped = this.tryStepScrollColumn(directionCanvasOffsetX);
         if (this.tryStepScrollRow(directionCanvasOffsetY)) {
             stepped = true;
@@ -395,7 +468,7 @@ export class RevFocusScrollBehavior<BGS extends RevBehavioredGridSettings, BCS e
         return stepped;
     }
 
-    tryStepScrollColumn(directionCanvasOffsetX: number) {
+    tryStepScrollColumn(directionCanvasOffsetX: number): boolean {
         const viewLayout = this._viewLayout;
         const scrollableBounds = viewLayout.scrollableCanvasBounds;
         if (scrollableBounds === undefined) {
@@ -444,7 +517,7 @@ export class RevFocusScrollBehavior<BGS extends RevBehavioredGridSettings, BCS e
         }
     }
 
-    tryStepScrollRow(directionCanvasOffsetY: number) {
+    tryStepScrollRow(directionCanvasOffsetY: number): boolean {
         const viewLayout = this._viewLayout;
         const scrollableBounds = viewLayout.scrollableCanvasBounds;
 
@@ -463,12 +536,12 @@ export class RevFocusScrollBehavior<BGS extends RevBehavioredGridSettings, BCS e
         }
     }
 
-    private isXScrollable(x: number) {
-        return x >= this._gridSettings.fixedColumnCount && x < this._columnsManager.activeColumnCount
+    private isColumnScrollable(activeColumnIndex: number): boolean {
+        return activeColumnIndex >= this._gridSettings.fixedColumnCount && activeColumnIndex < this._columnsManager.activeColumnCount
     }
 
-    private isYScrollable(y: number) {
-        return y >= this._gridSettings.fixedRowCount && y < this._mainSubgrid.getRowCount()
+    private isRowScrollable(subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): boolean {
+        return subgrid.scrollable && subgridRowIndex >= this._gridSettings.fixedRowCount && subgridRowIndex < subgrid.getRowCount()
     }
 }
 

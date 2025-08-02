@@ -185,11 +185,11 @@ export class RevComponentsManager<BGS extends RevBehavioredGridSettings, BCS ext
         this.subgridsManager.destroy();
     }
 
-    getViewValue(x: number, y: number, subgrid: RevSubgrid<BCS, SF>) {
-        const column = this.columnsManager.getActiveColumn(x);
+    getViewValue(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>) {
+        const column = this.columnsManager.getActiveColumn(activeColumnIndex);
         const field = column.field;
         const dataServer = subgrid.dataServer;
-        return dataServer.getViewValue(field, y);
+        return dataServer.getViewValue(field, subgridRowIndex);
     }
 
     /**
@@ -197,18 +197,18 @@ export class RevComponentsManager<BGS extends RevBehavioredGridSettings, BCS ext
      * @remarks When the last parameter (see `dataModel` below) is omitted, this method:
      * * Is backwards compatible to the v2 version.
      * * Does _not_ default to the data subgrid — although you can provide it explicitly (`this.behavior.dataModel`).
-     * @param x - The horizontal coordinate.
-     * @param y - The vertical coordinate.
+     * @param activeColumnIndex - The horizontal coordinate.
+     * @param subgridRowIndex - The vertical coordinate.
      * @param value - New cell data.
      * @param subgrid - `x` and `y` are _data cell coordinates_ in the given subgrid data model. If If omitted, `x` and `y` are _grid cell coordinates._
      */
-    setValue(x: number, y: number, value: RevDataServer.EditValue, subgrid: RevSubgrid<BCS, SF>) {
+    setValue(activeColumnIndex: number, subgridRowIndex: number, value: RevDataServer.EditValue, subgrid: RevSubgrid<BCS, SF>) {
         const dataServer = subgrid.dataServer;
         if (dataServer.setEditValue === undefined) {
             throw new RevAssertError('BSV32220');
         } else {
-            const column = this.columnsManager.getActiveColumn(x);
-            dataServer.setEditValue(column.field, y, value);
+            const column = this.columnsManager.getActiveColumn(activeColumnIndex);
+            dataServer.setEditValue(column.field, subgridRowIndex, value);
         }
     }
 }

@@ -29,16 +29,16 @@ export class RevStandardToggleClickBoxCellEditor<
         }
     }
 
-    override closeCell(_schemaColumn: SF, _subgridRowIndex: number, _cancel: boolean) {
+    override closeCell(_schemaColumn: SF, _dataServerRowIndex: number, _cancel: boolean) {
         // nothing to do
     }
 
-    override processGridKeyDownEvent(event: KeyboardEvent, _fromEditor: boolean, field: SF, subgridRowIndex: number) {
+    override processGridKeyDownEvent(event: KeyboardEvent, _fromEditor: boolean, field: SF, dataServerRowIndex: number) {
         const key = event.key;
         if (!this.isToggleKey(key)) {
             return false;
         } else {
-            this.tryToggleBoolenValue(field, subgridRowIndex);
+            this.tryToggleBoolenValue(field, dataServerRowIndex);
             return true;
         }
     }

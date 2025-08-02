@@ -165,28 +165,41 @@ export namespace RevPoint {
             referencePoint.y <= point.y
         );
     }
+}
 
-    export function moveX(point: RevPoint, offset: number) {
-        (point as RevWritablePoint).x += offset;
+/** @public */
+export type RevWritablePoint = RevWritable<RevPoint>
+
+/** @public */
+export namespace RevWritablePoint {
+    export function create(x: number, y: number): RevWritablePoint {
+        return {
+            x,
+            y
+        }
     }
 
-    export function moveY(point: RevPoint, offset: number) {
-        (point as RevWritablePoint).y += offset;
+    export function moveX(point: RevWritablePoint, offset: number) {
+        point.x += offset;
     }
 
-    export function adjustForXRangeInserted(point: RevPoint, insertionIndex: number, insertionCount: number) {
+    export function moveY(point: RevWritablePoint, offset: number) {
+        point.y += offset;
+    }
+
+    export function adjustForXRangeInserted(point: RevWritablePoint, insertionIndex: number, insertionCount: number) {
         if (insertionIndex <= point.x) {
             moveX(point, insertionCount);
         }
     }
 
-    export function adjustForYRangeInserted(point: RevPoint, insertionIndex: number, insertionCount: number) {
+    export function adjustForYRangeInserted(point: RevWritablePoint, insertionIndex: number, insertionCount: number) {
         if (insertionIndex <= point.y) {
             moveY(point, insertionCount);
         }
     }
 
-    export function adjustForXRangeDeleted(point: RevPoint, deletionIndex: number, deletionCount: number): number | undefined {
+    export function adjustForXRangeDeleted(point: RevWritablePoint, deletionIndex: number, deletionCount: number): number | undefined {
         const pointX = point.x;
         if (pointX < deletionIndex) {
             return undefined;
@@ -202,7 +215,7 @@ export namespace RevPoint {
         }
     }
 
-    export function adjustForYRangeDeleted(point: RevPoint, deletionIndex: number, deletionCount: number): number | undefined {
+    export function adjustForYRangeDeleted(point: RevWritablePoint, deletionIndex: number, deletionCount: number): number | undefined {
         const pointY = point.y;
         if (pointY < deletionIndex) {
             return undefined;
@@ -218,30 +231,17 @@ export namespace RevPoint {
         }
     }
 
-    export function adjustForXRangeMoved(point: RevPoint, oldIndex: number, newIndex: number, count: number) {
+    export function adjustForXRangeMoved(point: RevWritablePoint, oldIndex: number, newIndex: number, count: number) {
         const adjustment = revCalculateAdjustmentForRangeMoved(point.x, oldIndex, newIndex, count);
         if (adjustment !== 0) {
             moveX(point, adjustment);
         }
     }
 
-    export function adjustForYRangeMoved(point: RevPoint, oldIndex: number, newIndex: number, count: number) {
+    export function adjustForYRangeMoved(point: RevWritablePoint, oldIndex: number, newIndex: number, count: number) {
         const adjustment = revCalculateAdjustmentForRangeMoved(point.y, oldIndex, newIndex, count);
         if (adjustment !== 0) {
             moveY(point, adjustment);
-        }
-    }
-}
-
-/** @public */
-export type RevWritablePoint = RevWritable<RevPoint>
-
-/** @public */
-export namespace RevWritablePoint {
-    export function create(x: number, y: number): RevWritablePoint {
-        return {
-            x,
-            y
         }
     }
 }

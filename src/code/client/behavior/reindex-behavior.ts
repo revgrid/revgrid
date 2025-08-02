@@ -5,7 +5,7 @@ import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../setti
 
 export class RevReindexBehavior<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {
     private _requestNestCount = 0;
-    private _focusStash: RevFocus.Stash | undefined;
+    private _focusStash: RevFocus.Stash<BCS, SF> | undefined;
     private _selectionStash: RevSelection.Stash<BCS, SF> | undefined;
 
     constructor(

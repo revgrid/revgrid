@@ -78,8 +78,6 @@ export class RevSimpleAlphaTextCellPainter<
                 textColor === fingerprint.textColor;
         }
 
-        const isMainSubgrid = subgrid.isMain;
-
         let hoverColor: string | undefined;
         const hoverCell = grid.mouse.hoverCell;
         const columnHovered =
@@ -161,7 +159,7 @@ export class RevSimpleAlphaTextCellPainter<
 
         let borderColor = columnSettings.cellFocusedBorderColor;
         if (borderColor !== undefined) {
-            const cellFocused = isMainSubgrid && grid.focus.isMainSubgridGridPointFocused(activeColumnIndex, subgridRowIndex);
+            const cellFocused = grid.focus.isGridPointFocused(activeColumnIndex, subgridRowIndex, subgrid);
             if (!cellFocused) {
                 borderColor = undefined;
             }

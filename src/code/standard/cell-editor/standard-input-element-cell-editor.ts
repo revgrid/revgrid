@@ -35,12 +35,12 @@ export abstract class RevStandardInputElementCellEditor<
         return result;
     }
 
-    override closeCell(field: SF, subgridRowIndex: number, cancel: boolean) {
+    override closeCell(field: SF, dataServerRowIndex: number, cancel: boolean) {
         this._element.removeEventListener('keydown', this.keyDownEventer);
-        super.closeCell(field, subgridRowIndex, cancel);
+        super.closeCell(field, dataServerRowIndex, cancel);
     }
 
-    override processGridKeyDownEvent(event: KeyboardEvent, fromEditor: boolean, _schemaColumn: SF, _subgridRowIndex: number) {
+    override processGridKeyDownEvent(event: KeyboardEvent, fromEditor: boolean, _schemaColumn: SF, _dataServerRowIndex: number) {
         if (fromEditor) {
             // Event was emitted by this editor.  Any key it can consume has effectively already been consumed
             return this.canConsumeKey(event.key);

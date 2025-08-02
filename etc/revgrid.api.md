@@ -683,12 +683,12 @@ export namespace RevCellClickUiController {
 // @public (undocumented)
 export interface RevCellEditor<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevCellPossiblyPaintable<BCS, SF> {
     cellClosedEventer?: RevCellEditor.CellClosedEventer;
-    closeCell(field: SF, subgridRowIndex: number, cancel: boolean): void;
+    closeCell(field: SF, dataServerRowIndex: number, cancel: boolean): void;
     focus?(): void;
     invalidateValue?(): void;
     keyDownEventer?: RevCellEditor.KeyDownEventer;
     processGridClickEvent?(event: MouseEvent, viewCell: RevViewCell<BCS, SF>): boolean;
-    processGridKeyDownEvent(event: KeyboardEvent, fromEditor: boolean, field: SF, subgridRowIndex: number): boolean;
+    processGridKeyDownEvent(event: KeyboardEvent, fromEditor: boolean, field: SF, dataServerRowIndex: number): boolean;
     processGridPointerMoveEvent?(event: PointerEvent, viewCell: RevViewCell<BCS, SF>): RevCellEditor.PointerLocationInfo | undefined;
     pullCellValueEventer?: RevCellEditor.PullCellValueEventer;
     pushCellValueEventer?: RevCellEditor.PushCellValueEventer;
@@ -1153,17 +1153,17 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     // (undocumented)
     tryFocusBottom(): boolean;
     // (undocumented)
+    tryFocusColumnRowAndEnsureInView(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: RevMainSubgrid<BCS, SF>, cell?: RevViewCell<BCS, SF>): boolean;
+    // (undocumented)
     tryFocusFirstColumn(): boolean;
     // (undocumented)
     tryFocusLastColumn(): boolean;
     // (undocumented)
+    tryFocusSubgridRowAndEnsureInView(subgridRowIndex: Integer, subgrid?: RevMainSubgrid<BCS, SF>): boolean;
+    // (undocumented)
     tryFocusTop(): boolean;
     // (undocumented)
-    tryFocusXAndEnsureInView(x: Integer): boolean;
-    // (undocumented)
-    tryFocusXYAndEnsureInView(x: Integer, y: Integer, cell?: RevViewCell<BCS, SF>): boolean;
-    // (undocumented)
-    tryFocusYAndEnsureInView(y: Integer): boolean;
+    tryFocusXAndEnsureInView(activeColumnIndex: Integer): boolean;
     // (undocumented)
     tryMoveFocusDown(): boolean;
     // (undocumented)
@@ -3107,9 +3107,11 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
     readonly clientId: string;
     closeEditor(): void;
     // @internal (undocumented)
-    createStash(): RevFocus.Stash;
+    createStash(): RevFocus.Stash<BCS, SF>;
     // (undocumented)
-    get current(): RevPoint | undefined;
+    get current(): RevFocus.Point<BCS, SF> | undefined;
+    // (undocumented)
+    get currentActiveColumnIndex(): number | undefined;
     // @internal (undocumented)
     currentCellChangedForEventBehaviorEventer: RevFocus.CurrentCellChangedForEventBehaviorEventer;
     // @internal (undocumented)
@@ -3117,11 +3119,9 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
     // @internal (undocumented)
     currentRowChangedForEventBehaviorEventer: RevFocus.CurrentRowChangedForEventBehaviorEventer;
     // (undocumented)
-    get currentX(): number | undefined;
+    get currentSubgrid(): RevSubgrid<BCS, SF> | undefined;
     // (undocumented)
-    get currentY(): number | undefined;
-    // (undocumented)
-    readonly dataServer: RevDataServer<SF>;
+    get currentSubgridRowIndex(): number | undefined;
     // (undocumented)
     get editor(): RevCellEditor<BCS, SF> | undefined;
     // (undocumented)
@@ -3143,52 +3143,44 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
     // @internal (undocumented)
     invalidateSubgridRows(subgrid: RevSubgrid<BCS, SF>, subgridRowIndex: number, count: number): void;
     // (undocumented)
-    isActiveColumnFocused(activeColumnIndex: number): boolean;
-    // (undocumented)
     isCellFocused(cell: RevViewCell<BCS, SF>): boolean;
+    // (undocumented)
+    isColumnFocusable(activeColumnIndex: number): boolean;
+    // (undocumented)
+    isColumnFocused(activeColumnIndex: number): boolean;
     // (undocumented)
     isGridPointFocused(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): boolean;
     // (undocumented)
-    isMainSubgridGridPointFocused(activeColumnIndex: number, mainSubgridRowIndex: number): boolean;
-    // (undocumented)
     isMainSubgridRowFocused(mainSubgridRowIndex: number): boolean;
     // (undocumented)
-    isPointFocusable(point: RevPoint): boolean;
+    isSubgridPointFocusable(point: RevPoint, subgrid: RevSubgrid<BCS, SF>): boolean;
+    // (undocumented)
+    isSubgridRowFocusable(subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): boolean;
     // (undocumented)
     isSubgridRowFocused(subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): boolean;
     // (undocumented)
-    isXFocusable(activeColumnIndex: number): boolean;
-    // (undocumented)
-    isYFocusable(subgridRowIndex: number): boolean;
-    // (undocumented)
-    get previous(): RevPoint | undefined;
+    get previous(): RevFocus.Point<BCS, SF> | undefined;
     // @internal (undocumented)
     reset(): void;
     // @internal (undocumented)
-    restoreStash(stash: RevFocus.Stash, allRowsKept: boolean): void;
+    restoreStash(stash: RevFocus.Stash<BCS, SF>, allRowsKept: boolean): void;
     // (undocumented)
-    set(newFocusPoint: RevPoint, cell: RevViewCell<BCS, SF> | undefined, canvasPoint: RevPartialPoint | undefined): void;
+    setColumnRowOrClear(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>, cell: RevViewCell<BCS, SF> | undefined, canvasX: number | undefined, canvasY: number | undefined): boolean;
     // (undocumented)
     setFocusedEditValue(value: RevDataServer.ViewValue): void;
     // (undocumented)
-    setOrClear(newFocusPoint: RevPoint, subgrid: RevSubgrid<BCS, SF>, cell: RevViewCell<BCS, SF> | undefined, canvasPoint: RevPartialPoint | undefined): boolean;
-    // (undocumented)
-    setX(activeColumnIndex: number, cell: RevViewCell<BCS, SF> | undefined, canvasX: number | undefined): void;
-    // (undocumented)
-    setXY(activeColumnIndex: number, subgridRowIndex: number, cell: RevViewCell<BCS, SF> | undefined, canvasX: number | undefined, canvasY: number | undefined): void;
-    // (undocumented)
-    setY(subgridRowIndex: number, cell: RevViewCell<BCS, SF> | undefined, canvasY: number | undefined): void;
-    // (undocumented)
-    readonly subgrid: RevSubgrid<BCS, SF>;
+    setPointOrClear(subgridPoint: RevPoint, subgrid: RevSubgrid<BCS, SF>, cell: RevViewCell<BCS, SF> | undefined, canvasPoint: RevPartialPoint | undefined): boolean;
     tryOpenEditor(): boolean;
     // @internal (undocumented)
     tryOpenEditorAtViewCell(cell: RevViewCell<BCS, SF>): boolean;
     // (undocumented)
-    trySetX(activeColumnIndex: number, subgrid: RevSubgrid<BCS, SF>, cell: RevViewCell<BCS, SF> | undefined, canvasX: number | undefined): boolean;
+    trySetColumnIndex(activeColumnIndex: number, cell: RevViewCell<BCS, SF> | undefined, canvasX: number | undefined): boolean;
     // (undocumented)
-    trySetXY(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>, cell: RevViewCell<BCS, SF> | undefined, canvasX: number | undefined, canvasY: number | undefined): boolean;
+    trySetColumnRow(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>, cell: RevViewCell<BCS, SF> | undefined, canvasX: number | undefined, canvasY: number | undefined): boolean;
     // (undocumented)
-    trySetY(subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>, cell: RevViewCell<BCS, SF> | undefined, canvasY: number | undefined): boolean;
+    trySetPoint(subgridPoint: RevPoint, subgrid: RevSubgrid<BCS, SF>, cell: RevViewCell<BCS, SF> | undefined, canvasPoint: RevPartialPoint | undefined): boolean;
+    // (undocumented)
+    trySetSubgridRowIndex(subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>, cell: RevViewCell<BCS, SF> | undefined, canvasY: number | undefined): boolean;
     // @internal (undocumented)
     viewCellRenderInvalidatedEventer: RevFocus.ViewCellRenderInvalidatedEventer<BCS, SF>;
 }
@@ -3234,21 +3226,28 @@ export namespace RevFocus {
     export type GetCellEditorEventer<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> = (this: void, field: SF, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>, readonly: boolean, cell: RevViewCell<BCS, SF> | undefined) => RevCellEditor<BCS, SF> | undefined;
     // (undocumented)
     export function isNavActionKeyboardKey(key: ActionKeyboardKey): boolean;
+    // (undocumented)
+    export interface Point<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevWritablePoint {
+        // (undocumented)
+        readonly subgrid: RevSubgrid<BCS, SF>;
+    }
     // @internal (undocumented)
-    export interface Stash {
+    export interface Stash<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> {
         // (undocumented)
-        readonly current: Stash.Point | undefined;
+        readonly current: Stash.Point<BCS, SF> | undefined;
         // (undocumented)
-        readonly previous: Stash.Point | undefined;
+        readonly previous: Stash.Point<BCS, SF> | undefined;
     }
     // @internal (undocumented)
     export namespace Stash {
         // (undocumented)
-        export interface Point {
+        export interface Point<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> {
             // (undocumented)
             readonly fieldName: string;
             // (undocumented)
             readonly rowId: unknown;
+            // (undocumented)
+            readonly subgrid: RevSubgrid<BCS, SF>;
         }
     }
     // @internal (undocumented)
@@ -3273,17 +3272,17 @@ export class RevFocusScrollBehavior<BGS extends RevBehavioredGridSettings, BCS e
     // (undocumented)
     tryFocusBottom(): boolean;
     // (undocumented)
+    tryFocusColumnAndEnsureInView(activeColumnIndex: number): boolean;
+    // (undocumented)
+    tryFocusColumnRowAndEnsureInView(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>, cell: RevViewCell<BCS, SF> | undefined): boolean;
+    // (undocumented)
     tryFocusFirstColumn(): boolean;
     // (undocumented)
     tryFocusLastColumn(): boolean;
     // (undocumented)
+    tryFocusSubgridRowAndEnsureInView(subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): boolean;
+    // (undocumented)
     tryFocusTop(): boolean;
-    // (undocumented)
-    tryFocusXAndEnsureInView(x: number): boolean;
-    // (undocumented)
-    tryFocusXYAndEnsureInView(x: number, y: number, cell: RevViewCell<BCS, SF> | undefined): boolean;
-    // (undocumented)
-    tryFocusYAndEnsureInView(y: number): boolean;
     // (undocumented)
     tryMoveFocusDown(): boolean;
     // (undocumented)
@@ -4508,18 +4507,6 @@ export interface RevPoint {
 // @public (undocumented)
 export namespace RevPoint {
     // (undocumented)
-    export function adjustForXRangeDeleted(point: RevPoint, deletionIndex: number, deletionCount: number): number | undefined;
-    // (undocumented)
-    export function adjustForXRangeInserted(point: RevPoint, insertionIndex: number, insertionCount: number): void;
-    // (undocumented)
-    export function adjustForXRangeMoved(point: RevPoint, oldIndex: number, newIndex: number, count: number): void;
-    // (undocumented)
-    export function adjustForYRangeDeleted(point: RevPoint, deletionIndex: number, deletionCount: number): number | undefined;
-    // (undocumented)
-    export function adjustForYRangeInserted(point: RevPoint, insertionIndex: number, insertionCount: number): void;
-    // (undocumented)
-    export function adjustForYRangeMoved(point: RevPoint, oldIndex: number, newIndex: number, count: number): void;
-    // (undocumented)
     export function copy(other: RevPoint): {
         x: number;
         y: number;
@@ -4541,10 +4528,6 @@ export namespace RevPoint {
     export function min(referencePoint: RevPoint, point: RevPoint): RevPoint;
     // (undocumented)
     export function minus(referencePoint: RevPoint, offset: RevPoint): RevPoint;
-    // (undocumented)
-    export function moveX(point: RevPoint, offset: number): void;
-    // (undocumented)
-    export function moveY(point: RevPoint, offset: number): void;
     // (undocumented)
     export function plus(referencePoint: RevPoint, offset: RevPoint): RevPoint;
     // (undocumented)
@@ -7020,7 +7003,7 @@ export abstract class RevStandardCellEditor<BGS extends RevBehavioredGridSetting
     // (undocumented)
     cellClosedEventer: RevCellEditor.CellClosedEventer;
     // (undocumented)
-    abstract closeCell(field: SF, subgridRowIndex: number, cancel: boolean): void;
+    abstract closeCell(field: SF, dataServerRowIndex: number, cancel: boolean): void;
     // (undocumented)
     protected readonly _dataServer: RevDataServer<SF>;
     // (undocumented)
@@ -7028,7 +7011,7 @@ export abstract class RevStandardCellEditor<BGS extends RevBehavioredGridSetting
     // (undocumented)
     protected isToggleKey(key: string): boolean;
     // (undocumented)
-    abstract processGridKeyDownEvent(event: KeyboardEvent, fromEditor: boolean, field: SF, subgridRowIndex: number): boolean;
+    abstract processGridKeyDownEvent(event: KeyboardEvent, fromEditor: boolean, field: SF, dataServerRowIndex: number): boolean;
     // (undocumented)
     get readonly(): boolean;
     set readonly(value: boolean);
@@ -7037,7 +7020,7 @@ export abstract class RevStandardCellEditor<BGS extends RevBehavioredGridSetting
     // (undocumented)
     abstract tryOpenCell(viewCell: RevViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined): boolean;
     // (undocumented)
-    protected tryToggleBoolenValue(field: SF, subgridRowIndex: number): boolean;
+    protected tryToggleBoolenValue(field: SF, dataServerRowIndex: number): boolean;
 }
 
 // @public (undocumented)
@@ -7206,7 +7189,7 @@ export namespace RevStandardCheckboxPainter {
 export class RevStandardColorInputCellEditor<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevStandardInputElementCellEditor<BGS, BCS, SF> {
     constructor(grid: RevClientGrid<BGS, BCS, SF>, dataServer: RevDataServer<SF>);
     // (undocumented)
-    closeCell(field: SF, subgridRowIndex: number, cancel: boolean): void;
+    closeCell(field: SF, dataServerRowIndex: number, cancel: boolean): void;
     // (undocumented)
     tryOpenCell(cell: RevViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined): boolean;
 }
@@ -7215,7 +7198,7 @@ export class RevStandardColorInputCellEditor<BGS extends RevBehavioredGridSettin
 export class RevStandardDateInputCellEditor<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevStandardInputElementCellEditor<BGS, BCS, SF> {
     constructor(grid: RevClientGrid<BGS, BCS, SF>, dataServer: RevDataServer<SF>);
     // (undocumented)
-    closeCell(field: SF, subgridRowIndex: number, cancel: boolean): void;
+    closeCell(field: SF, dataServerRowIndex: number, cancel: boolean): void;
     // (undocumented)
     tryOpenCell(cell: RevViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined): boolean;
 }
@@ -7224,7 +7207,7 @@ export class RevStandardDateInputCellEditor<BGS extends RevBehavioredGridSetting
 export abstract class RevStandardElementCellEditor<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevStandardCellEditor<BGS, BCS, SF> {
     constructor(grid: RevClientGrid<BGS, BCS, SF>, dataServer: RevDataServer<SF>, element: HTMLElement);
     // (undocumented)
-    closeCell(_schemaColumn: SF, _subgridRowIndex: number, _cancel: boolean): void;
+    closeCell(_schemaColumn: SF, _dataServerRowIndex: number, _cancel: boolean): void;
     // (undocumented)
     protected readonly _element: HTMLElement;
     // (undocumented)
@@ -7336,13 +7319,13 @@ export namespace RevStandardHeaderTextCellPainter {
 export abstract class RevStandardInputElementCellEditor<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevStandardElementCellEditor<BGS, BCS, SF> {
     constructor(grid: RevClientGrid<BGS, BCS, SF>, dataServer: RevDataServer<SF>, inputType: string);
     // (undocumented)
-    closeCell(field: SF, subgridRowIndex: number, cancel: boolean): void;
+    closeCell(field: SF, dataServerRowIndex: number, cancel: boolean): void;
     // (undocumented)
     protected readonly _element: HTMLInputElement;
     // (undocumented)
     keyDownEventer: RevCellEditor.KeyDownEventer;
     // (undocumented)
-    processGridKeyDownEvent(event: KeyboardEvent, fromEditor: boolean, _schemaColumn: SF, _subgridRowIndex: number): boolean;
+    processGridKeyDownEvent(event: KeyboardEvent, fromEditor: boolean, _schemaColumn: SF, _dataServerRowIndex: number): boolean;
     // (undocumented)
     selectAll(): void;
     // (undocumented)
@@ -7355,7 +7338,7 @@ export abstract class RevStandardInputElementCellEditor<BGS extends RevBehaviore
 export class RevStandardNumberInputCellEditor<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevStandardInputElementCellEditor<BGS, BCS, SF> {
     constructor(grid: RevClientGrid<BGS, BCS, SF>, dataServer: RevDataServer<SF>);
     // (undocumented)
-    closeCell(field: SF, subgridRowIndex: number, cancel: boolean): void;
+    closeCell(field: SF, dataServerRowIndex: number, cancel: boolean): void;
     // (undocumented)
     tryOpenCell(cell: RevViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined): boolean;
 }
@@ -7373,7 +7356,7 @@ export abstract class RevStandardPaintCellEditor<BGS extends RevBehavioredGridSe
 export class RevStandardRangeInputCellEditor<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevStandardInputElementCellEditor<BGS, BCS, SF> {
     constructor(grid: RevClientGrid<BGS, BCS, SF>, dataServer: RevDataServer<SF>);
     // (undocumented)
-    closeCell(field: SF, subgridRowIndex: number, cancel: boolean): void;
+    closeCell(field: SF, dataServerRowIndex: number, cancel: boolean): void;
     // (undocumented)
     tryOpenCell(cell: RevViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined): boolean;
 }
@@ -7537,7 +7520,7 @@ export namespace RevStandardTagCellPainter {
 export class RevStandardTextInputCellEditor<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevStandardInputElementCellEditor<BGS, BCS, SF> {
     constructor(grid: RevClientGrid<BGS, BCS, SF>, dataServer: RevDataServer<SF>);
     // (undocumented)
-    closeCell(field: SF, subgridRowIndex: number, cancel: boolean): void;
+    closeCell(field: SF, dataServerRowIndex: number, cancel: boolean): void;
     // (undocumented)
     tryOpenCell(cell: RevViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined): boolean;
 }
@@ -7595,13 +7578,13 @@ export namespace RevStandardTextPainter {
 // @public (undocumented)
 export class RevStandardToggleClickBoxCellEditor<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevStandardPaintCellEditor<BGS, BCS, SF> {
     // (undocumented)
-    closeCell(_schemaColumn: SF, _subgridRowIndex: number, _cancel: boolean): void;
+    closeCell(_schemaColumn: SF, _dataServerRowIndex: number, _cancel: boolean): void;
     // (undocumented)
     protected _painter: RevClickBoxCellPainter<BCS, SF>;
     // (undocumented)
     processGridClickEvent(event: MouseEvent, viewCell: RevViewCell<BCS, SF>): boolean;
     // (undocumented)
-    processGridKeyDownEvent(event: KeyboardEvent, _fromEditor: boolean, field: SF, subgridRowIndex: number): boolean;
+    processGridKeyDownEvent(event: KeyboardEvent, _fromEditor: boolean, field: SF, dataServerRowIndex: number): boolean;
     // (undocumented)
     processGridPointerMoveEvent(event: PointerEvent, viewCell: RevViewCell<BCS, SF>): RevCellEditor.PointerLocationInfo | undefined;
     // (undocumented)
@@ -7619,7 +7602,7 @@ export interface RevStartLength {
 // @public (undocumented)
 export namespace RevStartLength {
     // (undocumented)
-    export function createFromReversableFirstLast(first: number, last: number): RevStartLength;
+    export function createFromInclusiveFirstLast(first: number, last: number): RevStartLength;
     // (undocumented)
     export function ensureLengthIsNotNegative(startLength: RevStartLength): RevStartLength;
 }
@@ -7632,6 +7615,8 @@ export interface RevSubgrid<BCS extends RevBehavioredColumnSettings, SF extends 
     readonly firstViewRowIndex: number;
     // (undocumented)
     readonly fixedRowCount: number;
+    // (undocumented)
+    readonly focusable: boolean;
     // (undocumented)
     getCellPainterEventer: RevSubgrid.GetCellPainterEventer<BCS, SF>;
     // (undocumented)
@@ -7673,6 +7658,8 @@ export interface RevSubgrid<BCS extends RevBehavioredColumnSettings, SF extends 
     // (undocumented)
     readonly schemaServer: RevSchemaServer<SF>;
     // (undocumented)
+    readonly scrollable: boolean;
+    // (undocumented)
     readonly selectable: boolean;
     // (undocumented)
     setRowMetadata(subgridRowIndex: number, newMetadata: RevMetaServer.RowMetadata | undefined): void;
@@ -7691,6 +7678,8 @@ export namespace RevSubgrid {
         dataServer: RevDataServer<SF> | RevDataServer.Constructor<SF>;
         // (undocumented)
         defaultRowHeight?: number;
+        // (undocumented)
+        focusable?: boolean;
         // (undocumented)
         getCellPainterEventer: GetCellPainterEventer<BCS, SF>;
         // (undocumented)
@@ -7733,7 +7722,7 @@ export class RevSubgridImplementation<BCS extends RevBehavioredColumnSettings, S
     constructor(
     _gridSettings: RevGridSettings,
     _columnsManager: RevColumnsManager<BCS, SF>,
-    handle: RevSubgridImplementation.Handle, role: RevSubgrid.Role, schemaServer: RevSchemaServer<SF>, dataServer: RevDataServer<SF>, metaServer: RevMetaServer | undefined, selectable: boolean, definitionDefaultRowHeight: number | undefined, rowHeightsCanDiffer: boolean, rowPropertiesPrototype: RevMetaServer.RowPropertiesPrototype | undefined, getCellPainterEventer: RevSubgrid.GetCellPainterEventer<BCS, SF>);
+    handle: RevSubgridImplementation.Handle, role: RevSubgrid.Role, schemaServer: RevSchemaServer<SF>, dataServer: RevDataServer<SF>, metaServer: RevMetaServer | undefined, focusable: boolean, selectable: boolean, definitionDefaultRowHeight: number | undefined, rowHeightsCanDiffer: boolean, rowPropertiesPrototype: RevMetaServer.RowPropertiesPrototype | undefined, getCellPainterEventer: RevSubgrid.GetCellPainterEventer<BCS, SF>);
     // (undocumented)
     calculateHeight(): number;
     // (undocumented)
@@ -7754,6 +7743,8 @@ export class RevSubgridImplementation<BCS extends RevBehavioredColumnSettings, S
     firstViewRowIndex: number;
     // (undocumented)
     get fixedRowCount(): number;
+    // (undocumented)
+    readonly focusable: boolean;
     // (undocumented)
     getCellPainterEventer: RevSubgrid.GetCellPainterEventer<BCS, SF>;
     // (undocumented)
@@ -7797,6 +7788,8 @@ export class RevSubgridImplementation<BCS extends RevBehavioredColumnSettings, S
     readonly rowHeightsCanDiffer: boolean;
     // (undocumented)
     readonly schemaServer: RevSchemaServer<SF>;
+    // (undocumented)
+    readonly scrollable: boolean;
     // (undocumented)
     readonly selectable: boolean;
     // (undocumented)
@@ -9310,7 +9303,7 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
     // (undocumented)
     scrollVerticalViewportBy(delta: number): boolean;
     // (undocumented)
-    setColumnScrollAnchor(index: number, offset: number): boolean;
+    setColumnScrollAnchor(activeColumnIndex: number, offset: number): boolean;
     // (undocumented)
     setColumnScrollAnchorToLimit(): void;
     // (undocumented)
@@ -9533,7 +9526,23 @@ export type RevWritablePoint = RevWritable<RevPoint>;
 // @public (undocumented)
 export namespace RevWritablePoint {
     // (undocumented)
+    export function adjustForXRangeDeleted(point: RevWritablePoint, deletionIndex: number, deletionCount: number): number | undefined;
+    // (undocumented)
+    export function adjustForXRangeInserted(point: RevWritablePoint, insertionIndex: number, insertionCount: number): void;
+    // (undocumented)
+    export function adjustForXRangeMoved(point: RevWritablePoint, oldIndex: number, newIndex: number, count: number): void;
+    // (undocumented)
+    export function adjustForYRangeDeleted(point: RevWritablePoint, deletionIndex: number, deletionCount: number): number | undefined;
+    // (undocumented)
+    export function adjustForYRangeInserted(point: RevWritablePoint, insertionIndex: number, insertionCount: number): void;
+    // (undocumented)
+    export function adjustForYRangeMoved(point: RevWritablePoint, oldIndex: number, newIndex: number, count: number): void;
+    // (undocumented)
     export function create(x: number, y: number): RevWritablePoint;
+    // (undocumented)
+    export function moveX(point: RevWritablePoint, offset: number): void;
+    // (undocumented)
+    export function moveY(point: RevWritablePoint, offset: number): void;
 }
 
 // (No @packageDocumentation comment for this package)

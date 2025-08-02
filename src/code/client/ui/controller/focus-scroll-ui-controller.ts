@@ -15,10 +15,14 @@ export class RevFocusScrollUiController<BGS extends RevBehavioredGridSettings, B
             hoverCell = this.tryGetHoverCellFromMouseEvent(event);
         }
         if (hoverCell !== undefined && !RevLinedHoverCell.isMouseOverLine(hoverCell)) {
-            const viewCell = hoverCell.viewCell;
-            if (viewCell.subgrid === this._focus.subgrid) {
-                if (!this.willSelectionBeExtended(event, viewCell)) {
-                    this._focusScrollBehavior.tryFocusXYAndEnsureInView(viewCell.viewLayoutColumn.activeColumnIndex, viewCell.viewLayoutRow.subgridRowIndex, viewCell);
+            const currentFocusPoint = this._focus.current;
+            if (currentFocusPoint !== undefined) {
+                const viewCell = hoverCell.viewCell;
+                const subgrid = viewCell.subgrid;
+                if (subgrid === currentFocusPoint.subgrid) {
+                    if (!this.willSelectionBeExtended(event, viewCell)) {
+                        this._focusScrollBehavior.tryFocusColumnRowAndEnsureInView(viewCell.viewLayoutColumn.activeColumnIndex, viewCell.viewLayoutRow.subgridRowIndex, subgrid, viewCell);
+                    }
                 }
             }
         }
@@ -84,7 +88,7 @@ export class RevFocusScrollUiController<BGS extends RevBehavioredGridSettings, B
                 // not a focusable cell
                 return super.handleDblClick(event, hoverCell);
             } else {
-                if (viewCell.columnSettings.editOnDoubleClick && viewCell.subgrid.isMain && !viewCell.isFixed) {
+                if (viewCell.columnSettings.editOnDoubleClick) {
                     this._focus.tryOpenEditorAtViewCell(viewCell);
                     return hoverCell;
                 } else {

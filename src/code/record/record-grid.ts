@@ -89,7 +89,7 @@ export class RevRecordGrid<
     }
 
     get focusedRecordIndex(): RevRecordIndex | undefined {
-        const focusedSubgridRowIndex = this.focus.currentY;
+        const focusedSubgridRowIndex = this.focus.currentSubgridRowIndex;
         if (focusedSubgridRowIndex === undefined) {
             return undefined;
         } else {
@@ -101,11 +101,25 @@ export class RevRecordGrid<
         if (recordIndex === undefined) {
             this.focus.clear();
         } else {
-            const rowIndex = this.mainDataServer.getRowIndexFromRecordIndex(recordIndex);
-            if (rowIndex === undefined) {
+            const subgridRowIndex = this.mainDataServer.getRowIndexFromRecordIndex(recordIndex);
+            if (subgridRowIndex === undefined) {
                 this.focus.clear();
             } else {
-                this.focus.setY(rowIndex, undefined, undefined);
+                const currentFocusPoint = this.focus.current;
+                if (currentFocusPoint !== undefined && currentFocusPoint.subgrid === this.mainSubgrid) {
+                    if (!this.focus.trySetSubgridRowIndex(subgridRowIndex, this.mainSubgrid, undefined, undefined)) {
+                        this.focus.clear();
+                    }
+                } else {
+                    const activeColumnIndex = this.columnsManager.getFixedColumnCount();
+                    if (activeColumnIndex >= this.columnsManager.activeColumnCount) {
+                        this.focus.clear();
+                    } else {
+                        if (!this.focus.setColumnRowOrClear(activeColumnIndex, subgridRowIndex, this.mainSubgrid, undefined, undefined, undefined)) {
+                            this.focus.clear();
+                        }
+                    }
+                }
             }
         }
     }

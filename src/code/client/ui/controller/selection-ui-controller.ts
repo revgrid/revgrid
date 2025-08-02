@@ -220,9 +220,9 @@ export class RevSelectionUiController<BGS extends RevBehavioredGridSettings, BCS
 
         if (extendModifier && !addToggleModifier) {
             if (lastArea !== undefined && lastArea.areaTypeId === RevSelectionAreaTypeId.rectangle) {
-                const origin = lastArea.inclusiveFirst;
-                const startLengthX = RevStartLength.createFromReversableFirstLast(origin.x, activeColumnIndex);
-                const startLengthY = RevStartLength.createFromReversableFirstLast(origin.y, subgridRowIndex);
+                const inclusiveFirstCorner = lastArea.inclusiveFirst;
+                const startLengthX = RevStartLength.createFromInclusiveFirstLast(inclusiveFirstCorner.x, activeColumnIndex);
+                const startLengthY = RevStartLength.createFromInclusiveFirstLast(inclusiveFirstCorner.y, subgridRowIndex);
                 selection.replaceLastAreaWithRectangle(
                     startLengthX.start,
                     startLengthY.start,
@@ -270,9 +270,9 @@ export class RevSelectionUiController<BGS extends RevBehavioredGridSettings, BCS
             const focusSelectionBehavior = this._focusSelectBehavior;
             if (extendModifier && !addToggleModifier) {
                 if (lastArea !== undefined && lastArea.areaTypeId === RevSelectionAreaTypeId.column) {
-                    const origin = lastArea.inclusiveFirst;
-                    const startLengthX = RevStartLength.createFromReversableFirstLast(origin.x, activeColumnIndex);
-                    const startLengthY = RevStartLength.createFromReversableFirstLast(origin.y, subgridRowIndex);
+                    const inclusiveFirstCorner = lastArea.inclusiveFirst;
+                    const startLengthX = RevStartLength.createFromInclusiveFirstLast(inclusiveFirstCorner.x, activeColumnIndex);
+                    const startLengthY = RevStartLength.createFromInclusiveFirstLast(inclusiveFirstCorner.y, subgridRowIndex);
                     this._selection.replaceLastAreaWithColumns(
                         startLengthX.start,
                         startLengthY.start,
@@ -300,8 +300,7 @@ export class RevSelectionUiController<BGS extends RevBehavioredGridSettings, BCS
 
     private trySelectRowsFromCell(event: MouseEvent, cell: RevViewCell<BCS, SF>, forceAddToggleToBeAdd: boolean) {
         const gridSettings = this._gridSettings;
-        const allowed = gridSettings.mouseRowSelectionEnabled &&
-        (
+        const allowed = gridSettings.mouseRowSelectionEnabled && (
             gridSettings.mouseRowSelectionModifierKey === undefined ||
             RevModifierKey.isDownInEvent(gridSettings.mouseRowSelectionModifierKey, event)
         );
@@ -310,9 +309,7 @@ export class RevSelectionUiController<BGS extends RevBehavioredGridSettings, BCS
             return false;
         } else {
             const subgridRowIndex = cell.viewLayoutRow.subgridRowIndex;
-            const subgrid = this._focus.subgrid;
-            const focusPoint = this._focus.current;
-            const cellActiveColumnIndex = focusPoint === undefined ? 0 : focusPoint.x;
+            const subgrid = cell.viewLayoutRow.subgrid;
             const mouseAddToggleExtendSelectionAreaAllowed = this._focusSelectBehavior.isMouseAddToggleExtendSelectionAreaAllowed(event);
             const addToggleModifier = mouseAddToggleExtendSelectionAreaAllowed && RevGridSettings.isAddToggleSelectionAreaModifierKeyDownInEvent(gridSettings, event);
             const extendModifier = mouseAddToggleExtendSelectionAreaAllowed && RevGridSettings.isExtendLastSelectionAreaModifierKeyDownInEvent(gridSettings, event);
@@ -320,14 +317,13 @@ export class RevSelectionUiController<BGS extends RevBehavioredGridSettings, BCS
 
             const focusSelectionBehavior = this._focusSelectBehavior;
             if (extendModifier && !addToggleModifier) {
-                if (lastArea !== undefined && lastArea.areaTypeId === RevSelectionAreaTypeId.row) {
-                    const origin = lastArea.inclusiveFirst;
-                    const startLengthX = RevStartLength.createFromReversableFirstLast(origin.x, cellActiveColumnIndex);
-                    const startLengthY = RevStartLength.createFromReversableFirstLast(origin.y, subgridRowIndex);
+                if (lastArea !== undefined && lastArea.areaTypeId === RevSelectionAreaTypeId.row && lastArea.subgrid === subgrid) {
+                    const inclusiveFirstCorner = lastArea.inclusiveFirst;
+                    const startLengthY = RevStartLength.createFromInclusiveFirstLast(inclusiveFirstCorner.y, subgridRowIndex);
                     this._selection.replaceLastAreaWithRows(
-                        startLengthX.start,
+                        0,
                         startLengthY.start,
-                        startLengthX.length,
+                        this._columnsManager.activeColumnCount,
                         startLengthY.length,
                         subgrid
                     );
@@ -390,9 +386,9 @@ export class RevSelectionUiController<BGS extends RevBehavioredGridSettings, BCS
                 const lastAreaFirstYRowFixed = lastAreaFirstY < this._gridSettings.fixedRowCount;
                 if (cell.isRowFixed === lastAreaFirstYRowFixed) {
                     if (lastArea.areaTypeId === RevSelectionAreaTypeId.column || subgrid === selection.subgrid) {
-                        const origin = lastArea.inclusiveFirst;
-                        const xStartLength = RevStartLength.createFromReversableFirstLast(origin.x, cell.viewLayoutColumn.activeColumnIndex);
-                        const yStartLength = RevStartLength.createFromReversableFirstLast(origin.y, cell.viewLayoutRow.subgridRowIndex);
+                        const inclusiveFirstCorner = lastArea.inclusiveFirst;
+                        const xStartLength = RevStartLength.createFromInclusiveFirstLast(inclusiveFirstCorner.x, cell.viewLayoutColumn.activeColumnIndex);
+                        const yStartLength = RevStartLength.createFromInclusiveFirstLast(inclusiveFirstCorner.y, cell.viewLayoutRow.subgridRowIndex);
                         selection.replaceLastArea(
                             lastArea.areaTypeId,
                             xStartLength.start,
@@ -609,45 +605,41 @@ export class RevSelectionUiController<BGS extends RevBehavioredGridSettings, BCS
         return stepped;
     }
 
-    private onlySelectCell(originX: number, originY: number, subgrid: RevSubgrid<BCS, SF>) {
+    private onlySelectCell(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>) {
         let lastActiveColumnIndex = this._columnsManager.activeColumnCount - 1;
         let lastSubgridRowIndex = subgrid.getRowCount() - 1;
 
-        let focusLinked: boolean;
-        if (subgrid !== this._focus.subgrid) {
-            focusLinked = false;
-        } else {
-            if (!this._gridSettings.scrollingEnabled) {
-                const lastVisibleScrollableActiveColumnIndex = this._viewLayout.lastScrollableActiveColumnIndex;
-                const lastVisibleScrollableSubgridRowIndex = this._viewLayout.lastScrollableRowSubgridRowIndex;
+        if (subgrid.scrollable && !this._gridSettings.scrollingEnabled) {
+            const lastVisibleScrollableActiveColumnIndex = this._viewLayout.lastScrollableActiveColumnIndex;
+            const lastVisibleScrollableSubgridRowIndex = this._viewLayout.lastScrollableRowSubgridRowIndex;
 
-                if (lastVisibleScrollableActiveColumnIndex !== undefined) {
-                    lastActiveColumnIndex = Math.min(lastActiveColumnIndex, lastVisibleScrollableActiveColumnIndex);
-                }
-                if (lastVisibleScrollableSubgridRowIndex !== undefined) {
-                    lastSubgridRowIndex = Math.min(lastSubgridRowIndex, lastVisibleScrollableSubgridRowIndex);
-                }
+            if (lastVisibleScrollableActiveColumnIndex !== undefined) {
+                lastActiveColumnIndex = Math.min(lastActiveColumnIndex, lastVisibleScrollableActiveColumnIndex);
             }
-
-            const focusPoint = this._focus.current;
-            if (focusPoint === undefined) {
-                focusLinked = false;
-            } else {
-                const focusActiveColumnIndex = focusPoint.x;
-                if (focusActiveColumnIndex !== originX) {
-                    focusLinked = false;
-                } else {
-                    const focusSubgridRowIndex = focusPoint.y;
-                    focusLinked = focusSubgridRowIndex === originY;
-                }
+            if (lastVisibleScrollableSubgridRowIndex !== undefined) {
+                lastSubgridRowIndex = Math.min(lastSubgridRowIndex, lastVisibleScrollableSubgridRowIndex);
             }
         }
 
-        originX = Math.min(lastActiveColumnIndex, Math.max(0, originX));
-        originY = Math.min(lastSubgridRowIndex, Math.max(0, originY));
+        let focusLinked: boolean;
+        const focusPoint = this._focus.current;
+        if (focusPoint === undefined) {
+            focusLinked = false;
+        } else {
+            const focusActiveColumnIndex = focusPoint.x;
+            if (focusActiveColumnIndex !== activeColumnIndex) {
+                focusLinked = false;
+            } else {
+                const focusSubgridRowIndex = focusPoint.y;
+                focusLinked = focusSubgridRowIndex === subgridRowIndex;
+            }
+        }
+
+        activeColumnIndex = Math.min(lastActiveColumnIndex, Math.max(0, activeColumnIndex));
+        subgridRowIndex = Math.min(lastSubgridRowIndex, Math.max(0, subgridRowIndex));
 
         this._selection.beginChange();
-        this._selection.onlySelectCell(originX, originY, subgrid);
+        this._selection.onlySelectCell(activeColumnIndex, subgridRowIndex, subgrid);
         if (focusLinked) {
             this._selection.flagFocusLinked();
         }

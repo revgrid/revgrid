@@ -1,4 +1,4 @@
-import { RevAssertError, RevClientObject, RevDataServer, RevPartialPoint, RevPoint, RevSchemaField, revCalculateAdjustmentForRangeMoved } from '../../../common';
+import { RevAssertError, RevClientObject, RevDataServer, RevPartialPoint, RevPoint, RevSchemaField, RevWritablePoint } from '../../../common';
 import { RevCellEditor, RevMainSubgrid, RevSubgrid, RevViewCell } from '../../interfaces';
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevGridSettings } from '../../settings';
 import { RevCanvas } from '../canvas/canvas';
@@ -30,13 +30,10 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
     /** @internal */
     viewCellRenderInvalidatedEventer: RevFocus.ViewCellRenderInvalidatedEventer<BCS, SF>;
 
-    readonly subgrid: RevSubgrid<BCS, SF>;
-    readonly dataServer: RevDataServer<SF>;
-
     /** @internal */
-    private _current: RevPoint | undefined;
+    private _current: RevFocus.Point<BCS, SF> | undefined;
     /** @internal */
-    private _previous: RevPoint | undefined;
+    private _previous: RevFocus.Point<BCS, SF> | undefined;
 
     // Optionally track position in canvas where focus is.  Used to assist with paging
     /** @internal */
@@ -47,9 +44,10 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
     /** @internal */
     private _editor: RevCellEditor<BCS, SF> | undefined;
     /** @internal */
-    private _editorSubgridRowIndex: number | undefined;
-    /** @internal */
-    private _editorActiveColumnIndex: number | undefined;
+    private _editorPoint: RevFocus.Point<BCS, SF> | undefined;
+    // private _editorActiveColumnIndex: number | undefined;
+    // /** @internal */
+    // private _editorSubgridRowIndex: number | undefined;
     /** @internal */
     private _cell: RevViewCell<BCS, SF> | undefined;
 
@@ -68,13 +66,12 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
         /** @internal */
         private readonly _viewLayout: RevViewLayout<BGS, BCS, SF>,
     ) {
-        this.subgrid = this._mainSubgrid;
-        this.dataServer = this.subgrid.dataServer;
         this._viewLayout.cellPoolComputedEventerForFocus = () => { this.handleCellPoolComputedEvent(); };
     }
 
-    get currentX() { return this._current === undefined ? undefined : this._current.x; }
-    get currentY() { return this._current === undefined ? undefined : this._current.y; }
+    get currentActiveColumnIndex() { return this._current === undefined ? undefined : this._current.x; }
+    get currentSubgridRowIndex() { return this._current === undefined ? undefined : this._current.y; }
+    get currentSubgrid() { return this._current === undefined ? undefined : this._current.subgrid; }
 
     get current() { return this._current; }
     get previous() { return this._previous; }
@@ -108,9 +105,17 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
         }
     }
 
-    setOrClear(newFocusPoint: RevPoint, subgrid: RevSubgrid<BCS, SF>, cell: RevViewCell<BCS, SF> | undefined, canvasPoint: RevPartialPoint | undefined): boolean {
-        if (subgrid === this.subgrid && this.isPointFocusable(newFocusPoint)) {
-            this.set(newFocusPoint, cell, canvasPoint);
+    trySetColumnRow(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>, cell: RevViewCell<BCS, SF> | undefined, canvasX: number | undefined, canvasY: number | undefined): boolean {
+        if (this.isColumnFocusable(activeColumnIndex) && this.isSubgridRowFocusable(subgridRowIndex, subgrid)) {
+            this.setColumnRow(activeColumnIndex, subgridRowIndex, subgrid, cell, canvasX, canvasY);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    setColumnRowOrClear(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>, cell: RevViewCell<BCS, SF> | undefined, canvasX: number | undefined, canvasY: number | undefined): boolean {
+        if (!this.trySetColumnRow(activeColumnIndex, subgridRowIndex, subgrid, cell, canvasX, canvasY)) {
             return true;
         } else {
             this.clear();
@@ -118,56 +123,17 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
         }
     }
 
-    set(newFocusPoint: RevPoint, cell: RevViewCell<BCS, SF> | undefined, canvasPoint: RevPartialPoint | undefined): void {
-        const newCurrentActiveColumnIndex = newFocusPoint.x;
-        const newCurrentSubgridRowIndex = newFocusPoint.y;
-        const newPrevious = this._current;
-        const newPreviousDefined = newPrevious !== undefined;
-        const newPreviousActiveColumnIndex = newPreviousDefined ? newPrevious.x : undefined;
-        const activeColumnIndexChanged = newPreviousActiveColumnIndex !== newCurrentActiveColumnIndex;
-        const newPreviousSubgridRowIndex = newPreviousDefined ? newPrevious.y : undefined;
-        const subgridRowIndexChanged = newPreviousSubgridRowIndex !== newCurrentSubgridRowIndex;
-        if (activeColumnIndexChanged || subgridRowIndexChanged) {
-            this.closeFocus();
-            this._previous = newPrevious;
-            this._current = newFocusPoint;
-
-            if (canvasPoint !== undefined) {
-                const canvasX = canvasPoint.x;
-                if (canvasX !== undefined) {
-                    this._canvasX = canvasX;
-                }
-
-                const canvasY = canvasPoint.y;
-                if (canvasY !== undefined) {
-                    this._canvasY = canvasY;
-                }
-            }
-
-            if (cell === undefined) {
-                cell = this._viewLayout.findCellAtGridPoint(newCurrentActiveColumnIndex, newCurrentSubgridRowIndex, this.subgrid, true);
-            }
-
-            if (cell !== undefined) {
-                this._cell = cell;
-
-                if (cell.viewLayoutColumn.column.settings.editOnFocusCell) {
-                    this.tryOpenEditorAtFocusedViewCell(cell, undefined, undefined);
-                }
-
-                this.viewCellRenderInvalidatedEventer(cell);
-            }
-
-            this.notifyCurrentCellChanged();
-            if (subgridRowIndexChanged) {
-                this.notifyCurrentRowChanged(newCurrentSubgridRowIndex, newPreviousSubgridRowIndex);
-            }
+    trySetPoint(subgridPoint: RevPoint, subgrid: RevSubgrid<BCS, SF>, cell: RevViewCell<BCS, SF> | undefined, canvasPoint: RevPartialPoint | undefined): boolean {
+        if (this.isSubgridPointFocusable(subgridPoint, subgrid)) {
+            this.setPoint(subgridPoint, subgrid, cell, canvasPoint);
+            return true;
+        } else {
+            return false;
         }
     }
 
-    trySetX(activeColumnIndex: number, subgrid: RevSubgrid<BCS, SF>, cell: RevViewCell<BCS, SF> | undefined, canvasX: number | undefined): boolean {
-        if (subgrid === this.subgrid && this.isXFocusable(activeColumnIndex)) {
-            this.setX(activeColumnIndex, cell, canvasX);
+    setPointOrClear(subgridPoint: RevPoint, subgrid: RevSubgrid<BCS, SF>, cell: RevViewCell<BCS, SF> | undefined, canvasPoint: RevPartialPoint | undefined): boolean {
+        if (this.trySetPoint(subgridPoint, subgrid, cell, canvasPoint)) {
             return true;
         } else {
             this.clear();
@@ -175,158 +141,58 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
         }
     }
 
-    setX(activeColumnIndex: number, cell: RevViewCell<BCS, SF> | undefined, canvasX: number | undefined): void {
-        const newPrevious = this._current;
-        const newPreviousDefined = newPrevious !== undefined;
-        if (!newPreviousDefined || newPrevious.x !== activeColumnIndex) {
-            this.closeFocus();
-            this._previous = newPrevious;
-            const y = newPreviousDefined ? newPrevious.y : this._gridSettings.fixedRowCount;
-
-            this._current = {
-                x: activeColumnIndex,
-                y,
-            };
-
-            if (canvasX !== undefined) {
-                this._canvasX = canvasX;
-            }
-
-            if (cell === undefined) {
-                cell = this._viewLayout.findCellAtGridPoint(activeColumnIndex, y, this.subgrid, true);
-            }
-
-            if (cell !== undefined) {
-                this._cell = cell;
-
-                if (cell.viewLayoutColumn.column.settings.editOnFocusCell) {
-                    this.tryOpenEditorAtFocusedViewCell(cell, undefined, undefined);
-                }
-
-                this.viewCellRenderInvalidatedEventer(cell);
-            }
-
-            this.notifyCurrentCellChanged();
-        }
-    }
-
-    trySetY(subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>, cell: RevViewCell<BCS, SF> | undefined, canvasY: number | undefined): boolean {
-        if (subgrid === this.subgrid && this.isYFocusable(subgridRowIndex)) {
-            this.setY(subgridRowIndex, cell, canvasY);
-            return true;
+    trySetColumnIndex(activeColumnIndex: number, cell: RevViewCell<BCS, SF> | undefined, canvasX: number | undefined): boolean {
+        const current = this._current;
+        if (current === undefined) {
+            return false
         } else {
-            this.clear();
-            return false;
+            if (!this.isColumnFocusable(activeColumnIndex)) {
+                return false;
+            } else {
+                this.setColumnIndex(activeColumnIndex, current, cell, canvasX);
+                return true;
+            }
         }
     }
 
-    setY(subgridRowIndex: number, cell: RevViewCell<BCS, SF> | undefined, canvasY: number | undefined): void {
-        const newPrevious = this._current;
-        const newPreviousDefined = newPrevious !== undefined;
-        const newPreviousSubgridRowIndex = newPreviousDefined ? newPrevious.y : undefined;
-        if (subgridRowIndex !== newPreviousSubgridRowIndex) {
-            this.closeFocus();
-            this._previous = newPrevious;
-            const x = newPreviousDefined ? newPrevious.x : this._gridSettings.fixedColumnCount;
-            this._current = {
-                x,
-                y: subgridRowIndex,
-            };
-
-            if (canvasY !== undefined) {
-                this._canvasY = canvasY;
-            }
-
-            if (cell === undefined) {
-                cell = this._viewLayout.findCellAtGridPoint(x, subgridRowIndex, this.subgrid, true);
-            }
-
-            if (cell !== undefined) {
-                this._cell = cell;
-
-                if (cell.viewLayoutColumn.column.settings.editOnFocusCell) {
-                    this.tryOpenEditorAtFocusedViewCell(cell, undefined, undefined);
-                }
-
-                this.viewCellRenderInvalidatedEventer(cell);
-            }
-
-            this.notifyCurrentCellChanged();
-            this.notifyCurrentRowChanged(subgridRowIndex, newPreviousSubgridRowIndex);
-        }
-    }
-
-    trySetXY(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>, cell: RevViewCell<BCS, SF> | undefined, canvasX: number | undefined, canvasY: number | undefined): boolean {
-        if (subgrid === this.subgrid && this.isXFocusable(activeColumnIndex)) {
-            this.setXY(activeColumnIndex, subgridRowIndex, cell, canvasX, canvasY);
-            return true;
+    trySetSubgridRowIndex(subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>, cell: RevViewCell<BCS, SF> | undefined, canvasY: number | undefined): boolean {
+        const current = this._current;
+        if (current === undefined) {
+            return false
         } else {
-            this.clear();
-            return false;
-        }
-    }
-
-    setXY(activeColumnIndex: number, subgridRowIndex: number, cell: RevViewCell<BCS, SF> | undefined, canvasX: number | undefined, canvasY: number | undefined): void {
-        const newPrevious = this._current;
-        const newPreviousDefined = newPrevious !== undefined;
-        const newPreviousActiveColumnIndex = newPreviousDefined ? newPrevious.x : undefined;
-        const activeColumnIndexChanged = activeColumnIndex !== newPreviousActiveColumnIndex;
-        const newPreviousSubgridRowIndex = newPreviousDefined ? newPrevious.y : undefined;
-        const subgridRowIndexChanged = subgridRowIndex !== newPreviousSubgridRowIndex;
-        if (activeColumnIndexChanged || subgridRowIndexChanged) {
-            this.closeFocus();
-            this._previous = newPrevious;
-            this._current = {
-                x: activeColumnIndex,
-                y: subgridRowIndex,
-            };
-
-            if (canvasX !== undefined) {
-                this._canvasX = canvasX;
-            }
-            if (canvasY !== undefined) {
-                this._canvasY = canvasY;
-            }
-
-            if (cell === undefined) {
-                cell = this._viewLayout.findCellAtGridPoint(activeColumnIndex, subgridRowIndex, this.subgrid, true);
-            }
-
-            if (cell !== undefined) {
-                this._cell = cell;
-
-                if (cell.viewLayoutColumn.column.settings.editOnFocusCell) {
-                    this.tryOpenEditorAtFocusedViewCell(cell, undefined, undefined);
-                }
-
-                this.viewCellRenderInvalidatedEventer(cell);
-            }
-
-            this.notifyCurrentCellChanged();
-            if (subgridRowIndexChanged) {
-                this.notifyCurrentRowChanged(subgridRowIndex, newPreviousSubgridRowIndex);
+            if (!this.isSubgridRowFocusable(subgridRowIndex, subgrid)) {
+                return false;
+            } else {
+                this.setSubgridRowIndex(subgridRowIndex, subgrid, current, cell, canvasY);
+                return true;
             }
         }
     }
 
-    isPointFocusable(point: RevPoint): boolean {
-        return this.isXFocusable(point.x) && this.isYFocusable(point.y);
+    isSubgridPointFocusable(point: RevPoint, subgrid: RevSubgrid<BCS, SF>): boolean {
+        return this.isColumnFocusable(point.x) && this.isSubgridRowFocusable(point.y, subgrid);
     }
 
-    isXFocusable(activeColumnIndex: number): boolean {
+    isColumnFocusable(activeColumnIndex: number): boolean {
         return activeColumnIndex >= this._gridSettings.fixedColumnCount && activeColumnIndex < this._columnsManager.activeColumnCount;
     }
 
-    isYFocusable(subgridRowIndex: number): boolean {
-        return subgridRowIndex >= this._gridSettings.fixedRowCount && subgridRowIndex < this.subgrid.getRowCount();
+    isSubgridRowFocusable(subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): boolean {
+        return subgrid.focusable && subgridRowIndex >= this._gridSettings.fixedRowCount && subgridRowIndex < subgrid.getRowCount();
     }
 
-    isActiveColumnFocused(activeColumnIndex: number): boolean {
-        return this._current !== undefined && activeColumnIndex === this._current.x;
+    isColumnFocused(activeColumnIndex: number): boolean {
+        const current = this._current;
+        return current !== undefined && activeColumnIndex === current.x;
     }
 
     isSubgridRowFocused(subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): boolean {
-        return subgrid === this.subgrid && this._current !== undefined && subgridRowIndex === this._current.y;
+        const current = this._current;
+        if (current === undefined) {
+            return false;
+        } else {
+            return subgrid === current.subgrid && subgridRowIndex === current.y;
+        }
     }
 
     isMainSubgridRowFocused(mainSubgridRowIndex: number): boolean {
@@ -338,17 +204,18 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
     }
 
     isGridPointFocused(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): boolean {
+        const current = this._current;
         return (
-            subgrid === this.subgrid &&
-            this._current !== undefined &&
-            activeColumnIndex === this._current.x &&
-            subgridRowIndex === this._current.y
+            current !== undefined &&
+            activeColumnIndex === current.x &&
+            subgridRowIndex === current.y &&
+            subgrid === current.subgrid
         );
     }
 
-    isMainSubgridGridPointFocused(activeColumnIndex: number, mainSubgridRowIndex: number): boolean {
-        return this.isGridPointFocused(activeColumnIndex, mainSubgridRowIndex, this._mainSubgrid);
-    }
+    // isMainSubgridGridPointFocused(activeColumnIndex: number, mainSubgridRowIndex: number): boolean {
+    //     return this.isGridPointFocused(activeColumnIndex, mainSubgridRowIndex, this._mainSubgrid);
+    // }
 
     /**
      * Attempts to open the editor at the currently focused cell.
@@ -375,33 +242,48 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
     }
 
     canGetFocusedEditValue() {
-        return this._current !== undefined && this.dataServer.getEditValue !== undefined
+        const current = this._current;
+        return current !== undefined && current.subgrid.dataServer.getEditValue !== undefined
     }
 
     getFocusedEditValue() {
-        const focusedPoint = this._current;
-        if (focusedPoint === undefined || this.dataServer.getEditValue === undefined) {
+        const current = this._current;
+        if (current === undefined) {
             throw new RevAssertError('FGFDV17778');
         } else {
-            const column = this._columnsManager.getActiveColumn(focusedPoint.x);
-            return this.dataServer.getEditValue(column.field, focusedPoint.y);
+            const current = this._current;
+            if (current === undefined) {
+                throw new RevAssertError('FGFDV17779');
+            } else {
+                const dataServer = current.subgrid.dataServer;
+
+                if (dataServer.getEditValue === undefined) {
+                    throw new RevAssertError('FGFDV17780');
+                } else {
+                    const column = this._columnsManager.getActiveColumn(current.x);
+                    return dataServer.getEditValue(column.field, current.y);
+                }
+            }
         }
     }
 
     canSetFocusedEditValue() {
-        return this._current !== undefined && this.dataServer.setEditValue !== undefined
+        const current = this._current;
+        return current !== undefined && current.subgrid.dataServer.setEditValue !== undefined;
     }
 
     setFocusedEditValue(value: RevDataServer.ViewValue) {
-        const focusedPoint = this._current;
-        if (focusedPoint === undefined) {
+        const current = this._current;
+        if (current === undefined) {
             throw new RevAssertError('FGFDVF17778');
         } else {
-            if (this.dataServer.setEditValue === undefined) {
+            const dataServer = current.subgrid.dataServer;
+            if (dataServer.setEditValue === undefined) {
                 throw new RevAssertError('FGFDVS17778');
             } else {
-                const column = this._columnsManager.getActiveColumn(focusedPoint.x);
-                this.dataServer.setEditValue(column.field, focusedPoint.y, value); return;
+                const column = this._columnsManager.getActiveColumn(current.x);
+                dataServer.setEditValue(column.field, current.y, value);
+                return;
             }
         }
     }
@@ -437,12 +319,12 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
             }
         } else {
             const key = event.key as RevFocus.ActionKeyboardKey;
-            const focusPoint = this._current;
-            if (focusPoint === undefined) {
+            const current = this._current;
+            if (current === undefined) {
                 throw new RevAssertError('FCEWKDE98887');
             } else {
-                const column = this._columnsManager.getActiveColumn(focusPoint.x);
-                const subgridRowIndex = focusPoint.y;
+                const column = this._columnsManager.getActiveColumn(current.x);
+                const subgridRowIndex = current.y;
                 const consumed = editor.processGridKeyDownEvent(event, fromEditor, column.field, subgridRowIndex);
                 if (consumed) {
                     return true;
@@ -506,163 +388,152 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
 
     /** @internal */
     adjustForRowsInserted(rowIndex: number, rowCount: number, dataServer: RevDataServer<SF>) {
-        if (dataServer === this.subgrid.dataServer) {
-            if (this._current !== undefined) {
-                RevPoint.adjustForYRangeInserted(this._current, rowIndex, rowCount);
-            }
-            if (this._previous !== undefined) {
-                RevPoint.adjustForYRangeInserted(this._previous, rowIndex, rowCount);
-            }
-
-            if (this._editorSubgridRowIndex !== undefined) {
-                if (rowIndex <= this._editorSubgridRowIndex) {
-                    this._editorSubgridRowIndex += rowCount;
-                }
-            }
-
+        const current = this._current;
+        if (current !== undefined && dataServer === current.subgrid.dataServer) {
+            RevWritablePoint.adjustForYRangeInserted(current, rowIndex, rowCount);
             this._canvasY = undefined;
+        }
+        const previous = this._previous;
+        if (previous !== undefined && dataServer === previous.subgrid.dataServer) {
+            RevWritablePoint.adjustForYRangeInserted(previous, rowIndex, rowCount);
+        }
+
+        const editorPoint = this._editorPoint;
+        if (editorPoint !== undefined && dataServer === editorPoint.subgrid.dataServer) {
+            RevWritablePoint.adjustForYRangeInserted(editorPoint, rowIndex, rowCount);
         }
     }
 
     /** @internal */
     adjustForRowsDeleted(rowIndex: number, rowCount: number, dataServer: RevDataServer<SF>) {
-        if (dataServer === this.subgrid.dataServer) {
-            if (this._current !== undefined) {
-                const positionInDeletionRange = RevPoint.adjustForYRangeDeleted(this._current, rowIndex, rowCount);
-                if (positionInDeletionRange !== undefined) {
-                    this._current = undefined;
-                }
-            }
-            if (this._previous !== undefined) {
-                const positionInDeletionRange = RevPoint.adjustForYRangeDeleted(this._previous, rowIndex, rowCount);
-                if (positionInDeletionRange !== undefined) {
-                    this._previous = undefined;
-                }
-            }
-
-            const editorSubgridRowIndex = this._editorSubgridRowIndex;
-            if (editorSubgridRowIndex !== undefined) {
-                if (rowIndex <= editorSubgridRowIndex) {
-                    if ((rowIndex + rowCount) <= editorSubgridRowIndex) {
-                        this._editorSubgridRowIndex = editorSubgridRowIndex - rowCount;
-                    } else {
-                        if (this._editor !== undefined) {
-                            this.closeSpecifiedEditor(this._editor, true, true)
-                        }
-                    }
-                }
-            }
-
-            this._canvasY = undefined;
-        }
-    }
-
-    /** @internal */
-    adjustForRowsMoved(oldRowIndex: number, newRowIndex: number, count: number, dataServer: RevDataServer<SF>) {
-        if (dataServer === this.subgrid.dataServer) {
-            if (this._current !== undefined) {
-                RevPoint.adjustForYRangeMoved(this._current, oldRowIndex, newRowIndex, count);
-            }
-            if (this._previous !== undefined) {
-                RevPoint.adjustForYRangeMoved(this._previous, oldRowIndex, newRowIndex, count);
-            }
-
-            const editorSubgridRowIndex = this._editorSubgridRowIndex;
-            if (editorSubgridRowIndex !== undefined) {
-                const adjustment = revCalculateAdjustmentForRangeMoved(editorSubgridRowIndex, oldRowIndex, newRowIndex, count);
-                this._editorSubgridRowIndex = editorSubgridRowIndex - adjustment;
-            }
-
-            this._canvasY = undefined;
-        }
-    }
-
-    /** @internal */
-    adjustForColumnsInserted(columnIndex: number, columnCount: number) {
-        if (this._current !== undefined) {
-            RevPoint.adjustForXRangeInserted(this._current, columnIndex, columnCount);
-        }
-        if (this._previous !== undefined) {
-            RevPoint.adjustForXRangeInserted(this._previous, columnIndex, columnCount);
-        }
-
-        if (this._editorActiveColumnIndex !== undefined) {
-            if (columnIndex <= this._editorActiveColumnIndex) {
-                this._editorActiveColumnIndex += columnCount;
-            }
-        }
-
-        this._canvasX = undefined;
-    }
-
-    /** @internal */
-    adjustForActiveColumnsDeleted(columnIndex: number, columnCount: number) {
-        if (this._current !== undefined) {
-            const positionInDeletionRange = RevPoint.adjustForXRangeDeleted(this._current, columnIndex, columnCount);
+        const current = this._current;
+        if (current !== undefined && dataServer === current.subgrid.dataServer) {
+            const positionInDeletionRange = RevWritablePoint.adjustForYRangeDeleted(current, rowIndex, rowCount);
             if (positionInDeletionRange !== undefined) {
                 this._current = undefined;
             }
+            this._canvasY = undefined;
         }
-        if (this._previous !== undefined) {
-            const positionInDeletionRange = RevPoint.adjustForXRangeDeleted(this._previous, columnIndex, columnCount);
+
+        const previous = this._previous;
+        if (previous !== undefined && dataServer === previous.subgrid.dataServer) {
+            const positionInDeletionRange = RevWritablePoint.adjustForYRangeDeleted(previous, rowIndex, rowCount);
             if (positionInDeletionRange !== undefined) {
                 this._previous = undefined;
             }
         }
 
-        const editorActiveColumnIndex = this._editorActiveColumnIndex;
-        if (editorActiveColumnIndex !== undefined) {
-            if (columnIndex <= editorActiveColumnIndex) {
-                if ((columnIndex + columnCount) <= editorActiveColumnIndex) {
-                    this._editorActiveColumnIndex = editorActiveColumnIndex - columnCount;
-                } else {
-                    if (this._editor !== undefined) {
-                        this.closeSpecifiedEditor(this._editor, true, true)
-                    }
-                }
+        const editorPoint = this._editorPoint;
+        if (editorPoint !== undefined && dataServer === editorPoint.subgrid.dataServer) {
+            const positionInDeletionRange = RevWritablePoint.adjustForYRangeDeleted(editorPoint, rowIndex, rowCount);
+            if (positionInDeletionRange && this._editor !== undefined) {
+                this.closeSpecifiedEditor(this._editor, true, true)
+            }
+        }
+    }
+
+    /** @internal */
+    adjustForRowsMoved(oldRowIndex: number, newRowIndex: number, count: number, dataServer: RevDataServer<SF>) {
+        const current = this._current;
+        if (current !== undefined && dataServer === current.subgrid.dataServer) {
+            RevWritablePoint.adjustForYRangeMoved(current, oldRowIndex, newRowIndex, count);
+            this._canvasY = undefined;
+        }
+
+        const previous = this._previous;
+        if (previous !== undefined && dataServer === previous.subgrid.dataServer) {
+            RevWritablePoint.adjustForYRangeMoved(previous, oldRowIndex, newRowIndex, count);
+        }
+
+        const editorPoint = this._editorPoint;
+        if (editorPoint !== undefined && dataServer === editorPoint.subgrid.dataServer) {
+            RevWritablePoint.adjustForYRangeMoved(editorPoint, oldRowIndex, newRowIndex, count);
+        }
+    }
+
+    /** @internal */
+    adjustForColumnsInserted(columnIndex: number, columnCount: number) {
+        const current = this._current;
+        if (current !== undefined) {
+            RevWritablePoint.adjustForXRangeInserted(current, columnIndex, columnCount);
+            this._canvasX = undefined;
+        }
+
+        const previous = this._previous;
+        if (previous !== undefined) {
+            RevWritablePoint.adjustForXRangeInserted(previous, columnIndex, columnCount);
+        }
+
+        const editorPoint = this._editorPoint;
+        if (editorPoint !== undefined) {
+            RevWritablePoint.adjustForXRangeInserted(editorPoint, columnIndex, columnCount);
+        }
+    }
+
+    /** @internal */
+    adjustForActiveColumnsDeleted(columnIndex: number, columnCount: number) {
+        const current = this._current;
+        if (current !== undefined) {
+            const positionInDeletionRange = RevWritablePoint.adjustForXRangeDeleted(current, columnIndex, columnCount);
+            if (positionInDeletionRange !== undefined) {
+                this._current = undefined;
+            }
+            this._canvasX = undefined;
+        }
+
+        const previous = this._previous;
+        if (previous !== undefined) {
+            const positionInDeletionRange = RevWritablePoint.adjustForXRangeDeleted(previous, columnIndex, columnCount);
+            if (positionInDeletionRange !== undefined) {
+                this._previous = undefined;
             }
         }
 
-        this._canvasX = undefined;
+        const editorPoint = this._editorPoint;
+        if (editorPoint !== undefined) {
+            const positionInDeletionRange = RevWritablePoint.adjustForXRangeDeleted(editorPoint, columnIndex, columnCount);
+            if (positionInDeletionRange && this._editor !== undefined) {
+                this.closeSpecifiedEditor(this._editor, true, true);
+            }
+        }
     }
 
     /** @internal */
     adjustForColumnsMoved(oldColumnIndex: number, newColumnIndex: number, count: number) {
-        if (this._current !== undefined) {
-            RevPoint.adjustForXRangeMoved(this._current, oldColumnIndex, newColumnIndex, count);
-        }
-        if (this._previous !== undefined) {
-            RevPoint.adjustForXRangeMoved(this._previous, oldColumnIndex, newColumnIndex, count);
-        }
-
-        const editorActiveColumnIndex = this._editorActiveColumnIndex;
-        if (editorActiveColumnIndex !== undefined) {
-            const adjustment = revCalculateAdjustmentForRangeMoved(editorActiveColumnIndex, oldColumnIndex, newColumnIndex, count);
-            this._editorActiveColumnIndex = editorActiveColumnIndex - adjustment;
+        const current = this._current;
+        if (current !== undefined) {
+            RevWritablePoint.adjustForXRangeMoved(current, oldColumnIndex, newColumnIndex, count);
+            this._canvasX = undefined;
         }
 
-        this._canvasX = undefined;
+        const previous = this._previous;
+        if (previous !== undefined) {
+            RevWritablePoint.adjustForXRangeMoved(previous, oldColumnIndex, newColumnIndex, count);
+        }
+
+        const editorPoint = this._editorPoint;
+        if (editorPoint !== undefined) {
+            RevWritablePoint.adjustForXRangeMoved(editorPoint, oldColumnIndex, newColumnIndex, count);
+        }
     }
 
     /** @internal */
     invalidateSubgrid(subgrid: RevSubgrid<BCS, SF>) {
-        // eslint-disable-next-line @typescript-eslint/prefer-optional-chain
-        if (this._editor !== undefined && this._editor.invalidateValue !== undefined && subgrid === this.subgrid) {
-            this._editor.invalidateValue();
+        const editorPoint = this._editorPoint;
+        if (editorPoint !== undefined && subgrid === editorPoint.subgrid) {
+            // Editor is open in this subgrid, so invalidate it
+            if (this._editor !== undefined && this._editor.invalidateValue !== undefined) {
+                this._editor.invalidateValue();
+            }
         }
     }
 
     /** @internal */
     invalidateSubgridRows(subgrid: RevSubgrid<BCS, SF>, subgridRowIndex: number, count: number) {
-        if (
-            this._editor !== undefined &&
-            subgrid === this.subgrid &&
-            this._editor.invalidateValue !== undefined
-        ) {
-            const editorSubgridRowIndex = this._editorSubgridRowIndex;
-            if (editorSubgridRowIndex === undefined) {
-                throw new RevAssertError('FISRS40199');
-            } else {
+        const editorPoint = this._editorPoint;
+        if (editorPoint !== undefined && subgrid === editorPoint.subgrid) {
+            if (this._editor !== undefined && this._editor.invalidateValue !== undefined) {
+                const editorSubgridRowIndex = editorPoint.y;
                 if (editorSubgridRowIndex >= subgridRowIndex && editorSubgridRowIndex < (subgridRowIndex + count)) {
                     this._editor.invalidateValue();
                 }
@@ -672,15 +543,10 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
 
     /** @internal */
     invalidateSubgridRow(subgrid: RevSubgrid<BCS, SF>, subgridRowIndex: number) {
-        if (
-            this._editor !== undefined &&
-            subgrid === this.subgrid &&
-            this._editor.invalidateValue !== undefined
-        ) {
-            const editorSubgridRowIndex = this._editorSubgridRowIndex;
-            if (editorSubgridRowIndex === undefined) {
-                throw new RevAssertError('FISR40199');
-            } else {
+        const editorPoint = this._editorPoint;
+        if (editorPoint !== undefined && subgrid === editorPoint.subgrid) {
+            if (this._editor !== undefined && this._editor.invalidateValue !== undefined) {
+                const editorSubgridRowIndex = editorPoint.y;
                 if (subgridRowIndex === editorSubgridRowIndex) {
                     this._editor.invalidateValue();
                 }
@@ -690,24 +556,23 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
 
     /** @internal */
     invalidateSubgridRowCells(subgrid: RevSubgrid<BCS, SF>, subgridRowIndex: number, activeColumnIndices: number[]) {
-        if (
-            this._editor !== undefined &&
-            subgrid === this.subgrid &&
-            this._editor.invalidateValue !== undefined
-        ) {
-            const editorSubgridRowIndex = this._editorSubgridRowIndex;
-            if (editorSubgridRowIndex === undefined) {
-                throw new RevAssertError('FISCS40199');
-            } else {
-                if (subgridRowIndex === editorSubgridRowIndex) {
-                    const editorActiveColumnIndex = this._editorActiveColumnIndex;
-                    if (editorActiveColumnIndex === undefined) {
-                        throw new RevAssertError('FISCS40199');
-                    } else {
-                        for (const activeColumnIndex of activeColumnIndices) {
-                            if (activeColumnIndex === editorActiveColumnIndex) {
-                                this._editor.invalidateValue();
-                                break;
+        const editorPoint = this._editorPoint;
+        if (editorPoint !== undefined && subgrid === editorPoint.subgrid) {
+            if (this._editor !== undefined && this._editor.invalidateValue !== undefined) {
+                const editorSubgridRowIndex = editorPoint.y;
+                if (editorSubgridRowIndex === undefined) {
+                    throw new RevAssertError('FISCS40199');
+                } else {
+                    if (subgridRowIndex === editorSubgridRowIndex) {
+                        const editorActiveColumnIndex = editorPoint.x;
+                        if (editorActiveColumnIndex === undefined) {
+                            throw new RevAssertError('FISCS40199');
+                        } else {
+                            for (const activeColumnIndex of activeColumnIndices) {
+                                if (activeColumnIndex === editorActiveColumnIndex) {
+                                    this._editor.invalidateValue();
+                                    break;
+                                }
                             }
                         }
                     }
@@ -718,30 +583,29 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
 
     /** @internal */
     invalidateSubgridCell(subgrid: RevSubgrid<BCS, SF>, activeColumnIndex: number, subgridRowIndex: number) {
-        if (
-            this._editor !== undefined &&
-            subgrid === this.subgrid &&
-            this._editor.invalidateValue !== undefined
-        ) {
-            const editorSubgridRowIndex = this._editorSubgridRowIndex;
-            const editorActiveColumnIndex = this._editorActiveColumnIndex;
-            if (editorSubgridRowIndex === undefined || editorActiveColumnIndex === undefined) {
-                throw new RevAssertError('FISC40199');
-            } else {
-                if (subgridRowIndex === editorSubgridRowIndex && activeColumnIndex === editorActiveColumnIndex) {
-                    this._editor.invalidateValue();
+        const editorPoint = this._editorPoint;
+        if (editorPoint !== undefined && subgrid === editorPoint.subgrid) {
+            if (this._editor !== undefined && this._editor.invalidateValue !== undefined) {
+                const editorActiveColumnIndex = editorPoint.x;
+                const editorSubgridRowIndex = editorPoint.y;
+                if (editorSubgridRowIndex === undefined || editorActiveColumnIndex === undefined) {
+                    throw new RevAssertError('FISC40199');
+                } else {
+                    if (subgridRowIndex === editorSubgridRowIndex && activeColumnIndex === editorActiveColumnIndex) {
+                        this._editor.invalidateValue();
+                    }
                 }
             }
         }
     }
 
     /** @internal */
-    createStash(): RevFocus.Stash {
-        let currentStashPoint: RevFocus.Stash.Point | undefined;
+    createStash(): RevFocus.Stash<BCS, SF> {
+        let currentStashPoint: RevFocus.Stash.Point<BCS, SF> | undefined;
         if (this._current !== undefined) {
             currentStashPoint = this.createStashPoint(this._current);
         }
-        let previousStashPoint: RevFocus.Stash.Point | undefined;
+        let previousStashPoint: RevFocus.Stash.Point<BCS, SF> | undefined;
         if (this._previous !== undefined) {
             previousStashPoint = this.createStashPoint(this._previous);
         }
@@ -753,7 +617,7 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
     }
 
     /** @internal */
-    restoreStash(stash: RevFocus.Stash, allRowsKept: boolean) {
+    restoreStash(stash: RevFocus.Stash<BCS, SF>, allRowsKept: boolean) {
         this.closeFocus();
 
         if (stash.current === undefined) {
@@ -784,7 +648,7 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
         // Called within Request Animation Frame. Do not call any external code.
         const focusPoint = this._current;
         if (focusPoint !== undefined) {
-            const cell = this._viewLayout.findCellAtGridPoint(focusPoint.x, focusPoint.y, this.subgrid, false);
+            const cell = this._viewLayout.findCellAtGridPoint(focusPoint.x, focusPoint.y, focusPoint.subgrid, false);
             const editor = this._editor;
             if (editor !== undefined) {
                 // Focus has an editor which either was hidden or needs its location changed
@@ -824,50 +688,234 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
     }
 
     /** @internal */
+    private setPoint(subgridPoint: RevPoint, subgrid: RevSubgrid<BCS, SF>, cell: RevViewCell<BCS, SF> | undefined, canvasPoint: RevPartialPoint | undefined): void {
+        const newCurrentActiveColumnIndex = subgridPoint.x;
+        const newCurrentSubgridRowIndex = subgridPoint.y;
+        const newPrevious = this._current;
+        const newPreviousDefined = newPrevious !== undefined;
+        const newPreviousActiveColumnIndex = newPreviousDefined ? newPrevious.x : undefined;
+        const activeColumnIndexChanged = newPreviousActiveColumnIndex !== newCurrentActiveColumnIndex;
+        const newPreviousSubgridRowIndex = newPreviousDefined ? newPrevious.y : undefined;
+        const subgridRowIndexChanged = newPreviousSubgridRowIndex !== newCurrentSubgridRowIndex;
+        if (activeColumnIndexChanged || subgridRowIndexChanged) {
+            this.closeFocus();
+            this._previous = newPrevious;
+            this._current = {
+                x: subgridPoint.x,
+                y: subgridPoint.y,
+                subgrid,
+            };
+
+            if (canvasPoint !== undefined) {
+                const canvasX = canvasPoint.x;
+                if (canvasX !== undefined) {
+                    this._canvasX = canvasX;
+                }
+
+                const canvasY = canvasPoint.y;
+                if (canvasY !== undefined) {
+                    this._canvasY = canvasY;
+                }
+            }
+
+            if (cell === undefined) {
+                cell = this._viewLayout.findCellAtGridPoint(newCurrentActiveColumnIndex, newCurrentSubgridRowIndex, subgrid, true);
+            }
+
+            if (cell !== undefined) {
+                this._cell = cell;
+
+                if (cell.viewLayoutColumn.column.settings.editOnFocusCell) {
+                    this.tryOpenEditorAtFocusedViewCell(cell, undefined, undefined);
+                }
+
+                this.viewCellRenderInvalidatedEventer(cell);
+            }
+
+            this.notifyCurrentCellChanged();
+            if (subgridRowIndexChanged) {
+                this.notifyCurrentRowChanged(newCurrentSubgridRowIndex, newPreviousSubgridRowIndex);
+            }
+        }
+    }
+
+    /** @internal */
+    private setColumnRow(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>, cell: RevViewCell<BCS, SF> | undefined, canvasX: number | undefined, canvasY: number | undefined): void {
+        const newPrevious = this._current;
+        const newPreviousDefined = newPrevious !== undefined;
+        const newPreviousActiveColumnIndex = newPreviousDefined ? newPrevious.x : undefined;
+        const activeColumnIndexChanged = activeColumnIndex !== newPreviousActiveColumnIndex;
+        const newPreviousSubgridRowIndex = newPreviousDefined ? newPrevious.y : undefined;
+        const subgridRowIndexChanged = subgridRowIndex !== newPreviousSubgridRowIndex;
+        if (activeColumnIndexChanged || subgridRowIndexChanged) {
+            this.closeFocus();
+            this._previous = newPrevious;
+            this._current = {
+                x: activeColumnIndex,
+                y: subgridRowIndex,
+                subgrid,
+            };
+
+            if (canvasX !== undefined) {
+                this._canvasX = canvasX;
+            }
+            if (canvasY !== undefined) {
+                this._canvasY = canvasY;
+            }
+
+            if (cell === undefined) {
+                cell = this._viewLayout.findCellAtGridPoint(activeColumnIndex, subgridRowIndex, subgrid, true);
+            }
+
+            if (cell !== undefined) {
+                this._cell = cell;
+
+                if (cell.viewLayoutColumn.column.settings.editOnFocusCell) {
+                    this.tryOpenEditorAtFocusedViewCell(cell, undefined, undefined);
+                }
+
+                this.viewCellRenderInvalidatedEventer(cell);
+            }
+
+            this.notifyCurrentCellChanged();
+            if (subgridRowIndexChanged) {
+                this.notifyCurrentRowChanged(subgridRowIndex, newPreviousSubgridRowIndex);
+            }
+        }
+    }
+
+    /** @internal */
+    private setColumnIndex(activeColumnIndex: number, oldCurrent: RevFocus.Point<BCS, SF>, cell: RevViewCell<BCS, SF> | undefined, canvasX: number | undefined): void {
+        if (activeColumnIndex !== oldCurrent.x) {
+            this.closeFocus();
+            this._previous = oldCurrent;
+
+            const subgridRowIndex = oldCurrent.y;
+            const subgrid = oldCurrent.subgrid;
+
+            this._current = {
+                x: activeColumnIndex,
+                y: subgridRowIndex,
+                subgrid,
+            };
+
+            if (canvasX !== undefined) {
+                this._canvasX = canvasX;
+            }
+
+            if (cell === undefined) {
+                cell = this._viewLayout.findCellAtGridPoint(activeColumnIndex, subgridRowIndex, subgrid, true);
+            }
+
+            if (cell !== undefined) {
+                this._cell = cell;
+
+                if (cell.viewLayoutColumn.column.settings.editOnFocusCell) {
+                    this.tryOpenEditorAtFocusedViewCell(cell, undefined, undefined);
+                }
+
+                this.viewCellRenderInvalidatedEventer(cell);
+            }
+
+            this.notifyCurrentCellChanged();
+        }
+    }
+
+    /** @internal */
+    private setSubgridRowIndex(subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>, oldCurrent: RevFocus.Point<BCS, SF>, cell: RevViewCell<BCS, SF> | undefined, canvasY: number | undefined): void {
+        if (subgridRowIndex !== oldCurrent.y || subgrid !== oldCurrent.subgrid) {
+            this.closeFocus();
+            this._previous = oldCurrent;
+            const activeColumnIndex = oldCurrent.x;
+
+            this._current = {
+                x: activeColumnIndex,
+                y: subgridRowIndex,
+                subgrid,
+            };
+
+            if (canvasY !== undefined) {
+                this._canvasY = canvasY;
+            }
+
+            if (cell === undefined) {
+                cell = this._viewLayout.findCellAtGridPoint(activeColumnIndex, subgridRowIndex, subgrid, true);
+            }
+
+            if (cell !== undefined) {
+                this._cell = cell;
+
+                if (cell.viewLayoutColumn.column.settings.editOnFocusCell) {
+                    this.tryOpenEditorAtFocusedViewCell(cell, undefined, undefined);
+                }
+
+                this.viewCellRenderInvalidatedEventer(cell);
+            }
+
+            this.notifyCurrentCellChanged();
+            this.notifyCurrentRowChanged(subgridRowIndex, oldCurrent.y);
+        }
+    }
+
+    /** @internal */
     private tryOpenEditorAtFocusedViewCell(focusedCell: RevViewCell<BCS, SF>, keyDownEvent: KeyboardEvent | undefined, clickEvent: MouseEvent | undefined) {
         if (this._editor !== undefined) {
             return true;
         } else {
-            if (this.getCellEditorEventer === undefined || this.dataServer.getEditValue === undefined) {
+            if (this.getCellEditorEventer === undefined) {
                 return false;
             } else {
-                const focusedPoint = this._current;
-                if (focusedPoint === undefined) {
-                    throw new RevAssertError('FTOE17778');
+                const current = this._current;
+                if (current === undefined) {
+                    throw new RevAssertError('FTOEAFVC12313');
                 } else {
-                    const column = this._columnsManager.getActiveColumn(focusedPoint.x);
-                    const field = column.field;
-                    const subgridRowIndex = focusedPoint.y;
-                    const readonly = this.dataServer.setEditValue === undefined;
-                    const editor = this.getCellEditorEventer(field, subgridRowIndex, this.subgrid, readonly, focusedCell);
-                    if (editor === undefined) {
+                    const dataServer = current.subgrid.dataServer;
+                    if (dataServer.getEditValue === undefined) {
                         return false;
                     } else {
-                        editor.pullCellValueEventer = () => this.getFocusedEditValue();
-                        if (!readonly) {
-                            editor.pushCellValueEventer = (value) => { this.setFocusedEditValue(value); };
-                        }
-                        editor.keyDownEventer = (event) => { this.editorKeyDownEventer(event); };
-                        editor.cellClosedEventer = (value) => { this.handleEditorClosed(value); };
-                        this._editor = editor;
-                        if (!editor.tryOpenCell(focusedCell, keyDownEvent, clickEvent)) {
-                            this.finaliseEditor(editor)
-                            this._editor = undefined;
-                            return false;
+                        const current = this._current;
+                        if (current === undefined) {
+                            throw new RevAssertError('FTOE17778');
                         } else {
-                            this._editorSubgridRowIndex = subgridRowIndex;
-                            this._editorActiveColumnIndex = focusedPoint.x;
-
-                            if (editor.setBounds !== undefined) {
-                                editor.setBounds(focusedCell.bounds);
-                                if (editor.focus !== undefined) {
-                                    editor.focus();
-                                }
+                            const column = this._columnsManager.getActiveColumn(current.x);
+                            const field = column.field;
+                            const subgridRowIndex = current.y;
+                            const subgrid = current.subgrid;
+                            const readonly = dataServer.setEditValue === undefined;
+                            const editor = this.getCellEditorEventer(field, subgridRowIndex, subgrid, readonly, focusedCell);
+                            if (editor === undefined) {
+                                return false;
                             } else {
-                                this.viewCellRenderInvalidatedEventer(focusedCell);
-                            }
+                                editor.pullCellValueEventer = () => this.getFocusedEditValue();
+                                if (!readonly) {
+                                    editor.pushCellValueEventer = (value) => { this.setFocusedEditValue(value); };
+                                }
+                                editor.keyDownEventer = (event) => { this.editorKeyDownEventer(event); };
+                                editor.cellClosedEventer = (value) => { this.handleEditorClosed(value); };
+                                this._editor = editor;
+                                if (!editor.tryOpenCell(focusedCell, keyDownEvent, clickEvent)) {
+                                    this.finaliseEditor(editor)
+                                    this._editor = undefined;
+                                    return false;
+                                } else {
+                                    this._editorPoint = {
+                                        x: current.x,
+                                        y: subgridRowIndex,
+                                        subgrid,
+                                    }
 
-                            return true;
+                                    if (editor.setBounds !== undefined) {
+                                        editor.setBounds(focusedCell.bounds);
+                                        if (editor.focus !== undefined) {
+                                            editor.focus();
+                                        }
+                                    } else {
+                                        this.viewCellRenderInvalidatedEventer(focusedCell);
+                                    }
+
+                                    return true;
+                                }
+                            }
                         }
                     }
                 }
@@ -902,14 +950,14 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
 
     /** @internal */
     private closeSpecifiedEditor(editor: RevCellEditor<BCS, SF>, cancel: boolean, focusCanvas: boolean) {
-        const activeColumnIndex = this._editorActiveColumnIndex;
-        const subgridRowIndex = this._editorSubgridRowIndex;
-        if (activeColumnIndex === undefined || subgridRowIndex === undefined) {
-            throw new RevAssertError('FCE40199');
+        const editorPoint = this._editorPoint;
+        if (editorPoint === undefined) {
+            throw new RevAssertError('FCSE40199');
         } else {
             this._editor = undefined;
-            this._editorActiveColumnIndex = undefined;
-            this._editorSubgridRowIndex = undefined;
+            const activeColumnIndex = editorPoint.x;
+            const subgridRowIndex = editorPoint.y;
+            this._editorPoint = undefined;
             const column = this._columnsManager.getActiveColumn(activeColumnIndex);
             editor.closeCell(column.field, subgridRowIndex, cancel);
             this.finaliseEditor(editor);
@@ -925,26 +973,28 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
     }
 
     /** @internal */
-    private createStashPoint(point: RevPoint): RevFocus.Stash.Point | undefined {
-        const dataServer = this.subgrid.dataServer;
+    private createStashPoint(point: RevFocus.Point<BCS, SF>): RevFocus.Stash.Point<BCS, SF> | undefined {
+        const subgrid = point.subgrid;
+        const dataServer = subgrid.dataServer;
         if (dataServer.getRowIdFromIndex === undefined) {
             return undefined;
         } else {
             return {
                 fieldName: this._columnsManager.getActiveColumn(point.x).field.name,
                 rowId: dataServer.getRowIdFromIndex(point.y),
+                subgrid,
             };
         }
     }
 
     /** @internal */
-    private createPointFromStash(stashPoint: RevFocus.Stash.Point, allRowsKept: boolean): RevPoint | undefined {
-        const { fieldName, rowId: stashedRowId } = stashPoint;
+    private createPointFromStash(stashPoint: RevFocus.Stash.Point<BCS, SF>, allRowsKept: boolean): RevFocus.Point<BCS, SF> | undefined {
+        const { fieldName, rowId: stashedRowId, subgrid } = stashPoint;
         const activeColumnIndex = this._columnsManager.getActiveColumnIndexByFieldName(fieldName);
         if (activeColumnIndex < 0) {
             return undefined;
         } else {
-            const dataServer = this.subgrid.dataServer;
+            const dataServer = subgrid.dataServer;
             if (dataServer.getRowIndexFromId !== undefined) {
                 const rowIndex = dataServer.getRowIndexFromId(stashedRowId);
                 if (rowIndex === undefined) {
@@ -957,17 +1007,19 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
                     return {
                         x: activeColumnIndex,
                         y: rowIndex,
+                        subgrid,
                     };
                 }
             } else {
                 if (dataServer.getRowIdFromIndex !== undefined) {
-                    const rowCount = this.subgrid.getRowCount();
+                    const rowCount = subgrid.getRowCount();
                     for (let rowIndex = 0; rowIndex < rowCount; ++rowIndex) {
                         const rowId = dataServer.getRowIdFromIndex(rowIndex);
                         if (rowId === stashedRowId) {
                             return {
                                 x: activeColumnIndex,
                                 y: rowIndex,
+                                subgrid,
                             };
                         }
                     }
@@ -986,11 +1038,9 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
 
 /** @public */
 export namespace RevFocus {
-    // export interface Point<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> {
-    //     readonly activeColumnIndex: number;
-    //     readonly subgridRowIndex: number;
-    //     readonly subgrid: RevSubgrid<BCS, SF>;
-    // }
+    export interface Point<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevWritablePoint {
+        readonly subgrid: RevSubgrid<BCS, SF>;
+    }
     export type EditorKeyDownEventer = (this: void, event: KeyboardEvent) => void;
     export type GetCellEditorEventer<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> = (
         this: void,
@@ -1059,16 +1109,17 @@ export namespace RevFocus {
     }
 
     /** @internal */
-    export interface Stash {
-        readonly current: Stash.Point | undefined;
-        readonly previous: Stash.Point | undefined;
+    export interface Stash<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> {
+        readonly current: Stash.Point<BCS, SF> | undefined;
+        readonly previous: Stash.Point<BCS, SF> | undefined;
     }
 
     /** @internal */
     export namespace Stash {
-        export interface Point {
+        export interface Point<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> {
             readonly fieldName: string;
             readonly rowId: unknown;
+            readonly subgrid: RevSubgrid<BCS, SF>;
         }
     }
 }

@@ -31,12 +31,12 @@ export abstract class RevStandardCellEditor<
         return (key as RevFocus.ActionKeyboardKey) === RevFocus.ActionKeyboardKey.enter || key === ' ';
     }
 
-    protected tryToggleBoolenValue(field: SF, subgridRowIndex: number) {
+    protected tryToggleBoolenValue(field: SF, dataServerRowIndex: number) {
         const dataServer = this._dataServer;
         if (dataServer.getEditValue === undefined || dataServer.setEditValue === undefined) {
             return false;
         } else {
-            const value = dataServer.getEditValue(field, subgridRowIndex);
+            const value = dataServer.getEditValue(field, dataServerRowIndex);
             let newValue: boolean;
             if (value === undefined) {
                 newValue = true;
@@ -47,14 +47,14 @@ export abstract class RevStandardCellEditor<
                     newValue = !value;
                 }
             }
-            dataServer.setEditValue(field, subgridRowIndex, newValue);
+            dataServer.setEditValue(field, dataServerRowIndex, newValue);
 
             return true;
         }
     }
 
     abstract tryOpenCell(viewCell: RevViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined): boolean;
-    abstract closeCell(field: SF, subgridRowIndex: number, cancel: boolean): void;
+    abstract closeCell(field: SF, dataServerRowIndex: number, cancel: boolean): void;
 
-    abstract processGridKeyDownEvent(event: KeyboardEvent, fromEditor: boolean, field: SF, subgridRowIndex: number): boolean;
+    abstract processGridKeyDownEvent(event: KeyboardEvent, fromEditor: boolean, field: SF, dataServerRowIndex: number): boolean;
 }

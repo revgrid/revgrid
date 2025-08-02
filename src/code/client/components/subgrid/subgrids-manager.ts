@@ -375,11 +375,16 @@ export class RevSubgridsManager<BCS extends RevBehavioredColumnSettings, SF exte
         if (selectable === undefined) {
             selectable = isMainRole;
         }
+        let focusable = definition.focusable;
+        if (focusable === undefined) {
+            focusable = isMainRole;
+        }
         return this.createSubgrid(
             subgridHandle,
             role,
             dataServer,
             metaServer,
+            focusable,
             selectable,
             definition.defaultRowHeight,
             rowHeightsCanDiffer,
@@ -395,6 +400,7 @@ export class RevSubgridsManager<BCS extends RevBehavioredColumnSettings, SF exte
     private createSubgrid(
         subgridHandle: RevSubgridImplementation.Handle,
         role: RevSubgrid.Role, dataServer: RevDataServer<SF>, metaServer: RevMetaServer | undefined,
+        focusable: boolean,
         selectable: boolean,
         defaultRowHeight: number | undefined, rowHeightsCanDiffer: boolean,
         rowPropertiesPrototype: RevMetaServer.RowPropertiesPrototype | undefined,
@@ -410,6 +416,7 @@ export class RevSubgridsManager<BCS extends RevBehavioredColumnSettings, SF exte
                 this._columnsManager.schemaServer,
                 dataServer,
                 metaServer,
+                focusable,
                 selectable,
                 defaultRowHeight,
                 rowHeightsCanDiffer,
@@ -425,6 +432,7 @@ export class RevSubgridsManager<BCS extends RevBehavioredColumnSettings, SF exte
                 this._columnsManager.schemaServer,
                 dataServer,
                 metaServer,
+                focusable,
                 selectable,
                 defaultRowHeight,
                 rowHeightsCanDiffer,

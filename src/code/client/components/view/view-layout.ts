@@ -774,16 +774,16 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
     }
 
     /**
-     * @param index - Index of active column that should be anchor
+     * @param activeColumnIndex - Index of active column that should be anchor
      * @returns true if changed
      */
-    setColumnScrollAnchor(index: number, offset: number): boolean {
+    setColumnScrollAnchor(activeColumnIndex: number, offset: number): boolean {
         this.ensureHorizontalComputedOutsideAnimationFrame();
 
         if (!this._horizontalScrollDimension.scrollable) {
             return false;
         } else {
-            const { index: limitedIndex, offset: limitedOffset } = this.horizontalScrollDimension.calculateLimitedScrollAnchor(index, offset);
+            const { index: limitedIndex, offset: limitedOffset } = this.horizontalScrollDimension.calculateLimitedScrollAnchor(activeColumnIndex, offset);
 
             if (this._columnScrollAnchorIndex !== limitedIndex || this._columnScrollAnchorOffset !== limitedOffset) {
                 this._columnScrollAnchorIndex = limitedIndex;
@@ -1359,15 +1359,15 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
      * Get the visibility of the column matching the provided grid column index.
      * @remarks Requested column may not be visible due to being scrolled out of view.
      * Determines if a column is visible.
-     * @param activeIndex - the column index
+     * @param activeColumnIndex - the column index
      * @returns The given column is visible.
      */
-    isActiveColumnVisible(activeIndex: number) {
-        return this.findColumnWithActiveIndex(activeIndex) !== undefined;
+    isActiveColumnVisible(activeColumnIndex: number) {
+        return this.findColumnWithActiveIndex(activeColumnIndex) !== undefined;
     }
 
-    isActiveColumnFullyVisible(activeIndex: number) {
-        return this.findFullyVisibleColumnWithActiveIndex(activeIndex) !== undefined;
+    isActiveColumnFullyVisible(activeColumnIndex: number) {
+        return this.findFullyVisibleColumnWithActiveIndex(activeColumnIndex) !== undefined;
     }
 
     /**
