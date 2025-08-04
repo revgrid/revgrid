@@ -1,276 +1,253 @@
-import { RevCornerRectangle, revCalculateNumberArrayUniqueCount } from '../../../common';
-import { RevSelectionAreaList } from './selection-area-list';
+import { RevAssertError, RevSchemaField } from '../../../common';
+import { RevSubgrid } from '../../interfaces';
+import { RevBehavioredColumnSettings } from '../../settings';
 import { RevSelectionRectangle } from './selection-rectangle';
+import { RevSelectionSubgridRectangleList } from './selection-subgrid-rectangle-list';
 
-export class RevSelectionRectangleList implements RevSelectionAreaList {
-    readonly rectangles: RevSelectionRectangle[] = [];
-    private readonly _flattenedX = new Array<RevCornerRectangle>();
-    private readonly _flattenedY = new Array<RevCornerRectangle>();
+export class RevSelectionRectangleList<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> {
+    private readonly _subgridLists = new Array<RevSelectionSubgridRectangleList<BCS, SF>>(0);
+    private _lastRectangle: RevSelectionRectangle<BCS, SF> | undefined;
 
-    get has() { return this.rectangles.length !== 0; }
-    get areaCount() { return this.rectangles.length; }
-
-    assign(other: RevSelectionRectangleList) {
-        const count = other.areaCount;
-
-        const otherRectangles = other.rectangles;
-        const rectangles = this.rectangles;
-        rectangles.length = count;
-        for (let i = 0; i < count; i++) {
-            const otherRectangle = otherRectangles[i];
-            rectangles[i] = otherRectangle.createCopy();
+    get areaCount() {
+        const subgridLists = this._subgridLists;
+        const subgridCount = subgridLists.length;
+        let count = 0;
+        for (let i = 0; i < subgridCount; i++) {
+            count += subgridLists[i].areaCount;
         }
+        return count;
     }
 
-    isEmpty() { return this.rectangles.length === 0; }
-    hasPoints() { return this.rectangles.length > 0; }
-
-    hasMoreThanOnePoint() {
-        const rectangles = this.rectangles;
-        let gotOne = false;
-        for (const rectangle of rectangles) {
-            if (rectangle.width === 1 && rectangle.height === 1) {
-                if (gotOne) {
-                    return true;
-                } else {
-                    gotOne = true;
-                }
-            } else {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    hasPointOtherThan(x: number, y: number) {
-        const rectangles = this.rectangles;
-        for (const rectangle of rectangles) {
-            if (rectangle.width > 1 || rectangle.height > 1) {
-                return true;
-            } else {
-                const onlyPoint = rectangle.topLeft;
-                if (onlyPoint.x !== x || onlyPoint.y !== y) {
+    has(inSubgrid: RevSubgrid<BCS, SF> | undefined) {
+        if (inSubgrid === undefined) {
+            const subgridLists = this._subgridLists;
+            const count = subgridLists.length;
+            for (let i = 0; i < count; i++) {
+                if (subgridLists[i].has) {
                     return true;
                 }
             }
-        }
-        return false;
-    }
-
-    clear() {
-        this.rectangles.length = 0;
-        this._flattenedX.length = 0;
-        this._flattenedY.length = 0;
-    }
-
-    getLastRectangle() {
-        const rectangles = this.rectangles;
-        if (rectangles.length > 0) {
-            return rectangles[rectangles.length - 1];
+            return false;
         } else {
-            return undefined;
+            const subgridList = this.getSubgridList(inSubgrid);
+            return subgridList.has;
+        }
+    }
+    assign(other: RevSelectionRectangleList<BCS, SF>): void {
+        const subgridLists = this._subgridLists;
+        const otherSubgridLists = other._subgridLists;
+        const otherCount = otherSubgridLists.length;
+
+        subgridLists.length = otherCount;
+        for (let i = 0; i < otherCount; i++) {
+            const otherSubgridList = otherSubgridLists[i];
+            const subgridList = new RevSelectionSubgridRectangleList<BCS, SF>(otherSubgridList.subgrid);
+            subgridList.assign(otherSubgridList);
+            subgridLists[i] = subgridList;
+        }
+
+        this._lastRectangle = other._lastRectangle;
+    }
+
+    isEmpty(): boolean {
+        const subgridLists = this._subgridLists;
+        const count = subgridLists.length;
+        for (let i = 0; i < count; i++) {
+            if (!subgridLists[i].isEmpty()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    hasPoints(): boolean {
+        const subgridLists = this._subgridLists;
+        const count = subgridLists.length;
+        for (let i = 0; i < count; i++) {
+            if (subgridLists[i].hasPoints()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    hasMoreThanOnePoint(): boolean {
+        const subgridLists = this._subgridLists;
+        const subgridListCount = subgridLists.length;
+        let gotOne = false;
+        for (let i = 0; i < subgridListCount; i++) {
+            const subgridList = subgridLists[i];
+            const hasZeroOneOrMoreThanOneIndex = subgridList.hasZeroOneOrMoreThanOnePoint();
+            switch (hasZeroOneOrMoreThanOneIndex) {
+                case 0: // no indices
+                    continue;
+                case 1: // one index
+                    if (gotOne) {
+                        return true; // already got one, so this is the second one
+                    } else {
+                        gotOne = true; // first index found
+                        continue;
+                    }
+                case -1: // more than one index
+                    return true; // more than one index found
+                default:
+                    throw new RevAssertError('SRLHMTOI84522');
+            }
+        }
+        return false;
+    }
+
+    hasPointOtherThan(subgrid: RevSubgrid<BCS, SF> | undefined, activeColumnIndex: number, subgridRowIndex: number): boolean {
+        if (subgrid === undefined) {
+            const subgridLists = this._subgridLists;
+            const count = subgridLists.length;
+            for (let i = 0; i < count; i++) {
+                if (subgridLists[i].hasPointOtherThan(activeColumnIndex, subgridRowIndex)) {
+                    return true;
+                }
+            }
+            return false;
+        } else {
+            const subgridList = this.getSubgridList(subgrid);
+            return subgridList.hasPointOtherThan(activeColumnIndex, subgridRowIndex);
         }
     }
 
-    getRectanglesContainingPoint(x: number, y: number) {
-        const rectangles = this.rectangles;
-        const result = new Array<RevSelectionRectangle>(0);
+    clear(): void {
+        const subgridLists = this._subgridLists;
+        const count = subgridLists.length;
+        for (let i = 0; i < count; i++) {
+            subgridLists[i].clear();
+        }
+        this._lastRectangle = undefined;
+    }
+
+    getRectangles(subgrid: RevSubgrid<BCS, SF> | undefined): readonly RevSelectionRectangle<BCS, SF>[] {
+        if (subgrid === undefined) {
+            const rectangles = new Array<RevSelectionRectangle<BCS, SF>>(0);
+            const subgridLists = this._subgridLists;
+            const subgridCount = subgridLists.length;
+            for (let i = 0; i < subgridCount; i++) {
+                rectangles.push(...subgridLists[i].rectangles);
+            }
+            return rectangles;
+        } else {
+            const subgridList = this.getSubgridList(subgrid);
+            return subgridList.rectangles;
+        }
+    }
+
+    getLastRectangle(): RevSelectionRectangle<BCS, SF> | undefined {
+        return this._lastRectangle;
+    }
+
+    getRectanglesContainingPoint(subgrid: RevSubgrid<BCS, SF>, activeColumnIndex: number, subgridRowIndex: number): RevSelectionRectangle<BCS, SF>[] {
+        const rectangles = this.getRectangles(subgrid);
+        const result = new Array<RevSelectionRectangle<BCS, SF>>();
         for (const rectangle of rectangles) {
-            if (rectangle.containsXY(x, y)) {
+            if (rectangle.containsXY(activeColumnIndex, subgridRowIndex)) {
                 result.push(rectangle);
             }
         }
         return result;
     }
-    push(rectangle: RevSelectionRectangle) {
-        this.rectangles.push(rectangle);
-        this._flattenedX.push(rectangle.newXFlattened(0));
-        this._flattenedY.push(rectangle.newYFlattened(0));
+    push(rectangle: RevSelectionRectangle<BCS, SF>): void {
+        const subgridList = this.getSubgridList(rectangle.subgrid);
+        subgridList.push(rectangle);
+        this._lastRectangle = rectangle;
     }
 
-    only(rectangle: RevSelectionRectangle) {
-        this.rectangles.length = 1;
-        this.rectangles[0] = rectangle;
-        this._flattenedX.length = 1;
-        this._flattenedX[0] = rectangle.newXFlattened(0);
-        this._flattenedY.length = 1;
-        this._flattenedY[0] = rectangle.newYFlattened(0);
+    only(rectangle: RevSelectionRectangle<BCS, SF>): void {
+        this.clear();
+        this.push(rectangle);
     }
 
-    findIndex(ox: number, oy: number, ex: number, ey: number) {
-        return this.rectangles.findIndex((rectangle) => {
-            return (
-                rectangle.topLeft.x === ox && rectangle.topLeft.y === oy &&
-                rectangle.extent.x === ex && rectangle.extent.y === ey
-            );
-        });
+    findIndex(subgrid: RevSubgrid<BCS, SF>, ox: number, oy: number, ex: number, ey: number): number {
+        const subgridList = this.getSubgridList(subgrid);
+        return subgridList.findIndex(ox, oy, ex, ey);
     }
 
-    removeAt(index: number) {
-        this.rectangles.splice(index, 1);
-        this._flattenedX.splice(index, 1);
-        this._flattenedY.splice(index, 1);
+    removeAt(subgrid: RevSubgrid<BCS, SF>, index: number): void {
+        const subgridList = this.getSubgridList(subgrid);
+        const removedRectangle = subgridList.removeAt(index);
+        if (this._lastRectangle === removedRectangle) {
+            this._lastRectangle = undefined;
+        }
     }
 
-    removeLast() {
-        if (this.rectangles.length === 0) {
+    removeLast(): boolean {
+        const lastRectangle = this._lastRectangle;
+        if (lastRectangle === undefined) {
             return false;
         } else {
-            this.rectangles.length -= 1;
-            this._flattenedX.length -= 1;
-            this._flattenedY.length -= 1;
-            return true;
-        }
-    }
-
-    containsY(y: number): boolean {
-        return RevCornerRectangle.arrayContainsPoint(this._flattenedX, 0, y);
-    }
-
-    containsX(x: number): boolean {
-        return RevCornerRectangle.arrayContainsPoint(this._flattenedY, x, 0);
-    }
-
-    containsPoint(x: number, y: number) {
-        return RevCornerRectangle.arrayContainsPoint(this.rectangles, x, y);
-    }
-
-    getUniqueXIndices() {
-        const rectangles = this.rectangles;
-        const rectangleCount = rectangles.length;
-        if (rectangleCount === 0) {
-            return 0;
-        } else {
-            if (rectangleCount === 1) {
-                return rectangles[0].height;
+            const subgridList = this.getSubgridList(lastRectangle.subgrid);
+            const removed = subgridList.remove(lastRectangle);
+            if (!removed) {
+                throw new RevAssertError('SRLRL49891');
             } else {
-                const nonUniqueIndices = this.getNonUniqueXIndices();
-                return revCalculateNumberArrayUniqueCount(nonUniqueIndices);
+                this._lastRectangle = undefined;
+                return removed;
             }
         }
     }
 
-    getNonUniqueXIndices() {
-        const indices: number[] = [];
-        const rectangles = this.rectangles;
-        const rectangleCount = rectangles.length;
-        for (let i = 0; i < rectangleCount; i++) {
-            const rectangle = rectangles[i];
-            const first = rectangle.y;
-            const last = rectangle.exclusiveBottomRight.y;
-            for (let index = first; index <= last; index++) {
-                indices.push(index);
-            }
-        }
-        return indices;
+    containsPoint(subgrid: RevSubgrid<BCS, SF>, x: number, y: number): boolean {
+        const subgridList = this.getSubgridList(subgrid);
+        return subgridList.containsPoint(x, y);
     }
 
-
-    getFlattenedYs() {
-        const result = Array<number>();
-        const set: Record<number, boolean> = {};
-        this.rectangles.forEach((rectangle) => {
-            const top = rectangle.topLeft.y;
-            const size = rectangle.height;
-            for (let r = 0; r < size; r++) {
-                const ti = r + top;
-                if (!set[ti]) {
-                    result.push(ti);
-                    set[ti] = true;
-                }
-            }
-        });
-
-        result.sort((x, y) => {
-            return x - y;
-        });
-
-        return result;
+    adjustForYRangeInserted(subgrid: RevSubgrid<BCS, SF>, index: number, count: number): boolean {
+        const subgridList = this.getSubgridList(subgrid);
+        return subgridList.adjustForYRangeInserted(index, count);
     }
 
-    adjustForYRangeInserted(index: number, count: number) {
-        const rectangles = this.rectangles;
-        const rectangleCount = rectangles.length;
+    adjustForYRangeDeleted(subgrid: RevSubgrid<BCS, SF>, index: number, count: number): boolean {
+        const subgridList = this.getSubgridList(subgrid);
+        return subgridList.adjustForYRangeDeleted(index, count);
+    }
+
+    adjustForYRangeMoved(subgrid: RevSubgrid<BCS, SF>, oldIndex: number, newIndex: number, count: number): boolean {
+        const subgridList = this.getSubgridList(subgrid);
+        return subgridList.adjustForYRangeMoved(oldIndex, newIndex, count);
+    }
+
+    adjustForXRangeInserted(index: number, count: number): boolean {
+        const subgridLists = this._subgridLists;
+        const subgridCount = subgridLists.length;
         let changed = false;
-        if (rectangleCount > 0) {
-            for (let i = rectangleCount - 1; i >= 0; i--) {
-                const rectangle = rectangles[i];
-                if (rectangle.adjustForYRangeInserted(index, count)) {
-                    changed = true;
-                }
-            }
-        }
-        return changed;
-    }
-
-    adjustForYRangeDeleted(index: number, count: number) {
-        const rectangles = this.rectangles;
-        const rectangleCount = rectangles.length;
-        let changed = false;
-        if (rectangleCount > 0) {
-            for (let i = rectangleCount - 1; i >= 0; i--) {
-                const rectangle = rectangles[i];
-                const adjustmentResult = rectangle.adjustForYRangeDeleted(index, count);
-                if (adjustmentResult === null) {
-                    rectangles.splice(i, 1);
-                } else {
-                    if (adjustmentResult) {
-                        changed = true;
-                    }
-                }
-            }
-        }
-        return changed;
-    }
-
-    adjustForYRangeMoved(oldIndex: number, newIndex: number, count: number) {
-        const rectangles = this.rectangles;
-        const rectangleCount = rectangles.length;
-        let changed: boolean;
-        if (rectangleCount === 0) {
-            changed = false;
-        } else {
-            // this could probably be better optimised
-            changed = this.adjustForYRangeDeleted(oldIndex, count);
-            if (this.adjustForYRangeInserted(newIndex, count)) {
+        for (let i = 0; i < subgridCount; i++) {
+            if (subgridLists[i].adjustForXRangeInserted(index, count)) {
                 changed = true;
             }
         }
         return changed;
     }
 
-    adjustForXRangeInserted(index: number, count: number) {
-        const rectangles = this.rectangles;
-        const rectangleCount = rectangles.length;
+    adjustForXRangeDeleted(index: number, count: number): boolean {
+        const subgridLists = this._subgridLists;
+        const subgridCount = subgridLists.length;
         let changed = false;
-        if (rectangleCount > 0) {
-            for (let i = this.rectangles.length - 1; i >= 0; i--) {
-                const rectangle = rectangles[i];
-                if (rectangle.adjustForXRangeInserted(index, count)) {
-                    changed = true;
-                }
+        for (let i = 0; i < subgridCount; i++) {
+            if (subgridLists[i].adjustForXRangeDeleted(index, count)) {
+                changed = true;
             }
         }
         return changed;
     }
 
-    adjustForXRangeDeleted(index: number, count: number) {
-        const rectangles = this.rectangles;
-        const rectangleCount = rectangles.length;
-        let changed = false;
-        if (rectangleCount > 0) {
-            for (let i = this.rectangles.length - 1; i >= 0; i--) {
-                const rectangle = rectangles[i];
-                const adjustedResult = rectangle.adjustForXRangeDeleted(index, count);
-                if (adjustedResult === null) {
-                    rectangles.splice(i, 1);
-                } else {
-                    if (adjustedResult) {
-                        changed = true;
-                    }
-                }
+    private getSubgridList(subgrid: RevSubgrid<BCS, SF>): RevSelectionSubgridRectangleList<BCS, SF> {
+        const subgridLists = this._subgridLists;
+        const count = subgridLists.length;
+        for (let i = 0; i < count; i++) {
+            const subgridList = subgridLists[i];
+            if (subgridList.subgrid === subgrid) {
+                return subgridList;
             }
         }
-        return changed;
+
+        const subgridList = new RevSelectionSubgridRectangleList<BCS, SF>(subgrid);
+        subgridLists.push(subgridList);
+
+        return subgridList;
     }
 }

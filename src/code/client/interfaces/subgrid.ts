@@ -57,6 +57,8 @@ export interface RevSubgrid<BCS extends RevBehavioredColumnSettings, SF extends 
     getViewValue(column: RevColumn<BCS, SF>, subgridRowIndex: number): RevDataServer.ViewValue;
 
     getViewValueFromDataRowAtColumn(dataRow: RevDataServer.ViewRow, column: RevColumn<BCS, SF>): RevDataServer.ViewValue;
+
+    generateAllRowIndicesArray(): number[];
 }
 
 /** @public */

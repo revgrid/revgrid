@@ -462,16 +462,16 @@ export class RevCornerRectangle implements RevCornerArea {
         }
     }
 
-    adjustForYRangeMoved(oldIndex: number, newIndex: number, count: number) {
-        // this could probably be better optimised
-        this.adjustForYRangeDeleted(oldIndex, count);
-        this.adjustForYRangeInserted(newIndex, count);
-    }
-
     adjustForXRangeMoved(oldIndex: number, newIndex: number, count: number) {
         // this could probably be better optimised
         this.adjustForXRangeDeleted(oldIndex, count);
         this.adjustForXRangeInserted(newIndex, count);
+    }
+
+    adjustForYRangeMoved(oldIndex: number, newIndex: number, count: number) {
+        // this could probably be better optimised
+        this.adjustForYRangeDeleted(oldIndex, count);
+        this.adjustForYRangeInserted(newIndex, count);
     }
 }
 

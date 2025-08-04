@@ -744,30 +744,30 @@ export interface RevCellPossiblyPaintable<BCS extends RevBehavioredColumnSetting
 export class RevCellPropertiesBehavior<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {
     constructor(clientId: string, internalParent: RevClientObject, _columnsManager: RevColumnsManager<BCS, SF>, _subgridsManger: RevSubgridsManager<BCS, SF>, _viewLayout: RevViewLayout<BGS, BCS, SF>);
     // @internal (undocumented)
-    addCellOwnProperties(column: RevColumn<BCS, SF>, rowIndex: number, properties: RevMetaServer.CellOwnProperties, subgrid: RevSubgrid<BCS, SF>): void;
+    addCellOwnProperties(column: RevColumn<BCS, SF>, subgridRowIndex: number, properties: RevMetaServer.CellOwnProperties, subgrid: RevSubgrid<BCS, SF>): void;
     // @internal (undocumented)
     clearAllCellProperties(column: RevColumn<BCS, SF> | undefined): void;
     // (undocumented)
     readonly clientId: string;
     // @internal (undocumented)
-    deleteCellOwnProperties(column: RevColumn<BCS, SF>, rowIndex: number, subgrid: RevSubgrid<BCS, SF>): void;
+    deleteCellOwnProperties(column: RevColumn<BCS, SF>, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): void;
     // @internal (undocumented)
     deleteCellProperty(column: RevColumn<BCS, SF>, rowIndex: number, key: string, subgrid: RevSubgrid<BCS, SF>): void;
     // @internal (undocumented)
-    getCellOwnProperties(column: RevColumn<BCS, SF>, rowIndex: number, subgrid: RevSubgrid<BCS, SF>): RevMetaServer.CellOwnProperties | undefined;
+    getCellOwnProperties(column: RevColumn<BCS, SF>, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): RevMetaServer.CellOwnProperties | undefined;
     getCellOwnPropertiesFromViewCell(viewCell: RevViewCell<BCS, SF>): RevMetaServer.CellOwnProperties | false | null | undefined;
     // (undocumented)
     getCellOwnPropertyFromViewCell(viewCell: RevViewCell<BCS, SF>, key: string): RevMetaServer.CellOwnProperty | undefined;
     // @internal (undocumented)
-    getCellPropertiesAccessor(column: RevColumn<BCS, SF>, rowIndex: number, subgrid: RevSubgrid<BCS, SF>): RevCellMetaSettings;
+    getCellPropertiesAccessor(column: RevColumn<BCS, SF>, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): RevCellMetaSettings;
     // @internal (undocumented)
-    getCellProperty(column: RevColumn<BCS, SF>, rowIndex: number, key: string | number, subgrid: RevSubgrid<BCS, SF>): RevMetaServer.CellOwnProperty;
+    getCellProperty(column: RevColumn<BCS, SF>, subgridRowIndex: number, key: string | number, subgrid: RevSubgrid<BCS, SF>): RevMetaServer.CellOwnProperty;
     // (undocumented)
-    getCellProperty<T extends keyof RevColumnSettings>(column: RevColumn<BCS, SF>, rowIndex: number, key: T, subgrid: RevSubgrid<BCS, SF>): RevColumnSettings[T];
+    getCellProperty<T extends keyof RevColumnSettings>(column: RevColumn<BCS, SF>, subgridRowIndex: number, key: T, subgrid: RevSubgrid<BCS, SF>): RevColumnSettings[T];
     // (undocumented)
     readonly internalParent: RevClientObject;
     // @internal (undocumented)
-    setCellOwnProperties(column: RevColumn<BCS, SF>, rowIndex: number, properties: RevMetaServer.CellOwnProperties | undefined, subgrid: RevSubgrid<BCS, SF>): void;
+    setCellOwnProperties(column: RevColumn<BCS, SF>, subgridRowIndex: number, properties: RevMetaServer.CellOwnProperties | undefined, subgrid: RevSubgrid<BCS, SF>): void;
     // @internal (undocumented)
     setCellProperty(column: RevColumn<BCS, SF>, rowIndex: number, key: string, value: unknown | undefined, subgrid: RevSubgrid<BCS, SF>, optionalCell: RevViewCell<BCS, SF> | undefined): RevMetaServer.CellOwnProperties | undefined;
 }
@@ -809,17 +809,17 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     // (undocumented)
     get activeColumnsViewWidth(): number;
     // @internal (undocumented)
-    addCellOwnProperties(allX: Integer, y: Integer, properties: RevMetaServer.CellOwnProperties, subgrid: RevSubgrid<BCS, SF>): void;
+    addCellOwnProperties(allX: Integer, subgridRowIndex: Integer, properties: RevMetaServer.CellOwnProperties, subgrid: RevSubgrid<BCS, SF>): void;
     // @internal
     addCellOwnPropertiesUsingCellEvent(cell: RevViewCell<BCS, SF>, properties: RevMetaServer.CellOwnProperties): void;
     // (undocumented)
     addEventListener(eventName: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
     // (undocumented)
-    areColumnsOrRowsSelected(includeAllAreaIfActiveActive?: boolean): boolean;
+    areColumnsOrRowsSelected(includeDynamicAllIfSelectedActive?: boolean): boolean;
     // (undocumented)
-    areColumnsSelected(includeAllAreaIfActive?: boolean): boolean;
+    areColumnsSelected(includeDynamicAllIfSelected?: boolean): boolean;
     // (undocumented)
-    areRowsSelected(includeAllAreaIfActive?: boolean): boolean;
+    areRowsSelected(subgrid?: RevMainSubgrid<BCS, SF>, includeDynamicAllIfSelected?: boolean): boolean;
     // (undocumented)
     autoSizeActiveColumnWidths(widenOnly: boolean): void;
     // (undocumented)
@@ -850,9 +850,9 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     // (undocumented)
     deactivate(): void;
     // (undocumented)
-    deleteCellSelectionArea(x: Integer, y: Integer, subgrid?: RevSubgrid<BCS, SF>): void;
+    deleteCellSelectionArea(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>): void;
     // (undocumented)
-    deleteRectangleSelectionArea(rectangle: RevRectangle, subgrid?: RevSubgrid<BCS, SF>): void;
+    deleteRectangleSelectionArea(rectangle: RevRectangle, subgrid?: RevMainSubgrid<BCS, SF>): void;
     // (undocumented)
     protected descendantEventerBlur(): void;
     // (undocumented)
@@ -931,9 +931,11 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     deselectColumn(activeColumnIndex: Integer): void;
     deselectColumns(leftOrExRightActiveColumnIndex: Integer, count: Integer): void;
     // (undocumented)
-    deselectRow(y: Integer, subgrid?: RevSubgrid<BCS, SF>): void;
+    deselectDynamicAll(subgrid: RevSubgrid<BCS, SF> | undefined): boolean;
     // (undocumented)
-    deselectRows(y: Integer, count: Integer, subgrid?: RevSubgrid<BCS, SF>): void;
+    deselectRow(subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>): void;
+    // (undocumented)
+    deselectRows(subgridRowIndex: Integer, count: Integer, subgrid?: RevSubgrid<BCS, SF>): void;
     destroy(): void;
     // (undocumented)
     get destroyed(): boolean;
@@ -942,7 +944,7 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     readonly externalParent: unknown | undefined;
     // (undocumented)
     get fieldColumns(): readonly RevColumn<BCS, SF>[];
-    findLinedHoverCellAtCanvasOffset(offsetX: Integer, offsetY: Integer): RevLinedHoverCell<BCS, SF> | undefined;
+    findLinedHoverCellAtCanvasOffset(canvasXOffset: Integer, canvasYOffset: Integer): RevLinedHoverCell<BCS, SF> | undefined;
     // (undocumented)
     get fixedColumnsViewWidth(): number;
     // (undocumented)
@@ -950,15 +952,15 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     // (undocumented)
     focusOnlySelectCell(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>, ensureFullyInView?: RevEnsureFullyInViewEnum): void;
     // (undocumented)
-    focusOnlySelectRectangle(leftOrExRight: Integer, topOrExBottom: Integer, width: Integer, height: Integer, subgrid?: RevSubgrid<BCS, SF>, ensureFullyInView?: RevEnsureFullyInViewEnum): void;
+    focusOnlySelectRectangle(leftOrExRightActiveColumnIndex: Integer, topOrExBottomSubgridRowIndex: Integer, width: Integer, height: Integer, subgrid?: RevSubgrid<BCS, SF>, ensureFullyInView?: RevEnsureFullyInViewEnum): void;
     // (undocumented)
     focusReplaceLastArea(areaType: RevSelectionAreaType, leftOrExRightActiveColumnIndex: Integer, topOrExBottomSubgridRowIndex: Integer, width: Integer, height: Integer, subgrid?: RevSubgrid<BCS, SF>, ensureFullyInView?: RevEnsureFullyInViewEnum): void;
     // (undocumented)
     focusReplaceLastAreaWithRectangle(leftOrExRightActiveColumnIndex: Integer, topOrExBottomSubgridRowIndex: Integer, width: Integer, height: Integer, subgrid?: RevSubgrid<BCS, SF>, ensureFullyInView?: RevEnsureFullyInViewEnum): void;
     // (undocumented)
-    focusSelectCell(x: Integer, y: Integer, subgrid?: RevSubgrid<BCS, SF>, ensureFullyInView?: RevEnsureFullyInViewEnum): void;
+    focusSelectCell(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>, ensureFullyInView?: RevEnsureFullyInViewEnum): void;
     // (undocumented)
-    focusToggleSelectCell(originX: Integer, originY: Integer, subgrid?: RevSubgrid<BCS, SF>, ensureFullyInView?: RevEnsureFullyInViewEnum): boolean;
+    focusToggleSelectCell(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>, ensureFullyInView?: RevEnsureFullyInViewEnum): boolean;
     // (undocumented)
     getActiveColumn(activeIndex: Integer): RevColumn<BCS, SF>;
     // (undocumented)
@@ -982,11 +984,11 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     // @internal (undocumented)
     getCellOwnPropertyFromRenderedCell(renderedCell: RevViewCell<BCS, SF>, key: string): RevMetaServer.CellOwnProperty | undefined;
     // @internal (undocumented)
-    getCellProperties(allX: Integer, y: Integer, subgrid: RevSubgrid<BCS, SF>): RevCellMetaSettings;
+    getCellProperties(allX: Integer, subgridRowIndex: Integer, subgrid: RevSubgrid<BCS, SF>): RevCellMetaSettings;
     // @internal
-    getCellProperty(allX: Integer, y: Integer, key: string | number, subgrid: RevSubgrid<BCS, SF>): RevMetaServer.CellOwnProperty;
+    getCellProperty(allX: Integer, subgridRowIndex: Integer, key: string | number, subgrid: RevSubgrid<BCS, SF>): RevMetaServer.CellOwnProperty;
     // @internal (undocumented)
-    getCellProperty<T extends keyof RevColumnSettings>(allX: Integer, y: Integer, key: T, subgrid: RevSubgrid<BCS, SF>): RevColumnSettings[T];
+    getCellProperty<T extends keyof RevColumnSettings>(allX: Integer, subgridRowIndex: Integer, key: T, subgrid: RevSubgrid<BCS, SF>): RevColumnSettings[T];
     // (undocumented)
     getFieldColumnRange(begin?: Integer, end?: Integer): RevColumn<BCS, SF>[];
     // (undocumented)
@@ -1008,18 +1010,22 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     // (undocumented)
     getSelectedAllAreaRowCount(): number;
     // (undocumented)
-    getSelectedAllAreaRowIndices(): number[];
+    getSelectedColumnIndices(includeDynamicAllIfSelected?: boolean): number[];
     // (undocumented)
-    getSelectedColumnIndices(includeAllAreaIfActive?: boolean): number[];
+    getSelectedDynamicAllRowIndices(): RevSelectionRows.SubgridIndices<BCS, SF>[];
     // (undocumented)
-    getSelectedRowCount(includeAllAreaIfActive?: boolean): number;
+    getSelectedRowCount(subgrid?: RevMainSubgrid<BCS, SF>, includeDynamicAllIfSelected?: boolean): number;
+    // Warning: (ae-forgotten-export) The symbol "RevSelectionRows" needs to be exported by the entry point index.d.ts
+    //
     // (undocumented)
-    getSelectedRowIndices(includeAllAreaIfActive?: boolean): number[];
-    getSingletonViewDataRow(y: Integer, subgrid?: RevSubgrid<BCS, SF>): RevDataServer.ViewRow;
+    getSelectedRowIndices(includeDynamicAllIfSelected?: boolean): RevSelectionRows.SubgridIndices<BCS, SF>[];
+    // (undocumented)
+    getSelectedSubgridDynamicAllRowIndices(subgrid?: RevMainSubgrid<BCS, SF>): Integer[];
+    getSingletonViewDataRow(subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>): RevDataServer.ViewRow;
     getSubgridRowCount(subgrid: RevSubgrid<BCS, SF>): number;
     getViewData(): readonly RevDataServer.ViewRow[];
     // (undocumented)
-    getViewValue(x: Integer, y: Integer, subgrid?: RevSubgrid<BCS, SF>): unknown;
+    getViewValue(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>): unknown;
     // (undocumented)
     getVisibleColumnsCount(): number;
     // (undocumented)
@@ -1037,15 +1043,15 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     // (undocumented)
     isActiveDocumentElement(): boolean;
     // (undocumented)
-    isCellSelected(x: Integer, y: Integer, subgrid?: RevSubgrid<BCS, SF>): boolean;
+    isCellSelected(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>): boolean;
     // (undocumented)
-    isColumnVisible(activeIndex: Integer): boolean;
-    isDataRowVisible(rowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>): boolean;
+    isCellVisible(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: RevMainSubgrid<BCS, SF>): boolean;
     // (undocumented)
-    isDataVisible(c: Integer, rn: Integer): boolean;
-    isOnlyThisCellSelected(x: Integer, y: Integer, subgrid?: RevSubgrid<BCS, SF>): boolean | undefined;
+    isColumnVisible(activeColumnIndex: Integer): boolean;
+    isOnlyThisCellSelected(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>): boolean | undefined;
     // (undocumented)
     isSelectedCellTheOnlySelectedCell(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid: RevSubgrid<BCS, SF>, selectedType?: RevSelectionAreaType): boolean;
+    isSubgridRowVisible(subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>): boolean;
     // (undocumented)
     readonly mainDataServer: RevDataServer<SF>;
     // (undocumented)
@@ -1059,13 +1065,11 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     // (undocumented)
     get nonFixedColumnsViewWidth(): number;
     // (undocumented)
-    onlySelectCell(x: Integer, y: Integer, subgrid?: RevSubgrid<BCS, SF>): RevLastSelectionArea;
-    // (undocumented)
     onlySelectColumn(activeColumnIndex: Integer): void;
     // (undocumented)
     onlySelectColumns(activeColumnIndex: Integer, count: Integer): void;
     // (undocumented)
-    onlySelectRectangle(leftOrExRightActiveColumnIndex: Integer, topOrExBottomSubgridRowIndex: Integer, width: Integer, height: Integer, subgrid?: RevSubgrid<BCS, SF>): RevLastSelectionArea;
+    onlySelectRectangle(leftOrExRightActiveColumnIndex: Integer, topOrExBottomSubgridRowIndex: Integer, width: Integer, height: Integer, subgrid?: RevSubgrid<BCS, SF>): RevLastSelectionArea<BCS, SF>;
     // (undocumented)
     onlySelectRow(subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>): void;
     // (undocumented)
@@ -1092,18 +1096,19 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     // (undocumented)
     selectAllRows(subgrid?: RevSubgrid<BCS, SF>): void;
     // (undocumented)
-    selectCell(x: Integer, y: Integer, subgrid?: RevSubgrid<BCS, SF>): RevLastSelectionArea;
+    selectCell(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>): RevLastSelectionArea<BCS, SF>;
     // (undocumented)
     selectColumn(activeColumnIndex: Integer): void;
     // (undocumented)
     selectColumns(activeColumnIndex: Integer, count: Integer): void;
     // (undocumented)
+    selectDynamicAll(subgrid: RevSubgrid<BCS, SF> | undefined): RevLastSelectionArea<BCS, SF> | undefined;
+    // (undocumented)
     readonly selection: RevSelection<BGS, BCS, SF>;
     // (undocumented)
-    get selectionAllAreaActive(): boolean;
-    set selectionAllAreaActive(value: boolean);
+    get selectionDynamicAllSubgrids(): readonly RevSubgrid<BCS, SF>[];
     // (undocumented)
-    selectRectangle(leftOrExRightActiveColumnIndex: Integer, topOrExBottomSubgridRowIndex: Integer, width: Integer, height: Integer, subgrid?: RevSubgrid<BCS, SF>): RevLastSelectionArea;
+    selectRectangle(leftOrExRightActiveColumnIndex: Integer, topOrExBottomSubgridRowIndex: Integer, width: Integer, height: Integer, subgrid?: RevSubgrid<BCS, SF>): RevLastSelectionArea<BCS, SF>;
     // (undocumented)
     selectRow(subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>): void;
     // (undocumented)
@@ -1116,7 +1121,7 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     setActiveColumnsAutoWidthSizing(widenOnly: boolean): void;
     setActiveColumnWidth(columnOrIndex: Integer | RevColumn<BCS, SF>, width: Integer, ui: boolean): boolean;
     // @internal (undocumented)
-    setCellOwnProperties(allX: Integer, y: Integer, properties: RevMetaServer.CellOwnProperties, subgrid: RevSubgrid<BCS, SF>): void;
+    setCellOwnProperties(allX: Integer, subgridRowIndex: Integer, properties: RevMetaServer.CellOwnProperties, subgrid: RevSubgrid<BCS, SF>): void;
     // @internal
     setCellOwnPropertiesUsingCellEvent(cell: RevViewCell<BCS, SF>, properties: RevMetaServer.CellOwnProperties): void;
     // @internal
@@ -1135,7 +1140,7 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     // (undocumented)
     readonly settings: BGS;
     // (undocumented)
-    setValue(x: Integer, y: Integer, value: RevDataServer.EditValue, subgrid?: RevSubgrid<BCS, SF>): void;
+    setValue(activeColumnIndex: Integer, subgridRowIndex: Integer, value: RevDataServer.EditValue, subgrid?: RevSubgrid<BCS, SF>): void;
     showHideColumns(fieldColumnIndexes: Integer | Integer[], insertIndex?: Integer, allowDuplicateColumns?: boolean, ui?: boolean): void;
     showHideColumns(indexesAreActive: boolean, fieldColumnIndexes?: Integer | Integer[], insertIndex?: Integer, allowDuplicateColumns?: boolean, ui?: boolean): void;
     // (undocumented)
@@ -1143,7 +1148,7 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     // (undocumented)
     swapColumns(source: Integer, target: Integer): void;
     // (undocumented)
-    toggleSelectCell(x: Integer, y: Integer, subgrid?: RevSubgrid<BCS, SF>): boolean;
+    toggleSelectCell(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>): boolean;
     // (undocumented)
     toggleSelectColumn(activeColumnIndex: Integer): void;
     // (undocumented)
@@ -1910,7 +1915,7 @@ export class RevComponentsManager<BGS extends RevBehavioredGridSettings, BCS ext
     // (undocumented)
     readonly focus: RevFocus<BGS, BCS, SF>;
     // (undocumented)
-    getViewValue(x: number, y: number, subgrid: RevSubgrid<BCS, SF>): unknown;
+    getViewValue(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): unknown;
     // (undocumented)
     readonly horizontalScroller: RevScroller<BGS, BCS, SF>;
     // (undocumented)
@@ -1923,7 +1928,7 @@ export class RevComponentsManager<BGS extends RevBehavioredGridSettings, BCS ext
     reset(): void;
     // (undocumented)
     readonly selection: RevSelection<BGS, BCS, SF>;
-    setValue(x: number, y: number, value: RevDataServer.EditValue, subgrid: RevSubgrid<BCS, SF>): void;
+    setValue(activeColumnIndex: number, subgridRowIndex: number, value: RevDataServer.EditValue, subgrid: RevSubgrid<BCS, SF>): void;
     // (undocumented)
     readonly subgridsManager: RevSubgridsManager<BCS, SF>;
     // (undocumented)
@@ -1983,6 +1988,7 @@ export class RevContiguousIndexRangeList {
     getIndices(): number[];
     hasIndices(): boolean;
     hasMoreThanOneIndex(): boolean;
+    hasZeroOneOrMoreThanOneIndex(): 0 | 1 | -1;
     includesIndex(index: number): boolean;
     isEmpty(): boolean;
     // (undocumented)
@@ -2111,29 +2117,30 @@ export class RevDataExtractBehavior<BGS extends RevBehavioredGridSettings, BCS e
     // @internal
     constructor(clientId: string, internalParent: RevClientObject,
     _selection: RevSelection<BGS, BCS, SF>,
+    _subgridsManager: RevSubgridsManager<BCS, SF>,
     _columnsManager: RevColumnsManager<BCS, SF>);
     // (undocumented)
     readonly clientId: string;
     // (undocumented)
     convertDataValueArraysToTsv(dataValueArrays: RevDataServer.ViewValue[][]): string;
     // (undocumented)
-    getAllSelectionMatrix(): unknown[][];
+    getColumnSelectionMatrix(subgrid: RevSubgrid<BCS, SF>): RevDataServer.ViewValue[][];
     // (undocumented)
-    getColumnSelectionMatrix(): RevDataServer.ViewValue[][];
+    getDynamicAllSelectionMatrix(subgrid?: RevSubgrid<BCS, SF>): RevDataServer.ViewValue[][];
     // (undocumented)
-    getFirstSelectionRectangleTopRowValues(): Record<string, unknown> | undefined;
+    getLastSelectionRectangleTopRowValues(): Record<string, unknown> | undefined;
     // (undocumented)
-    getRowIndicesMatrix(rowIndices: number[], hiddenColumns?: boolean | number[] | string[]): unknown[][];
+    getRowIndicesMatrix(subgrid: RevSubgrid<BCS, SF>, rowIndices: number[], hiddenColumns?: boolean | number[] | string[]): unknown[][];
     // (undocumented)
-    getRowSelectionData(hiddenColumns: boolean | number[] | string[]): RevDataServer.ViewRow;
+    getRowSelectionData(subgrid: RevSubgrid<BCS, SF>, hiddenColumns: boolean | number[] | string[]): RevDataServer.ViewRow;
     // (undocumented)
-    getRowSelectionMatrix(hiddenColumns?: boolean | number[] | string[]): RevDataServer.ViewValue[][];
+    getRowSelectionMatrix(subgrid?: RevSubgrid<BCS, SF>, hiddenColumns?: boolean | number[] | string[]): RevDataServer.ViewValue[][];
     // (undocumented)
-    getSelectedColumnsValues(): RevDataServer.ObjectViewRow;
+    getSelectedColumnsValues(subgrid: RevSubgrid<BCS, SF>): RevDataServer.ObjectViewRow;
     // (undocumented)
-    getSelectedValuesByRectangleAndColumn(): RevDataServer.ObjectViewRow[];
+    getSelectedValuesByRectangleAndColumn(subgrid: RevSubgrid<BCS, SF>): RevDataServer.ObjectViewRow[];
     // (undocumented)
-    getSelectedValuesByRectangleColumnRowMatrix(): RevDataServer.ViewValue[][][];
+    getSelectedValuesByRectangleColumnRowMatrix(subgrid: RevSubgrid<BCS, SF>): RevDataServer.ViewValue[][][];
     // (undocumented)
     getSelectionAsTSV(): string;
     // (undocumented)
@@ -3578,7 +3585,7 @@ export namespace RevGridSettings {
     // (undocumented)
     export type Color = RevOnlyGridSettings.Color;
     // (undocumented)
-    export function getSelectionAreaTypeFromEvent(gridSettings: RevGridSettings, event: MouseEvent | KeyboardEvent): "all" | "rectangle" | "row" | "column";
+    export function getSelectionAreaTypeFromEvent(gridSettings: RevGridSettings, event: MouseEvent | KeyboardEvent): "dynamicAll" | "rectangle" | "row" | "column";
     // (undocumented)
     export function getSelectionAreaTypeSpecifierFromEvent(gridSettings: RevGridSettings, event: MouseEvent | KeyboardEvent): RevSelectionAreaTypeSpecifierId.Primary | RevSelectionAreaTypeSpecifierId.Secondary;
     // (undocumented)
@@ -4078,12 +4085,28 @@ export const revInvalidServerNotificationId = -1;
 export function revIsDigit(char: string): boolean;
 
 // @public (undocumented)
-export class RevLastSelectionArea extends RevFirstCornerRectangle implements RevSelectionArea {
-    constructor(areaTypeId: RevSelectionAreaTypeId, leftOrExRight: number, topOrExBottom: number, width: number, height: number);
+export class RevLastSelectionArea<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevFirstCornerRectangle implements RevSelectionArea<BCS, SF> {
+    constructor(areaTypeId: RevSelectionAreaTypeId, leftOrExRight: number, topOrExBottom: number, width: number, height: number, subgrid: RevSubgrid<BCS, SF> | undefined);
     // (undocumented)
     readonly areaTypeId: RevSelectionAreaTypeId;
     // (undocumented)
+    checkAdjustForXRangeDeleted(subgrid: RevSubgrid<BCS, SF>, deletionLeft: number, deletionCount: number): boolean | null;
+    // (undocumented)
+    checkAdjustForXRangeInserted(subgrid: RevSubgrid<BCS, SF>, index: number, count: number): void;
+    // (undocumented)
+    checkAdjustForXRangeMoved(subgrid: RevSubgrid<BCS, SF>, oldIndex: number, newIndex: number, count: number): void;
+    // (undocumented)
+    checkAdjustForYRangeDeleted(subgrid: RevSubgrid<BCS, SF>, deletionTop: number, deletionCount: number): boolean | null;
+    // (undocumented)
+    checkAdjustForYRangeInserted(subgrid: RevSubgrid<BCS, SF>, index: number, count: number): void;
+    // (undocumented)
+    checkAdjustForYRangeMoved(subgrid: RevSubgrid<BCS, SF>, oldIndex: number, newIndex: number, count: number): void;
+    containsSubgridCell(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): boolean;
+    containsSubgridCellPoint(point: RevPoint, subgrid: RevSubgrid<BCS, SF>): boolean;
+    // (undocumented)
     get size(): number;
+    // (undocumented)
+    readonly subgrid: RevSubgrid<BCS, SF> | undefined;
 }
 
 // @public (undocumented)
@@ -6143,6 +6166,7 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
     constructor(clientId: string, internalParent: RevClientObject,
     _gridSettings: RevGridSettings,
     _columnsManager: RevColumnsManager<BCS, SF>,
+    _subgridsManager: RevSubgridsManager<BCS, SF>,
     _focus: RevFocus<BGS, BCS, SF>);
     // @internal (undocumented)
     adjustForActiveColumnsDeleted(columnIndex: number, columnCount: number): void;
@@ -6151,15 +6175,13 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
     // @internal (undocumented)
     adjustForColumnsMoved(oldColumnIndex: number, newColumnIndex: number, count: number): void;
     // @internal (undocumented)
-    adjustForRowsDeleted(rowIndex: number, rowCount: number, dataServer: RevDataServer<SF>): void;
+    adjustForRowsDeleted(rowIndex: number, rowCount: number, subgrid: RevSubgrid<BCS, SF>): void;
     // @internal (undocumented)
-    adjustForRowsInserted(rowIndex: number, rowCount: number, dataServer: RevDataServer<SF>): void;
+    adjustForRowsInserted(subgridRowIndex: number, rowCount: number, subgrid: RevSubgrid<BCS, SF>): void;
     // @internal (undocumented)
-    adjustForRowsMoved(oldRowIndex: number, newRowIndex: number, count: number, dataServer: RevDataServer<SF>): void;
-    get allAreaActive(): boolean;
-    set allAreaActive(value: boolean);
-    get areaCount(): number;
+    adjustForRowsMoved(oldRowIndex: number, newRowIndex: number, count: number, subgrid: RevSubgrid<BCS, SF>): void;
     beginChange(): void;
+    calculateAreaCount(): number;
     // @internal (undocumented)
     calculateAreaTypeFromSpecifier(specifier: RevSelectionAreaTypeSpecifierId): RevSelectionAreaTypeId;
     // @internal (undocumented)
@@ -6176,62 +6198,71 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
     deleteLastArea(): void;
     deleteRectangleArea(rectangle: RevRectangle, subgrid: RevSubgrid<BCS, SF>): void;
     deselectColumns(leftOrExRightActiveColumnIndex: number, count: number): void;
+    deselectDynamicAll(subgrid: RevSubgrid<BCS, SF> | undefined): boolean;
     deselectRows(topOrExBottomSubgridRowIndex: number, count: number, subgrid: RevSubgrid<BCS, SF>): void;
     // @internal (undocumented)
     destroy(): void;
+    get dynamicAllSubgrids(): readonly RevSubgrid<BCS, SF>[];
     endChange(): void;
     flagFocusLinked(): void;
     // @internal (undocumented)
-    focusLinkableOnlySelectCell(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>, focusLinked: boolean): RevLastSelectionArea;
+    focusLinkableOnlySelectCell(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>, focusLinked: boolean): RevLastSelectionArea<BCS, SF>;
     get focusLinked(): boolean;
     // (undocumented)
     getAllAreaColumnIndices(): number[];
-    // (undocumented)
-    getAllAreaRowCount(): number;
-    // (undocumented)
-    getAllAreaRowIndices(): number[];
     getAllCellSelectionAreaTypeIds(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): RevSelectionAreaTypeId[];
     // (undocumented)
-    getAreasCoveringCell(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF> | undefined): RevSelectionArea[];
+    getAreasCoveringCell(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): RevSelectionArea<BCS, SF>[];
     // (undocumented)
-    getColumnIndices(includeAllAreaIfActive: boolean): number[];
+    getColumnIndices(includeDynamicAllIfSelected: boolean): number[];
     // (undocumented)
-    getLastRectangle(): RevSelectionRectangle | undefined;
+    getDynamicAllRowCount(): number;
+    // (undocumented)
+    getDynamicAllRowIndices(): RevSelectionRows.SubgridIndices<BCS, SF>[];
+    getLastRectangle(): RevSelectionRectangle<BCS, SF> | undefined;
     getOneCellSelectionAreaTypeId(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): RevSelectionAreaTypeId | undefined;
+    getRectangles(subgrid: RevSubgrid<BCS, SF> | undefined): readonly RevSelectionRectangle<BCS, SF>[];
     // (undocumented)
-    getRowCount(includeAllAreaIfActive: boolean): number;
+    getRowCount(subgrid: RevSubgrid<BCS, SF> | undefined, includeDynamicAllIfSelected: boolean): number;
     // (undocumented)
-    getRowIndices(includeAllAreaIfActive: boolean): number[];
-    hasColumns(includeAllAreaIfActive: boolean): boolean;
-    hasColumnsOrRows(includeAllAreaIfActive: boolean): boolean;
+    getRowIndices(includeDynamicAllIfSelected: boolean): RevSelectionRows.SubgridIndices<BCS, SF>[];
     // (undocumented)
-    hasRows(includeAllAreaIfActive: boolean): boolean;
+    getSubgridDynamicAllRowIndices(subgrid: RevSubgrid<BCS, SF>): number[];
+    // (undocumented)
+    getSubgridRowIndices(subgrid: RevSubgrid<BCS, SF>): number[];
+    hasColumns(includeDynamicAllIfSelected: boolean): boolean;
+    hasColumnsOrRows(includeDynamicAllIfSelected: boolean): boolean;
+    // (undocumented)
+    hasRectangles(subgrid: RevSubgrid<BCS, SF> | undefined): boolean;
+    // (undocumented)
+    hasRows(subgrid: RevSubgrid<BCS, SF> | undefined, includeDynamicAllIfSelected: boolean): boolean;
     // (undocumented)
     readonly internalParent: RevClientObject;
     isCellSelected(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): boolean;
     isColumnSelected(activeColumnIndex: number): boolean;
+    // (undocumented)
+    isDynamicAllSelected(subgrid: RevSubgrid<BCS, SF> | undefined): boolean;
     isOnlyThisCellSelected(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): boolean | undefined;
-    isPointInLastArea(activeColumnIndex: number, subgridRowIndex: number): boolean;
+    isPointInLastArea(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): boolean;
     isSelectedCellTheOnlySelectedCell(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>, // assume this was previously checked by getCellSelectedType
     selectedTypeId: RevSelectionAreaTypeId): boolean;
-    get lastArea(): RevLastSelectionArea | undefined;
-    onlySelectCell(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): RevLastSelectionArea;
-    onlySelectRectangle(leftOrExRightActiveColumnIndex: number, topOrExBottomSubgridRowIndex: number, width: number, height: number, subgrid: RevSubgrid<BCS, SF>): RevLastSelectionArea;
-    get rectangles(): readonly RevSelectionRectangle[];
-    replaceLastArea(areaTypeId: RevSelectionAreaTypeId, leftOrExRightActiveColumnIndex: number, topOrExBottomSubgridRowIndex: number, width: number, height: number, subgrid: RevSubgrid<BCS, SF>): RevLastSelectionArea | undefined;
-    replaceLastAreaWithColumns(leftOrExRightActiveColumnIndex: number, topOrExBottomSubgridRowIndex: number, count: number, height: number): RevLastSelectionArea;
-    replaceLastAreaWithRectangle(leftOrExRightActiveColumnIndex: number, topOrExBottomSubgridRowIndex: number, width: number, height: number, subgrid: RevSubgrid<BCS, SF>): RevLastSelectionArea;
-    replaceLastAreaWithRows(leftOrExRightActiveColumnIndex: number, topOrExBottomSubgridRowIndex: number, width: number, count: number, subgrid: RevSubgrid<BCS, SF>): RevLastSelectionArea;
+    get lastArea(): RevLastSelectionArea<BCS, SF> | undefined;
+    onlySelectCell(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): RevLastSelectionArea<BCS, SF>;
+    onlySelectRectangle(leftOrExRightActiveColumnIndex: number, topOrExBottomSubgridRowIndex: number, width: number, height: number, subgrid: RevSubgrid<BCS, SF>): RevLastSelectionArea<BCS, SF>;
+    replaceLastArea(areaTypeId: RevSelectionAreaTypeId, leftOrExRightActiveColumnIndex: number, topOrExBottomSubgridRowIndex: number, width: number, height: number, subgrid: RevSubgrid<BCS, SF>): RevLastSelectionArea<BCS, SF> | undefined;
+    replaceLastAreaWithColumns(leftOrExRightActiveColumnIndex: number, count: number): RevLastSelectionArea<BCS, SF>;
+    replaceLastAreaWithRectangle(leftOrExRightActiveColumnIndex: number, topOrExBottomSubgridRowIndex: number, width: number, height: number, subgrid: RevSubgrid<BCS, SF>): RevLastSelectionArea<BCS, SF>;
+    replaceLastAreaWithRows(leftOrExRightActiveColumnIndex: number, topOrExBottomSubgridRowIndex: number, width: number, count: number, subgrid: RevSubgrid<BCS, SF>): RevLastSelectionArea<BCS, SF>;
     restoreStash(stash: RevSelection.Stash<BCS, SF>, allRowsKept: boolean): void;
     selectAllRows(leftOrExRightActiveColumnIndex: number, width: number, subgrid: RevSubgrid<BCS, SF>): void;
-    selectArea(areaTypeId: RevSelectionAreaTypeId, leftOrExRightActiveColumnIndex: number, topOrBottomSubgridRowIndex: number, width: number, height: number, subgrid: RevSubgrid<BCS, SF>): RevLastSelectionArea | undefined;
-    selectCell(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): RevLastSelectionArea;
-    selectColumns(leftOrExRightActiveColumnIndex: number, topOrExBottomSubgridRowIndex: number, count: number, height: number): RevLastSelectionArea;
-    selectRectangle(leftOrExRightActiveColumnIndex: number, topOrExBottomSubgridRowIndex: number, width: number, height: number, subgrid: RevSubgrid<BCS, SF>, silent?: boolean): RevLastSelectionArea;
-    selectRows(leftOrExRightActiveColumnIndex: number, topOrExBottomSubgridRowIndex: number, width: number, count: number, subgrid: RevSubgrid<BCS, SF>): RevLastSelectionArea;
-    get subgrid(): RevSubgrid<BCS, SF> | undefined;
+    selectArea(areaTypeId: RevSelectionAreaTypeId, leftOrExRightActiveColumnIndex: number, topOrBottomSubgridRowIndex: number, width: number, height: number, subgrid: RevSubgrid<BCS, SF> | undefined): RevLastSelectionArea<BCS, SF> | undefined;
+    selectCell(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): RevLastSelectionArea<BCS, SF>;
+    selectColumns(leftOrExRightActiveColumnIndex: number, count: number): RevLastSelectionArea<BCS, SF>;
+    selectDynamicAll(subgrid: RevSubgrid<BCS, SF> | undefined): RevLastSelectionArea<BCS, SF> | undefined;
+    selectRectangle(leftOrExRightActiveColumnIndex: number, topOrExBottomSubgridRowIndex: number, width: number, height: number, subgrid: RevSubgrid<BCS, SF>, silent?: boolean): RevLastSelectionArea<BCS, SF>;
+    selectRows(leftOrExRightActiveColumnIndex: number, topOrExBottomSubgridRowIndex: number, width: number, count: number, subgrid: RevSubgrid<BCS, SF>): RevLastSelectionArea<BCS, SF>;
     toggleSelectCell(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): boolean;
-    toggleSelectColumn(activeColumnIndex: number, topOrExBottomSubgridRowIndex: number, height: number): void;
+    toggleSelectColumn(activeColumnIndex: number): void;
     toggleSelectRow(leftOrExRightActiveColumnIndex: number, subgridRowIndex: number, width: number, subgrid: RevSubgrid<BCS, SF>): void;
 }
 
@@ -6240,53 +6271,55 @@ export namespace RevSelection {
     // @internal (undocumented)
     export type ChangedEventer = (this: void) => void;
     // (undocumented)
-    export interface LastRectangleFirstCellStash {
-        // (undocumented)
-        fieldName: string;
-        // (undocumented)
-        rowId: unknown;
-    }
-    // (undocumented)
     export interface Stash<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> {
         // (undocumented)
-        readonly allAreaActive: boolean;
+        readonly columns: readonly string[] | undefined;
         // (undocumented)
-        readonly columnNames: string[] | undefined;
+        readonly dynamicAll: readonly RevSubgrid<BCS, SF>[];
         // (undocumented)
-        readonly lastRectangleFirstCell: LastRectangleFirstCellStash | undefined;
+        readonly lastRectangleFirstCell: Stash.LastRectangleFirstCell<BCS, SF> | undefined;
         // (undocumented)
-        readonly rowIds: unknown[] | undefined;
+        readonly rows: readonly Stash.SubgridRowIds<BCS, SF>[];
+    }
+    // (undocumented)
+    export namespace Stash {
         // (undocumented)
-        readonly subgrid: RevSubgrid<BCS, SF> | undefined;
+        export interface LastRectangleFirstCell<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> {
+            // (undocumented)
+            fieldName: string;
+            // (undocumented)
+            rowId: unknown;
+            // (undocumented)
+            subgrid: RevSubgrid<BCS, SF>;
+        }
+        // (undocumented)
+        export interface SubgridRowIds<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> {
+            // (undocumented)
+            rowIds: unknown[];
+            // (undocumented)
+            subgrid: RevSubgrid<BCS, SF>;
+        }
     }
 }
 
 // @public (undocumented)
-export interface RevSelectionArea extends RevFirstCornerArea {
+export interface RevSelectionArea<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevFirstCornerArea {
     // (undocumented)
     readonly areaTypeId: RevSelectionAreaTypeId;
     // (undocumented)
     readonly size: number;
+    // (undocumented)
+    readonly subgrid: RevSubgrid<BCS, SF> | undefined;
 }
 
 // @public (undocumented)
 export namespace RevSelectionArea {
     // (undocumented)
-    export function getTogglePriorityCellCoveringSelectionArea(areas: RevSelectionArea[]): RevSelectionArea | undefined;
+    export function getTogglePriorityCellCoveringSelectionArea<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField>(areas: RevSelectionArea<BCS, SF>[]): RevSelectionArea<BCS, SF> | undefined;
     // (undocumented)
-    export function isCellCoveringSelectionAreaHigherTogglePriority(area: RevSelectionArea, referenceArea: RevSelectionArea): boolean;
+    export function isCellCoveringSelectionAreaHigherTogglePriority<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField>(area: RevSelectionArea<BCS, SF>, referenceArea: RevSelectionArea<BCS, SF>): boolean;
     // (undocumented)
-    export function isEqual(left: RevSelectionArea, right: RevSelectionArea): boolean;
-}
-
-// @public (undocumented)
-export interface RevSelectionAreaList {
-    // (undocumented)
-    readonly areaCount: number;
-    // (undocumented)
-    clear(): void;
-    // (undocumented)
-    isEmpty(): boolean;
+    export function isEqual<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField>(left: RevSelectionArea<BCS, SF>, right: RevSelectionArea<BCS, SF>): boolean;
 }
 
 // @public
@@ -6301,8 +6334,8 @@ export namespace RevSelectionAreaType {
 
 // @public
 export const enum RevSelectionAreaTypeId {
-    all = 0,
     column = 3,
+    dynamicAll = 0,
     rectangle = 1,
     row = 2
 }
@@ -6349,75 +6382,68 @@ export namespace RevSelectionRange {
 }
 
 // @public (undocumented)
-export class RevSelectionRangeList extends RevContiguousIndexRangeList implements RevSelectionAreaList {
+export class RevSelectionRangeList extends RevContiguousIndexRangeList {
     // (undocumented)
     get areaCount(): number;
 }
 
 // @public (undocumented)
-export class RevSelectionRectangle extends RevFirstCornerRectangle implements RevSelectionArea {
+export class RevSelectionRectangle<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevFirstCornerRectangle implements RevSelectionArea<BCS, SF> {
+    constructor(leftOrExRight: number, topOrExBottom: number, width: number, height: number, subgrid: RevSubgrid<BCS, SF>);
     // (undocumented)
     readonly areaTypeId = RevSelectionAreaTypeId.rectangle;
     // (undocumented)
-    createCopy(): RevSelectionRectangle;
+    createCopy(): RevSelectionRectangle<BCS, SF>;
     // (undocumented)
     get size(): number;
+    // (undocumented)
+    readonly subgrid: RevSubgrid<BCS, SF>;
 }
 
 // @public (undocumented)
-export class RevSelectionRectangleList implements RevSelectionAreaList {
+export class RevSelectionRectangleList<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> {
     // (undocumented)
     adjustForXRangeDeleted(index: number, count: number): boolean;
     // (undocumented)
     adjustForXRangeInserted(index: number, count: number): boolean;
     // (undocumented)
-    adjustForYRangeDeleted(index: number, count: number): boolean;
+    adjustForYRangeDeleted(subgrid: RevSubgrid<BCS, SF>, index: number, count: number): boolean;
     // (undocumented)
-    adjustForYRangeInserted(index: number, count: number): boolean;
+    adjustForYRangeInserted(subgrid: RevSubgrid<BCS, SF>, index: number, count: number): boolean;
     // (undocumented)
-    adjustForYRangeMoved(oldIndex: number, newIndex: number, count: number): boolean;
+    adjustForYRangeMoved(subgrid: RevSubgrid<BCS, SF>, oldIndex: number, newIndex: number, count: number): boolean;
     // (undocumented)
     get areaCount(): number;
     // (undocumented)
-    assign(other: RevSelectionRectangleList): void;
+    assign(other: RevSelectionRectangleList<BCS, SF>): void;
     // (undocumented)
     clear(): void;
     // (undocumented)
-    containsPoint(x: number, y: number): boolean;
+    containsPoint(subgrid: RevSubgrid<BCS, SF>, x: number, y: number): boolean;
     // (undocumented)
-    containsX(x: number): boolean;
+    findIndex(subgrid: RevSubgrid<BCS, SF>, ox: number, oy: number, ex: number, ey: number): number;
     // (undocumented)
-    containsY(y: number): boolean;
+    getLastRectangle(): RevSelectionRectangle<BCS, SF> | undefined;
     // (undocumented)
-    findIndex(ox: number, oy: number, ex: number, ey: number): number;
+    getRectangles(subgrid: RevSubgrid<BCS, SF> | undefined): readonly RevSelectionRectangle<BCS, SF>[];
     // (undocumented)
-    getFlattenedYs(): number[];
+    getRectanglesContainingPoint(subgrid: RevSubgrid<BCS, SF>, activeColumnIndex: number, subgridRowIndex: number): RevSelectionRectangle<BCS, SF>[];
     // (undocumented)
-    getLastRectangle(): RevSelectionRectangle | undefined;
-    // (undocumented)
-    getNonUniqueXIndices(): number[];
-    // (undocumented)
-    getRectanglesContainingPoint(x: number, y: number): RevSelectionRectangle[];
-    // (undocumented)
-    getUniqueXIndices(): number;
-    // (undocumented)
-    get has(): boolean;
+    has(inSubgrid: RevSubgrid<BCS, SF> | undefined): boolean;
     // (undocumented)
     hasMoreThanOnePoint(): boolean;
     // (undocumented)
-    hasPointOtherThan(x: number, y: number): boolean;
+    hasPointOtherThan(subgrid: RevSubgrid<BCS, SF> | undefined, activeColumnIndex: number, subgridRowIndex: number): boolean;
     // (undocumented)
     hasPoints(): boolean;
     // (undocumented)
     isEmpty(): boolean;
     // (undocumented)
-    only(rectangle: RevSelectionRectangle): void;
+    only(rectangle: RevSelectionRectangle<BCS, SF>): void;
     // (undocumented)
-    push(rectangle: RevSelectionRectangle): void;
+    push(rectangle: RevSelectionRectangle<BCS, SF>): void;
     // (undocumented)
-    readonly rectangles: RevSelectionRectangle[];
-    // (undocumented)
-    removeAt(index: number): void;
+    removeAt(subgrid: RevSubgrid<BCS, SF>, index: number): void;
     // (undocumented)
     removeLast(): boolean;
 }
@@ -7618,6 +7644,8 @@ export interface RevSubgrid<BCS extends RevBehavioredColumnSettings, SF extends 
     // (undocumented)
     readonly focusable: boolean;
     // (undocumented)
+    generateAllRowIndicesArray(): number[];
+    // (undocumented)
     getCellPainterEventer: RevSubgrid.GetCellPainterEventer<BCS, SF>;
     // (undocumented)
     getDefaultRowHeight(): number;
@@ -7745,6 +7773,8 @@ export class RevSubgridImplementation<BCS extends RevBehavioredColumnSettings, S
     get fixedRowCount(): number;
     // (undocumented)
     readonly focusable: boolean;
+    // (undocumented)
+    generateAllRowIndicesArray(): number[];
     // (undocumented)
     getCellPainterEventer: RevSubgrid.GetCellPainterEventer<BCS, SF>;
     // (undocumented)
@@ -9238,8 +9268,8 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
     // (undocumented)
     invalidateVerticalAll(scrollDimensionAsWell: boolean): void;
     // (undocumented)
-    isActiveColumnFullyVisible(activeIndex: number): boolean;
-    isActiveColumnVisible(activeIndex: number): boolean;
+    isActiveColumnFullyVisible(activeColumnIndex: number): boolean;
+    isActiveColumnVisible(activeColumnIndex: number): boolean;
     isDataColumnVisible(columnIndex: number): boolean;
     // (undocumented)
     isDataRowVisible(rowIndex: number, subgrid: RevSubgrid<BCS, SF>): boolean;

@@ -308,6 +308,15 @@ export class RevSubgridImplementation<BCS extends RevBehavioredColumnSettings, S
         return this.setRowMetadataRowProperties(subgridRowIndex, metadata, properties);
     }
 
+    generateAllRowIndicesArray(): number[] {
+        const rowCount = this.getRowCount();
+        const result = new Array<number>(rowCount);
+        for (let i = 0; i < rowCount; i++) {
+            result[i] = i;
+        }
+        return result;
+    }
+
     /** @internal */
     private _columnsManagerBeforeCreateColumnsListener = () => { this._viewDataRowProxy.updateSchema(); };
 

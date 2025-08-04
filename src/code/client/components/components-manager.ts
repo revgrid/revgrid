@@ -94,6 +94,7 @@ export class RevComponentsManager<BGS extends RevBehavioredGridSettings, BCS ext
                 this,
                 gridSettings,
                 this.columnsManager,
+                this.subgridsManager,
                 this.focus,
             );
 

@@ -1,6 +1,8 @@
-import { RevAssertError, RevClientObject, RevDataServer, RevSchemaField, RevSelectionAreaTypeId, RevUnreachableCaseError } from '../../common';
+import { RevClientObject, RevDataServer, RevSchemaField, RevSelectionAreaTypeId, RevUnreachableCaseError } from '../../common';
 import { RevColumnsManager } from '../components/column/columns-manager';
 import { RevSelection } from '../components/selection/selection';
+import { RevSubgridsManager } from '../components/subgrid';
+import { RevSubgrid } from '../interfaces';
 import { RevColumn } from '../interfaces/column';
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../settings';
 
@@ -12,6 +14,8 @@ export class RevDataExtractBehavior<BGS extends RevBehavioredGridSettings, BCS e
         readonly internalParent: RevClientObject,
         /** @internal */
         private readonly _selection: RevSelection<BGS, BCS, SF>,
+        /** @internal */
+        private readonly _subgridsManager: RevSubgridsManager<BCS, SF>,
         /** @internal */
         private readonly _columnsManager: RevColumnsManager<BCS, SF>,
     ) {
@@ -27,20 +31,22 @@ export class RevDataExtractBehavior<BGS extends RevBehavioredGridSettings, BCS e
         if (selectionArea === undefined) {
             return '';
         } else {
+            const subgrid = selectionArea.subgrid;
+            const definedSubgrid = subgrid === undefined ? this._subgridsManager.mainSubgrid : subgrid;
             switch (selectionArea.areaTypeId) {
-                case RevSelectionAreaTypeId.all: {
-                    return this.convertDataValueArraysToTsv(this.getAllSelectionMatrix());
+                case RevSelectionAreaTypeId.dynamicAll: {
+                    return this.convertDataValueArraysToTsv(this.getDynamicAllSelectionMatrix(definedSubgrid));
                 }
                 case RevSelectionAreaTypeId.rectangle: {
-                    const selectionMatrix = this.getSelectedValuesByRectangleColumnRowMatrix();
+                    const selectionMatrix = this.getSelectedValuesByRectangleColumnRowMatrix(definedSubgrid);
                     const selections = selectionMatrix[selectionMatrix.length - 1];
                     return this.convertDataValueArraysToTsv(selections);
                 }
                 case RevSelectionAreaTypeId.row: {
-                    return this.convertDataValueArraysToTsv(this.getRowSelectionMatrix());
+                    return this.convertDataValueArraysToTsv(this.getRowSelectionMatrix(definedSubgrid));
                 }
                 case RevSelectionAreaTypeId.column: {
-                    return this.convertDataValueArraysToTsv(this.getColumnSelectionMatrix());
+                    return this.convertDataValueArraysToTsv(this.getColumnSelectionMatrix(definedSubgrid));
                 }
                 default:
                     throw new RevUnreachableCaseError('MSGSATSV12998', selectionArea.areaTypeId);
@@ -79,13 +85,14 @@ export class RevDataExtractBehavior<BGS extends RevBehavioredGridSettings, BCS e
     /**
      * @returns An object that represents the currently selection row.
      */
-    getFirstSelectionRectangleTopRowValues() {
-        const rectangles = this._selection.rectangles;
-        if (rectangles.length > 0) {
-            const dataServer = this.getDefinedSubgrid().dataServer;
+    getLastSelectionRectangleTopRowValues() {
+        const lastRectangle = this._selection.getLastRectangle();
+        if (lastRectangle !== undefined) {
             const columnsManager = this._columnsManager;
             const colCount = this._columnsManager.activeColumnCount;
-            const topSelectedRow = rectangles[0].topLeft.y;
+            const subgrid = lastRectangle.subgrid;
+            const dataServer = subgrid.dataServer;
+            const topSelectedRow = lastRectangle.topLeft.y;
             const row: Record<string, unknown> = {};
 
             for (let c = 0; c < colCount; c++) {
@@ -99,19 +106,18 @@ export class RevDataExtractBehavior<BGS extends RevBehavioredGridSettings, BCS e
         }
     }
 
-    getRowSelectionData(hiddenColumns: boolean | number[] | string[]): RevDataServer.ViewRow {
-        const selectedRowIndexes = this._selection.getRowIndices(true);
-        const selectedRowIndexesCount = selectedRowIndexes.length;
-        const columns = this.getActiveFieldOrSpecifiedColumns(hiddenColumns);
+    getRowSelectionData(subgrid: RevSubgrid<BCS, SF>, hiddenColumns: boolean | number[] | string[]): RevDataServer.ViewRow {
+        const indices = this._selection.getSubgridRowIndices(subgrid);
+        const indicesCount = indices.length;
         const result: RevDataServer.ViewRow = {};
 
-        if (selectedRowIndexesCount >= 0) {
-            const subgrid = this.getDefinedSubgrid();
+        if (indicesCount > 0) {
+            const columns = this.getActiveFieldOrSpecifiedColumns(hiddenColumns);
             for (let c = 0, C = columns.length; c < C; c++) {
                 const column = columns[c];
-                const rows = result[column.field.name] = new Array(selectedRowIndexes.length);
-                selectedRowIndexes.forEach( (selectedRowIndex, j) => {
-                    const dataRow = subgrid.getSingletonViewDataRow(selectedRowIndex); // should always exist
+                const rows = result[column.field.name] = new Array(indices.length);
+                indices.forEach( (rowIndex, j) => {
+                    const dataRow = subgrid.getSingletonViewDataRow(rowIndex); // should always exist
                     rows[j] = subgrid.getViewValueFromDataRowAtColumn(dataRow, column);
                 });
             }
@@ -120,17 +126,54 @@ export class RevDataExtractBehavior<BGS extends RevBehavioredGridSettings, BCS e
         return result;
     }
 
-    getAllSelectionMatrix() {
-        const rowIndices = this._selection.getAllAreaRowIndices();
-        return this.getRowIndicesMatrix(rowIndices);
+    getDynamicAllSelectionMatrix(subgrid?: RevSubgrid<BCS, SF>): RevDataServer.ViewValue[][] {
+        if (subgrid === undefined) {
+            const subgridIndicesArray = this._selection.getDynamicAllRowIndices();
+            const subgridIndicesArrayCount = subgridIndicesArray.length;
+            let result: RevDataServer.ViewValue[][] = new Array<RevDataServer.ViewValue[]>();
+            for (let i = 0; i < subgridIndicesArrayCount; i++) {
+                const {subgrid, indices} = subgridIndicesArray[i];
+                if (indices.length > 0) {
+                    const subgridMatrix = this.getRowIndicesMatrix(subgrid, indices);
+                    result = [...result, ...subgridMatrix];
+                }
+            }
+            return result;
+        } else {
+            const indices = this._selection.getSubgridDynamicAllRowIndices(subgrid);
+            if (indices.length === 0) {
+                return [];
+            } else {
+                return this.getRowIndicesMatrix(subgrid, indices);
+            }
+        }
     }
 
-    getRowSelectionMatrix(hiddenColumns?: boolean | number[] | string[]): RevDataServer.ViewValue[][] {
-        const selectedRowIndexes = this._selection.getRowIndices(true);
-        return this.getRowIndicesMatrix(selectedRowIndexes, hiddenColumns);
+    getRowSelectionMatrix(subgrid?: RevSubgrid<BCS, SF>, hiddenColumns?: boolean | number[] | string[]): RevDataServer.ViewValue[][] {
+        if (subgrid === undefined) {
+            const subgridIndicesArray = this._selection.getRowIndices(true);
+
+            const subgridIndicesArrayCount = subgridIndicesArray.length;
+            let result: RevDataServer.ViewValue[][] = new Array<RevDataServer.ViewValue[]>();
+            for (let i = 0; i < subgridIndicesArrayCount; i++) {
+                const {subgrid, indices} = subgridIndicesArray[i];
+                if (indices.length > 0) {
+                    const subgridMatrix = this.getRowIndicesMatrix(subgrid, indices, hiddenColumns);
+                    result = [...result, ...subgridMatrix];
+                }
+            }
+            return result;
+        } else {
+            const indices = this._selection.getSubgridRowIndices(subgrid);
+            if (indices.length === 0) {
+                return [];
+            } else {
+                return this.getRowIndicesMatrix(subgrid, indices, hiddenColumns);
+            }
+        }
     }
 
-    getRowIndicesMatrix(rowIndices: number[], hiddenColumns?: boolean | number[] | string[]) {
+    getRowIndicesMatrix(subgrid: RevSubgrid<BCS, SF>, rowIndices: number[], hiddenColumns?: boolean | number[] | string[]) {
         const selectedRowIndexesCount = rowIndices.length;
         const columns = this.getActiveFieldOrSpecifiedColumns(hiddenColumns);
         const columnCount = columns.length;
@@ -141,7 +184,6 @@ export class RevDataExtractBehavior<BGS extends RevBehavioredGridSettings, BCS e
                 result[c] = [];
             }
         } else {
-            const subgrid = this.getDefinedSubgrid();
             for (let rowIndex = 0; rowIndex < selectedRowIndexesCount; rowIndex++) {
                 const dataRow = subgrid.getSingletonViewDataRow(rowIndex);
                 result[rowIndex] = new Array<RevDataServer.ViewValue>(rowIndices.length);
@@ -155,7 +197,7 @@ export class RevDataExtractBehavior<BGS extends RevBehavioredGridSettings, BCS e
         return result;
     }
 
-    getColumnSelectionMatrix(): RevDataServer.ViewValue[][] {
+    getColumnSelectionMatrix(subgrid: RevSubgrid<BCS, SF>): RevDataServer.ViewValue[][] {
         const columnsManager = this._columnsManager;
         const selectedColumnIndexes = this._selection.getColumnIndices(true);
         const selectedColumnIndexesCount = selectedColumnIndexes.length;
@@ -164,7 +206,6 @@ export class RevDataExtractBehavior<BGS extends RevBehavioredGridSettings, BCS e
             return [];
         } else {
             const result = new Array<RevDataServer.ViewValue[]>(selectedColumnIndexesCount);
-            const subgrid = this.getDefinedSubgrid();
             const numRows = subgrid.getRowCount();
             selectedColumnIndexes.forEach((selectedColumnIndex, c) => {
                 const column = columnsManager.getActiveColumn(selectedColumnIndex);
@@ -180,12 +221,11 @@ export class RevDataExtractBehavior<BGS extends RevBehavioredGridSettings, BCS e
         }
     }
 
-    getSelectedColumnsValues() {
+    getSelectedColumnsValues(subgrid: RevSubgrid<BCS, SF>) {
         const columnsManager = this._columnsManager;
         const selectedColumnIndexes = this._selection.getColumnIndices(true);
         const result: RevDataServer.ObjectViewRow = {};
         if (selectedColumnIndexes.length > 0) {
-            const subgrid = this.getDefinedSubgrid();
             const rowCount = subgrid.getRowCount();
 
             selectedColumnIndexes.forEach((selectedColumnIndex) => {
@@ -202,14 +242,13 @@ export class RevDataExtractBehavior<BGS extends RevBehavioredGridSettings, BCS e
         return result;
     }
 
-    getSelectedValuesByRectangleAndColumn(): RevDataServer.ObjectViewRow[] {
+    getSelectedValuesByRectangleAndColumn(subgrid: RevSubgrid<BCS, SF>): RevDataServer.ObjectViewRow[] {
         const columnsManager = this._columnsManager;
-        const selectionRectangles = this._selection.rectangles;
+        const selectionRectangles = this._selection.getRectangles(subgrid);
         const selectionRectangleCount = selectionRectangles.length;
         const rects = new Array<RevDataServer.ObjectViewRow>(selectionRectangleCount);
 
         if (selectionRectangleCount > 0) {
-            const subgrid = this.getDefinedSubgrid();
             selectionRectangles.forEach(
                 (selectionRect, i) => {
                     const colCount = selectionRect.width;
@@ -234,15 +273,13 @@ export class RevDataExtractBehavior<BGS extends RevBehavioredGridSettings, BCS e
         return rects;
     }
 
-    getSelectedValuesByRectangleColumnRowMatrix(): RevDataServer.ViewValue[][][] {
+    getSelectedValuesByRectangleColumnRowMatrix(subgrid: RevSubgrid<BCS, SF>): RevDataServer.ViewValue[][][] {
         const columnsManager = this._columnsManager;
-        const rectangles = this._selection.rectangles;
+        const rectangles = this._selection.getRectangles(subgrid);
         const rectangleCount = rectangles.length;
         const rects = new Array<RevDataServer.ViewValue[][]>(rectangleCount);
 
         if (rectangleCount > 0) {
-            const subgrid = this.getDefinedSubgrid();
-
             rectangles.forEach(
                 (rect, i) => {
                     const colCount = rect.width;
@@ -266,19 +303,9 @@ export class RevDataExtractBehavior<BGS extends RevBehavioredGridSettings, BCS e
                     rects[i] = columnArray;
                 }
             );
-            }
+        }
 
         return rects;
-    }
-
-    /** @internal */
-    private getDefinedSubgrid() {
-        const subgrid = this._selection.subgrid;
-        if (subgrid === undefined) {
-            throw new RevAssertError('DEBGS33321');
-        } else {
-            return subgrid;
-        }
     }
 
     /**

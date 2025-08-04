@@ -6,6 +6,7 @@ import { RevSelection } from '../components/selection/selection';
 import { RevSubgridImplementation } from '../components/subgrid/subgrid-implementation';
 import { RevSubgridsManager } from '../components/subgrid/subgrids-manager';
 import { RevViewLayout } from '../components/view/view-layout';
+import { RevSubgrid } from '../interfaces';
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../settings';
 import { RevEventBehavior } from './event-behavior';
 import { RevReindexBehavior } from './reindex-behavior';
@@ -59,14 +60,14 @@ export class RevServerNotificationBehavior<BGS extends RevBehavioredGridSettings
             const notificationsClient: RevDataServer.NotificationsClient = {
                 beginChange: () => { this.handleBeginDataChange(); },
                 endChange: () => { this.handleEndDataChange(); },
-                rowsInserted: (subgridRowIndex, rowCount) => { this.handleRowsInserted(dataServer, subgridRowIndex, rowCount); },
-                rowsDeleted: (subgridRowIndex, rowCount) => { this.handleRowsDeleted(dataServer, subgridRowIndex, rowCount); },
+                rowsInserted: (subgridRowIndex, rowCount) => { this.handleRowsInserted(subgrid, subgridRowIndex, rowCount); },
+                rowsDeleted: (subgridRowIndex, rowCount) => { this.handleRowsDeleted(subgrid, subgridRowIndex, rowCount); },
                 allRowsDeleted: () => { this.handleAllRowsDeleted(dataServer); },
                 rowsMoved: (
                     oldSubgridRowIndex,
                     newSubgridRowIndex,
                     rowCount
-                ) => { this.handleRowsMoved(dataServer, oldSubgridRowIndex, newSubgridRowIndex, rowCount); },
+                ) => { this.handleRowsMoved(subgrid, oldSubgridRowIndex, newSubgridRowIndex, rowCount); },
                 rowsLoaded: () => { this.handleRowsLoaded(dataServer); },
                 invalidateAll: () => { this.handleInvalidateAll(dataServer); },
                 invalidateRows: (subgridRowIndex, count) => { this.handleInvalidateRows(dataServer, subgridRowIndex, count); },
@@ -330,15 +331,15 @@ export class RevServerNotificationBehavior<BGS extends RevBehavioredGridSettings
     }
 
     /** @internal */
-    private handleRowsInserted(dataServer: RevDataServer<SF>, subgridRowIndex: number, count: number) {
+    private handleRowsInserted(subgrid: RevSubgrid<BCS, SF>, subgridRowIndex: number, count: number) {
         if (!this._destroyed) {
             this.beginDataChange();
             try {
                 this._renderer.serverNotified();
-                this._focus.adjustForRowsInserted(subgridRowIndex, count, dataServer);
-                this._selection.adjustForRowsInserted(subgridRowIndex, count, dataServer);
+                this._focus.adjustForRowsInserted(subgridRowIndex, count, subgrid.dataServer);
+                this._selection.adjustForRowsInserted(subgridRowIndex, count, subgrid);
                 this._viewLayout.invalidateDataRowsInserted(subgridRowIndex, count);
-                this.includeDataServerInRowListChanged(dataServer);
+                this.includeDataServerInRowListChanged(subgrid.dataServer);
             } finally {
                 this.endDataChange();
             }
@@ -346,15 +347,15 @@ export class RevServerNotificationBehavior<BGS extends RevBehavioredGridSettings
     }
 
     /** @internal */
-    private handleRowsDeleted(dataServer: RevDataServer<SF>, subgridRowIndex: number, count: number) {
+    private handleRowsDeleted(subgrid: RevSubgrid<BCS, SF>, subgridRowIndex: number, count: number) {
         if (!this._destroyed) {
             this.beginDataChange();
             try {
                 this._renderer.serverNotified();
-                this._focus.adjustForRowsDeleted(subgridRowIndex, count, dataServer);
-                this._selection.adjustForRowsDeleted(subgridRowIndex, count, dataServer);
+                this._focus.adjustForRowsDeleted(subgridRowIndex, count, subgrid.dataServer);
+                this._selection.adjustForRowsDeleted(subgridRowIndex, count, subgrid);
                 this._viewLayout.invalidateDataRowsDeleted(subgridRowIndex, count);
-                this.includeDataServerInRowListChanged(dataServer);
+                this.includeDataServerInRowListChanged(subgrid.dataServer);
             } finally {
                 this.endDataChange();
             }
@@ -380,15 +381,15 @@ export class RevServerNotificationBehavior<BGS extends RevBehavioredGridSettings
     }
 
     /** @internal */
-    private handleRowsMoved(dataServer: RevDataServer<SF>, oldSubgridRowIndex: number, newSubgridRowIndex: number, rowCount: number) {
+    private handleRowsMoved(subgrid: RevSubgrid<BCS, SF>, oldSubgridRowIndex: number, newSubgridRowIndex: number, rowCount: number) {
         if (!this._destroyed) {
             this.beginDataChange();
             try {
                 this._renderer.serverNotified();
-                this._focus.adjustForRowsMoved(oldSubgridRowIndex, newSubgridRowIndex, rowCount, dataServer);
-                this._selection.adjustForRowsMoved(oldSubgridRowIndex, newSubgridRowIndex, rowCount, dataServer);
+                this._focus.adjustForRowsMoved(oldSubgridRowIndex, newSubgridRowIndex, rowCount, subgrid.dataServer);
+                this._selection.adjustForRowsMoved(oldSubgridRowIndex, newSubgridRowIndex, rowCount, subgrid);
                 this._viewLayout.invalidateDataRowsMoved(oldSubgridRowIndex, newSubgridRowIndex, rowCount);
-                this.includeDataServerInRowListChanged(dataServer);
+                this.includeDataServerInRowListChanged(subgrid.dataServer);
             } finally {
                 this.endDataChange();
             }

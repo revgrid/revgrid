@@ -25,8 +25,7 @@ export class RevFocusSelectBehavior<BGS extends RevBehavioredGridSettings, BCS e
     }
 
     selectColumns(activeColumnIndex: number, count: number): void {
-        const height = this.getSelectionSubgridRowCount();
-        this._selection.selectColumns(activeColumnIndex, 0, count, height);
+        this._selection.selectColumns(activeColumnIndex, count);
     }
 
     onlySelectColumn(activeColumnIndex: number): void {
@@ -34,20 +33,18 @@ export class RevFocusSelectBehavior<BGS extends RevBehavioredGridSettings, BCS e
     }
 
     onlySelectColumns(activeColumnIndex: number, count: number): void {
-        const height = this.getSelectionSubgridRowCount();
         const selection = this._selection;
         selection.beginChange();
         try {
             selection.clear();
-            selection.selectColumns(activeColumnIndex, 0, count, height);
+            selection.selectColumns(activeColumnIndex, count);
         } finally {
             selection.endChange();
         }
     }
 
     toggleSelectColumn(activeColumnIndex: number): void {
-        const height = this.getSelectionSubgridRowCount();
-        this._selection.toggleSelectColumn(activeColumnIndex, 0, height);
+        this._selection.toggleSelectColumn(activeColumnIndex);
     }
 
     selectRow(subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): void {
@@ -287,11 +284,6 @@ export class RevFocusSelectBehavior<BGS extends RevBehavioredGridSettings, BCS e
 
     isMouseAddToggleExtendSelectionAreaAllowed(event: MouseEvent): boolean {
         return !RevEventBehavior.isSecondaryMouseButton(event) && this._gridSettings.mouseAddToggleExtendSelectionAreaEnabled;
-    }
-
-    private getSelectionSubgridRowCount(): number {
-        const selectionSubgrid = this._selection.subgrid;
-        return selectionSubgrid === undefined ? 0 : selectionSubgrid.getRowCount();
     }
 }
 

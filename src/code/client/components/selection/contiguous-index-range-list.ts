@@ -56,8 +56,6 @@ export class RevContiguousIndexRangeList {
 
     /**
      * Determines whether the list of contiguous index ranges contains more than one index in total.
-     * Returns `true` if there is at least one range with a length greater than one,
-     * or if there are multiple single-index ranges.
      *
      * @returns `true` if there is more than one index represented in the ranges; otherwise, `false`.
      */
@@ -76,6 +74,28 @@ export class RevContiguousIndexRangeList {
             }
         }
         return false;
+    }
+
+    /**
+     * Determines whether the list of contiguous index ranges contains zero, one or more than one index in total.
+     *
+     * @returns `0` if there are no indices, `1` if there is one index, or `-1` if there is more than one index represented in the ranges.
+     */
+    hasZeroOneOrMoreThanOneIndex(): 0 | 1 | -1  {
+        const ranges = this.ranges;
+        let gotOne = false;
+        for (const range of ranges) {
+            if (range.length === 1) {
+                if (gotOne) {
+                    return -1; // more than one index
+                } else {
+                    gotOne = true;
+                }
+            } else {
+                return -1; // more than one index
+            }
+        }
+        return gotOne ? 1 : 0; // 0 if no indices, 1 if one index
     }
 
     /**

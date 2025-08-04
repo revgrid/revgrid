@@ -2,6 +2,7 @@
 import { RevAssertError, RevModifierKey, RevSchemaField, RevSelectionAreaTypeId, RevStartLength, RevUnreachableCaseError } from '../../../common';
 import { RevFocus } from '../../components/focus/focus';
 import { RevMouse } from '../../components/mouse/mouse';
+import { RevLastSelectionArea } from '../../components/selection/last-selection-area';
 import { RevLinedHoverCell } from '../../interfaces/lined-hover-cell';
 import { RevSubgrid } from '../../interfaces/subgrid';
 import { RevViewCell } from '../../interfaces/view-cell';
@@ -114,33 +115,38 @@ export class RevSelectionUiController<BGS extends RevBehavioredGridSettings, BCS
             } else {
                 const viewCell = hoverCell.viewCell;
 
-                let selectSucceeded: boolean;
-                if (viewCell.isHeaderOrRowFixed) {
-                    selectSucceeded = this.trySelectColumnsFromCell(event, viewCell, true);
-                } else {
-                    if (viewCell.isColumnFixed) {
-                        selectSucceeded = this.trySelectRowsFromCell(event, viewCell, true);
-                    } else {
-                        if (viewCell.isMain) {
-                            selectSucceeded = this.trySelectInScrollableMain(event, viewCell, true)
-                        } else {
-                            selectSucceeded = false;
-                        }
-                    }
-                }
-
-                if (!selectSucceeded) {
+                const subgrid = viewCell.subgrid;
+                if (!subgrid.selectable) {
                     return super.handlePointerDragStart(event, hoverCell);
                 } else {
-                    const dragType = this.getDragTypeFromSelectionLastArea();
-                    if (dragType === undefined) {
+                    let selectSucceeded: boolean;
+                    if (viewCell.isHeaderOrRowFixed) {
+                        selectSucceeded = this.trySelectColumnsFromCell(event, viewCell, true);
+                    } else {
+                        if (viewCell.isColumnFixed) {
+                            selectSucceeded = this.trySelectRowsFromCell(event, viewCell, true);
+                        } else {
+                            if (viewCell.isMain) {
+                                selectSucceeded = this.trySelectInScrollableMain(event, viewCell, true)
+                            } else {
+                                selectSucceeded = false;
+                            }
+                        }
+                    }
+
+                    if (!selectSucceeded) {
                         return super.handlePointerDragStart(event, hoverCell);
                     } else {
-                        this.setActiveDragType(dragType);
-                        return {
-                            started: true,
-                            hoverCell,
-                        };
+                        const dragType = this.getDragTypeFromSelectionLastArea();
+                        if (dragType === undefined) {
+                            return super.handlePointerDragStart(event, hoverCell);
+                        } else {
+                            this.setActiveDragType(dragType);
+                            return {
+                                started: true,
+                                hoverCell,
+                            };
+                        }
                     }
                 }
             }
@@ -152,15 +158,15 @@ export class RevSelectionUiController<BGS extends RevBehavioredGridSettings, BCS
             return super.handlePointerDrag(event, cell);
         } else {
             this.cancelScheduledStepScrollDrag();
-            const stepScrolled = this.checkStepScrollDrag(event.offsetX, event.offsetY);
-            if (stepScrolled) {
+            const lastArea = this.checkStepScrollDrag(event.offsetX, event.offsetY);
+            if (lastArea === undefined) {
                 return cell;
             } else {
                 if (cell === null) {
                     cell = this.tryGetHoverCellFromMouseEvent(event);
                 }
                 if (cell !== undefined) {
-                    this.tryUpdateLastSelectionArea(cell.viewCell);
+                    this.tryUpdateLastSelectionArea(lastArea, cell.viewCell);
                 }
                 return cell;
             }
@@ -260,8 +266,6 @@ export class RevSelectionUiController<BGS extends RevBehavioredGridSettings, BCS
             return false;
         } else {
             const activeColumnIndex = cell.viewLayoutColumn.activeColumnIndex;
-            const focusPoint = this._focus.current;
-            const subgridRowIndex = focusPoint === undefined ? 0 : focusPoint.y;
             const mouseAddToggleExtendSelectionAreaAllowed = this._focusSelectBehavior.isMouseAddToggleExtendSelectionAreaAllowed(event);
             const addToggleModifier = mouseAddToggleExtendSelectionAreaAllowed && RevGridSettings.isAddToggleSelectionAreaModifierKeyDownInEvent(gridSettings, event);
             const extendModifier = mouseAddToggleExtendSelectionAreaAllowed && RevGridSettings.isExtendLastSelectionAreaModifierKeyDownInEvent(gridSettings, event);
@@ -272,13 +276,7 @@ export class RevSelectionUiController<BGS extends RevBehavioredGridSettings, BCS
                 if (lastArea !== undefined && lastArea.areaTypeId === RevSelectionAreaTypeId.column) {
                     const inclusiveFirstCorner = lastArea.inclusiveFirst;
                     const startLengthX = RevStartLength.createFromInclusiveFirstLast(inclusiveFirstCorner.x, activeColumnIndex);
-                    const startLengthY = RevStartLength.createFromInclusiveFirstLast(inclusiveFirstCorner.y, subgridRowIndex);
-                    this._selection.replaceLastAreaWithColumns(
-                        startLengthX.start,
-                        startLengthY.start,
-                        startLengthX.length,
-                        startLengthY.length,
-                    );
+                    this._selection.replaceLastAreaWithColumns(startLengthX.start, startLengthX.length);
                 } else {
                     focusSelectionBehavior.selectColumn(activeColumnIndex);
                 }
@@ -350,54 +348,49 @@ export class RevSelectionUiController<BGS extends RevBehavioredGridSettings, BCS
      * Handle a mousedrag selection.
      * @param keys - array of the keys that are currently pressed down
      */
-    private tryUpdateLastSelectionArea(cell: RevViewCell<BCS, SF>) {
+    private tryUpdateLastSelectionArea(lastArea: RevLastSelectionArea<BCS, SF>, cell: RevViewCell<BCS, SF>) {
         const selection = this._selection;
-        const lastArea = selection.lastArea;
-        if (lastArea === undefined) {
-            throw new RevAssertError('SUBULSA54455');
-        } else {
-            const subgrid = cell.subgrid;
-            // let updatePossible: boolean;
+        const subgrid = cell.subgrid;
+        // let updatePossible: boolean;
 
-            // switch (lastArea.areaType) {
-            //     case RevSelectionAreaType.Rectangle: {
-            //         updatePossible =
-            //             this.isCellAndLastAreaColumnFixedSame(cell, lastArea) &&
-            //             this.isCellAndLastAreaRowFixedSame(cell, lastArea) &&
-            //             subgrid === selection.subgrid
-            //         break;
-            //     }
-            //     case RevSelectionAreaType.Column: {
-            //         updatePossible = this.isCellAndLastAreaColumnFixedSame(cell, lastArea);
-            //         break;
-            //     }
-            //     case RevSelectionAreaType.Row: {
-            //         updatePossible =
-            //             this.isCellAndLastAreaColumnFixedSame(cell, lastArea) &&
-            //             this.isCellAndLastAreaRowFixedSame(cell, lastArea) &&
-            //             subgrid === selection.subgrid
-            //         break;
-            //     }
-            // }
-            const lastAreaFirstX = lastArea.inclusiveFirst.x;
-            const lastAreaFirstXColumnFixed = lastAreaFirstX < this._gridSettings.fixedColumnCount;
-            if (cell.isColumnFixed === lastAreaFirstXColumnFixed) {
-                const lastAreaFirstY = lastArea.inclusiveFirst.y;
-                const lastAreaFirstYRowFixed = lastAreaFirstY < this._gridSettings.fixedRowCount;
-                if (cell.isRowFixed === lastAreaFirstYRowFixed) {
-                    if (lastArea.areaTypeId === RevSelectionAreaTypeId.column || subgrid === selection.subgrid) {
-                        const inclusiveFirstCorner = lastArea.inclusiveFirst;
-                        const xStartLength = RevStartLength.createFromInclusiveFirstLast(inclusiveFirstCorner.x, cell.viewLayoutColumn.activeColumnIndex);
-                        const yStartLength = RevStartLength.createFromInclusiveFirstLast(inclusiveFirstCorner.y, cell.viewLayoutRow.subgridRowIndex);
-                        selection.replaceLastArea(
-                            lastArea.areaTypeId,
-                            xStartLength.start,
-                            yStartLength.start,
-                            xStartLength.length,
-                            yStartLength.length,
-                            subgrid,
-                        );
-                    }
+        // switch (lastArea.areaType) {
+        //     case RevSelectionAreaType.Rectangle: {
+        //         updatePossible =
+        //             this.isCellAndLastAreaColumnFixedSame(cell, lastArea) &&
+        //             this.isCellAndLastAreaRowFixedSame(cell, lastArea) &&
+        //             subgrid === selection.subgrid
+        //         break;
+        //     }
+        //     case RevSelectionAreaType.Column: {
+        //         updatePossible = this.isCellAndLastAreaColumnFixedSame(cell, lastArea);
+        //         break;
+        //     }
+        //     case RevSelectionAreaType.Row: {
+        //         updatePossible =
+        //             this.isCellAndLastAreaColumnFixedSame(cell, lastArea) &&
+        //             this.isCellAndLastAreaRowFixedSame(cell, lastArea) &&
+        //             subgrid === selection.subgrid
+        //         break;
+        //     }
+        // }
+        const lastAreaFirstX = lastArea.inclusiveFirst.x;
+        const lastAreaFirstXColumnFixed = lastAreaFirstX < this._gridSettings.fixedColumnCount;
+        if (cell.isColumnFixed === lastAreaFirstXColumnFixed) {
+            const lastAreaFirstY = lastArea.inclusiveFirst.y;
+            const lastAreaFirstYRowFixed = lastAreaFirstY < this._gridSettings.fixedRowCount;
+            if (cell.isRowFixed === lastAreaFirstYRowFixed) {
+                if (lastArea.areaTypeId === RevSelectionAreaTypeId.column || lastArea.subgrid === subgrid) {
+                    const inclusiveFirstCorner = lastArea.inclusiveFirst;
+                    const xStartLength = RevStartLength.createFromInclusiveFirstLast(inclusiveFirstCorner.x, cell.viewLayoutColumn.activeColumnIndex);
+                    const yStartLength = RevStartLength.createFromInclusiveFirstLast(inclusiveFirstCorner.y, cell.viewLayoutRow.subgridRowIndex);
+                    selection.replaceLastArea(
+                        lastArea.areaTypeId,
+                        xStartLength.start,
+                        yStartLength.start,
+                        xStartLength.length,
+                        yStartLength.length,
+                        subgrid,
+                    );
                 }
             }
         }
@@ -418,45 +411,51 @@ export class RevSelectionUiController<BGS extends RevBehavioredGridSettings, BCS
     /**
      * this checks while were dragging if we go outside the visible bounds, if so, kick off the external autoscroll check function (above)
      */
-    private checkStepScrollDrag(canvasOffsetX: number, canvasOffsetY: number) {
-        const scrollableBounds = this._viewLayout.scrollableCanvasBounds;
-        if (scrollableBounds === undefined || !this._gridSettings.scrollingEnabled) {
+    private checkStepScrollDrag(canvasOffsetX: number, canvasOffsetY: number): RevLastSelectionArea<BCS, SF> | undefined {
+        const lastArea = this._selection.lastArea;
+        if (lastArea === undefined) {
             this.cancelStepScroll();
-            return false;
+            return undefined;
         } else {
-            const xInScrollableBounds = scrollableBounds.containsX(canvasOffsetX);
-            const yInScrollableBounds = scrollableBounds.containsY(canvasOffsetY);
-            if (xInScrollableBounds && yInScrollableBounds) {
+            const scrollableBounds = this._viewLayout.scrollableCanvasBounds;
+            if (scrollableBounds === undefined || !this._gridSettings.scrollingEnabled) {
                 this.cancelStepScroll();
-                return false;
+                return undefined;
             } else {
-                if (this._firstStepScrollDragTime === undefined) {
-                    this._firstStepScrollDragTime = performance.now();
-                }
-                const firstStepScrollDragTime = this._firstStepScrollDragTime;
-
-                let stepScrolled = false;
-                if (!xInScrollableBounds) {
-                    stepScrolled = this.checkStepScrollColumn(canvasOffsetX, firstStepScrollDragTime);
-                }
-
-                if (!yInScrollableBounds) {
-                    if (this.checkStepScrollRow(canvasOffsetY, firstStepScrollDragTime)) {
-                        stepScrolled = true;
-                    }
-                }
-
-                if (!stepScrolled) {
+                const xInScrollableBounds = scrollableBounds.containsX(canvasOffsetX);
+                const yInScrollableBounds = scrollableBounds.containsY(canvasOffsetY);
+                if (xInScrollableBounds && yInScrollableBounds) {
                     this.cancelStepScroll();
-                    return false;
+                    return undefined;
                 } else {
-                    this.scheduleStepScrollDragTick(canvasOffsetX, canvasOffsetY);
-
-                    const cell = this._viewLayout.findScrollableCellClosestToCanvasOffset(canvasOffsetX, canvasOffsetY);
-                    if (cell !== undefined) {
-                        this.tryUpdateLastSelectionArea(cell); // update the selection
+                    if (this._firstStepScrollDragTime === undefined) {
+                        this._firstStepScrollDragTime = performance.now();
                     }
-                    return true;
+                    const firstStepScrollDragTime = this._firstStepScrollDragTime;
+
+                    let stepScrolled = false;
+                    if (!xInScrollableBounds) {
+                        stepScrolled = this.checkStepScrollColumn(canvasOffsetX, firstStepScrollDragTime);
+                    }
+
+                    if (!yInScrollableBounds) {
+                        if (this.checkStepScrollRow(canvasOffsetY, firstStepScrollDragTime)) {
+                            stepScrolled = true;
+                        }
+                    }
+
+                    if (!stepScrolled) {
+                        this.cancelStepScroll();
+                        return undefined;
+                    } else {
+                        this.scheduleStepScrollDragTick(canvasOffsetX, canvasOffsetY);
+
+                        const cell = this._viewLayout.findScrollableCellClosestToCanvasOffset(canvasOffsetX, canvasOffsetY);
+                        if (cell !== undefined) {
+                            this.tryUpdateLastSelectionArea(lastArea, cell); // update the selection
+                        }
+                        return lastArea;
+                    }
                 }
             }
         }
@@ -652,7 +651,7 @@ export class RevSelectionUiController<BGS extends RevBehavioredGridSettings, BCS
             return undefined;
         } else {
             switch (lastArea.areaTypeId) {
-                case RevSelectionAreaTypeId.all:
+                case RevSelectionAreaTypeId.dynamicAll:
                     throw new RevAssertError('SUCGDTFSLA44377');
                 case RevSelectionAreaTypeId.rectangle: return RevMouse.DragType.lastRectangleSelectionAreaExtending;
                 case RevSelectionAreaTypeId.column: return RevMouse.DragType.lastColumnSelectionAreaExtending;

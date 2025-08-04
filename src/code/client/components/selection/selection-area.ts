@@ -1,15 +1,21 @@
-import { RevSelectionAreaTypeId, RevUnreachableCaseError } from '../../../common';
+import { RevSchemaField, RevSelectionAreaTypeId, RevUnreachableCaseError } from '../../../common';
+import { RevSubgrid } from '../../interfaces';
+import { RevBehavioredColumnSettings } from '../../settings';
 import { RevFirstCornerArea } from './first-corner-area';
 
 /** @public */
-export interface RevSelectionArea extends RevFirstCornerArea {
+export interface RevSelectionArea<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevFirstCornerArea {
     readonly areaTypeId: RevSelectionAreaTypeId;
+    readonly subgrid: RevSubgrid<BCS, SF> | undefined;
     readonly size: number;
 }
 
 /** @public */
 export namespace RevSelectionArea {
-    export function isEqual(left: RevSelectionArea, right: RevSelectionArea): boolean {
+    export function isEqual<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField>(
+        left: RevSelectionArea<BCS, SF>,
+        right: RevSelectionArea<BCS, SF>
+    ): boolean {
         const leftTopLeft = left.topLeft;
         const rightTopLeft = right.topLeft;
         return (
@@ -20,7 +26,9 @@ export namespace RevSelectionArea {
         );
     }
 
-    export function getTogglePriorityCellCoveringSelectionArea(areas: RevSelectionArea[]): RevSelectionArea | undefined {
+    export function getTogglePriorityCellCoveringSelectionArea<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField>(
+        areas: RevSelectionArea<BCS, SF>[]
+    ): RevSelectionArea<BCS, SF> | undefined {
         const areaCount = areas.length;
         switch (areaCount) {
             case 0: return undefined;
@@ -38,7 +46,10 @@ export namespace RevSelectionArea {
         }
     }
 
-    export function isCellCoveringSelectionAreaHigherTogglePriority(area: RevSelectionArea, referenceArea: RevSelectionArea): boolean {
+    export function isCellCoveringSelectionAreaHigherTogglePriority<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField>(
+        area: RevSelectionArea<BCS, SF>,
+        referenceArea: RevSelectionArea<BCS, SF>
+    ): boolean {
         // Order of priority is:
         // 1 Row
         // 2 Column
@@ -47,10 +58,10 @@ export namespace RevSelectionArea {
         // 5 All
         const typeId = area.areaTypeId;
         switch (typeId) {
-            case RevSelectionAreaTypeId.all: return referenceArea.areaTypeId === RevSelectionAreaTypeId.all;
+            case RevSelectionAreaTypeId.dynamicAll: return referenceArea.areaTypeId === RevSelectionAreaTypeId.dynamicAll;
             case RevSelectionAreaTypeId.rectangle: return (
                 ((referenceArea.areaTypeId === RevSelectionAreaTypeId.rectangle) && (referenceArea.size !== 1)) ||
-                referenceArea.areaTypeId === RevSelectionAreaTypeId.all
+                referenceArea.areaTypeId === RevSelectionAreaTypeId.dynamicAll
             );
             case RevSelectionAreaTypeId.column: return referenceArea.areaTypeId !== RevSelectionAreaTypeId.row;
             case RevSelectionAreaTypeId.row: return true;

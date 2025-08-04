@@ -8,7 +8,7 @@ import { RevUnreachableCaseError } from './revgrid-error';
  */
 export const enum RevSelectionAreaTypeId {
     /** All the cells within the selection's active subgrid */
-    all,
+    dynamicAll,
     /** A rectangle of cells within the selection's active subgrid */
     rectangle,
     /** One or more contiguous rows within the selection's active subgrid */
@@ -37,7 +37,7 @@ export namespace RevSelectionAreaType {
      */
     export function toId(type: RevSelectionAreaType): RevSelectionAreaTypeId {
         switch (type) {
-            case 'all': return RevSelectionAreaTypeId.all;
+            case 'dynamicAll': return RevSelectionAreaTypeId.dynamicAll;
             case 'rectangle': return RevSelectionAreaTypeId.rectangle;
             case 'row': return RevSelectionAreaTypeId.row;
             case 'column': return RevSelectionAreaTypeId.column;
@@ -54,7 +54,7 @@ export namespace RevSelectionAreaType {
      */
     export function fromId(id: RevSelectionAreaTypeId): RevSelectionAreaType {
         switch (id) {
-            case RevSelectionAreaTypeId.all: return 'all';
+            case RevSelectionAreaTypeId.dynamicAll: return 'dynamicAll';
             case RevSelectionAreaTypeId.rectangle: return 'rectangle';
             case RevSelectionAreaTypeId.row: return 'row';
             case RevSelectionAreaTypeId.column: return 'column';

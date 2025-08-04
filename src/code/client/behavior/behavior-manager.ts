@@ -121,6 +121,7 @@ export class RevBehaviorManager<BGS extends RevBehavioredGridSettings, BCS exten
             this.clientId,
             this,
             selection,
+            subgridsManager,
             columnsManager
         );
     }

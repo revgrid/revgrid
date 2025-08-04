@@ -31,6 +31,7 @@ import { RevRenderer } from './components/renderer/renderer';
 import { RevScroller } from './components/scroller/scroller';
 import { RevLastSelectionArea } from './components/selection/last-selection-area';
 import { RevSelection } from './components/selection/selection';
+import { RevSelectionRows } from './components/selection/selection-rows';
 import { RevSubgridsManager } from './components/subgrid/subgrids-manager';
 import { RevViewLayout } from './components/view/view-layout';
 import { RevGridDefinition } from './grid-definition';
@@ -221,8 +222,7 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     get activeColumnsViewWidth() { return this.viewLayout.columnsViewWidth; }
 
     // RevSelection getters/setters
-    get selectionAllAreaActive() { return this.selection.allAreaActive; }
-    set selectionAllAreaActive(value: boolean) { this.selection.allAreaActive = value; }
+    get selectionDynamicAllSubgrids() { return this.selection.dynamicAllSubgrids; }
 
     get activeColumnCount() { return this.columnsManager.activeColumnCount; }
 
@@ -1091,14 +1091,15 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
         this.selection.clear();
     }
 
-    onlySelectCell(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>): RevLastSelectionArea {
-        if (subgrid === undefined) {
-            subgrid = this.mainSubgrid;
-        }
-        return this.selection.onlySelectCell(activeColumnIndex, subgridRowIndex, subgrid);
+    selectDynamicAll(subgrid: RevSubgrid<BCS, SF> | undefined): RevLastSelectionArea<BCS, SF> | undefined {
+        return this.selection.selectDynamicAll(subgrid);
     }
 
-    selectCell(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>): RevLastSelectionArea {
+    deselectDynamicAll(subgrid: RevSubgrid<BCS, SF> | undefined): boolean {
+        return this.selection.deselectDynamicAll(subgrid);
+    }
+
+    selectCell(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>): RevLastSelectionArea<BCS, SF> {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
@@ -1119,14 +1120,14 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
         return this.selection.toggleSelectCell(activeColumnIndex, subgridRowIndex, subgrid);
     }
 
-    onlySelectRectangle(leftOrExRightActiveColumnIndex: Integer, topOrExBottomSubgridRowIndex: Integer, width: Integer, height: Integer, subgrid?: RevSubgrid<BCS, SF>): RevLastSelectionArea {
+    onlySelectRectangle(leftOrExRightActiveColumnIndex: Integer, topOrExBottomSubgridRowIndex: Integer, width: Integer, height: Integer, subgrid?: RevSubgrid<BCS, SF>): RevLastSelectionArea<BCS, SF> {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
         return this.selection.onlySelectRectangle(leftOrExRightActiveColumnIndex, topOrExBottomSubgridRowIndex, width, height, subgrid);
     }
 
-    selectRectangle(leftOrExRightActiveColumnIndex: Integer, topOrExBottomSubgridRowIndex: Integer, width: Integer, height: Integer, subgrid?: RevSubgrid<BCS, SF>): RevLastSelectionArea {
+    selectRectangle(leftOrExRightActiveColumnIndex: Integer, topOrExBottomSubgridRowIndex: Integer, width: Integer, height: Integer, subgrid?: RevSubgrid<BCS, SF>): RevLastSelectionArea<BCS, SF> {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
@@ -1220,36 +1221,40 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
         return this.selection.isSelectedCellTheOnlySelectedCell(activeColumnIndex, subgridRowIndex, subgrid, selectedTypeId)
     }
 
-    areColumnsOrRowsSelected(includeAllAreaIfActiveActive = true): boolean {
-        return this.selection.hasColumnsOrRows(includeAllAreaIfActiveActive);
+    areColumnsOrRowsSelected(includeDynamicAllIfSelectedActive = true): boolean {
+        return this.selection.hasColumnsOrRows(includeDynamicAllIfSelectedActive);
     }
 
-    areRowsSelected(includeAllAreaIfActive = true): boolean {
-        return this.selection.hasRows(includeAllAreaIfActive);
+    areRowsSelected(subgrid = this.mainSubgrid, includeDynamicAllIfSelected = true): boolean {
+        return this.selection.hasRows(subgrid, includeDynamicAllIfSelected);
     }
 
-    getSelectedRowCount(includeAllAreaIfActive = true): number {
-        return this.selection.getRowCount(includeAllAreaIfActive);
+    getSelectedRowCount(subgrid = this.mainSubgrid, includeDynamicAllIfSelected = true): number {
+        return this.selection.getRowCount(subgrid, includeDynamicAllIfSelected);
     }
 
     getSelectedAllAreaRowCount(): number {
-        return this.selection.getAllAreaRowCount();
+        return this.selection.getDynamicAllRowCount();
     }
 
-    getSelectedRowIndices(includeAllAreaIfActive = true): number[] {
-        return this.selection.getRowIndices(includeAllAreaIfActive);
+    getSelectedRowIndices(includeDynamicAllIfSelected = true): RevSelectionRows.SubgridIndices<BCS, SF>[] {
+        return this.selection.getRowIndices(includeDynamicAllIfSelected);
     }
 
-    getSelectedAllAreaRowIndices(): number[] {
-        return this.selection.getAllAreaRowIndices();
+    getSelectedDynamicAllRowIndices(): RevSelectionRows.SubgridIndices<BCS, SF>[] {
+        return this.selection.getDynamicAllRowIndices();
     }
 
-    areColumnsSelected(includeAllAreaIfActive = true): boolean {
-        return this.selection.hasColumns(includeAllAreaIfActive);
+    getSelectedSubgridDynamicAllRowIndices(subgrid = this.mainSubgrid): Integer[] {
+        return this.selection.getSubgridDynamicAllRowIndices(subgrid);
     }
 
-    getSelectedColumnIndices(includeAllAreaIfActive = true): number[] {
-        return this.selection.getColumnIndices(includeAllAreaIfActive);
+    areColumnsSelected(includeDynamicAllIfSelected = true): boolean {
+        return this.selection.hasColumns(includeDynamicAllIfSelected);
+    }
+
+    getSelectedColumnIndices(includeDynamicAllIfSelected = true): number[] {
+        return this.selection.getColumnIndices(includeDynamicAllIfSelected);
     }
 
     // RevFocusSelectBehavior
