@@ -23,7 +23,7 @@ export class RevFocusScrollBehavior<BGS extends RevBehavioredGridSettings, BCS e
 
     tryFocusColumnRowAndEnsureInView(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>, cell: RevViewCell<BCS, SF> | undefined): boolean {
         const columnFocusable = this._focus.isColumnFocusable(activeColumnIndex);
-        const rowFocusable = this._focus.isSubgridRowFocusable(subgridRowIndex, subgrid);
+        const rowFocusable = this._focus.isRowFocusable(subgridRowIndex, subgrid);
         if (columnFocusable) {
             if (rowFocusable) {
                 if (this.isColumnScrollable(activeColumnIndex) && this.isRowScrollable(subgridRowIndex, subgrid)) {
@@ -34,14 +34,14 @@ export class RevFocusScrollBehavior<BGS extends RevBehavioredGridSettings, BCS e
                 if (this.isColumnScrollable(activeColumnIndex)) {
                     this._viewLayout.ensureColumnIsInView(activeColumnIndex, true)
                 }
-                return this._focus.trySetColumnIndex(activeColumnIndex, undefined, undefined);
+                return this._focus.trySetColumn(activeColumnIndex, undefined, undefined);
             }
         } else {
             if (rowFocusable) {
                 if (this.isRowScrollable(subgridRowIndex, subgrid)) {
                     this._viewLayout.ensureRowIsInView(subgridRowIndex, true);
                 }
-                return this._focus.trySetSubgridRowIndex(subgridRowIndex, subgrid, undefined, undefined);
+                return this._focus.trySetRow(subgridRowIndex, subgrid, undefined, undefined);
             } else {
                 return false; // neither column nor row is focusable
             }
@@ -56,19 +56,19 @@ export class RevFocusScrollBehavior<BGS extends RevBehavioredGridSettings, BCS e
             if (this.isColumnScrollable(activeColumnIndex)) {
                 this._viewLayout.ensureColumnIsInView(activeColumnIndex, true);
             }
-            return this._focus.trySetColumnIndex(activeColumnIndex, undefined, undefined);
+            return this._focus.trySetColumn(activeColumnIndex, undefined, undefined);
         }
     }
 
-    tryFocusSubgridRowAndEnsureInView(subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): boolean {
-        if (!this._focus.isSubgridRowFocusable(subgridRowIndex, subgrid)) {
+    tryFocusRowAndEnsureInView(subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): boolean {
+        if (!this._focus.isRowFocusable(subgridRowIndex, subgrid)) {
             return false;
         } else {
             // Try to ensure row is in view first so that focus immediately gets ViewCell
             if (this.isRowScrollable(subgridRowIndex, subgrid)) {
                 this._viewLayout.ensureRowIsInView(subgridRowIndex, true);
             }
-            return this._focus.trySetSubgridRowIndex(subgridRowIndex, subgrid, undefined, undefined);
+            return this._focus.trySetRow(subgridRowIndex, subgrid, undefined, undefined);
         }
     }
 
@@ -96,7 +96,7 @@ export class RevFocusScrollBehavior<BGS extends RevBehavioredGridSettings, BCS e
         const currentFocusPoint = this._focus.current;
         if (currentFocusPoint !== undefined) {
             const newY = currentFocusPoint.y - 1;
-            return this.tryFocusSubgridRowAndEnsureInView(newY, currentFocusPoint.subgrid);
+            return this.tryFocusRowAndEnsureInView(newY, currentFocusPoint.subgrid);
         } else {
             return false;
         }
@@ -106,7 +106,7 @@ export class RevFocusScrollBehavior<BGS extends RevBehavioredGridSettings, BCS e
         const currentFocusPoint = this._focus.current;
         if (currentFocusPoint !== undefined) {
             const newY = currentFocusPoint.y + 1;
-            return this.tryFocusSubgridRowAndEnsureInView(newY, currentFocusPoint.subgrid);
+            return this.tryFocusRowAndEnsureInView(newY, currentFocusPoint.subgrid);
         } else {
             return false;
         }
@@ -144,7 +144,7 @@ export class RevFocusScrollBehavior<BGS extends RevBehavioredGridSettings, BCS e
                 if (newY === undefined) {
                     return false; // zero rows or only fixed rows
                 } else {
-                    return this.tryFocusSubgridRowAndEnsureInView(newY, subgrid);
+                    return this.tryFocusRowAndEnsureInView(newY, subgrid);
                 }
             }
         }
@@ -173,7 +173,7 @@ export class RevFocusScrollBehavior<BGS extends RevBehavioredGridSettings, BCS e
                 if (newY === undefined) {
                     return false; // zero rows or only fixed rows
                 } else {
-                    return this.tryFocusSubgridRowAndEnsureInView(newY, subgrid);
+                    return this.tryFocusRowAndEnsureInView(newY, subgrid);
                 }
             }
         }
@@ -191,7 +191,7 @@ export class RevFocusScrollBehavior<BGS extends RevBehavioredGridSettings, BCS e
             } else {
                 const activeColumnIndex = anchor.index;
                 this._viewLayout.setColumnScrollAnchor(activeColumnIndex, anchor.offset);
-                return this._focus.trySetColumnIndex(activeColumnIndex, undefined, undefined);
+                return this._focus.trySetColumn(activeColumnIndex, undefined, undefined);
             }
         }
     }
@@ -207,7 +207,7 @@ export class RevFocusScrollBehavior<BGS extends RevBehavioredGridSettings, BCS e
             } else {
                 const activeColumnIndex = anchor.index;
                 this._viewLayout.setColumnScrollAnchor(activeColumnIndex, anchor.offset);
-                return this._focus.trySetColumnIndex(activeColumnIndex, undefined, undefined);
+                return this._focus.trySetColumn(activeColumnIndex, undefined, undefined);
             }
         }
     }
@@ -223,7 +223,7 @@ export class RevFocusScrollBehavior<BGS extends RevBehavioredGridSettings, BCS e
             } else {
                 const subgridRowIndex = anchor.index;
                 this._viewLayout.setRowScrollAnchor(subgridRowIndex, anchor.offset);
-                this._focus.trySetSubgridRowIndex(subgridRowIndex, currentFocusPoint.subgrid, undefined, undefined);
+                this._focus.trySetRow(subgridRowIndex, currentFocusPoint.subgrid, undefined, undefined);
                 return true;
             }
         }
@@ -253,7 +253,7 @@ export class RevFocusScrollBehavior<BGS extends RevBehavioredGridSettings, BCS e
                     newFocusSubgridRowIndex = dimensionSize - 1;
                 }
                 this._viewLayout.setRowScrollAnchor(newAnchorIndex, 0);
-                this._focus.trySetSubgridRowIndex(newFocusSubgridRowIndex, currentFocusPoint.subgrid, undefined, undefined);
+                this._focus.trySetRow(newFocusSubgridRowIndex, currentFocusPoint.subgrid, undefined, undefined);
                 return true;
             }
         }

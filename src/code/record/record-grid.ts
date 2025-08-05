@@ -107,7 +107,7 @@ export class RevRecordGrid<
             } else {
                 const currentFocusPoint = this.focus.current;
                 if (currentFocusPoint !== undefined && currentFocusPoint.subgrid === this.mainSubgrid) {
-                    if (!this.focus.trySetSubgridRowIndex(subgridRowIndex, this.mainSubgrid, undefined, undefined)) {
+                    if (!this.focus.trySetRow(subgridRowIndex, this.mainSubgrid, undefined, undefined)) {
                         this.focus.clear();
                     }
                 } else {

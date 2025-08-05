@@ -801,12 +801,12 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
         return this._focusScrollBehavior.tryFocusColumnRowAndEnsureInView(activeColumnIndex, subgridRowIndex, subgrid, cell);
     }
 
-    tryFocusXAndEnsureInView(activeColumnIndex: Integer): boolean {
+    tryFocusColumnAndEnsureInView(activeColumnIndex: Integer): boolean {
         return this._focusScrollBehavior.tryFocusColumnAndEnsureInView(activeColumnIndex);
     }
 
-    tryFocusSubgridRowAndEnsureInView(subgridRowIndex: Integer, subgrid = this.mainSubgrid): boolean {
-        return this._focusScrollBehavior.tryFocusSubgridRowAndEnsureInView(subgridRowIndex, subgrid);
+    tryFocusRowAndEnsureInView(subgridRowIndex: Integer, subgrid = this.mainSubgrid): boolean {
+        return this._focusScrollBehavior.tryFocusRowAndEnsureInView(subgridRowIndex, subgrid);
     }
 
     tryMoveFocusLeft(): boolean {

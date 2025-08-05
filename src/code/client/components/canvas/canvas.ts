@@ -416,8 +416,10 @@ export class RevCanvas<BGS extends RevBehavioredGridSettings> implements RevClie
 
         switch (this._pointerDownState) {
             case RevCanvas.PointerDownStateId.NotDown:
+                this.pointerUpCancelEventer(event);
                 break;
             case RevCanvas.PointerDownStateId.NotDragging:
+                this.pointerUpCancelEventer(event);
                 this.setPointerDownState(RevCanvas.PointerDownStateId.NotDown, event);
                 break;
             case RevCanvas.PointerDownStateId.DragStarting:
@@ -430,6 +432,7 @@ export class RevCanvas<BGS extends RevBehavioredGridSettings> implements RevClie
                 this.setPointerDownState(RevCanvas.PointerDownStateId.IgnoreClickAfterDrag, event);
                 break;
             case RevCanvas.PointerDownStateId.IgnoreClickAfterDrag:
+                this.pointerUpCancelEventer(event);
                 this.setPointerDownState(RevCanvas.PointerDownStateId.NotDown, event);
                 break;
             default:

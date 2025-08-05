@@ -1,4 +1,5 @@
-import { RevAssertError, RevClientObject, RevSchemaField } from '../../common';
+import { SysTick } from '@pbkware/js-utils';
+import { RevAssertError, RevClientObject, RevSchemaField, RevUnreachableCaseError } from '../../common';
 import { RevCellPropertiesBehavior } from '../behavior/cell-properties-behavior';
 import { RevDataExtractBehavior } from '../behavior/data-extract-behavior';
 import { RevEventBehavior } from '../behavior/event-behavior';
@@ -47,6 +48,9 @@ export class RevUiManager<BGS extends RevBehavioredGridSettings, BCS extends Rev
     private _firstUiController: RevUiController<BGS, BCS, SF>;
     /** @internal */
     private _enabled = false;
+    /** @internal */
+    private _pointerDownCell: RevLinedHoverCell<BCS, SF> | null | undefined;
+    private _pointerDownCellSysTick: SysTick.Time | undefined;
 
     /** @internal */
     constructor(
@@ -189,8 +193,9 @@ export class RevUiManager<BGS extends RevBehavioredGridSettings, BCS extends Rev
      * @internal
      */
     private handleClickEvent(event: MouseEvent): RevLinedHoverCell<BCS, SF> | null | undefined {
-        if (this._enabled) {
-            const cell = this._firstUiController.handleClick(event, null);
+        if (this._enabled && this.isPointerDownCellValid(PointerDownSubsequentEventType.Click)) {
+            const pointerDownCell = this.claimValidPointerDownCell();
+            const cell = this._firstUiController.handleClick(event, pointerDownCell);
             return cell;
         } else {
             return null;
@@ -239,8 +244,9 @@ export class RevUiManager<BGS extends RevBehavioredGridSettings, BCS extends Rev
 
     /** @internal */
     private handlePointerDragStartEvent(event: DragEvent): RevEventBehavior.UiPointerDragStartResult<BCS, SF> {
-        if (this._enabled) {
-            return this._firstUiController.handlePointerDragStart(event, null);
+        if (this._enabled && this.isPointerDownCellValid(PointerDownSubsequentEventType.DragStart)) {
+            const pointerDownCell = this.claimValidPointerDownCell();
+            return this._firstUiController.handlePointerDragStart(event, pointerDownCell);
         } else {
             return {
                 started: false,
@@ -275,16 +281,18 @@ export class RevUiManager<BGS extends RevBehavioredGridSettings, BCS extends Rev
      * @internal
      */
     private handleDblClickEvent(event: MouseEvent): RevLinedHoverCell<BCS, SF> | null | undefined {
-        if (this._enabled) {
+        if (this._enabled && this.isPointerDownCellValid(PointerDownSubsequentEventType.DoubleClick)) {
             this._sharedState.locationCursorName = undefined;
             this._sharedState.locationTitleText = undefined;
-            const cell = this._firstUiController.handleDblClick(event, null);
+            const pointerDownCell = this.claimValidPointerDownCell();
+            const cell = this._firstUiController.handleDblClick(event, pointerDownCell);
             this._mouse.setLocation(this._sharedState.locationCursorName, this._sharedState.locationTitleText);
             return cell;
         } else {
             return null;
         }
     }
+
     /**
      * delegate handling mouse down to the feature chain of responsibility
      * @param event - the event details
@@ -293,6 +301,8 @@ export class RevUiManager<BGS extends RevBehavioredGridSettings, BCS extends Rev
     private handlePointerDownEvent(event: PointerEvent): RevLinedHoverCell<BCS, SF> | null | undefined {
         if (this._enabled) {
             const cell = this._firstUiController.handlePointerDown(event, null);
+            this._pointerDownCell = cell; // Store the cell for potential click/drag operations
+            this._pointerDownCellSysTick = SysTick.now(); // Store the time of the pointer down event
             return cell;
         } else {
             return null;
@@ -439,4 +449,44 @@ export class RevUiManager<BGS extends RevBehavioredGridSettings, BCS extends Rev
             return firstUiController;
         }
     }
+
+    private isPointerDownCellValid(subsequentEventType: PointerDownSubsequentEventType): boolean {
+        if (this._pointerDownCellSysTick === undefined) {
+            return false;
+        } else {
+            const span = SysTick.now() - this._pointerDownCellSysTick;
+            const valid = this.isPointerDownSubsequentEventInTime(subsequentEventType, span);
+            if (!valid) {
+                this._pointerDownCell = null; // Clear the pointer down cell if the time span is exceeded
+                this._pointerDownCellSysTick = undefined;
+            }
+            return valid;
+        }
+    }
+
+    private isPointerDownSubsequentEventInTime(subsequentEventType: PointerDownSubsequentEventType, span: number) {
+        switch (subsequentEventType) {
+            case PointerDownSubsequentEventType.Click:
+                return span < 500; // Click is valid for 500ms
+            case PointerDownSubsequentEventType.DoubleClick:
+                return span < 1000; // Click is valid for 1000ms
+            case PointerDownSubsequentEventType.DragStart:
+                return span < 1800; // Drag is valid for 1800ms
+            default:
+                throw new RevUnreachableCaseError('UICMIPDSEIT44009', subsequentEventType);
+        }
+    }
+
+    private claimValidPointerDownCell(): RevLinedHoverCell<BCS, SF> | null | undefined {
+        const result =this._pointerDownCell;
+        this._pointerDownCell = null; // Clear the pointer down cell if the time span is exceeded
+        this._pointerDownCellSysTick = undefined;
+        return result;
+    }
+}
+
+enum PointerDownSubsequentEventType {
+    Click,
+    DoubleClick,
+    DragStart,
 }

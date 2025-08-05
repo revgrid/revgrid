@@ -43,6 +43,20 @@ export class RevFocusSelectBehavior<BGS extends RevBehavioredGridSettings, BCS e
         }
     }
 
+    focusOnlySelectColumn(activeColumnIndex: number, ensureFullyInView: RevEnsureFullyInView): void {
+        this._selection.beginChange();
+        const focused = this._focus.setColumnOrClear(activeColumnIndex, undefined, undefined);
+        this.onlySelectColumn(activeColumnIndex);
+        if (focused) {
+            if (ensureFullyInView !== RevEnsureFullyInViewEnum.Never) {
+                this._viewLayout.ensureColumnIsInView(activeColumnIndex, ensureFullyInView === RevEnsureFullyInViewEnum.Always);
+            }
+
+            this._selection.clearOnNextFocusChange = true;
+        }
+        this._selection.endChange();
+    }
+
     toggleSelectColumn(activeColumnIndex: number): void {
         this._selection.toggleSelectColumn(activeColumnIndex);
     }
@@ -74,6 +88,20 @@ export class RevFocusSelectBehavior<BGS extends RevBehavioredGridSettings, BCS e
         }
     }
 
+    focusOnlySelectRow(subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>, ensureFullyInView: RevEnsureFullyInView): void {
+        this._selection.beginChange();
+        const focused = this._focus.setRowOrClear(subgridRowIndex, subgrid, undefined, undefined);
+        this.onlySelectRow(subgridRowIndex, subgrid);
+        if (focused) {
+            if (ensureFullyInView !== RevEnsureFullyInViewEnum.Never) {
+                this._viewLayout.ensureRowIsInView(subgridRowIndex, ensureFullyInView === RevEnsureFullyInViewEnum.Always);
+            }
+
+            this._selection.clearOnNextFocusChange = true;
+        }
+        this._selection.endChange();
+    }
+
     toggleSelectRow(subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): void {
         this._selection.toggleSelectRow(0, subgridRowIndex, this._columnsManager.activeColumnCount, subgrid);
     }
@@ -95,7 +123,7 @@ export class RevFocusSelectBehavior<BGS extends RevBehavioredGridSettings, BCS e
                 this._viewLayout.ensureColumnRowAreInView(focusSubgridPoint.x, focusSubgridPoint.y, ensureFullyInView === RevEnsureFullyInViewEnum.Always);
             }
 
-            this._selection.flagFocusLinked();
+            this._selection.clearOnNextFocusChange = true;
         }
         this._selection.endChange();
     }
@@ -115,7 +143,7 @@ export class RevFocusSelectBehavior<BGS extends RevBehavioredGridSettings, BCS e
                 this._viewLayout.ensureColumnRowAreInView(activeColumnIndex, subgridRowIndex, ensureFullyInView === RevEnsureFullyInViewEnum.Always);
             }
 
-            this._selection.flagFocusLinked();
+            this._selection.clearOnNextFocusChange = true;
         }
         this._selection.endChange();
     }
@@ -141,7 +169,7 @@ export class RevFocusSelectBehavior<BGS extends RevBehavioredGridSettings, BCS e
                 this._viewLayout.ensureColumnRowAreInView(activeColumnIndex, subgridRowIndex, ensureFullyInView === RevEnsureFullyInViewEnum.Always);
             }
 
-            this._selection.flagFocusLinked();
+            this._selection.clearOnNextFocusChange = true;
         }
         this._selection.endChange();
     }
@@ -167,7 +195,7 @@ export class RevFocusSelectBehavior<BGS extends RevBehavioredGridSettings, BCS e
                     this._viewLayout.ensureColumnRowAreInView(activeColumnIndex, subgridRowIndex, ensureFullyInView === RevEnsureFullyInViewEnum.Always);
                 }
 
-                this._selection.flagFocusLinked();
+                this._selection.clearOnNextFocusChange = true;
             }
         }
         this._selection.endChange();
@@ -184,7 +212,7 @@ export class RevFocusSelectBehavior<BGS extends RevBehavioredGridSettings, BCS e
             const subgrid = focusPoint.subgrid;
             this._selection.beginChange();
             this._selection.onlySelectCell(activeColumnIndex, subgridRowIndex, subgrid);
-            this._selection.flagFocusLinked();
+            this._selection.clearOnNextFocusChange = true;
             this._selection.endChange();
             return true;
         }
@@ -209,7 +237,7 @@ export class RevFocusSelectBehavior<BGS extends RevBehavioredGridSettings, BCS e
                     this._viewLayout.ensureColumnRowAreInView(focusPoint.x, focusPoint.y, ensureFullyInView === RevEnsureFullyInViewEnum.Always);
                 }
 
-                this._selection.flagFocusLinked();
+                this._selection.clearOnNextFocusChange = true;
             }
         }
         this._selection.endChange();
@@ -232,7 +260,7 @@ export class RevFocusSelectBehavior<BGS extends RevBehavioredGridSettings, BCS e
                 this._viewLayout.ensureColumnRowAreInView(focusPoint.x, focusPoint.y, ensureFullyInView === RevEnsureFullyInViewEnum.Always);
             }
 
-            this._selection.flagFocusLinked();
+            this._selection.clearOnNextFocusChange = true;
         }
         this._selection.endChange();
     }

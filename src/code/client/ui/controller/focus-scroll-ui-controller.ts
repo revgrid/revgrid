@@ -1,8 +1,8 @@
 import { RevAssertError, RevHorizontalWheelScrollingAllowedId, RevSchemaField, RevUnreachableCaseError } from '../../../common';
 import { RevFocus } from '../../components/focus/focus';
 import { RevScroller } from '../../components/scroller/scroller';
+import { RevSubgrid } from '../../interfaces';
 import { RevLinedHoverCell } from '../../interfaces/lined-hover-cell';
-import { RevViewCell } from '../../interfaces/view-cell';
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevGridSettings } from '../../settings';
 import { RevUiController } from './ui-controller';
 
@@ -15,15 +15,43 @@ export class RevFocusScrollUiController<BGS extends RevBehavioredGridSettings, B
             hoverCell = this.tryGetHoverCellFromMouseEvent(event);
         }
         if (hoverCell !== undefined && !RevLinedHoverCell.isMouseOverLine(hoverCell)) {
-            const currentFocusPoint = this._focus.current;
-            if (currentFocusPoint !== undefined) {
-                const viewCell = hoverCell.viewCell;
-                const subgrid = viewCell.subgrid;
-                if (subgrid === currentFocusPoint.subgrid) {
-                    if (!this.willSelectionBeExtended(event, viewCell)) {
-                        this._focusScrollBehavior.tryFocusColumnRowAndEnsureInView(viewCell.viewLayoutColumn.activeColumnIndex, viewCell.viewLayoutRow.subgridRowIndex, subgrid, viewCell);
+            const viewCell = hoverCell.viewCell;
+            const subgrid = viewCell.subgrid;
+            if (subgrid.focusable) {
+                const { willExtend, willAddToggle } = this.calculateSelectionActions(event, subgrid);
+
+                if (!willExtend) {
+                    if (willAddToggle) {
+                        this._selection.clearOnNextFocusChange = false; // Since we are adding, we do not want to clear the selection on next focus change
                     }
+                    this._focusScrollBehavior.tryFocusColumnRowAndEnsureInView(viewCell.viewLayoutColumn.activeColumnIndex, viewCell.viewLayoutRow.subgridRowIndex, subgrid, viewCell);
+                    // const activeColumnIndex = viewCell.viewLayoutColumn.activeColumnIndex;
+                    // const subgridRowIndex = viewCell.viewLayoutRow.subgridRowIndex;
+                    // const rowFocusable = this._focus.isRowFocusable(subgridRowIndex, subgrid);
+
+                    // if (this._focus.isColumnFocusable(activeColumnIndex)) {
+                    //     if (rowFocusable) {
+                    //         this._focus.trySetColumnRow(activeColumnIndex, subgridRowIndex, subgrid, viewCell, undefined, undefined);
+                    //     } else {
+                    //         this._focus.trySetColumn(activeColumnIndex, viewCell, undefined);
+                    //     }
+                    // } else {
+                    //     if (rowFocusable) {
+                    //         this._focus.trySetRow(subgridRowIndex, subgrid, viewCell, undefined);
+                    //     }
+                    // }
                 }
+            // } else {
+            //     if (viewCell.isHeader) {
+            //         const { willExtend, willAddToggle } = this.calculateSelectionActions(event, subgrid);
+
+            //         if (!willExtend) {
+            //             if (willAddToggle) {
+            //                 this._selection.clearOnNextFocusChange = false; // Since we are adding, we do not want to clear the selection on next focus change
+            //             }
+            //             this._focus.trySetColumn(viewCell.viewLayoutColumn.activeColumnIndex, viewCell, undefined);
+            //         }
+            //     }
             }
         }
         return super.handlePointerDown(event, hoverCell);
@@ -253,19 +281,64 @@ export class RevFocusScrollUiController<BGS extends RevBehavioredGridSettings, B
         }
     }
 
-    private willSelectionBeExtended(event: MouseEvent, viewCell: RevViewCell<BCS, SF>) {
+    private calculateSelectionActions(event: MouseEvent, subgrid: RevSubgrid<BCS, SF>) {
+        let willExtend: boolean;
+        let willAddToggle: boolean;
+
+        const gridSettings = this._gridSettings;
+
         if (!this._focusSelectBehavior.isMouseAddToggleExtendSelectionAreaAllowed(event)) {
+            willExtend = false;
+            willAddToggle = false;
+        } else {
+            const addToggleModifierKeyDown = RevGridSettings.isAddToggleSelectionAreaModifierKeyDownInEvent(gridSettings, event);
+            const extendModifierKeyDown = RevGridSettings.isExtendLastSelectionAreaModifierKeyDownInEvent(gridSettings, event);
+
+            if (!extendModifierKeyDown && addToggleModifierKeyDown) {
+                willExtend = false;
+                willAddToggle = true;
+            } else {
+                willAddToggle = false;
+
+                if (!extendModifierKeyDown || addToggleModifierKeyDown) {
+                    willExtend = false;
+                } else {
+                    const lastSelectionArea = this._selection.lastArea;
+                    if (lastSelectionArea === undefined) {
+                        willExtend = false;
+                    } else {
+                        if (lastSelectionArea.subgrid !== subgrid) {
+                            willExtend = false;
+                        } else {
+                            const allowedAreaTypeId = this._selection.calculateMouseSelectAllowedAreaTypeId();
+                            willExtend = allowedAreaTypeId !== undefined;
+                        }
+                    }
+                }
+            }
+        }
+
+        return { willExtend, willAddToggle };
+    }
+
+    private willSelectionBeExtended(event: MouseEvent, subgrid: RevSubgrid<BCS, SF>, addToggleModifierActive: boolean, extendModifierActive: boolean) {
+        const lastSelectionArea = this._selection.lastArea;
+        if (lastSelectionArea === undefined) {
             return false;
         } else {
-            const gridSettings = this._gridSettings;
-            if (
-                RevGridSettings.isAddToggleSelectionAreaModifierKeyDownInEvent(gridSettings, event) ||
-                !RevGridSettings.isExtendLastSelectionAreaModifierKeyDownInEvent(gridSettings, event)
-            ) {
+            if (lastSelectionArea.subgrid !== subgrid) {
                 return false;
             } else {
-                const allowedAreaTypeId = this._selection.calculateMouseMainSelectAllowedAreaTypeId();
-                return allowedAreaTypeId !== undefined;
+                if (!this._focusSelectBehavior.isMouseAddToggleExtendSelectionAreaAllowed(event)) {
+                    return false;
+                } else {
+                    if (addToggleModifierActive || !extendModifierActive) {
+                        return false;
+                    } else {
+                        const allowedAreaTypeId = this._selection.calculateMouseSelectAllowedAreaTypeId();
+                        return allowedAreaTypeId !== undefined;
+                    }
+                }
             }
         }
     }

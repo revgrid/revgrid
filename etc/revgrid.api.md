@@ -1158,17 +1158,17 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     // (undocumented)
     tryFocusBottom(): boolean;
     // (undocumented)
+    tryFocusColumnAndEnsureInView(activeColumnIndex: Integer): boolean;
+    // (undocumented)
     tryFocusColumnRowAndEnsureInView(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: RevMainSubgrid<BCS, SF>, cell?: RevViewCell<BCS, SF>): boolean;
     // (undocumented)
     tryFocusFirstColumn(): boolean;
     // (undocumented)
     tryFocusLastColumn(): boolean;
     // (undocumented)
-    tryFocusSubgridRowAndEnsureInView(subgridRowIndex: Integer, subgrid?: RevMainSubgrid<BCS, SF>): boolean;
+    tryFocusRowAndEnsureInView(subgridRowIndex: Integer, subgrid?: RevMainSubgrid<BCS, SF>): boolean;
     // (undocumented)
     tryFocusTop(): boolean;
-    // (undocumented)
-    tryFocusXAndEnsureInView(activeColumnIndex: Integer): boolean;
     // (undocumented)
     tryMoveFocusDown(): boolean;
     // (undocumented)
@@ -3158,13 +3158,13 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
     // (undocumented)
     isGridPointFocused(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): boolean;
     // (undocumented)
-    isMainSubgridRowFocused(mainSubgridRowIndex: number): boolean;
+    isMainRowFocused(mainSubgridRowIndex: number): boolean;
     // (undocumented)
-    isSubgridPointFocusable(point: RevPoint, subgrid: RevSubgrid<BCS, SF>): boolean;
+    isPointFocusable(point: RevPoint, subgrid: RevSubgrid<BCS, SF>): boolean;
     // (undocumented)
-    isSubgridRowFocusable(subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): boolean;
+    isRowFocusable(subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): boolean;
     // (undocumented)
-    isSubgridRowFocused(subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): boolean;
+    isRowFocused(subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): boolean;
     // (undocumented)
     get previous(): RevFocus.Point<BCS, SF> | undefined;
     // @internal (undocumented)
@@ -3172,22 +3172,26 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
     // @internal (undocumented)
     restoreStash(stash: RevFocus.Stash<BCS, SF>, allRowsKept: boolean): void;
     // (undocumented)
+    setColumnOrClear(activeColumnIndex: number, cell: RevViewCell<BCS, SF> | undefined, canvasX: number | undefined): boolean;
+    // (undocumented)
     setColumnRowOrClear(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>, cell: RevViewCell<BCS, SF> | undefined, canvasX: number | undefined, canvasY: number | undefined): boolean;
     // (undocumented)
     setFocusedEditValue(value: RevDataServer.ViewValue): void;
     // (undocumented)
     setPointOrClear(subgridPoint: RevPoint, subgrid: RevSubgrid<BCS, SF>, cell: RevViewCell<BCS, SF> | undefined, canvasPoint: RevPartialPoint | undefined): boolean;
+    // (undocumented)
+    setRowOrClear(subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>, cell: RevViewCell<BCS, SF> | undefined, canvasY: number | undefined): boolean;
     tryOpenEditor(): boolean;
     // @internal (undocumented)
     tryOpenEditorAtViewCell(cell: RevViewCell<BCS, SF>): boolean;
     // (undocumented)
-    trySetColumnIndex(activeColumnIndex: number, cell: RevViewCell<BCS, SF> | undefined, canvasX: number | undefined): boolean;
+    trySetColumn(activeColumnIndex: number, cell: RevViewCell<BCS, SF> | undefined, canvasX: number | undefined): boolean;
     // (undocumented)
     trySetColumnRow(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>, cell: RevViewCell<BCS, SF> | undefined, canvasX: number | undefined, canvasY: number | undefined): boolean;
     // (undocumented)
     trySetPoint(subgridPoint: RevPoint, subgrid: RevSubgrid<BCS, SF>, cell: RevViewCell<BCS, SF> | undefined, canvasPoint: RevPartialPoint | undefined): boolean;
     // (undocumented)
-    trySetSubgridRowIndex(subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>, cell: RevViewCell<BCS, SF> | undefined, canvasY: number | undefined): boolean;
+    trySetRow(subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>, cell: RevViewCell<BCS, SF> | undefined, canvasY: number | undefined): boolean;
     // @internal (undocumented)
     viewCellRenderInvalidatedEventer: RevFocus.ViewCellRenderInvalidatedEventer<BCS, SF>;
 }
@@ -3287,7 +3291,7 @@ export class RevFocusScrollBehavior<BGS extends RevBehavioredGridSettings, BCS e
     // (undocumented)
     tryFocusLastColumn(): boolean;
     // (undocumented)
-    tryFocusSubgridRowAndEnsureInView(subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): boolean;
+    tryFocusRowAndEnsureInView(subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): boolean;
     // (undocumented)
     tryFocusTop(): boolean;
     // (undocumented)
@@ -3376,7 +3380,11 @@ export class RevFocusSelectBehavior<BGS extends RevBehavioredGridSettings, BCS e
     readonly clientId: string;
     focusOnlySelectCell(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>, ensureFullyInView: RevEnsureFullyInView): void;
     // (undocumented)
+    focusOnlySelectColumn(activeColumnIndex: number, ensureFullyInView: RevEnsureFullyInView): void;
+    // (undocumented)
     focusOnlySelectRectangle(leftOrExRightActiveColumnIndex: number, topOrExBottomSubgridRowIndex: number, width: number, height: number, subgrid: RevSubgrid<BCS, SF>, ensureFullyInView: RevEnsureFullyInView): void;
+    // (undocumented)
+    focusOnlySelectRow(subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>, ensureFullyInView: RevEnsureFullyInView): void;
     // (undocumented)
     focusReplaceLastArea(areaTypeId: RevSelectionAreaTypeId, leftOrExRightActiveColumnIndex: number, topOrExBottomSubgridRowIndex: number, width: number, height: number, subgrid: RevSubgrid<BCS, SF>, ensureFullyInView: RevEnsureFullyInView): void;
     // (undocumented)
@@ -6185,12 +6193,14 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
     // @internal (undocumented)
     calculateAreaTypeFromSpecifier(specifier: RevSelectionAreaTypeSpecifierId): RevSelectionAreaTypeId;
     // @internal (undocumented)
-    calculateMouseMainSelectAllowedAreaTypeId(): RevSelectionAreaTypeId.rectangle | RevSelectionAreaTypeId.row | RevSelectionAreaTypeId.column | undefined;
+    calculateMouseSelectAllowedAreaTypeId(): RevSelectionAreaTypeId.rectangle | RevSelectionAreaTypeId.row | RevSelectionAreaTypeId.column | undefined;
     // @internal (undocumented)
     changedEventerForEventBehavior: RevSelection.ChangedEventer;
     // @internal (undocumented)
     changedEventerForRenderer: RevSelection.ChangedEventer;
     clear(): void;
+    get clearOnNextFocusChange(): boolean;
+    set clearOnNextFocusChange(value: boolean);
     // (undocumented)
     readonly clientId: string;
     createStash(): RevSelection.Stash<BCS, SF>;
@@ -6204,10 +6214,8 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
     destroy(): void;
     get dynamicAllSubgrids(): readonly RevSubgrid<BCS, SF>[];
     endChange(): void;
-    flagFocusLinked(): void;
     // @internal (undocumented)
     focusLinkableOnlySelectCell(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>, focusLinked: boolean): RevLastSelectionArea<BCS, SF>;
-    get focusLinked(): boolean;
     // (undocumented)
     getAllAreaColumnIndices(): number[];
     getAllCellSelectionAreaTypeIds(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): RevSelectionAreaTypeId[];

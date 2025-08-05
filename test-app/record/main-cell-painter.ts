@@ -55,7 +55,7 @@ export class MainCellPainter
         const focus = grid.focus;
         let internalBorderColor: string | undefined;
         let focusedCellBorderColor: string | undefined;
-        const rowFocused = focus.isMainSubgridRowFocused(subgridRowIndex);
+        const rowFocused = focus.isMainRowFocused(subgridRowIndex);
         let cellFocused: boolean;
         if (rowFocused) {
             if (gridSettings.focusedRowBorderColor !== undefined) {

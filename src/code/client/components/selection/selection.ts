@@ -44,7 +44,7 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
     private _lastArea: RevLastSelectionArea<BCS, SF> | undefined;
 
     /** @internal */
-    private _focusLinked = false;
+    private _clearOnNextFocusChange = false;
 
     /** @internal */
     private _beginChangeCount = 0;
@@ -67,8 +67,8 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
         private readonly _focus: RevFocus<BGS, BCS, SF>,
     ) {
         this._focus.currentCellChangedForSelectionEventer = () => {
-            if (this._focusLinked) {
-                this._focusLinked = false;
+            if (this._clearOnNextFocusChange) {
+                this._clearOnNextFocusChange = false;
                 this.clear();
             }
         }
@@ -84,8 +84,9 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
      */
     get dynamicAllSubgrids(): readonly RevSubgrid<BCS, SF>[] { return this._dynamicAllSubgrids; }
 
-    /** Gets whether the focus is linked to the selection. If it is linked, then selection will be cleared when focus changes. */
-    get focusLinked(): boolean { return this._focusLinked; }
+    /** Determines whether the selection will be cleared on the next focus change. */
+    get clearOnNextFocusChange(): boolean { return this._clearOnNextFocusChange; }
+    set clearOnNextFocusChange(value: boolean) { this._clearOnNextFocusChange = value; }
 
     /** @internal */
     destroy(): void {
@@ -208,7 +209,7 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
             }
 
             this._lastArea = undefined;
-            this._focusLinked = false;
+            this._clearOnNextFocusChange = false;
 
             if (changed) {
                 this.flagChanged(false);
@@ -223,7 +224,7 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
         this.beginChange();
         try {
             const area = this.onlySelectCell(activeColumnIndex, subgridRowIndex, subgrid);
-            this._focusLinked = focusLinked;
+            this._clearOnNextFocusChange = focusLinked;
             return area;
         } finally {
             this.endChange();
@@ -927,13 +928,6 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
         }
     }
 
-    /**
-     * Indicates that the selection is linked to focus and should be cleared when focus changes.
-     */
-    flagFocusLinked(): void {
-        this._focusLinked = true;
-    }
-
     isDynamicAllSelected(subgrid: RevSubgrid<BCS, SF> | undefined): boolean {
         if (subgrid === undefined) {
             return doesArrayContainArray(this._dynamicAllSubgrids, this._subgridsManager.subgrids);
@@ -1357,8 +1351,8 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
     }
 
     /** @internal */
-    calculateMouseMainSelectAllowedAreaTypeId() {
-        const areaTypeId = this.calculateMouseMainSelectAreaTypeId();
+    calculateMouseSelectAllowedAreaTypeId() {
+        const areaTypeId = this.calculateMouseSelectAreaTypeId();
         switch (areaTypeId) {
             case RevSelectionAreaTypeId.dynamicAll: throw new RevAssertError('SCMMSAATI39113');
             case RevSelectionAreaTypeId.rectangle: return areaTypeId;
@@ -1507,7 +1501,7 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
 
     /** @internal */
     private flagChanged(silently: boolean) {
-        this._focusLinked = false;
+        this._clearOnNextFocusChange = false;
 
         if (silently) {
             // Can only flag as silently if no other change was silent
@@ -1584,7 +1578,7 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
     }
 
     /** @internal */
-    private calculateMouseMainSelectAreaTypeId() {
+    private calculateMouseSelectAreaTypeId() {
         const switchNewRectangleSelectionToRowOrColumn = this._gridSettings.switchNewRectangleSelectionToRowOrColumn;
         switch (switchNewRectangleSelectionToRowOrColumn) {
             case undefined: return this.calculateAreaTypeFromSpecifier(RevSelectionAreaTypeSpecifierId.Primary);
