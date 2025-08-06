@@ -391,7 +391,6 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
      * @param height - The number of rows in the selection area. If negative, `height` is in reverse direction from the exclusive bottom index.
      * @param subgrid - The subgrid context in which the selection is being made.
      * @returns The created {@link RevLastSelectionArea} if a valid area is selected; otherwise, `undefined`.
-     * @throws {@link RevUnreachableCaseError} If an unknown area type is provided.
      */
     selectArea(
         areaTypeId: RevSelectionAreaTypeId,
@@ -616,7 +615,7 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
      *
      * The leftOrExRightActiveColumnIndex and width values are needed to create a selection area.  Normally they are set to specify all columns in the subgrid.
      *
-     * Note that while this selects all cells in the subgrid, it differs from {@link allAreaActive} in that this selection area will not include new rows subsequently added to the subgrid.
+     * Note that while this selects all cells in the subgrid, it differs from {@link selectDynamicAll} in that this selection area will not include new rows subsequently added to the subgrid.
      *
      * Recommend use `RevFocusSelectBehavior.selectAllRows()` instead.
      *
@@ -1046,7 +1045,6 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
      * @param subgrid - The subgrid instance containing the cell.
      * @param selectedTypeId - The type of selection area used to select the cell.
      * @returns `true` if the active cell is the only selected cell, otherwise `false`.
-     * @throws `RevUnreachableCaseError` If an unknown `selectedTypeId` is provided.
      */
     isSelectedCellTheOnlySelectedCell(
         activeColumnIndex: number,
@@ -1085,17 +1083,17 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
     }
 
     /**
-     * Determines whether the selection contains any column or row selection areas.
+     * Determines whether any rows or columns are selected.
      *
-     * @param includeDynamicAllIfSelected - If `true`, and {@link allAreaActive} is `true`, then considers all active columns, and rows in the subgrid, to be selected.
-     * @returns `true` if there are any selected columns or rows, or if the "all area" mode is active and there are columns or rows available; otherwise, `false`.
-     * @throws RevAssertError If the subgrid is undefined when checking for row count in "all area" mode.
+     * @param includeDynamicAll - If `true`, then test includes rows and columns selected with {@link RevSelectionAreaTypeId.dynamicAll | dynamicAll}; otherwise
+     * rows and columns only selected with this selection area type are excluded.
+     * @returns `true` if any rows or columns are selected; otherwise, `false`.
      */
-    hasColumnsOrRows(includeDynamicAllIfSelected: boolean): boolean {
+    hasColumnsOrRows(includeDynamicAll: boolean): boolean {
         if (this._columns.hasIndices() || this._rows.hasIndices(undefined)) {
             return true;
         } else {
-            if (!includeDynamicAllIfSelected || this._dynamicAllSubgrids.length === 0) {
+            if (!includeDynamicAll || this._dynamicAllSubgrids.length === 0) {
                 return false;
             } else {
                 if (this._columnsManager.activeColumnCount > 0) {
@@ -1115,11 +1113,18 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
         }
     }
 
-    hasRows(subgrid: RevSubgrid<BCS, SF> | undefined, includeDynamicAllIfSelected: boolean): boolean {
+    /**
+     * Determines whether any rows are selected.
+     *
+     * @param includeDynamicAll - If `true`, then test includes rows selected with {@link RevSelectionAreaTypeId.dynamicAll | dynamicAll}; otherwise
+     * rows only selected with this selection area type are excluded.
+     * @returns `true` if any rows are selected; otherwise, `false`.
+     */
+    hasRows(subgrid: RevSubgrid<BCS, SF> | undefined, includeDynamicAll: boolean): boolean {
         if (this._rows.hasIndices(subgrid)) {
             return true;
         } else {
-            if (!includeDynamicAllIfSelected || this._dynamicAllSubgrids.length === 0) {
+            if (!includeDynamicAll || this._dynamicAllSubgrids.length === 0) {
                 return false;
             } else {
                 if (subgrid === undefined) {
@@ -1139,8 +1144,16 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
         }
     }
 
-    getRowCount(subgrid: RevSubgrid<BCS, SF> | undefined, includeDynamicAllIfSelected: boolean): number {
-        if (!includeDynamicAllIfSelected || this._dynamicAllSubgrids.length === 0) {
+    /**
+     * Gets the count of selected rows.
+     *
+     * @param subgrid - The subgrid in which to count selected rows. If `undefined`, counts across all subgrids.
+     * @param includeDynamicAll - If `true`, then count includes all rows selected with {@link RevSelectionAreaTypeId.dynamicAll | dynamicAll}; otherwise
+     * rows only selected with this selection area type are excluded from the count.
+     * @returns The count of selected rows.
+     */
+    getRowCount(subgrid: RevSubgrid<BCS, SF> | undefined, includeDynamicAll: boolean): number {
+        if (!includeDynamicAll || this._dynamicAllSubgrids.length === 0) {
             return this._rows.getIndexCount(subgrid);
         } else {
             if (subgrid === undefined) {
@@ -1165,6 +1178,11 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
         }
     }
 
+    /**
+     * Gets the count of rows included in {@link RevSelectionAreaTypeId.dynamicAll | dynamicAll} selection areas across all subgrids.
+     *
+     * @returns The count of selected rows.
+     */
     getDynamicAllRowCount(): number {
         const dynamicAllSubgrids = this._dynamicAllSubgrids;
         const dynamicAllSubgridCount = dynamicAllSubgrids.length;
@@ -1180,8 +1198,17 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
         }
     }
 
-    getRowIndices(includeDynamicAllIfSelected: boolean): RevSelectionRows.SubgridIndices<BCS, SF>[] {
-        if (!includeDynamicAllIfSelected || this._dynamicAllSubgrids.length === 0) {
+    /**
+     * Gets all the selected row indices.
+     *
+     * Since indices are not unique across subgrids, the result returns separate arrays of row indices for each subgrid containing selected rows.
+     *
+     * @param includeDynamicAll - If `true`, then includes indices of all rows selected with {@link RevSelectionAreaTypeId.dynamicAll | dynamicAll}; otherwise
+     * indices of rows only selected with this selection area type are excluded.
+     * @returns An array of objects, where each object contains a subgrid and an array of row indices for that subgrid.
+     */
+    getRowIndices(includeDynamicAll: boolean): RevSelectionRows.SubgridIndices<BCS, SF>[] {
+        if (!includeDynamicAll || this._dynamicAllSubgrids.length === 0) {
             return this._rows.getIndices();
         } else {
             const result = this.getDynamicAllRowIndices();
@@ -1198,10 +1225,23 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
         }
     }
 
+    /**
+     * Gets all the selected row indices in a subgrid.
+     *
+     * @returns An array of row indices.
+     */
     getSubgridRowIndices(subgrid: RevSubgrid<BCS, SF>): number[] {
         return this._rows.getSubgridIndices(subgrid);
     }
 
+    /**
+     * Gets all selected row indices included in {@link RevSelectionAreaTypeId.dynamicAll | dynamicAll} selection areas across all subgrids.
+     *
+     * Since indices are not unique across subgrids, the result returns separate arrays of row indices for each subgrid
+     * included in {@link dynamicAllSubgrids} containing one or more rows.
+     *
+     * @returns An array of objects, where each object contains a subgrid and an array of row indices for that subgrid.
+     */
     getDynamicAllRowIndices(): RevSelectionRows.SubgridIndices<BCS, SF>[] {
         const dynamicAllSubgrids = this._dynamicAllSubgrids;
         const dynamicAllSubgridCount = dynamicAllSubgrids.length;
@@ -1221,6 +1261,13 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
         }
     }
 
+    /**
+     * Gets all row indices in a subgrid if it is selected with {@link RevSelectionAreaTypeId.dynamicAll | dynamicAll} selection area.
+     *
+     * That is, the subgrid must be included in {@link dynamicAllSubgrids}.
+     *
+     * @returns An array of row indices.
+     */
     getSubgridDynamicAllRowIndices(subgrid: RevSubgrid<BCS, SF>): number[] {
         if (!this.isDynamicAllSelected(subgrid)) {
             return [];
@@ -1230,16 +1277,17 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
     }
 
     /**
-     * Determines whether selection includes any column selection areas.
+     * Determines whether any columns are selected.
      *
-     * @param includeDynamicAllIfSelected - If `true`, considers then any active columns are considered as column selection areas.
+     * @param includeDynamicAll - If `true`, then test includes any columns if there are one or more {@link RevSelectionAreaTypeId.dynamicAll | dynamicAll} type selection areas; otherwise
+     * this selection area type is ignored.
      * @returns `true` if selection contains one or more column selection areas, otherwise `false`.
      */
-    hasColumns(includeDynamicAllIfSelected: boolean): boolean {
+    hasColumns(includeDynamicAll: boolean): boolean {
         if (this._columns.hasIndices()) {
             return true;
         } else {
-            if (!includeDynamicAllIfSelected || this._dynamicAllSubgrids.length === 0) {
+            if (!includeDynamicAll || this._dynamicAllSubgrids.length === 0) {
                 return false;
             } else {
                 return this._columnsManager.activeColumnCount > 0;
@@ -1247,15 +1295,27 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
         }
     }
 
-    getColumnIndices(includeDynamicAllIfSelected: boolean): number[] {
-        if (includeDynamicAllIfSelected && this._dynamicAllSubgrids.length > 0) {
-            return this.getAllAreaColumnIndices();
+    /**
+     * Gets all the selected column indices.
+     *
+     * @param includeDynamicAll - If `true`, then result includes all column indices if there are one or more {@link RevSelectionAreaTypeId.dynamicAll | dynamicAll} type selection areas; otherwise
+     * this selection area type is ignored.
+     * @returns An array of column indices.
+     */
+    getColumnIndices(includeDynamicAll: boolean): number[] {
+        if (includeDynamicAll && this._dynamicAllSubgrids.length > 0) {
+            return this.getDynamicAllColumnIndices();
         } else {
             return this._columns.getIndices();
         }
     }
 
-    getAllAreaColumnIndices(): number[] {
+    /**
+     * Gets all column indices if there are one or more {@link RevSelectionAreaTypeId.dynamicAll | dynamicAll} type selection areas.
+     *
+     * @returns An array of column indices.
+     */
+    getDynamicAllColumnIndices(): number[] {
         if (this._dynamicAllSubgrids.length === 0) {
             return [];
         } else {
@@ -1268,27 +1328,32 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
         }
     }
 
-    // getRectangleFlattenedYs() {
-    //     this.rectangleList.getFlattenedYs();
-    // }
 
+    /**
+     * Returns an array of selection areas that cover the specified cell.
+     *
+     * @param activeColumnIndex - The index of the active column containing the cell.
+     * @param subgridRowIndex - The row index within the subgrid.
+     * @param subgrid - The subgrid instance containing the cell.
+     * @returns An array of `RevSelectionArea` objects that cover the specified cell.
+     */
     getAreasCoveringCell(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): RevSelectionArea<BCS, SF>[] {
         let result: RevSelectionArea<BCS, SF>[];
-        if (this.isDynamicAllSelected(subgrid)) {
+        if (!this.isDynamicAllSelected(subgrid)) {
+            result = [];
+        } else {
             const area = this.createLastSelectionAreaFromAll(subgrid);
             if (area === undefined) {
                 result = [];
             } else {
                 result = [area];
             }
-        } else {
-            const range = this._rows.findRangeWithIndex(subgrid, subgridRowIndex);
-            if (range === undefined) {
-                result = [];
-            } else {
-                const area = this.createAreaFromRowRange(range, subgrid);
-                result = [area];
-            }
+        }
+
+        const range = this._rows.findRangeWithIndex(subgrid, subgridRowIndex);
+        if (range !== undefined) {
+            const area = this.createAreaFromRowRange(range, subgrid);
+            result.push(area);
         }
 
         const columnRange = this._columns.findRangeWithIndex(activeColumnIndex);

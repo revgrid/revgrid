@@ -9,4 +9,6 @@ export * from './selection-range';
 export * from './selection-range-list';
 export * from './selection-rectangle';
 export * from './selection-rectangle-list';
+export * from './selection-subgrid-rectangle-list';
+export * from './subgrid-selection-range-list';
 

@@ -815,11 +815,11 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     // (undocumented)
     addEventListener(eventName: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
     // (undocumented)
-    areColumnsOrRowsSelected(includeDynamicAllIfSelectedActive?: boolean): boolean;
+    areColumnsOrRowsSelected(includeDynamicAll?: boolean): boolean;
     // (undocumented)
-    areColumnsSelected(includeDynamicAllIfSelected?: boolean): boolean;
+    areColumnsSelected(includeDynamicAll?: boolean): boolean;
     // (undocumented)
-    areRowsSelected(subgrid?: RevMainSubgrid<BCS, SF>, includeDynamicAllIfSelected?: boolean): boolean;
+    areRowsSelected(subgrid?: RevMainSubgrid<BCS, SF>, includeDynamicAll?: boolean): boolean;
     // (undocumented)
     autoSizeActiveColumnWidths(widenOnly: boolean): void;
     // (undocumented)
@@ -1010,15 +1010,15 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     // (undocumented)
     getSelectedAllAreaRowCount(): number;
     // (undocumented)
-    getSelectedColumnIndices(includeDynamicAllIfSelected?: boolean): number[];
+    getSelectedColumnIndices(includeDynamicAll?: boolean): number[];
     // (undocumented)
     getSelectedDynamicAllRowIndices(): RevSelectionRows.SubgridIndices<BCS, SF>[];
     // (undocumented)
-    getSelectedRowCount(subgrid?: RevMainSubgrid<BCS, SF>, includeDynamicAllIfSelected?: boolean): number;
+    getSelectedRowCount(subgrid?: RevMainSubgrid<BCS, SF>, includeDynamicAll?: boolean): number;
     // Warning: (ae-forgotten-export) The symbol "RevSelectionRows" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
-    getSelectedRowIndices(includeDynamicAllIfSelected?: boolean): RevSelectionRows.SubgridIndices<BCS, SF>[];
+    getSelectedRowIndices(includeDynamicAll?: boolean): RevSelectionRows.SubgridIndices<BCS, SF>[];
     // (undocumented)
     getSelectedSubgridDynamicAllRowIndices(subgrid?: RevMainSubgrid<BCS, SF>): Integer[];
     getSingletonViewDataRow(subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>): RevDataServer.ViewRow;
@@ -6216,34 +6216,24 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
     endChange(): void;
     // @internal (undocumented)
     focusLinkableOnlySelectCell(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>, focusLinked: boolean): RevLastSelectionArea<BCS, SF>;
-    // (undocumented)
-    getAllAreaColumnIndices(): number[];
     getAllCellSelectionAreaTypeIds(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): RevSelectionAreaTypeId[];
-    // (undocumented)
     getAreasCoveringCell(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): RevSelectionArea<BCS, SF>[];
-    // (undocumented)
-    getColumnIndices(includeDynamicAllIfSelected: boolean): number[];
-    // (undocumented)
+    getColumnIndices(includeDynamicAll: boolean): number[];
+    getDynamicAllColumnIndices(): number[];
     getDynamicAllRowCount(): number;
-    // (undocumented)
     getDynamicAllRowIndices(): RevSelectionRows.SubgridIndices<BCS, SF>[];
     getLastRectangle(): RevSelectionRectangle<BCS, SF> | undefined;
     getOneCellSelectionAreaTypeId(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): RevSelectionAreaTypeId | undefined;
     getRectangles(subgrid: RevSubgrid<BCS, SF> | undefined): readonly RevSelectionRectangle<BCS, SF>[];
-    // (undocumented)
-    getRowCount(subgrid: RevSubgrid<BCS, SF> | undefined, includeDynamicAllIfSelected: boolean): number;
-    // (undocumented)
-    getRowIndices(includeDynamicAllIfSelected: boolean): RevSelectionRows.SubgridIndices<BCS, SF>[];
-    // (undocumented)
+    getRowCount(subgrid: RevSubgrid<BCS, SF> | undefined, includeDynamicAll: boolean): number;
+    getRowIndices(includeDynamicAll: boolean): RevSelectionRows.SubgridIndices<BCS, SF>[];
     getSubgridDynamicAllRowIndices(subgrid: RevSubgrid<BCS, SF>): number[];
-    // (undocumented)
     getSubgridRowIndices(subgrid: RevSubgrid<BCS, SF>): number[];
-    hasColumns(includeDynamicAllIfSelected: boolean): boolean;
-    hasColumnsOrRows(includeDynamicAllIfSelected: boolean): boolean;
+    hasColumns(includeDynamicAll: boolean): boolean;
+    hasColumnsOrRows(includeDynamicAll: boolean): boolean;
     // (undocumented)
     hasRectangles(subgrid: RevSubgrid<BCS, SF> | undefined): boolean;
-    // (undocumented)
-    hasRows(subgrid: RevSubgrid<BCS, SF> | undefined, includeDynamicAllIfSelected: boolean): boolean;
+    hasRows(subgrid: RevSubgrid<BCS, SF> | undefined, includeDynamicAll: boolean): boolean;
     // (undocumented)
     readonly internalParent: RevClientObject;
     isCellSelected(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): boolean;
@@ -6454,6 +6444,69 @@ export class RevSelectionRectangleList<BCS extends RevBehavioredColumnSettings, 
     removeAt(subgrid: RevSubgrid<BCS, SF>, index: number): void;
     // (undocumented)
     removeLast(): boolean;
+}
+
+// @public (undocumented)
+export class RevSelectionSubgridRectangleList<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> {
+    constructor(subgrid: RevSubgrid<BCS, SF>);
+    // (undocumented)
+    adjustForXRangeDeleted(index: number, count: number): boolean;
+    // (undocumented)
+    adjustForXRangeInserted(index: number, count: number): boolean;
+    // (undocumented)
+    adjustForYRangeDeleted(index: number, count: number): boolean;
+    // (undocumented)
+    adjustForYRangeInserted(index: number, count: number): boolean;
+    // (undocumented)
+    adjustForYRangeMoved(oldIndex: number, newIndex: number, count: number): boolean;
+    // (undocumented)
+    get areaCount(): number;
+    // (undocumented)
+    assign(other: RevSelectionSubgridRectangleList<BCS, SF>): void;
+    // (undocumented)
+    clear(): void;
+    // (undocumented)
+    containsPoint(x: number, y: number): boolean;
+    // (undocumented)
+    containsX(x: number): boolean;
+    // (undocumented)
+    containsY(y: number): boolean;
+    // (undocumented)
+    findIndex(ox: number, oy: number, ex: number, ey: number): number;
+    // (undocumented)
+    getFlattenedYs(): number[];
+    // (undocumented)
+    getLastRectangle(): RevSelectionRectangle<BCS, SF> | undefined;
+    // (undocumented)
+    getNonUniqueXIndices(): number[];
+    // (undocumented)
+    getRectanglesContainingPoint(x: number, y: number): RevSelectionRectangle<BCS, SF>[];
+    // (undocumented)
+    getUniqueXIndexCount(): number;
+    // (undocumented)
+    get has(): boolean;
+    // (undocumented)
+    hasMoreThanOnePoint(): boolean;
+    // (undocumented)
+    hasPointOtherThan(x: number, y: number): boolean;
+    // (undocumented)
+    hasPoints(): boolean;
+    // (undocumented)
+    hasZeroOneOrMoreThanOnePoint(): 0 | 1 | -1;
+    // (undocumented)
+    isEmpty(): boolean;
+    // (undocumented)
+    only(rectangle: RevSelectionRectangle<BCS, SF>): void;
+    // (undocumented)
+    push(rectangle: RevSelectionRectangle<BCS, SF>): void;
+    // (undocumented)
+    readonly rectangles: RevSelectionRectangle<BCS, SF>[];
+    // (undocumented)
+    remove(rectangle: RevSelectionRectangle<BCS, SF>): boolean;
+    // (undocumented)
+    removeAt(index: number): RevSelectionRectangle<BCS, SF> | undefined;
+    // (undocumented)
+    readonly subgrid: RevSubgrid<BCS, SF>;
 }
 
 // Warning: (ae-internal-missing-underscore) The name "RevSelectionUiController" should be prefixed with an underscore because the declaration is marked as @internal
@@ -7873,6 +7926,13 @@ export namespace RevSubgridImplementation {
         // (undocumented)
         updateSchema(): void;
     }
+}
+
+// @public (undocumented)
+export class RevSubgridSelectionRangeList<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevSelectionRangeList {
+    constructor(subgrid: RevSubgrid<BCS, SF>);
+    // (undocumented)
+    readonly subgrid: RevSubgrid<BCS, SF>;
 }
 
 // @public (undocumented)

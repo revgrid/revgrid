@@ -22,12 +22,12 @@ The {@link client/components/selection/selection!RevSelection:class RevSelection
 
 A selection consists of one or more selection areas. There are 4 types of selection areas enumerated by {@link common/types-utils/selection-area-type!RevSelectionAreaTypeId | RevSelectionAreaTypeId}.
 
-* **all**: All the cells within the selection's subgrid. There can only be one `all` area in a selection.
+* **dynamicAll**: All the cells within a selection's subgrid. The size of this area will dynamically adjust if rows or columns are added or deleted.
 * **rectangle**: A rectangle of cells within the selection's subgrid.
 * **row**: One or more contiguous rows within the selection's subgrid.
 * **column**: One or more contiguous columns. This is independent of the selection's subgrid.
 
-A selection is tied to a [subgrid](../subgrids-manager/index.md). Areas of type `all`, `rectangle`, `row` are fully contained within that subgrid. If one of these areas are added to an existing selection but specifies a different subgrid, then the existing areas are cleared from the selection. A selection's subgrid is set by the first area added to it.  By default, this is the {@link client/client-grid!RevClientGrid#mainSubgrid | main subgrid}.
+Selection areas can be in different subgrids however individual areas of type `dynamicAll`, `rectangle`, `row` are fully contained within one subgrid.
 
 ## Updating selection
 
