@@ -1,6 +1,6 @@
 {
   "name": "revgrid",
-  "version": "0.9.3",
+  "version": "0.10.0",
   "description": "Canvas based high performance grid",
   "module": "dist/code/index.js",
   "browser": "dist/code/index.js",
