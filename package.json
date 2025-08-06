@@ -84,6 +84,6 @@
     "Firefox ESR"
   ],
   "dependencies": {
-    "@pbkware/js-utils": "0.8.2"
+    "@pbkware/js-utils": "0.8.3"
   }
 }
