@@ -305,7 +305,7 @@ export class RevCanvas<BGS extends RevBehavioredGridSettings> implements RevClie
         this._flooredWidth = flooredWidth;
         this._flooredHeight = flooredHeight;
 
-        // http://www.html5rocks.com/en/tutorials/canvas/hidpi/
+        // https://web.dev/articles/canvas-hidipi
         const ratio = this._gridSettings.useHiDPI ? window.devicePixelRatio : 1;
 
         const ratioChanged = ratio !== this._devicePixelRatio;

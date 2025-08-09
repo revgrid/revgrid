@@ -19,7 +19,7 @@ The Client components manage the main resources and constructs used in Revgrid. 
 ![Components Dependency Block](components-dependency-block.excalidraw.svg)
 
 * **[Canvas](./canvas/index.md)**\
-ToDo
+Handles interactions with the grid's canvas HTML element.
 * **[Columns Manager](./columns-manager/index.md)**\
 ToDo
 * **[Subgrids Manager](./subgrids-manager/index.md)**\

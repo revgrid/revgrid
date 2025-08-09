@@ -4,7 +4,7 @@ title: Focus
 
 # Focus Component
 
-The {@link client/components/focus/focus!RevFocus:class RevFocus} class, which manages cell focus and cell editing within a grid component. It holds the central logic for managing which cell is focused and how cell editing is triggered and maintained in the grid UI.
+Defines the {@link client/components/focus/focus!RevFocus:class RevFocus} class, which manages cell focus and cell editing within a grid component. It holds the central logic for managing which cell is focused and how cell editing is triggered and maintained in the grid UI.
 
 ## Main responsibilities
 

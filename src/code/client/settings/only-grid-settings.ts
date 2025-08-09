@@ -184,6 +184,7 @@ export interface RevOnlyGridSettings {
     sortOnDoubleClick: boolean;
     /** Column can be sorted with mouse click on column header */
     sortOnClick: boolean;
+    /** Use window.devicePixelRatio to adjust canvas scaling */
     useHiDPI: boolean;
     /** Color of vertical grid lines. */
     verticalGridLinesColor: RevOnlyGridSettings.Color;

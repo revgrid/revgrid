@@ -7,13 +7,13 @@ import { RevUnreachableCaseError } from './revgrid-error';
  * @public
  */
 export const enum RevSelectionAreaTypeId {
-    /** All the cells within the selection's active subgrid */
+    /** All the cells within a subgrid. Dynamically changes to reflect additions and deletions of rows and columns. */
     dynamicAll,
-    /** A rectangle of cells within the selection's active subgrid */
+    /** A rectangle of cells within a subgrid. */
     rectangle,
-    /** One or more contiguous rows within the selection's active subgrid */
+    /** One or more contiguous rows within a subgrid. */
     row,
-    /** One or more contiguous columns. This is independent of the selection's active subgrid */
+    /** One or more contiguous columns. */
     column,
 }
 
