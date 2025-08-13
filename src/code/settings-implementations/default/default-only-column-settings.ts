@@ -14,7 +14,7 @@ export const revDefaultOnlyColumnSettings: RevOnlyColumnSettings = {
     editOnFocusCell: revDefaultOnlyGridSettings.editOnFocusCell,
     editOnKeyDown: revDefaultOnlyGridSettings.editOnKeyDown,
     editOnClick: revDefaultOnlyGridSettings.editOnClick,
-    editorClickableCursorName: revDefaultOnlyGridSettings.editorClickableCursorName,
+    cellEditPossibleCursorName: revDefaultOnlyGridSettings.cellEditPossibleCursorName,
     filterable: revDefaultOnlyGridSettings.filterable,
     minimumColumnWidth: revDefaultOnlyGridSettings.minimumColumnWidth,
     maximumColumnWidth: revDefaultOnlyGridSettings.maximumColumnWidth,

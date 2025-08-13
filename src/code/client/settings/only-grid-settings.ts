@@ -12,19 +12,25 @@ export interface RevOnlyGridSettings {
     columnAutoSizingMax: number | undefined;
     /** Set up a clipping region around each column before painting cells. This will be interpretted differently by grid painters according to their algorithm*/
     columnClip: boolean | undefined;
+    /** Cursor to display when current mouse position allows a column to be moved with a mouse drag */
     columnMoveDragPossibleCursorName: string | undefined;
+    /** Title text of canvas element when current mouse position allows a column to be moved with a mouse drag */
     columnMoveDragPossibleTitleText: string | undefined;
     /** Cursor to display when moving a column with a mouse drag */
     columnMoveDragActiveCursorName: string | undefined;
     /** Title text of canvas element when moving a column with a mouse drag */
     columnMoveDragActiveTitleText: string | undefined;
+    /** Cursor to display when current mouse position allows a column to be resized with a mouse drag */
     columnResizeDragPossibleCursorName: string | undefined;
+    /** Title text of canvas element when current mouse position allows a column to be resized with a mouse drag */
     columnResizeDragPossibleTitleText: string | undefined;
     /** Cursor to display when resizing a column with a mouse drag */
     columnResizeDragActiveCursorName: string | undefined;
     /** Title text of canvas element when resizing a column with a mouse drag */
     columnResizeDragActiveTitleText: string | undefined;
+    /** Cursor to display when current mouse position allows column sorting with a mouse action */
     columnSortPossibleCursorName: string | undefined;
+    /** Title text of canvas element when current mouse position allows column sorting with a mouse action */
     columnSortPossibleTitleText: string | undefined;
     /** Allow user to move columns. */
     columnsReorderable: boolean;
@@ -57,8 +63,8 @@ export interface RevOnlyGridSettings {
     editOnFocusCell: boolean;
     /** Open cell editor for cell when cell focus and certain keys are pushed down */
     editOnKeyDown: boolean;
-    /** Cursor to display when cell editor can be clicked */
-    editorClickableCursorName: string | undefined;
+    /** Cursor to display when cell can be edited */
+    cellEditPossibleCursorName: string | undefined;
     /** Modifier key that indicates a UI action should extend the selection area */
     extendLastSelectionAreaModifierKey: RevModifierKey;
     /** Whether grid events are dispatched as DOM events */

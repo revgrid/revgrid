@@ -34,7 +34,7 @@ export class RevInMemoryBehavioredGridSettings extends RevInMemoryBehavioredSett
     private _editOnDoubleClick: boolean;
     private _editOnFocusCell: boolean;
     private _editOnKeyDown: boolean;
-    private _editorClickableCursorName: string | undefined;
+    private _cellEditPossibleCursorName: string | undefined;
     private _extendLastSelectionAreaModifierKey: RevModifierKey;
     private _eventDispatchEnabled: boolean;
     private _filterable: boolean;
@@ -389,12 +389,12 @@ export class RevInMemoryBehavioredGridSettings extends RevInMemoryBehavioredSett
             this.endChange();
         }
     }
-    get editorClickableCursorName() { return this._editorClickableCursorName; }
-    set editorClickableCursorName(value: string | undefined) {
-        if (value !== this._editorClickableCursorName) {
+    get cellEditPossibleCursorName() { return this._cellEditPossibleCursorName; }
+    set cellEditPossibleCursorName(value: string | undefined) {
+        if (value !== this._cellEditPossibleCursorName) {
             this.beginChange();
-            this._editorClickableCursorName = value;
-            const invalidateType = revGridSettingChangeInvalidateTypeIds.editorClickableCursorName;
+            this._cellEditPossibleCursorName = value;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.cellEditPossibleCursorName;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -1212,10 +1212,10 @@ export class RevInMemoryBehavioredGridSettings extends RevInMemoryBehavioredSett
                         this.flagChanged(revGridSettingChangeInvalidateTypeIds.editOnKeyDown);
                     }
                     break;
-                case 'editorClickableCursorName':
-                    if (this._editorClickableCursorName !== requiredSettings.editorClickableCursorName) {
-                        this._editorClickableCursorName = requiredSettings.editorClickableCursorName;
-                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.editorClickableCursorName);
+                case 'cellEditPossibleCursorName':
+                    if (this._cellEditPossibleCursorName !== requiredSettings.cellEditPossibleCursorName) {
+                        this._cellEditPossibleCursorName = requiredSettings.cellEditPossibleCursorName;
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.cellEditPossibleCursorName);
                     }
                     break;
                 case 'extendLastSelectionAreaModifierKey':

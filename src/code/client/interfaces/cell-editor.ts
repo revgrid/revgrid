@@ -38,7 +38,7 @@ export interface RevCellEditor<
     /** See if the editor wants the mouse down event.  If fromEditor is true, then this editor generated the event in the first place */
     processGridClickEvent?(event: MouseEvent, viewCell: RevViewCell<BCS, SF>): boolean;
     /** See if the editor wants the mouse move event.  If fromEditor is true, then this editor generated the event in the first place */
-    processGridPointerMoveEvent?(event: PointerEvent, viewCell: RevViewCell<BCS, SF>): RevCellEditor.PointerLocationInfo | undefined;
+    processGridPointerMoveEvent?(event: PointerEvent, viewCell: RevViewCell<BCS, SF>): RevCellEditor.MouseActionPossible | undefined;
 
     // HTML Element methods and events
 
@@ -56,8 +56,8 @@ export namespace RevCellEditor {
     export type CellClosedEventer = (this: void, value: RevDataServer.ViewValue | undefined) => void;
     export type KeyDownEventer = (this: void, event: KeyboardEvent) => void;
 
-    export interface PointerLocationInfo {
-        locationCursorName: string | undefined;
-        locationTitleText: string | undefined;
+    export interface MouseActionPossible {
+        cursorName: string | undefined;
+        titleText: string | undefined;
     }
 }

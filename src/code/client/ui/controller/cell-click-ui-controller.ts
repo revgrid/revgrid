@@ -1,4 +1,5 @@
 import { RevAssertError, RevSchemaField } from '../../../common';
+import { RevMouse } from '../../components/mouse/mouse';
 import { RevLinedHoverCell } from '../../interfaces/lined-hover-cell';
 import { RevViewCell } from '../../interfaces/view-cell';
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../../settings';
@@ -11,7 +12,7 @@ export class RevCellClickUiController<BGS extends RevBehavioredGridSettings, BCS
 
     override handlePointerMove(event: PointerEvent, cell: RevLinedHoverCell<BCS, SF> | null | undefined) {
         const sharedState = this._sharedState;
-        if (sharedState.locationCursorName === undefined) {
+        if (sharedState.mouseActionPossible === undefined) {
             if (cell === null) {
                 cell = this.tryGetHoverCellFromMouseEvent(event);
             }
@@ -21,8 +22,8 @@ export class RevCellClickUiController<BGS extends RevBehavioredGridSettings, BCS
                 const isActionableLink = link && typeof link !== 'boolean'; // actionable with truthy other than `true`
 
                 // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                sharedState.locationCursorName = isActionableLink ? 'pointer' : undefined;
-                sharedState.locationTitleText = undefined;
+                sharedState.mouseActionPossible = isActionableLink ? RevMouse.ActionPossible.linkNavigate : undefined;
+                sharedState.titleText = undefined;
             }
         }
 

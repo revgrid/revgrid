@@ -13,7 +13,7 @@ export type RevOnlyColumnSettings = Pick<RevOnlyGridSettings,
     'editOnDoubleClick' |
     'editOnFocusCell' |
     'editOnKeyDown' |
-    'editorClickableCursorName' |
+    'cellEditPossibleCursorName' |
     'filterable' |
     'maximumColumnWidth' |
     'minimumColumnWidth' |

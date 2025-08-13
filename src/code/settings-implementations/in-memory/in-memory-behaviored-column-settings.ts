@@ -14,7 +14,7 @@ export class RevInMemoryBehavioredColumnSettings extends RevInMemoryBehavioredSe
     private _editOnDoubleClick: boolean | undefined;
     private _editOnFocusCell: boolean | undefined;
     private _editOnKeyDown: boolean | undefined;
-    private _editorClickableCursorName: string | undefined | null;
+    private _cellEditPossibleCursorName: string | undefined | null;
     private _filterable: boolean | undefined;
     private _maximumColumnWidth: number | undefined | null;
     private _minimumColumnWidth: number | undefined;
@@ -167,22 +167,22 @@ export class RevInMemoryBehavioredColumnSettings extends RevInMemoryBehavioredSe
         }
     }
 
-    get editorClickableCursorName() {
-        if (this._editorClickableCursorName === null) {
+    get cellEditPossibleCursorName() {
+        if (this._cellEditPossibleCursorName === null) {
             return undefined;
         } else {
-            return this._editorClickableCursorName !== undefined ? this._editorClickableCursorName : this.gridSettings.editorClickableCursorName;
+            return this._cellEditPossibleCursorName !== undefined ? this._cellEditPossibleCursorName : this.gridSettings.cellEditPossibleCursorName;
         }
     }
-    set editorClickableCursorName(value: string | undefined) {
-        if (value !== this._editorClickableCursorName) {
+    set cellEditPossibleCursorName(value: string | undefined) {
+        if (value !== this._cellEditPossibleCursorName) {
             this.beginChange();
-            if (this._editorClickableCursorName === undefined) {
-                this._editorClickableCursorName = null;
+            if (this._cellEditPossibleCursorName === undefined) {
+                this._cellEditPossibleCursorName = null;
             } else {
-                this._editorClickableCursorName = value;
+                this._cellEditPossibleCursorName = value;
             }
-            const invalidateType = revGridSettingChangeInvalidateTypeIds.editorClickableCursorName;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.cellEditPossibleCursorName;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -360,11 +360,11 @@ export class RevInMemoryBehavioredColumnSettings extends RevInMemoryBehavioredSe
                     }
                     break;
                 }
-                case 'editorClickableCursorName': {
-                    const currentEditorClickableCursorName = overrideGrid ? this._editorClickableCursorName : this.editorClickableCursorName;
-                    if (currentEditorClickableCursorName !== requiredSettings.editorClickableCursorName) {
-                        this._editorClickableCursorName = requiredSettings.editorClickableCursorName;
-                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.editorClickableCursorName);
+                case 'cellEditPossibleCursorName': {
+                    const currentCellEditPossibleCursorName = overrideGrid ? this._cellEditPossibleCursorName : this.cellEditPossibleCursorName;
+                    if (currentCellEditPossibleCursorName !== requiredSettings.cellEditPossibleCursorName) {
+                        this._cellEditPossibleCursorName = requiredSettings.cellEditPossibleCursorName;
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.cellEditPossibleCursorName);
                     }
                     break;
                 }

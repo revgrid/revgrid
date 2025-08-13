@@ -401,7 +401,7 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
     }
 
     /** @internal */
-    checkEditorProcessPointerMoveEvent(event: PointerEvent, focusedCell: RevViewCell<BCS, SF>): RevCellEditor.PointerLocationInfo | undefined {
+    checkEditorProcessPointerMoveEvent(event: PointerEvent, focusedCell: RevViewCell<BCS, SF>): RevCellEditor.MouseActionPossible | undefined {
         if (focusedCell !== this._cell) {
             throw new RevAssertError('FCEWCE59572');
         } else {

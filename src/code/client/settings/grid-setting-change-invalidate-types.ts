@@ -117,7 +117,7 @@ export const revGridSettingChangeInvalidateTypeIds: RevGridSettingChangeInvalida
     editOnFocusCell: RevGridSettingChangeInvalidateTypeId.None,
     editOnKeyDown: RevGridSettingChangeInvalidateTypeId.None,
     editOnClick: RevGridSettingChangeInvalidateTypeId.None,
-    editorClickableCursorName: RevGridSettingChangeInvalidateTypeId.None,
+    cellEditPossibleCursorName: RevGridSettingChangeInvalidateTypeId.None,
     extendLastSelectionAreaModifierKey: RevGridSettingChangeInvalidateTypeId.None,
     eventDispatchEnabled: RevGridSettingChangeInvalidateTypeId.None,
     filterable: RevGridSettingChangeInvalidateTypeId.None,

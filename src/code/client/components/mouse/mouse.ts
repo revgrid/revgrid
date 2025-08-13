@@ -19,13 +19,13 @@ export class RevMouse<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
     /** @internal */
     private _hoverCell: RevViewCell<BCS, SF> | undefined;
     /** @internal */
-    private _operationCursorName: string | undefined; // gets priority over hover cell and location cursor
+    private _dragTypeCursorName: string | undefined; // gets priority over hover cell and action possible cursor
     /** @internal */
-    private _operationTitleText: string | undefined; // gets priority over hover cell and location cursor
+    private _dragTypeTitleText: string | undefined; // gets priority over hover cell and action possible titleText
     /** @internal */
-    private _locationCursorName: string | undefined; // gets priority over hover cell cursor
+    private _actionPossibleCursorName: string | undefined; // gets priority over hover cell cursor
     /** @internal */
-    private _locationTitleText: string | undefined; // gets priority over hover cell cursor
+    private _actionPossibleTitleText: string | undefined; // gets priority over hover cell titleText
 
     /** @internal */
     constructor(
@@ -48,10 +48,10 @@ export class RevMouse<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
     reset() {
         this._canvasOffsetPoint = undefined;
         this._hoverCell = undefined;
-        this._operationCursorName = undefined;
-        this._operationTitleText = undefined;
-        this._locationCursorName = undefined;
-        this._locationTitleText = undefined;
+        this._dragTypeCursorName = undefined;
+        this._dragTypeTitleText = undefined;
+        this._actionPossibleCursorName = undefined;
+        this._actionPossibleTitleText = undefined;
     }
 
     /** @internal */
@@ -61,11 +61,39 @@ export class RevMouse<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
     }
 
     /** @internal */
-    setLocation(cursorName: string | undefined, titleText: string | undefined) {
-        if (cursorName !== this._locationCursorName || titleText !== this._locationTitleText) {
-            this._locationCursorName = cursorName;
-            this._locationTitleText = titleText;
-            this.updateOperationLocation();
+    setActionPossible(actionPossible: RevMouse.ActionPossible | undefined, cursorName: string | undefined, titleText: string | undefined) {
+        if (actionPossible === undefined) {
+            cursorName = undefined;
+            titleText = undefined;
+        } else {
+            switch (actionPossible) {
+                case RevMouse.ActionPossible.linkNavigate:
+                    cursorName = 'pointer';
+                    titleText = undefined;
+                    break;
+                case RevMouse.ActionPossible.columnSort:
+                    cursorName = this._gridSettings.columnSortPossibleCursorName;
+                    titleText = this._gridSettings.columnSortPossibleTitleText;
+                    break;
+                case RevMouse.ActionPossible.columnResizeDrag:
+                    cursorName = this._gridSettings.columnResizeDragPossibleCursorName;
+                    titleText = this._gridSettings.columnResizeDragPossibleTitleText;
+                    break;
+                case RevMouse.ActionPossible.columnMoveDrag:
+                    cursorName = this._gridSettings.columnMoveDragPossibleCursorName;
+                    titleText = this._gridSettings.columnMoveDragPossibleTitleText;
+                    break;
+                case RevMouse.ActionPossible.cellEdit:
+                    // use parameter cursorName and titleText
+                    break;
+                default:
+                    throw new RevUnreachableCaseError('MSAP67721', actionPossible);
+            }
+        }
+        if (cursorName !== this._actionPossibleCursorName || titleText !== this._actionPossibleTitleText) {
+            this._actionPossibleCursorName = cursorName;
+            this._actionPossibleTitleText = titleText;
+            this.updateActionPossibleDragType();
         }
     }
 
@@ -74,19 +102,19 @@ export class RevMouse<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
         this._activeDragType = value;
 
         if (value === undefined) {
-            this.setOperation(undefined, undefined);
+            this.setDragTypeCursorNameAndTitleText(undefined, undefined);
         } else{
             switch (value) {
                 case RevMouse.DragType.lastRectangleSelectionAreaExtending:
                 case RevMouse.DragType.lastColumnSelectionAreaExtending:
                 case RevMouse.DragType.lastRowSelectionAreaExtending:
-                    this.setOperation(this._gridSettings.mouseLastSelectionAreaExtendingDragActiveCursorName, this._gridSettings.mouseLastSelectionAreaExtendingDragActiveTitleText);
+                    this.setDragTypeCursorNameAndTitleText(this._gridSettings.mouseLastSelectionAreaExtendingDragActiveCursorName, this._gridSettings.mouseLastSelectionAreaExtendingDragActiveTitleText);
                     break;
                 case RevMouse.DragType.columnResizing:
-                    this.setOperation(this._gridSettings.columnResizeDragActiveCursorName, this._gridSettings.columnResizeDragActiveTitleText);
+                    this.setDragTypeCursorNameAndTitleText(this._gridSettings.columnResizeDragActiveCursorName, this._gridSettings.columnResizeDragActiveTitleText);
                     break;
                 case RevMouse.DragType.columnMoving:
-                    this.setOperation(this._gridSettings.columnMoveDragActiveCursorName, this._gridSettings.columnMoveDragActiveTitleText);
+                    this.setDragTypeCursorNameAndTitleText(this._gridSettings.columnMoveDragActiveCursorName, this._gridSettings.columnMoveDragActiveTitleText);
                     break;
                 default:
                     throw new RevUnreachableCaseError('MSADT67721', value);
@@ -147,7 +175,7 @@ export class RevMouse<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
 
     /** @internal */
     private updateHoverCursorAndTitleText() {
-        if (this._operationCursorName === undefined && this._locationCursorName === undefined) {
+        if (this._dragTypeCursorName === undefined && this._actionPossibleCursorName === undefined) {
             if (this._hoverCell === undefined) {
                 this._canvas.setCursor(undefined);
             } else {
@@ -156,7 +184,7 @@ export class RevMouse<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
             }
         }
 
-        if (this._operationTitleText === undefined && this._locationTitleText === undefined) {
+        if (this._dragTypeTitleText === undefined && this._actionPossibleTitleText === undefined) {
             if (this._hoverCell === undefined) {
                 this._canvas.setTitleText('');
             } else {
@@ -167,13 +195,13 @@ export class RevMouse<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
     }
 
     /** @internal */
-    private updateOperationLocation() {
+    private updateActionPossibleDragType() {
         let cursorName: string | undefined;
-        if (this._operationCursorName !== undefined) {
-            cursorName = this._operationCursorName;
+        if (this._dragTypeCursorName !== undefined) {
+            cursorName = this._dragTypeCursorName;
         } else {
-            if (this._locationCursorName !== undefined) {
-                cursorName = this._locationCursorName;
+            if (this._actionPossibleCursorName !== undefined) {
+                cursorName = this._actionPossibleCursorName;
             } else {
                 cursorName = this.getCellCursorName();
             }
@@ -181,11 +209,11 @@ export class RevMouse<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
         this._canvas.setCursor(cursorName);
 
         let titleText: string;
-        if (this._operationTitleText !== undefined) {
-            titleText = this._operationTitleText;
+        if (this._dragTypeTitleText !== undefined) {
+            titleText = this._dragTypeTitleText;
         } else {
-            if (this._locationTitleText !== undefined) {
-                titleText = this._locationTitleText;
+            if (this._actionPossibleTitleText !== undefined) {
+                titleText = this._actionPossibleTitleText;
             } else {
                 titleText = this.getCellTitleText();
             }
@@ -194,11 +222,11 @@ export class RevMouse<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
     }
 
     /** @internal */
-    private setOperation(cursorName: string | undefined, titleText: string | undefined) {
-        if (cursorName !== this._operationCursorName || titleText !== this._operationTitleText) {
-            this._operationCursorName = cursorName;
-            this._operationTitleText = titleText;
-            this.updateOperationLocation();
+    private setDragTypeCursorNameAndTitleText(cursorName: string | undefined, titleText: string | undefined) {
+        if (cursorName !== this._dragTypeCursorName || titleText !== this._dragTypeTitleText) {
+            this._dragTypeCursorName = cursorName;
+            this._dragTypeTitleText = titleText;
+            this.updateActionPossibleDragType();
         }
     }
 
@@ -249,6 +277,21 @@ export namespace RevMouse {
         export const lastRowSelectionAreaExtending = 'revgridlastrowselectionareaextending';
         export const columnResizing = 'revgridcolumnresizing';
         export const columnMoving = 'revgridcolumnmoving';
+    }
+
+    export type ActionPossible =
+        typeof ActionPossible.linkNavigate |
+        typeof ActionPossible.columnSort |
+        typeof ActionPossible.columnResizeDrag |
+        typeof ActionPossible.columnMoveDrag |
+        typeof ActionPossible.cellEdit;
+
+    export namespace ActionPossible {
+        export const linkNavigate = 'linkNavigate';
+        export const columnSort = 'columnSortPossible';
+        export const columnResizeDrag = 'columnResizeDragPossible';
+        export const columnMoveDrag = 'columnMoveDragPossible';
+        export const cellEdit = 'cellEditPossible';
     }
 
     /** @internal */

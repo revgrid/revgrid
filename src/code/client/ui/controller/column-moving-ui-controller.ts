@@ -113,7 +113,7 @@ export class RevColumnMovingUiController<BGS extends RevBehavioredGridSettings, 
 
     override handlePointerMove(event: PointerEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined) {
         const sharedState = this._sharedState;
-        if (sharedState.locationCursorName === undefined) {
+        if (sharedState.mouseActionPossible === undefined) {
             if (this._gridSettings.columnsReorderable) {
                 if (hoverCell === null) {
                     hoverCell = this.tryGetHoverCellFromMouseEvent(event);
@@ -121,8 +121,7 @@ export class RevColumnMovingUiController<BGS extends RevBehavioredGridSettings, 
                 if (hoverCell !== undefined && !RevLinedHoverCell.isMouseOverLine(hoverCell)) {
                     const viewCell = hoverCell.viewCell;
                     if (!viewCell.isColumnFixed && viewCell.isHeaderOrRowFixed) {
-                        sharedState.locationCursorName = this._gridSettings.columnMoveDragPossibleCursorName;
-                        sharedState.locationTitleText = this._gridSettings.columnMoveDragPossibleTitleText;
+                        sharedState.mouseActionPossible = RevMouse.ActionPossible.columnMoveDrag;
                     }
                 }
             }

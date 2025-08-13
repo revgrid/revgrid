@@ -1,5 +1,6 @@
 import { RevAssertError, RevHorizontalWheelScrollingAllowedId, RevSchemaField, RevUnreachableCaseError } from '../../../common';
 import { RevFocus } from '../../components/focus/focus';
+import { RevMouse } from '../../components/mouse/mouse';
 import { RevScroller } from '../../components/scroller/scroller';
 import { RevSubgrid } from '../../interfaces';
 import { RevLinedHoverCell } from '../../interfaces/lined-hover-cell';
@@ -64,18 +65,22 @@ export class RevFocusScrollUiController<BGS extends RevBehavioredGridSettings, B
         if (hoverCell !== undefined && !RevLinedHoverCell.isMouseOverLine(hoverCell)) {
             const viewCell = hoverCell.viewCell;
             if (viewCell === this._focus.cell) {
-                const editorPointerLocationInfo = this._focus.checkEditorProcessPointerMoveEvent(event, viewCell);
-                if (editorPointerLocationInfo !== undefined) {
+                const editorMouseActionPossible = this._focus.checkEditorProcessPointerMoveEvent(event, viewCell);
+                if (editorMouseActionPossible !== undefined) {
                     const sharedState = this._sharedState;
-
-                    const editorCursorName = editorPointerLocationInfo.locationCursorName;
-                    if (editorCursorName !== undefined && sharedState.locationCursorName === undefined) {
-                        sharedState.locationCursorName = editorCursorName;
+                    if (sharedState.mouseActionPossible === undefined) {
+                        sharedState.mouseActionPossible = RevMouse.ActionPossible.cellEdit;
                     }
+                    if (sharedState.mouseActionPossible === RevMouse.ActionPossible.cellEdit) {
+                        const cursorName = editorMouseActionPossible.cursorName;
+                        if (cursorName !== undefined && cursorName !== sharedState.cursorName) {
+                            sharedState.cursorName = cursorName;
+                        }
 
-                    const locationTitleText = editorPointerLocationInfo.locationTitleText;
-                    if (locationTitleText !== undefined && sharedState.locationTitleText === undefined) {
-                        sharedState.locationTitleText = locationTitleText;
+                        const titleText = editorMouseActionPossible.titleText;
+                        if (titleText !== undefined && titleText !== sharedState.titleText) {
+                            sharedState.titleText = titleText;
+                        }
                     }
                 }
             }

@@ -78,8 +78,9 @@ export class RevUiManager<BGS extends RevBehavioredGridSettings, BCS extends Rev
         customUiControllerDefinitions: RevUiController.Definition<BGS, BCS, SF>[] | undefined,
     ) {
         this._sharedState = {
-            locationCursorName: undefined,
-            locationTitleText: undefined,
+            mouseActionPossible: undefined,
+            cursorName: undefined,
+            titleText: undefined,
         };
 
         this._services = new RevUiControllerServices(
@@ -177,10 +178,9 @@ export class RevUiManager<BGS extends RevBehavioredGridSettings, BCS extends Rev
      */
     private handlePointerMoveEvent(event: PointerEvent): RevLinedHoverCell<BCS, SF> | null | undefined {
         if (this._enabled) {
-            this._sharedState.locationCursorName = undefined;
-            this._sharedState.locationTitleText = undefined;
+            this._sharedState.mouseActionPossible = undefined;
             const cell = this._firstUiController.handlePointerMove(event, null);
-            this._mouse.setLocation(this._sharedState.locationCursorName, this._sharedState.locationTitleText);
+            this._mouse.setActionPossible(this._sharedState.mouseActionPossible, undefined, undefined);
             return cell;
         } else {
             return null;
@@ -282,11 +282,12 @@ export class RevUiManager<BGS extends RevBehavioredGridSettings, BCS extends Rev
      */
     private handleDblClickEvent(event: MouseEvent): RevLinedHoverCell<BCS, SF> | null | undefined {
         if (this._enabled && this.isPointerDownCellValid(PointerDownSubsequentEventType.DoubleClick)) {
-            this._sharedState.locationCursorName = undefined;
-            this._sharedState.locationTitleText = undefined;
+            this._sharedState.mouseActionPossible = undefined;
+            this._sharedState.cursorName = undefined;
+            this._sharedState.titleText = undefined;
             const pointerDownCell = this.claimValidPointerDownCell();
             const cell = this._firstUiController.handleDblClick(event, pointerDownCell);
-            this._mouse.setLocation(this._sharedState.locationCursorName, this._sharedState.locationTitleText);
+            this._mouse.setActionPossible(this._sharedState.mouseActionPossible, this._sharedState.cursorName, this._sharedState.titleText);
             return cell;
         } else {
             return null;

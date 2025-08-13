@@ -689,7 +689,7 @@ export interface RevCellEditor<BCS extends RevBehavioredColumnSettings, SF exten
     keyDownEventer?: RevCellEditor.KeyDownEventer;
     processGridClickEvent?(event: MouseEvent, viewCell: RevViewCell<BCS, SF>): boolean;
     processGridKeyDownEvent(event: KeyboardEvent, fromEditor: boolean, field: SF, dataServerRowIndex: number): boolean;
-    processGridPointerMoveEvent?(event: PointerEvent, viewCell: RevViewCell<BCS, SF>): RevCellEditor.PointerLocationInfo | undefined;
+    processGridPointerMoveEvent?(event: PointerEvent, viewCell: RevViewCell<BCS, SF>): RevCellEditor.MouseActionPossible | undefined;
     pullCellValueEventer?: RevCellEditor.PullCellValueEventer;
     pushCellValueEventer?: RevCellEditor.PushCellValueEventer;
     readonly: boolean;
@@ -704,11 +704,11 @@ export namespace RevCellEditor {
     // (undocumented)
     export type KeyDownEventer = (this: void, event: KeyboardEvent) => void;
     // (undocumented)
-    export interface PointerLocationInfo {
+    export interface MouseActionPossible {
         // (undocumented)
-        locationCursorName: string | undefined;
+        cursorName: string | undefined;
         // (undocumented)
-        locationTitleText: string | undefined;
+        titleText: string | undefined;
     }
     // (undocumented)
     export type PullCellValueEventer = (this: void) => RevDataServer.ViewValue;
@@ -3104,7 +3104,7 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
     get canvasY(): number | undefined;
     get cell(): RevViewCell<BCS, SF> | undefined;
     // @internal (undocumented)
-    checkEditorProcessPointerMoveEvent(event: PointerEvent, focusedCell: RevViewCell<BCS, SF>): RevCellEditor.PointerLocationInfo | undefined;
+    checkEditorProcessPointerMoveEvent(event: PointerEvent, focusedCell: RevViewCell<BCS, SF>): RevCellEditor.MouseActionPossible | undefined;
     // @internal (undocumented)
     checkEditorWantsClickEvent(event: MouseEvent, focusedCell: RevViewCell<BCS, SF>): boolean;
     // @internal (undocumented)
@@ -3700,6 +3700,9 @@ export class RevInMemoryBehavioredColumnSettings extends RevInMemoryBehavioredSe
     get backgroundColor(): string;
     set backgroundColor(value: string);
     // (undocumented)
+    get cellEditPossibleCursorName(): string | undefined;
+    set cellEditPossibleCursorName(value: string | undefined);
+    // (undocumented)
     clone(overrideGrid?: boolean): RevInMemoryBehavioredColumnSettings;
     // (undocumented)
     get color(): string;
@@ -3731,9 +3734,6 @@ export class RevInMemoryBehavioredColumnSettings extends RevInMemoryBehavioredSe
     // (undocumented)
     get editOnKeyDown(): boolean;
     set editOnKeyDown(value: boolean);
-    // (undocumented)
-    get editorClickableCursorName(): string | undefined;
-    set editorClickableCursorName(value: string | undefined);
     // (undocumented)
     get filterable(): boolean;
     set filterable(value: boolean);
@@ -3772,6 +3772,9 @@ export class RevInMemoryBehavioredGridSettings extends RevInMemoryBehavioredSett
     // (undocumented)
     get backgroundColor(): RevGridSettings.Color;
     set backgroundColor(value: RevGridSettings.Color);
+    // (undocumented)
+    get cellEditPossibleCursorName(): string | undefined;
+    set cellEditPossibleCursorName(value: string | undefined);
     // (undocumented)
     clone(): RevInMemoryBehavioredGridSettings;
     // (undocumented)
@@ -3849,9 +3852,6 @@ export class RevInMemoryBehavioredGridSettings extends RevInMemoryBehavioredSett
     // (undocumented)
     get editOnKeyDown(): boolean;
     set editOnKeyDown(value: boolean);
-    // (undocumented)
-    get editorClickableCursorName(): string | undefined;
-    set editorClickableCursorName(value: string | undefined);
     // (undocumented)
     get eventDispatchEnabled(): boolean;
     set eventDispatchEnabled(value: boolean);
@@ -4263,9 +4263,9 @@ export class RevMouse<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
     // @internal (undocumented)
     reset(): void;
     // @internal (undocumented)
-    setActiveDragType(value: RevMouse.DragType | undefined): void;
+    setActionPossible(actionPossible: RevMouse.ActionPossible | undefined, cursorName: string | undefined, titleText: string | undefined): void;
     // @internal (undocumented)
-    setLocation(cursorName: string | undefined, titleText: string | undefined): void;
+    setActiveDragType(value: RevMouse.DragType | undefined): void;
     // @internal (undocumented)
     setMouseCanvasOffset(canvasOffsetPoint: RevPoint | undefined, cell: RevViewCell<BCS, SF> | undefined): void;
     // @internal (undocumented)
@@ -4274,6 +4274,21 @@ export class RevMouse<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
 
 // @public (undocumented)
 export namespace RevMouse {
+    // (undocumented)
+    export type ActionPossible = typeof ActionPossible.linkNavigate | typeof ActionPossible.columnSort | typeof ActionPossible.columnResizeDrag | typeof ActionPossible.columnMoveDrag | typeof ActionPossible.cellEdit;
+    // (undocumented)
+    export namespace ActionPossible {
+        const // (undocumented)
+        linkNavigate = "linkNavigate";
+        const // (undocumented)
+        columnSort = "columnSortPossible";
+        const // (undocumented)
+        columnResizeDrag = "columnResizeDragPossible";
+        const // (undocumented)
+        columnMoveDrag = "columnMoveDragPossible";
+        const // (undocumented)
+        cellEdit = "cellEditPossible";
+    }
     // @internal (undocumented)
     export type CellEnteredExitedEventer<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> = (this: void, cell: RevViewCell<BCS, SF>) => void;
     // @internal (undocumented)
@@ -4369,7 +4384,7 @@ export interface RevMultiHeadingField extends RevSchemaField {
 }
 
 // @public (undocumented)
-export type RevOnlyColumnSettings = Pick<RevOnlyGridSettings, 'backgroundColor' | 'color' | 'columnAutoSizingMax' | 'columnClip' | 'defaultColumnAutoSizing' | 'defaultColumnWidth' | 'editable' | 'editOnClick' | 'editOnDoubleClick' | 'editOnFocusCell' | 'editOnKeyDown' | 'editorClickableCursorName' | 'filterable' | 'maximumColumnWidth' | 'minimumColumnWidth' | 'resizeColumnInPlace' | 'sortOnDoubleClick' | 'sortOnClick'>;
+export type RevOnlyColumnSettings = Pick<RevOnlyGridSettings, 'backgroundColor' | 'color' | 'columnAutoSizingMax' | 'columnClip' | 'defaultColumnAutoSizing' | 'defaultColumnWidth' | 'editable' | 'editOnClick' | 'editOnDoubleClick' | 'editOnFocusCell' | 'editOnKeyDown' | 'cellEditPossibleCursorName' | 'filterable' | 'maximumColumnWidth' | 'minimumColumnWidth' | 'resizeColumnInPlace' | 'sortOnDoubleClick' | 'sortOnClick'>;
 
 // @public (undocumented)
 export interface RevOnlyGridSettings {
@@ -4378,25 +4393,20 @@ export interface RevOnlyGridSettings {
     backgroundAnimateTimeInterval: number | undefined;
     // (undocumented)
     backgroundColor: RevOnlyGridSettings.Color;
+    cellEditPossibleCursorName: string | undefined;
     // (undocumented)
     color: RevOnlyGridSettings.Color;
     columnAutoSizingMax: number | undefined;
     columnClip: boolean | undefined;
     columnMoveDragActiveCursorName: string | undefined;
     columnMoveDragActiveTitleText: string | undefined;
-    // (undocumented)
     columnMoveDragPossibleCursorName: string | undefined;
-    // (undocumented)
     columnMoveDragPossibleTitleText: string | undefined;
     columnResizeDragActiveCursorName: string | undefined;
     columnResizeDragActiveTitleText: string | undefined;
-    // (undocumented)
     columnResizeDragPossibleCursorName: string | undefined;
-    // (undocumented)
     columnResizeDragPossibleTitleText: string | undefined;
-    // (undocumented)
     columnSortPossibleCursorName: string | undefined;
-    // (undocumented)
     columnSortPossibleTitleText: string | undefined;
     columnsReorderable: boolean;
     columnsReorderableHideable: boolean;
@@ -4412,7 +4422,6 @@ export interface RevOnlyGridSettings {
     editOnDoubleClick: boolean;
     editOnFocusCell: boolean;
     editOnKeyDown: boolean;
-    editorClickableCursorName: string | undefined;
     eventDispatchEnabled: boolean;
     extendLastSelectionAreaModifierKey: RevModifierKey;
     filterable: boolean;
@@ -7666,7 +7675,7 @@ export class RevStandardToggleClickBoxCellEditor<BGS extends RevBehavioredGridSe
     // (undocumented)
     processGridKeyDownEvent(event: KeyboardEvent, _fromEditor: boolean, field: SF, dataServerRowIndex: number): boolean;
     // (undocumented)
-    processGridPointerMoveEvent(event: PointerEvent, viewCell: RevViewCell<BCS, SF>): RevCellEditor.PointerLocationInfo | undefined;
+    processGridPointerMoveEvent(event: PointerEvent, viewCell: RevViewCell<BCS, SF>): RevCellEditor.MouseActionPossible | undefined;
     // (undocumented)
     tryOpenCell(cell: RevViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, openingClickEvent: MouseEvent | undefined): boolean;
 }
@@ -9025,11 +9034,9 @@ export class RevUiControllerServices<BGS extends RevBehavioredGridSettings, BCS 
 }
 
 // @public (undocumented)
-export interface RevUiControllerSharedState extends RevCellEditor.PointerLocationInfo {
+export interface RevUiControllerSharedState extends RevCellEditor.MouseActionPossible {
     // (undocumented)
-    locationCursorName: string | undefined;
-    // (undocumented)
-    locationTitleText: string | undefined;
+    mouseActionPossible: RevMouse.ActionPossible | undefined;
 }
 
 // @public (undocumented)

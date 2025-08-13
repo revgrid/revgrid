@@ -59,7 +59,7 @@ export class RevStandardToggleClickBoxCellEditor<
         }
     }
 
-    processGridPointerMoveEvent(event: PointerEvent, viewCell: RevViewCell<BCS, SF>): RevCellEditor.PointerLocationInfo | undefined {
+    processGridPointerMoveEvent(event: PointerEvent, viewCell: RevViewCell<BCS, SF>): RevCellEditor.MouseActionPossible | undefined {
         const boxBounds = this._painter.calculateClickBox(viewCell);
         if (boxBounds === undefined) {
             return undefined;
@@ -68,8 +68,8 @@ export class RevStandardToggleClickBoxCellEditor<
                 return undefined;
             } else {
                 return {
-                    locationCursorName: viewCell.viewLayoutColumn.column.settings.editorClickableCursorName,
-                    locationTitleText: undefined,
+                    cursorName: viewCell.viewLayoutColumn.column.settings.cellEditPossibleCursorName,
+                    titleText: undefined,
                 };
             }
         }

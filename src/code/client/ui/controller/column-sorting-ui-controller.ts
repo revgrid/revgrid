@@ -1,4 +1,5 @@
 import { RevSchemaField } from '../../../common';
+import { RevMouse } from '../../components/mouse/mouse';
 import { RevLinedHoverCell } from '../../interfaces/lined-hover-cell';
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../../settings';
 import { RevUiController } from './ui-controller';
@@ -40,7 +41,7 @@ export class RevColumnSortingUiController<BGS extends RevBehavioredGridSettings,
 
     override handlePointerMove(event: PointerEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined) {
         const sharedState = this._sharedState;
-        if (sharedState.locationCursorName === undefined) {
+        if (sharedState.mouseActionPossible === undefined) {
             if (hoverCell === null) {
                 hoverCell = this.tryGetHoverCellFromMouseEvent(event);
             }
@@ -49,8 +50,7 @@ export class RevColumnSortingUiController<BGS extends RevBehavioredGridSettings,
                 if (viewCell.isHeaderOrRowFixed) {
                     const columnSettings = viewCell.columnSettings;
                     if (columnSettings.sortOnClick || columnSettings.sortOnDoubleClick) {
-                        sharedState.locationCursorName = this._gridSettings.columnSortPossibleCursorName;
-                        sharedState.locationTitleText = this._gridSettings.columnSortPossibleTitleText;
+                        sharedState.mouseActionPossible = RevMouse.ActionPossible.columnSort;
                     }
                 }
             }

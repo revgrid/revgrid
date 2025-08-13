@@ -225,7 +225,7 @@ export const revDefaultOnlyGridSettings: RevOnlyGridSettings = {
     editOnFocusCell: false,
     editOnKeyDown: true,
 
-    editorClickableCursorName: 'pointer',
+    cellEditPossibleCursorName: 'pointer',
 
     sortOnClick: true,
     sortOnDoubleClick: false,

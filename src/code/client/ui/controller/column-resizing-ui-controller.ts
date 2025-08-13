@@ -208,12 +208,12 @@ export class RevColumnResizingUiController<BGS extends RevBehavioredGridSettings
 
     override handlePointerMove(event: PointerEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined) {
         if (this._dragColumn === undefined) {
-            if (this._sharedState.locationCursorName === undefined) {
+            if (this._sharedState.mouseActionPossible === undefined) {
                 if (hoverCell === null) {
                     hoverCell = this.tryGetHoverCellFromMouseEvent(event);
                 }
                 if (hoverCell !== undefined) {
-                    this.checkSetLocation(event, hoverCell.viewCell);
+                    this.checkMouseActionPossible(event, hoverCell.viewCell);
                 }
             }
         }
@@ -272,13 +272,12 @@ export class RevColumnResizingUiController<BGS extends RevBehavioredGridSettings
 
                     // location may no longer be valid
                     const sharedState = this._sharedState;
-                    sharedState.locationCursorName = undefined;
-                    sharedState.locationTitleText = undefined;
+                    sharedState.mouseActionPossible = undefined;
 
                     // cell may have changed
                     hoverCell = this.tryGetHoverCellFromMouseEvent(event);
                     if (hoverCell !== undefined) {
-                        this.checkSetLocation(event, hoverCell.viewCell);
+                        this.checkMouseActionPossible(event, hoverCell.viewCell);
                     }
 
                     return hoverCell;
@@ -337,15 +336,14 @@ export class RevColumnResizingUiController<BGS extends RevBehavioredGridSettings
         }
     }
 
-    private checkSetLocation(event: MouseEvent, cell: RevViewCell<BCS, SF>) {
+    private checkMouseActionPossible(event: MouseEvent, cell: RevViewCell<BCS, SF>) {
         const canvasOffsetX = event.offsetX;
         if (
             cell.isHeader &&
             this.calculateNearGridLine(canvasOffsetX, cell) !== RevColumnResizingUiController.NearGridLine.neither
         ) {
             const sharedState = this._sharedState;
-            sharedState.locationCursorName = this._gridSettings.columnResizeDragPossibleCursorName;
-            sharedState.locationTitleText = this._gridSettings.columnResizeDragPossibleTitleText;
+            sharedState.mouseActionPossible = RevMouse.ActionPossible.columnResizeDrag;
         }
     }
 }
