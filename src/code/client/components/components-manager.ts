@@ -101,6 +101,7 @@ export class RevComponentsManager<BGS extends RevBehavioredGridSettings, BCS ext
             this.mouse = new RevMouse(
                 this.clientId,
                 this,
+                gridSettings,
                 this.canvas,
                 this.viewLayout,
             );

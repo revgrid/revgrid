@@ -4245,6 +4245,7 @@ export namespace RevModifierKey {
 export class RevMouse<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {
     // @internal
     constructor(clientId: string, internalParent: RevClientObject,
+    _gridSettings: RevGridSettings,
     _canvas: RevCanvas<BGS>,
     _viewLayout: RevViewLayout<BGS, BCS, SF>);
     // (undocumented)
@@ -4267,8 +4268,6 @@ export class RevMouse<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
     setLocation(cursorName: string | undefined, titleText: string | undefined): void;
     // @internal (undocumented)
     setMouseCanvasOffset(canvasOffsetPoint: RevPoint | undefined, cell: RevViewCell<BCS, SF> | undefined): void;
-    // @internal (undocumented)
-    setOperation(cursorName: string | undefined, titleText: string | undefined): void;
     // @internal (undocumented)
     viewCellRenderInvalidatedEventer: RevMouse.ViewCellRenderInvalidatedEventer<BCS, SF>;
 }
@@ -4383,17 +4382,13 @@ export interface RevOnlyGridSettings {
     color: RevOnlyGridSettings.Color;
     columnAutoSizingMax: number | undefined;
     columnClip: boolean | undefined;
-    // (undocumented)
     columnMoveDragActiveCursorName: string | undefined;
-    // (undocumented)
     columnMoveDragActiveTitleText: string | undefined;
     // (undocumented)
     columnMoveDragPossibleCursorName: string | undefined;
     // (undocumented)
     columnMoveDragPossibleTitleText: string | undefined;
-    // (undocumented)
     columnResizeDragActiveCursorName: string | undefined;
-    // (undocumented)
     columnResizeDragActiveTitleText: string | undefined;
     // (undocumented)
     columnResizeDragPossibleCursorName: string | undefined;
@@ -4458,7 +4453,6 @@ export interface RevOnlyGridSettings {
     // (undocumented)
     mouseColumnSelectionModifierKey: RevModifierKey | undefined;
     mouseLastSelectionAreaExtendingDragActiveCursorName: string | undefined;
-    // (undocumented)
     mouseLastSelectionAreaExtendingDragActiveTitleText: string | undefined;
     mouseRowSelectionEnabled: boolean;
     // (undocumented)
@@ -4491,7 +4485,6 @@ export interface RevOnlyGridSettings {
     sortOnClick: boolean;
     sortOnDoubleClick: boolean;
     switchNewRectangleSelectionToRowOrColumn: RevRowOrColumnSelectionAreaType | undefined;
-    // (undocumented)
     useHiDPI: boolean;
     verticalFixedLineColor: RevOnlyGridSettings.Color;
     verticalFixedLineEdgeWidth: number | undefined;

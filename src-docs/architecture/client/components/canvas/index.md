@@ -4,7 +4,7 @@ title: Canvas
 
 # Canvas Component
 
-Defines the {@link client/components/focus/focus!RevCanvas:class | RevCanvas} class, which encapsulates a grid's HTML canvas element and manages its rendering and user interaction. It is the central component for rendering and handling all user interactions with the grid's canvas surface.
+Defines the {@link client/components/canvas/canvas!RevCanvas:class | RevCanvas} class, which encapsulates a grid's HTML canvas element and manages its rendering and user interaction. It is the central component for rendering and handling all user interactions with the grid's canvas surface.
 
 ## Main responsibilities
 
@@ -18,11 +18,11 @@ Defines the {@link client/components/focus/focus!RevCanvas:class | RevCanvas} cl
 
 ## Rendering context
 
-Creates a {@link https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D | CanvasRenderingContext2D} for the canvas and then wraps it in a {@link common/types-utils/cached-canvas-rendering-context-2d!RevCachedCanvasRenderingContext2D:class | RevCachedCanvasRenderingContext2D} object. The `RevCachedCanvasRenderingContext2D` object caches the context's properties and will not update them unless they are changed. All drawing related operations on the canvas use `RevCachedCanvasRenderingContext2D`. 
+Creates a [CanvasRenderingContext2D](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D) for the canvas and then wraps it in a {@link common/types-utils/cached-canvas-rendering-context-2d!RevCachedCanvasRenderingContext2D:class | RevCachedCanvasRenderingContext2D} object. The `RevCachedCanvasRenderingContext2D` object caches the context's properties and will not update them unless they are changed. All drawing related operations on the canvas use `RevCachedCanvasRenderingContext2D`. 
 
 ## Resizing
 
-Ensures that the canvas element is always resized to match the size of its parent element ({@link client/components/focus/focus!RevCanvas#hostElement | hostElement}). Resize related events are debounced to minimise the number of renders when resizing.
+Ensures that the canvas element is always resized to match the size of its parent element ({@link client/components/canvas/canvas!RevCanvas#hostElement | hostElement}). Resize related events are debounced to minimise the number of renders when resizing.
 
 ## Drag events
 

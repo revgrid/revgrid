@@ -14,11 +14,15 @@ export interface RevOnlyGridSettings {
     columnClip: boolean | undefined;
     columnMoveDragPossibleCursorName: string | undefined;
     columnMoveDragPossibleTitleText: string | undefined;
+    /** Cursor to display when moving a column with a mouse drag */
     columnMoveDragActiveCursorName: string | undefined;
+    /** Title text of canvas element when moving a column with a mouse drag */
     columnMoveDragActiveTitleText: string | undefined;
     columnResizeDragPossibleCursorName: string | undefined;
     columnResizeDragPossibleTitleText: string | undefined;
+    /** Cursor to display when resizing a column with a mouse drag */
     columnResizeDragActiveCursorName: string | undefined;
+    /** Title text of canvas element when resizing a column with a mouse drag */
     columnResizeDragActiveTitleText: string | undefined;
     columnSortPossibleCursorName: string | undefined;
     columnSortPossibleTitleText: string | undefined;
@@ -130,8 +134,9 @@ export interface RevOnlyGridSettings {
      * user can't make column narrower due to next column having reached its maximum.
      */
     maximumColumnWidth: number | undefined;
-    /** Cursor to appear when extending a selection with a mouse drag */
+    /** Cursor to display when extending a selection with a mouse drag */
     mouseLastSelectionAreaExtendingDragActiveCursorName: string | undefined;
+    /** Title text of canvas element when extending a selection with a mouse drag */
     mouseLastSelectionAreaExtendingDragActiveTitleText: string | undefined;
     /** Allows rectangle selections with more than one cell and/or multiple rectangle selections.  If false, then only focused cell is selected */
     mouseAddToggleExtendSelectionAreaEnabled: boolean;

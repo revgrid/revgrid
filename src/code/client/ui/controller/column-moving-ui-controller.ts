@@ -348,10 +348,8 @@ export class RevColumnMovingUiController<BGS extends RevBehavioredGridSettings, 
     private setMouseDragging(active: boolean) {
         if (active) {
             this._mouse.setActiveDragType(RevMouse.DragType.columnMoving);
-            this._mouse.setOperation(this._gridSettings.columnMoveDragActiveCursorName, this._gridSettings.columnMoveDragActiveTitleText);
         } else {
             this._mouse.setActiveDragType(undefined);
-            this._mouse.setOperation(undefined, undefined);
         }
     }
 }

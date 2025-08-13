@@ -1,6 +1,6 @@
-import { RevClientObject, RevPoint, RevSchemaField } from '../../../common';
+import { RevClientObject, RevPoint, RevSchemaField, RevUnreachableCaseError } from '../../../common';
 import { RevViewCell } from '../../interfaces/view-cell';
-import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../../settings';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevGridSettings } from '../../settings';
 import { RevCanvas } from '../canvas/canvas';
 import { RevViewLayout } from '../view/view-layout';
 
@@ -32,6 +32,8 @@ export class RevMouse<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
         readonly clientId: string,
         readonly internalParent: RevClientObject,
         /** @internal */
+        private readonly _gridSettings: RevGridSettings,
+        /** @internal */
         private readonly _canvas: RevCanvas<BGS>,
         /** @internal */
         private readonly _viewLayout: RevViewLayout<BGS, BCS, SF>,
@@ -59,15 +61,6 @@ export class RevMouse<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
     }
 
     /** @internal */
-    setOperation(cursorName: string | undefined, titleText: string | undefined) {
-        if (cursorName !== this._operationCursorName || titleText !== this._operationTitleText) {
-            this._operationCursorName = cursorName;
-            this._operationTitleText = titleText;
-            this.updateOperationLocation();
-        }
-    }
-
-    /** @internal */
     setLocation(cursorName: string | undefined, titleText: string | undefined) {
         if (cursorName !== this._locationCursorName || titleText !== this._locationTitleText) {
             this._locationCursorName = cursorName;
@@ -79,6 +72,26 @@ export class RevMouse<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
     /** @internal */
     setActiveDragType(value: RevMouse.DragType | undefined) {
         this._activeDragType = value;
+
+        if (value === undefined) {
+            this.setOperation(undefined, undefined);
+        } else{
+            switch (value) {
+                case RevMouse.DragType.lastRectangleSelectionAreaExtending:
+                case RevMouse.DragType.lastColumnSelectionAreaExtending:
+                case RevMouse.DragType.lastRowSelectionAreaExtending:
+                    this.setOperation(this._gridSettings.mouseLastSelectionAreaExtendingDragActiveCursorName, this._gridSettings.mouseLastSelectionAreaExtendingDragActiveTitleText);
+                    break;
+                case RevMouse.DragType.columnResizing:
+                    this.setOperation(this._gridSettings.columnResizeDragActiveCursorName, this._gridSettings.columnResizeDragActiveTitleText);
+                    break;
+                case RevMouse.DragType.columnMoving:
+                    this.setOperation(this._gridSettings.columnMoveDragActiveCursorName, this._gridSettings.columnMoveDragActiveTitleText);
+                    break;
+                default:
+                    throw new RevUnreachableCaseError('MSADT67721', value);
+            }
+        }
     }
 
     /** @internal */
@@ -178,6 +191,15 @@ export class RevMouse<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
             }
         }
         this._canvas.setTitleText(titleText);
+    }
+
+    /** @internal */
+    private setOperation(cursorName: string | undefined, titleText: string | undefined) {
+        if (cursorName !== this._operationCursorName || titleText !== this._operationTitleText) {
+            this._operationCursorName = cursorName;
+            this._operationTitleText = titleText;
+            this.updateOperationLocation();
+        }
     }
 
     /** @internal */

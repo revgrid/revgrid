@@ -144,7 +144,7 @@ export class RevSelectionUiController<BGS extends RevBehavioredGridSettings, BCS
                         } else {
                             this._dragCaptured = true;
                             this._lastSelectionAreaDraggable = true;
-                            this.updateMouseDragType(dragType);
+                            this._mouse.setActiveDragType(dragType);
                             return {
                                 started: true,
                                 hoverCell,
@@ -191,7 +191,6 @@ export class RevSelectionUiController<BGS extends RevBehavioredGridSettings, BCS
             return super.handlePointerDragEnd(event, cell);
         } else {
             this.cancelDraggable();
-            this.updateMouseDragType(undefined);
             this._dragCaptured = false;
             return cell;
         }
@@ -672,34 +671,8 @@ export class RevSelectionUiController<BGS extends RevBehavioredGridSettings, BCS
     private cancelDraggable() {
         this.cancelStepScroll();
         this._lastSelectionAreaDraggable = false;
-        this._mouse.setOperation(undefined, undefined);
+        this._mouse.setActiveDragType(undefined);
     }
-
-    private updateMouseDragType(dragType: RevMouse.DragType | undefined) {
-        this._mouse.setActiveDragType(dragType);
-        if (dragType === undefined) {
-            this._mouse.setOperation(undefined, undefined);
-        } else {
-            this._mouse.setOperation(this._gridSettings.mouseLastSelectionAreaExtendingDragActiveCursorName, this._gridSettings.mouseLastSelectionAreaExtendingDragActiveTitleText);
-        }
-    }
-
-    // private dragTypesArrayContainsExtendLastSelectionAreaDragType(types: readonly RevMouse.DragTypeEnum[]) {
-    //     for (const type of types) {
-    //         if (this.dragTypeIsExtendLastSelectionArea(type)) {
-    //             return true;
-    //         }
-    //     }
-    //     return false;
-    // }
-
-    // private dragTypeIsExtendLastSelectionArea(type: RevMouse.DragTypeEnum) {
-    //     return (
-    //         type === RevMouse.DragTypeEnum.ExtendLastRectangleSelectionArea ||
-    //         type === RevMouse.DragTypeEnum.ExtendLastColumnSelectionArea ||
-    //         type === RevMouse.DragTypeEnum.ExtendLastRowSelectionArea
-    //     );
-    // }
 }
 
 /** @internal */
