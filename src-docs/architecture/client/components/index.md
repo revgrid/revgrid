@@ -21,7 +21,7 @@ The Client components manage the main resources and constructs used in Revgrid. 
 * **[Canvas](./canvas/index.md)**\
 Handles interactions with the grid's canvas HTML element.
 * **[Columns Manager](./columns-manager/index.md)**\
-ToDo
+Manages the structure, visibility, sizing, and settings of columns in the grid, ensuring that the grid view and data schema remain synchronized.
 * **[Subgrids Manager](./subgrids-manager/index.md)**\
 ToDo
 * **[View Layout](./view-layout/index.md)**\
@@ -29,7 +29,7 @@ ToDo
 * **[Focus](./focus/index.md)**\
 Manages cell focus and cell editing within a grid component.
 * **[Mouse](./mouse/index.md)**\
-ToDo
+Manages mouse interactions for the grid component.
 * **[Scroller (Horizontal & Vertical)](./scroller/index.md)**\
 ToDo
 * **[Selection](./selection/index.md)**\

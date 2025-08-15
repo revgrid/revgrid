@@ -15,7 +15,7 @@ import { RevViewLayout } from '../view/view-layout';
  * @typeParam BCS - Behaviored column settings type.
  * @typeParam SF - Schema field type.
  *
- * @see [Focus Component Documentation](../../../../../Architecture/Client/Components/Focus/)
+ * @see [Focus Component 🗎](../../../../../Architecture/Client/Components/Focus/)
  */
 export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {
     getCellEditorEventer: RevFocus.GetCellEditorEventer<BCS, SF> | undefined;

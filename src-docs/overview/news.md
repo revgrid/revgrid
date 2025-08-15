@@ -4,6 +4,11 @@ title: News
 
 # News
 
+* *Pending*: **[Release 0.10.?]**\
+    **Breaking changes**
+    * Rename Grid setting `editorClickableCursorName` to `cellEditPossibleCursorName`
+    * Rename RevColumnsManager and RevClientGrid function `swapColumns` to `swapActiveColumns`
+
 * *07 August 2025*: **[Release 0.10.0]**\
     **Breaking changes**
     * Current and previous focus can be in different subgrids

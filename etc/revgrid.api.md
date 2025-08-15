@@ -1146,7 +1146,7 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     // (undocumented)
     readonly subgridsManager: RevSubgridsManager<BCS, SF>;
     // (undocumented)
-    swapColumns(source: Integer, target: Integer): void;
+    swapActiveColumns(source: Integer, target: Integer): void;
     // (undocumented)
     toggleSelectCell(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>): boolean;
     // (undocumented)
@@ -1758,7 +1758,7 @@ export class RevColumnsManager<BCS extends RevBehavioredColumnSettings, SF exten
     get activeColumnCount(): number;
     // @internal (undocumented)
     activeColumnListChangedEventer: RevUiableListChangedEventHandler;
-    // @internal (undocumented)
+    // (undocumented)
     get activeColumns(): readonly RevColumn<BCS, SF>[];
     // @internal (undocumented)
     addBeforeCreateColumnsListener(listener: RevColumnsManager.BeforeCreateColumnsListener): void;
@@ -1786,12 +1786,10 @@ export class RevColumnsManager<BCS extends RevBehavioredColumnSettings, SF exten
     get fieldColumnCount(): number;
     // @internal (undocumented)
     fieldColumnListChangedEventer: RevListChangedEventer;
-    // @internal (undocumented)
+    // (undocumented)
     get fieldColumns(): readonly RevColumn<BCS, SF>[];
     // @internal (undocumented)
     getActiveColumn(index: number): RevColumn<BCS, SF>;
-    // @internal (undocumented)
-    getActiveColumnCeilWidth(index: number): number;
     // @internal
     getActiveColumnIndexByFieldIndex(fieldIndex: number): number;
     // @internal
@@ -1806,7 +1804,7 @@ export class RevColumnsManager<BCS extends RevBehavioredColumnSettings, SF exten
     getFixedColumnCount(): number;
     // @internal (undocumented)
     getHiddenColumns(): RevColumn<BCS, SF>[];
-    // @internal (undocumented)
+    // (undocumented)
     getSchema(): readonly SF[];
     // (undocumented)
     getSettingsForNewColumnEventer: RevColumnsManager.GetSettingsForNewColumnEventer<BCS, SF>;
@@ -1840,7 +1838,7 @@ export class RevColumnsManager<BCS extends RevBehavioredColumnSettings, SF exten
     schemaFieldsInserted(_index: number, count: number): void;
     // (undocumented)
     readonly schemaServer: RevSchemaServer<SF>;
-    // @internal (undocumented)
+    // (undocumented)
     setActiveColumns(columnArray: readonly RevColumn<BCS, SF>[]): void;
     // (undocumented)
     setActiveColumnsAndWidthsByFieldName(fieldNameAndWidths: RevColumnsManager.FieldNameAndAutoSizableWidth[], ui: boolean): void;
@@ -1857,8 +1855,7 @@ export class RevColumnsManager<BCS extends RevBehavioredColumnSettings, SF exten
     insertIndex: number | undefined,
     allowDuplicateColumns: boolean,
     ui: boolean): void;
-    // @internal
-    swapColumns(source: number, target: number): void;
+    swapActiveColumns(source: number, target: number): void;
 }
 
 // @public (undocumented)
@@ -4439,9 +4436,7 @@ export interface RevOnlyGridSettings {
     filterFont: string;
     // (undocumented)
     filterForegroundSelectionColor: RevOnlyGridSettings.Color;
-    // (undocumented)
     fixedColumnCount: number;
-    // (undocumented)
     fixedRowCount: number;
     gridRightAligned: boolean;
     horizontalFixedLineColor: RevOnlyGridSettings.Color;

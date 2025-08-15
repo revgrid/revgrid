@@ -40,14 +40,16 @@ export class RevColumnsManager<BCS extends RevBehavioredColumnSettings, SF exten
     get fieldColumnCount() { return this._fieldColumns.length; }
     get activeColumnCount() { return this._activeColumns.length; }
 
-    /** @internal */
     get fieldColumns(): readonly RevColumn<BCS, SF>[] {
         return this._fieldColumns;
     }
 
-    /** @internal */
     get activeColumns(): readonly RevColumn<BCS, SF>[] {
         return this._activeColumns;
+    }
+
+    getSchema() {
+        return this.schemaServer.getFields();
     }
 
     /** @internal */
@@ -63,11 +65,6 @@ export class RevColumnsManager<BCS extends RevBehavioredColumnSettings, SF exten
         } else {
             this._beforeCreateColumnsListeners.splice(index, 1);
         }
-    }
-
-    /** @internal */
-    getSchema() {
-        return this.schemaServer.getFields();
     }
 
     /** @internal */
@@ -200,13 +197,6 @@ export class RevColumnsManager<BCS extends RevBehavioredColumnSettings, SF exten
         const column = this._activeColumns[index];
         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         return column !== undefined ? Math.round(column.width) : 0;
-    }
-
-    /** @internal */
-    getActiveColumnCeilWidth(index: number) {
-        const column = this._activeColumns[index];
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-        return column !== undefined ? Math.ceil(column.width) : 0;
     }
 
     /**
@@ -436,7 +426,6 @@ export class RevColumnsManager<BCS extends RevBehavioredColumnSettings, SF exten
         this.notifyActiveColumnListChanged(RevListChangedTypeId.Remove, activeColumnIndex, 1, undefined, ui)
     }
 
-    /** @internal */
     setActiveColumns(columnArray: readonly RevColumn<BCS, SF>[]) {
         const oldActiveCount = this._activeColumns.length;
         this._activeColumns.splice(0, oldActiveCount, ...columnArray);
@@ -474,9 +463,8 @@ export class RevColumnsManager<BCS extends RevBehavioredColumnSettings, SF exten
      * swap source and target columns
      * @param source - column index
      * @param target - column index
-     * @internal
      */
-    swapColumns(source: number, target: number) {
+    swapActiveColumns(source: number, target: number) {
         const columns = this._activeColumns;
         const sourceColumn = columns[source];
         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition

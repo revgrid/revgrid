@@ -749,10 +749,8 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
         return this.viewLayout.getRowsCount();
     }
 
-    swapColumns(source: Integer, target: Integer) {
-        //Turns out this is called during dragged 'i.e' when the floater column is reshuffled
-        //by the currently dragged column. The column positions are constantly reshuffled
-        this.columnsManager.swapColumns(source, target);
+    swapActiveColumns(source: Integer, target: Integer) {
+        this.columnsManager.swapActiveColumns(source, target);
     }
 
     /**
