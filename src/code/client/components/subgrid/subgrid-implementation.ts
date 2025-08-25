@@ -212,11 +212,10 @@ export class RevSubgridImplementation<BCS extends RevBehavioredColumnSettings, S
      * @returns The row height in pixels.
      */
     getRowHeight(subgridRowIndex: number) {
-        let rowHeight: number | undefined;
         if (this.rowHeightsCanDiffer) {
             const rowProps = this.getRowProperties(subgridRowIndex);
             if (rowProps !== undefined) {
-                rowHeight = rowProps.height;
+                const rowHeight = rowProps.height;
                 if (rowHeight !== undefined) {
                     return rowHeight;
                 }

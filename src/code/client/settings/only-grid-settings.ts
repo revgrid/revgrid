@@ -76,6 +76,10 @@ export interface RevOnlyGridSettings {
      * @see [Selection Client Component 🗎](../../../../Architecture/Client/Components/Selection/)
      */
     switchNewRectangleSelectionToRowOrColumn: RevRowOrColumnSelectionAreaType | undefined;
+    /**
+     * Default row height in pixels.
+     * @see [Subgrids Manager Client Component 🗎](../../../../Architecture/Client/Components/Subgrids_Manager/)
+     */
     defaultRowHeight: number;
     /**
      * Whether to automatically expand column width to accommodate widest rendered value.
@@ -151,6 +155,7 @@ export interface RevOnlyGridSettings {
     /**
      * Define this property to style rule lines between non-scrollable rows and scrollable rows differently from {@link horizontalGridLinesWidth}.
      * Undefine it to show normal grid line in that position.
+     * @see [Subgrids Manager Client Component 🗎](../../../../Architecture/Client/Components/Subgrids_Manager/)
      */
     horizontalFixedLineWidth: number | undefined;
     /**
@@ -172,6 +177,7 @@ export interface RevOnlyGridSettings {
     verticalFixedLineWidth: number | undefined;
     /**
      * Number of rows at the top of a scrollable subgrid which will not scroll.
+     * @see [Subgrids Manager Client Component 🗎](../../../../Architecture/Client/Components/Subgrids_Manager/)
      */
     fixedRowCount: number;
     /**
@@ -181,7 +187,10 @@ export interface RevOnlyGridSettings {
     gridRightAligned: boolean;
     /** Color of horizontal grid lines. */
     horizontalGridLinesColor: RevOnlyGridSettings.Color;
-    /** Thickness of horizontal grid lines (pixels). Ignored if {@link horizontalGridLinesVisible} is false */
+    /**
+     * Thickness of horizontal grid lines (pixels). Ignored if {@link horizontalGridLinesVisible} is false
+     * @see [Subgrids Manager Client Component 🗎](../../../../Architecture/Client/Components/Subgrids_Manager/)
+     */
     horizontalGridLinesWidth: number;
     /** Specifies whether horizontal grid lines are drawn */
     horizontalGridLinesVisible: boolean;

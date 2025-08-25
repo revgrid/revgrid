@@ -23,7 +23,7 @@ Handles interactions with the grid's canvas HTML element.
 * **[Columns Manager](./columns-manager/index.md)**\
 Manages the structure, visibility, sizing, and settings of columns in the grid, ensuring that the grid view and data schema remain synchronized.
 * **[Subgrids Manager](./subgrids-manager/index.md)**\
-ToDo
+Manages all subgrids within the grid component.
 * **[View Layout](./view-layout/index.md)**\
 ToDo
 * **[Focus](./focus/index.md)**\

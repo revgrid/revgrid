@@ -4151,7 +4151,12 @@ export const enum RevListChangedTypeId {
 export const revLowestValidServerNotificationId = 0;
 
 // @public (undocumented)
-export type RevMainSubgrid<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> = RevSubgrid<BCS, SF>;
+export interface RevMainSubgrid<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevSubgrid<BCS, SF> {
+    // (undocumented)
+    readonly isMain: true;
+    // (undocumented)
+    readonly role: typeof RevSubgrid.Role.main;
+}
 
 // Warning: (ae-internal-missing-underscore) The name "RevMainSubgridImplementation" should be prefixed with an underscore because the declaration is marked as @internal
 //
@@ -4160,7 +4165,11 @@ export class RevMainSubgridImplementation<BCS extends RevBehavioredColumnSetting
     // (undocumented)
     get fixedRowCount(): number;
     // (undocumented)
+    readonly isMain: true;
+    // (undocumented)
     isRowFixed(rowIndex: number): boolean;
+    // (undocumented)
+    readonly role: typeof RevSubgrid.Role.main;
 }
 
 // @public (undocumented)
@@ -4409,7 +4418,6 @@ export interface RevOnlyGridSettings {
     columnsReorderableHideable: boolean;
     defaultColumnAutoSizing: boolean;
     defaultColumnWidth: number;
-    // (undocumented)
     defaultRowHeight: number;
     defaultUiControllerTypeNames: string[];
     // (undocumented)
