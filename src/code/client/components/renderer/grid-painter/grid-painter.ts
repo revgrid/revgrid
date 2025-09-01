@@ -38,7 +38,7 @@ export abstract class RevGridPainter<BGS extends RevBehavioredGridSettings, BCS 
         this._columnRebundlingRequired = true;
     }
 
-    getColumnBundles(viewLayoutColumns: RevViewLayoutColumn<BCS, SF>[]) {
+    getColumnBundles(viewLayoutColumns: readonly RevViewLayoutColumn<BCS, SF>[]) {
         if (this._columnBundlesComputationId !== this._viewLayout.rowsColumnsComputationId || this._columnRebundlingRequired) {
             this._columnBundles = this.calculateColumnBundles(viewLayoutColumns);
 
@@ -247,7 +247,7 @@ export abstract class RevGridPainter<BGS extends RevBehavioredGridSettings, BCS 
                 // selection needs scrollable data
                 return undefined;
             } else {
-                const preMainRowCount = this._viewLayout.preMainRowCount;
+                const preMainRowCount = this._viewLayout.possiblyNotVerticallyComputedPreMainRowCount;
 
                 let vc: RevViewLayoutColumn<BCS, SF>;
                 let vr: RevViewLayoutRow<BCS, SF>;
@@ -361,7 +361,7 @@ export abstract class RevGridPainter<BGS extends RevBehavioredGridSettings, BCS 
         return subgridRowIndex % 2 === 1;
     }
 
-    private calculateColumnBundles(viewLayoutColumns: RevViewLayoutColumn<BCS, SF>[]): RevGridPainter.ColumnBundle[] {
+    private calculateColumnBundles(viewLayoutColumns: readonly RevViewLayoutColumn<BCS, SF>[]): RevGridPainter.ColumnBundle[] {
         const gridSettings = this._gridSettings;
         const columnCount = viewLayoutColumns.length;
 

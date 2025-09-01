@@ -147,7 +147,7 @@ export const revGridSettingChangeInvalidateTypeIds: RevGridSettingChangeInvalida
     horizontalWheelScrollingAllowed: RevGridSettingChangeInvalidateTypeId.None,
     minimumColumnWidth: RevGridSettingChangeInvalidateTypeId.ViewLayoutAndScrollDimension,
     maximumColumnWidth: RevGridSettingChangeInvalidateTypeId.ViewLayoutAndScrollDimension,
-    visibleColumnWidthAdjust: RevGridSettingChangeInvalidateTypeId.ViewLayoutAndScrollDimension,
+    viewColumnWidthAdjust: RevGridSettingChangeInvalidateTypeId.ViewLayoutAndScrollDimension,
     mouseLastSelectionAreaExtendingDragActiveCursorName: RevGridSettingChangeInvalidateTypeId.None,
     mouseLastSelectionAreaExtendingDragActiveTitleText: RevGridSettingChangeInvalidateTypeId.None,
     mouseAddToggleExtendSelectionAreaEnabled: RevGridSettingChangeInvalidateTypeId.None,

@@ -97,7 +97,7 @@ export class RevFiltersUiController<BGS extends RevBehavioredGridSettings, BCS e
 
         while (
             (gridX = (gridX + deltaX + C) % C) !== originX &&
-            moveDownCellEvent.resetGridXY(this._viewLayout.columns[gridX], this._viewLayout.getVisibleRow(gridY))
+            moveDownCellEvent.resetGridXY(this._viewLayout.columns[gridX], this._viewLayout.rows[gridY])
         ) {
             if (moveDownCellEvent.columnSettings.filterable) {
                 // Select previous or next filterable column's filter cell

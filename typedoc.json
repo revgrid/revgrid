@@ -13,6 +13,10 @@
   "excludeProtected": true,
   "router": "structure-dir",
   "disableSources": true,
+  // "navigation": {
+  //   "includeFolders": false,
+  //   "includeGroups": true
+  // },
   "projectDocuments": [
     "src-docs/overview/index.md",
     "src-docs/architecture/index.md",

@@ -15,8 +15,29 @@ import { RevVerticalScrollDimension } from './vertical-scroll-dimension';
 import { RevViewCellImplementation } from './view-cell-implementation';
 
 
-/** @public */
+/**
+ * Manages the visual layout of the grid, including the arrangement and sizing of rows and columns, scroll positions, and mapping between data and view coordinates.
+ *
+ * @typeParam BCS - Type of the column settings.
+ * @typeParam SF - Type of the schema field.
+ *
+ * @see [View Layout Component 🗎](../../../../../Architecture/Client/Components/View_Layout/)
+ *
+ * @showGroups
+ * @public
+ */
 export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {
+    /**
+     * Tracks viewport size, position and scrollability in horizontal scroll dimension
+     * @group Scroll Dimension
+     */
+    readonly horizontalScrollDimension: RevHorizontalScrollDimension<BGS, BCS, SF>;
+    /**
+     * Tracks viewport size, position and scrollability in vertical scroll dimension
+     * @group Scroll Dimension
+     */
+    readonly verticalScrollDimension: RevVerticalScrollDimension<BGS, BCS, SF>;
+
     /** @internal */
     layoutInvalidatedEventer: RevViewLayout.LayoutInvalidatedEventer;
     /** @internal */
@@ -27,15 +48,10 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
     cellPoolComputedEventerForMouse: RevViewLayout.CellPoolComputedEventer;
 
     /** @internal */
-    private readonly _columns = new RevViewLayout.ViewLayoutColumnArray<BCS, SF>();
+    private readonly _columns = new RevViewLayout.ColumnArray<BCS, SF>();
 
     /** @internal */
-    private readonly _rows = new RevViewLayout.ViewLayoutRowArray<BCS, SF>();
-
-    /** @internal */
-    private readonly _horizontalScrollDimension: RevHorizontalScrollDimension<BGS, BCS, SF>;
-    /** @internal */
-    private readonly _verticalScrollDimension: RevVerticalScrollDimension<BGS, BCS, SF>;
+    private readonly _rows = new RevViewLayout.RowArray<BCS, SF>();
 
     /** @internal */
     private readonly _dummyUnusedColumn: RevColumn<BCS, SF>;
@@ -60,25 +76,14 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
     /** @internal */
     private _columnRowOrderedCellPoolComputationId = -1;
 
-    // Specifies the index of the column anchored to the bounds edge
-    // Will be first non-fixed visible column or last visible column depending on the gridRightAligned property
-    // Set to -1 if there is no space scrollable columns (ie only space for fixed columns)
     /** @internal */
     private _columnScrollAnchorIndex = RevScrollDimension.invalidScrollAnchorIndex;
-    // Specifies the number of pixels of the anchored column which have been scrolled off the view
     /** @internal */
     private _columnScrollAnchorOffset = RevScrollDimension.invalidScrollAnchorOffset;
 
-    // Specifies the number of pixels the column at the opposite end of the anchored column has off the view
-    // This value will be:
-    // * undefined if unanchored column does not reach the end of the view.
-    // * 0 if the unanchored column is touches the edge of the view with no overflow
-    // * Positive number which specifies the number of pixels the column overflows the grid on the unanchored side
     /** @internal */
     private _unanchoredColumnOverflow: number | undefined;
 
-
-    // Index of the first scrollable column in VisibleColumns
     /** @internal */
     private _firstScrollableColumnIndex: number | undefined;
     /** @internal */
@@ -96,18 +101,16 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
     /** @internal */
     private _rowScrollAnchorOffset = RevScrollDimension.invalidScrollAnchorOffset;
 
-    // Index of the first scrollable column in VisibleColumns
     /** @internal */
     private _firstScrollableRowIndex: number | undefined;
     /** @internal */
     private _lastScrollableRowIndex: number | undefined;
 
     /** @internal */
-    private _uiControlTracking = false;
-
-    /** @internal */
     constructor(
+        /** @group Client Object */
         readonly clientId: string,
+        /** @group Client Object */
         readonly internalParent: RevClientObject,
         /** @internal */
         private readonly _gridSettings: BGS,
@@ -135,78 +138,131 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
             this.invalidateAll(true);
         }
         this._columnsManager.invalidateHorizontalViewLayoutEventer = (scrollDimensionAsWell) => { this.invalidateHorizontalAll(scrollDimensionAsWell); };
-        this._horizontalScrollDimension = new RevHorizontalScrollDimension(this._gridSettings, this._canvas, this._columnsManager);
-        this._horizontalScrollDimension.computedEventer = (withinAnimationFrame) => this.handleHorizontalScrollDimensionComputedEvent(withinAnimationFrame);
-        this._verticalScrollDimension = new RevVerticalScrollDimension(this._gridSettings, this._canvas, this._subgridsManager);
-        this._verticalScrollDimension.computedEventer = (withinAnimationFrame: boolean) => this.handleVerticalScrollDimensionComputedEvent(withinAnimationFrame);
+        this.horizontalScrollDimension = new RevHorizontalScrollDimension(this._gridSettings, this._canvas, this._columnsManager);
+        this.horizontalScrollDimension.computedEventer = (withinAnimationFrame) => this.handleHorizontalScrollDimensionComputedEvent(withinAnimationFrame);
+        this.verticalScrollDimension = new RevVerticalScrollDimension(this._gridSettings, this._canvas, this._subgridsManager);
+        this.verticalScrollDimension.computedEventer = (withinAnimationFrame: boolean) => this.handleVerticalScrollDimensionComputedEvent(withinAnimationFrame);
 
         this._dummyUnusedColumn = this._columnsManager.createDummyColumn();
         this.reset();
     }
 
-    get columns() {
+    /**
+     * The array of columns in the view layout.
+     * @group Column
+     * @returns The array of columns in the view layout but restricted to readonly.
+     */
+    get columns(): readonly RevViewLayoutColumn<BCS, SF>[] & { gap: RevViewLayout.ColumnArray.Gap | undefined } {
         this.ensureHorizontalComputedOutsideAnimationFrame();
         return this._columns;
     }
 
-    get columnCount() {
+    /**
+     * The number of columns in the view layout.
+     * @group Column
+     */
+    get columnCount(): number {
         this.ensureHorizontalComputedOutsideAnimationFrame();
         return this._columns.length;
     }
 
-    get rows() {
+    /**
+     * The array of rows in the view layout.
+     * @group Row
+     * @returns The array of rows in the view layout but restricted to readonly.
+     */
+    get rows(): readonly RevViewLayoutRow<BCS, SF>[] & { gap: RevViewLayout.RowArray.Gap | undefined } {
         this.ensureVerticalComputedOutsideAnimationFrame();
         return this._rows;
     }
 
-    get rowCount() {
+    /**
+     * The number of rows in the view layout.
+     * @group Row
+     */
+    get rowCount(): number {
         this.ensureVerticalComputedOutsideAnimationFrame();
         return this._rows.length;
     }
 
-    get preMainRowCount() { return this._preMainRowCount; }
-
-    get rowsColumnsComputationId() { return this._rowsColumnsComputationId; }
-
-    /** @internal */
-    get horizontalScrollDimension() {
-        return this._horizontalScrollDimension;
+    /**
+     * The number of rows before/above the main subgrid in the view layout.
+     * @group Row
+     */
+    get preMainRowCount(): number {
+        this.ensureVerticalComputedOutsideAnimationFrame();
+        return this._preMainRowCount;
     }
 
+
     /** @internal */
-    get verticalScrollDimension() {
-        return this._verticalScrollDimension;
+    get possiblyNotVerticallyComputedPreMainRowCount(): number {
+        return this._preMainRowCount;
     }
 
     /**
-     * The index of the active column which is first in view (either on left or right depending on Grid alignment)
+     * A counter which increments every time the rows or columns are recomputed.
+     * Used to check whether a cell pool is valid.
+     * @group Pool
+     * @see {@link columnRowCellPoolComputationInvalid | columnRowCellPoolComputationInvalid}
+     * @see {@link rowColumnCellPoolComputationInvalid | rowColumnCellPoolComputationInvalid}
+     * @see {@link getColumnRowOrderedCellPool | getColumnRowOrderedCellPool()}
+     * @see {@link getRowColumnOrderedCellPool | getRowColumnOrderedCellPool()}
+     */
+    get rowsColumnsComputationId(): number { return this._rowsColumnsComputationId; }
+
+    /**
+     * The index of the active column which is first non-fixed column in the view (either on left or right depending on Grid alignment)
+     * @returns Index of active column or -1 if there is no space for scrollable columns (ie only space for fixed columns)
+     * @group Anchor
      */
     get columnScrollAnchorIndex() {
         this.ensureHorizontalComputedOutsideAnimationFrame();
         return this._columnScrollAnchorIndex;
     }
     /**
-     * The number of pixels that the scroll anchored column is offset.
+     * Specifies the number of pixels of the anchored column which have been scrolled off the view
      * Changes to allow smooth scrolling
+     * @group Anchor
      */
     get columnScrollAnchorOffset() {
         this.ensureHorizontalComputedOutsideAnimationFrame();
         return this._columnScrollAnchorOffset;
     }
 
+    /**
+     * Specifies the number of pixels the column at the opposite end of the anchored column has off the view
+     * This value will be:
+     * * undefined if unanchored column does not reach the end of the view.
+     * * 0 if the unanchored column is touches the edge of the view with no overflow
+     * * Positive number which specifies the number of pixels the column overflows the grid on the unanchored side
+     * @group Anchor
+     */
     get unanchoredColumnOverflow() {
         this.ensureHorizontalComputedOutsideAnimationFrame();
         return this._unanchoredColumnOverflow;
     }
 
+    /**
+     * Number of {@link RevViewLayoutColumn | columns} in {@link columns}
+     * @group Column
+     */
     get scrollableColumnCount() {
         this.ensureHorizontalComputedOutsideAnimationFrame();
         return this._columns.length - this._gridSettings.fixedColumnCount;
     }
+    /**
+     * Index of the first scrollable {@link RevViewLayoutColumn | column} in {@link columns}
+     * @group Column
+     */
     get firstScrollableColumnIndex() {
         this.ensureHorizontalComputedOutsideAnimationFrame();
         return this._firstScrollableColumnIndex;
     }
+    /**
+     * First scrollable {@link RevViewLayoutColumn | column} in view
+     * @group Column
+     */
     get firstScrollableColumn() {
         this.ensureHorizontalComputedOutsideAnimationFrame();
         const firstScrollableColumnIndex = this._firstScrollableColumnIndex;
@@ -216,6 +272,9 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
             return this._columns[firstScrollableColumnIndex];
         }
     }
+    /**
+     * @group Column
+     */
     get firstScrollableActiveColumnIndex() {
         this.ensureHorizontalComputedOutsideAnimationFrame();
         const firstScrollableColumnIndex = this._firstScrollableColumnIndex;
@@ -225,10 +284,12 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
             return this._columns[firstScrollableColumnIndex].activeColumnIndex;
         }
     }
+    /**
+     * @group Anchor
+     */
     get firstScrollableColumnLeftOverflow(): number | undefined {
         this.ensureHorizontalComputedOutsideAnimationFrame();
-        const firstScrollableVisibleColumnIndex = this._firstScrollableColumnIndex;
-        if (firstScrollableVisibleColumnIndex === undefined) {
+        if (this._firstScrollableColumnIndex === undefined) {
             return undefined;
         } else {
             if (this._gridSettings.gridRightAligned) {
@@ -243,10 +304,16 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
         }
     }
 
+    /**
+     * @group Column
+     */
     get lastScrollableColumnIndex() {
         this.ensureHorizontalComputedOutsideAnimationFrame();
         return this._lastScrollableColumnIndex;
     }
+    /**
+     * @group Column
+     */
     get lastScrollableColumn() {
         this.ensureHorizontalComputedOutsideAnimationFrame();
         const lastScrollableColumnIndex = this._lastScrollableColumnIndex;
@@ -256,6 +323,9 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
             return this._columns[lastScrollableColumnIndex];
         }
     }
+    /**
+     * @group Column
+     */
     get lastScrollableActiveColumnIndex() {
         this.ensureHorizontalComputedOutsideAnimationFrame();
         const lastScrollableColumnIndex = this._lastScrollableColumnIndex;
@@ -265,6 +335,9 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
             return this._columns[lastScrollableColumnIndex].activeColumnIndex;
         }
     }
+    /**
+     * @group Anchor
+     */
     get lastScrollableColumnRightOverflow(): number | undefined {
         this.ensureHorizontalComputedOutsideAnimationFrame();
         const lastScrollableColumnIndex = this._lastScrollableColumnIndex;
@@ -283,31 +356,54 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
         }
     }
 
+    /**
+     * @group Bounds
+     */
     get fixedColumnsViewWidth() {
         this.ensureHorizontalComputedOutsideAnimationFrame();
         return this._fixedColumnsViewWidth;
     }
+    /**
+     * @group Bounds
+     */
     get scrollableColumnsViewWidth() {
         this.ensureHorizontalComputedOutsideAnimationFrame();
         return this._scrollableColumnsViewWidth;
     }
+    /**
+     * @group Bounds
+     */
     get columnsViewWidth() {
         this.ensureHorizontalComputedOutsideAnimationFrame();
         return this._columnsViewWidth;
     }
 
+    /**
+     * @group Row
+     */
     get scrollableRowCount() {
         this.ensureVerticalComputedOutsideAnimationFrame();
         return this._rows.length - this._gridSettings.fixedRowCount;
     }
+    /**
+     * @group Anchor
+     */
     get rowScrollAnchorIndex() {
         this.ensureVerticalComputedOutsideAnimationFrame();
         return this._rowScrollAnchorIndex;
     }
+    /**
+     * Index of the first scrollable {@link RevViewLayoutRow | row} in {@link rows}
+     * @group Row
+     */
     get firstScrollableRowIndex() {
         this.ensureVerticalComputedOutsideAnimationFrame();
         return this._firstScrollableRowIndex;
     }
+    /**
+     * Subgrid row index of the first scrollable row
+     * @group Row
+     */
     get firstScrollableSubgridRowIndex() {
         this.ensureVerticalComputedOutsideAnimationFrame();
         const firstScrollableRowIndex = this._firstScrollableRowIndex;
@@ -317,6 +413,9 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
             return this._rows[firstScrollableRowIndex].subgridRowIndex;
         }
     }
+    /**
+     * @group Bounds
+     */
     get firstScrollableRowViewTop() {
         this.ensureVerticalComputedOutsideAnimationFrame();
         const firstScrollableRowIndex = this._firstScrollableRowIndex;
@@ -332,6 +431,7 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
      * Ensures that vertical computations are performed outside of the animation frame before returning the value.
      *
      * @returns The index of the last scrollable row, or `undefined` if not available.
+     * @group Row
      */
     get lastScrollableRowIndex(): number | undefined {
         this.ensureVerticalComputedOutsideAnimationFrame();
@@ -343,6 +443,7 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
      * Ensures that vertical computations are up-to-date before accessing the value.
      * Returns `undefined` if there is no last scrollable row, otherwise returns the
      * corresponding subgrid row index.
+     * @group Row
      */
     get lastScrollableRowSubgridRowIndex(): number | undefined {
         this.ensureVerticalComputedOutsideAnimationFrame();
@@ -354,27 +455,33 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
         }
     }
 
-    get scrollableCanvasLeft() {
-        return this._horizontalScrollDimension.start;
-    }
-
+    /**
+     * Gets the bounds of the canvas which contains the scrollable area.
+     * @returns A `RevCornerRectangle` representing the bounds of the scrollable canvas area, or `undefined` if scrolling is not possible.
+     * @group Bounds
+     */
     get scrollableCanvasBounds(): RevCornerRectangle | undefined {
-        if (!this._horizontalScrollDimension.scrollable) {
+        if (!this.horizontalScrollDimension.scrollable) {
             return undefined;
         } else {
-            const x = this._horizontalScrollDimension.start;
+            const x = this.horizontalScrollDimension.start;
             const y = this.firstScrollableRowViewTop;
             if (y === undefined) {
                 return undefined;
             } else {
-                const width = this._horizontalScrollDimension.viewportSize;
+                const width = this.horizontalScrollDimension.viewportSize;
                 const height = this._canvas.flooredHeight - y; // this does not handle situation where rows do not fill the view
                 return new RevCornerRectangle(x, y, width, height);
             }
         }
     }
 
-    get firstScrollableVisibleColumnMaximallyVisible() {
+    /**
+     * Indicates whether the first (left most) scrollable column is displayed in view as much as possible.
+     * @returns `true` if the first scrollable column is maximally in the view, `false` otherwise.
+     * @group Column
+     */
+    get firstScrollableColumnIsMaximallyInView() {
         this.ensureHorizontalComputedOutsideAnimationFrame();
         if (this._gridSettings.gridRightAligned) {
             return this._unanchoredColumnOverflow === undefined || this._unanchoredColumnOverflow === 0;
@@ -383,7 +490,12 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
         }
     }
 
-    get lastScrollableVisibleColumnMaximallyVisible() {
+    /**
+     * Indicates whether the last (right most) scrollable column is displayed in view as much as possible.
+     * @returns `true` if the last scrollable column is maximally in the view, `false` otherwise.
+     * @group Column
+     */
+    get lastScrollableColumnIsMaximallyInView() {
         this.ensureHorizontalComputedOutsideAnimationFrame();
         if (this._gridSettings.gridRightAligned) {
             return this._columnScrollAnchorOffset === 0;
@@ -392,11 +504,18 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
         }
     }
 
-    get uiControlTracking() { return this._uiControlTracking; }
-
+    /**
+     * @group Pool
+     */
     get columnRowCellPoolComputationInvalid() { return this._columnRowOrderedCellPoolComputationId !== this._rowsColumnsComputationId; }
+    /**
+     * @group Pool
+     */
     get rowColumnCellPoolComputationInvalid() { return this._rowColumnOrderedCellPoolComputationId !== this._rowsColumnsComputationId; }
 
+    /**
+     * @group Pool
+     */
     getRowColumnOrderedCellPool(): RevViewCell<BCS, SF>[] {
         const pool = this._rowColumnOrderedCellPool;
         if (this.rowColumnCellPoolComputationInvalid) {
@@ -423,6 +542,9 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
         return pool;
     }
 
+    /**
+     * @group Pool
+     */
     getColumnRowOrderedCellPool(): RevViewCell<BCS, SF>[] {
         const pool = this._columnRowOrderedCellPool;
         if (this.columnRowCellPoolComputationInvalid) {
@@ -461,8 +583,8 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
         this._horizontalComputed = false;
         this._verticalComputed = false;
 
-        this._horizontalScrollDimension.reset();
-        this._verticalScrollDimension.reset();
+        this.horizontalScrollDimension.reset();
+        this.verticalScrollDimension.reset();
 
         this._columnScrollAnchorIndex = RevScrollDimension.invalidScrollAnchorIndex;
         this._columnScrollAnchorOffset = RevScrollDimension.invalidScrollAnchorOffset;
@@ -477,22 +599,22 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
         switch (action.dimension) {
             case RevScrollDimension.AxisId.horizontal: {
                 if (scrollablePlaneDimensionAsWell) {
-                    this._horizontalScrollDimension.invalidate();
+                    this.horizontalScrollDimension.invalidate();
                 }
                 this._horizontalComputed = false;
                 break;
             }
             case RevScrollDimension.AxisId.vertical: {
                 if (scrollablePlaneDimensionAsWell) {
-                    this._verticalScrollDimension.invalidate();
+                    this.verticalScrollDimension.invalidate();
                 }
                 this._verticalComputed = false;
                 break;
             }
             case undefined: {
                 if (action.scrollDimensionAsWell) {
-                    this._horizontalScrollDimension.invalidate();
-                    this._verticalScrollDimension.invalidate();
+                    this.horizontalScrollDimension.invalidate();
+                    this.verticalScrollDimension.invalidate();
                 }
                 this._horizontalComputed = false;
                 this._verticalComputed = false;
@@ -505,6 +627,9 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
         this.layoutInvalidatedEventer(action);
     }
 
+    /**
+     * @group Invalidate
+     */
     invalidateAll(scrollDimensionAsWell: boolean) {
         const action: RevViewLayout.AllInvalidateAction = {
             type: RevViewLayout.InvalidateAction.TypeId.All,
@@ -514,6 +639,9 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
         this.invalidate(action);
     }
 
+    /**
+     * @group Invalidate
+     */
     invalidateHorizontalAll(scrollDimensionAsWell: boolean) {
         const action: RevViewLayout.AllInvalidateAction = {
             type: RevViewLayout.InvalidateAction.TypeId.All,
@@ -523,6 +651,9 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
         this.invalidate(action);
     }
 
+    /**
+     * @group Invalidate
+     */
     invalidateVerticalAll(scrollDimensionAsWell: boolean) {
         const action: RevViewLayout.AllInvalidateAction = {
             type: RevViewLayout.InvalidateAction.TypeId.All,
@@ -535,7 +666,7 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
     /** @internal */
     invalidateHorizontalAllAndScrollDimensionWithoutAction() {
         // only used from within Animation Frame
-        this._horizontalScrollDimension.invalidate();
+        this.horizontalScrollDimension.invalidate();
         this._horizontalComputed = false;
     }
 
@@ -727,12 +858,12 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
 
     /** @internal */
     ensureComputedInsideAnimationFrame() {
-        if (!this._horizontalScrollDimension.ensureComputedInsideAnimationFrame()) {
+        if (!this.horizontalScrollDimension.ensureComputedInsideAnimationFrame()) {
             // was previously not valid
             this._horizontalComputed = false;
         }
 
-        if (!this._verticalScrollDimension.ensureComputedInsideAnimationFrame()) {
+        if (!this.verticalScrollDimension.ensureComputedInsideAnimationFrame()) {
             // was previously not valid
             this._verticalComputed = false;
         }
@@ -749,15 +880,16 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
     }
 
     /**
-     * Ensures that both the specified column and row are visible within the viewport.
-     * If either the column or row is not currently in view, adjusts the viewport to bring them into view.
+     * Ensures that the specified cell is within the viewport.
+     * If its column or row is not currently in view, adjusts the viewport to bring them into view.
      *
-     * @param activeColumnIndex - The index of the active column to ensure is visible.
-     * @param mainSubgridRowIndex - The index of the row in main subgrid to ensure is visible.
+     * @param activeColumnIndex - The index of the active column to ensure is in view.
+     * @param mainSubgridRowIndex - The index of the row in main subgrid to ensure is in view.
      * @param maximally - If true, attempts to maximize the visibility of the column and row within the viewport.
      * @returns `true` if the viewport start position was changed to bring the column or row into view; otherwise, `false`.
+     * @group Scroll
      */
-    ensureColumnRowAreInView(activeColumnIndex: number, mainSubgridRowIndex: number, maximally: boolean) {
+    ensureCellIsInView(activeColumnIndex: number, mainSubgridRowIndex: number, maximally: boolean) {
         let viewportStartChanged = this.ensureColumnIsInView(activeColumnIndex, maximally);
         if (this.ensureRowIsInView(mainSubgridRowIndex, maximally)) {
             viewportStartChanged = true;
@@ -765,6 +897,13 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
         return viewportStartChanged;
     }
 
+    /**
+     * Scrolls the viewport by the specified number of columns and rows.
+     * @param columnCount - The number of columns to scroll (can be negative).
+     * @param rowCount - The number of rows to scroll (can be negative).
+     * @returns `true` if the viewport was scrolled; otherwise, `false`.
+     * @group Scroll
+     */
     scrollColumnsRowsBy(columnCount: number, rowCount: number) {
         let scrolled = this.scrollColumnsBy(columnCount);
         if (this.scrollRowsBy(rowCount)) {
@@ -776,11 +915,12 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
     /**
      * @param activeColumnIndex - Index of active column that should be anchor
      * @returns true if changed
+     * @group Scroll
      */
     setColumnScrollAnchor(activeColumnIndex: number, offset: number): boolean {
         this.ensureHorizontalComputedOutsideAnimationFrame();
 
-        if (!this._horizontalScrollDimension.scrollable) {
+        if (!this.horizontalScrollDimension.scrollable) {
             return false;
         } else {
             const { index: limitedIndex, offset: limitedOffset } = this.horizontalScrollDimension.calculateLimitedScrollAnchor(activeColumnIndex, offset);
@@ -797,6 +937,11 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
         }
     }
 
+    /**
+     * Sets the column scroll anchor to its current limit.
+     * This will scroll the viewport as far as possible to the right.
+     * @group Scroll
+     */
     setColumnScrollAnchorToLimit() {
         const dimension = this.horizontalScrollDimension;
         if (this._gridSettings.gridRightAligned) {
@@ -806,13 +951,19 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
         }
     }
 
+    /**
+     * Scrolls the viewport by the specified number of columns.
+     * @param scrollColumnCount - The number of columns to scroll (can be negative).
+     * @returns `true` if the viewport was scrolled; otherwise, `false`.
+     * @group Scroll
+     */
     scrollColumnsBy(scrollColumnCount: number) {
         if (scrollColumnCount === 0) {
             return false;
         } else {
             this.ensureHorizontalComputedOutsideAnimationFrame();
 
-            if (!this._horizontalScrollDimension.scrollable) {
+            if (!this.horizontalScrollDimension.scrollable) {
                 return false;
             } else {
                 let index: number;
@@ -834,19 +985,25 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
         }
     }
 
+    /**
+     * @group Scroll
+     */
     scrollHorizontalViewportBy(delta: number) {
-        const viewportStart = this._horizontalScrollDimension.viewportStart;
+        const viewportStart = this.horizontalScrollDimension.viewportStart;
         if (viewportStart !== undefined) {
             const newViewportStart = viewportStart + delta;
             this.setHorizontalViewportStart(newViewportStart);
         }
     }
 
+    /**
+     * @group Scroll
+     */
     setHorizontalViewportStart(value: number): boolean {
-        if (!this._horizontalScrollDimension.scrollable) {
+        if (!this.horizontalScrollDimension.scrollable) {
             return false;
         } else {
-            const { index, offset } = this._horizontalScrollDimension.calculateLimitedScrollAnchorFromViewportStart(value);
+            const { index, offset } = this.horizontalScrollDimension.calculateLimitedScrollAnchorFromViewportStart(value);
             if (index === this._columnScrollAnchorIndex && offset === this._columnScrollAnchorOffset) {
                 return false;
             } else {
@@ -858,6 +1015,9 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
         }
     }
 
+    /**
+     * @group Scroll
+     */
     ensureColumnIsInView(activeColumnIndex: number, maximally: boolean) {
         const gridRightAligned = this._gridSettings.gridRightAligned
         const firstViewportScrollableActiveColumnIndex = this.firstScrollableActiveColumnIndex;
@@ -873,7 +1033,7 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
                 (
                     maximally &&
                     leftDelta === 0 &&
-                    !this.firstScrollableVisibleColumnMaximallyVisible &&
+                    !this.firstScrollableColumnIsMaximallyInView &&
                     (scrollableColumnCount > 1 || !gridRightAligned)
                 );
 
@@ -898,7 +1058,7 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
                         (
                             maximally &&
                             rightDelta === 0 &&
-                            !this.lastScrollableVisibleColumnMaximallyVisible &&
+                            !this.lastScrollableColumnIsMaximallyInView &&
                             (scrollableColumnCount > 1 || gridRightAligned)
                         );
 
@@ -920,10 +1080,13 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
         return anchorUpdated;
     }
 
+    /**
+     * @group Scroll
+     */
     setRowScrollAnchor(index: number, offset: number) {
         this.ensureVerticalComputedOutsideAnimationFrame();
 
-        if (!this._verticalScrollDimension.scrollable) {
+        if (!this.verticalScrollDimension.scrollable) {
             return false;
         } else {
             const { index: limitedIndex, offset: limitedOffset } = this.verticalScrollDimension.calculateLimitedScrollAnchor(index, offset);
@@ -940,35 +1103,48 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
         }
     }
 
+    /**
+     * @group Scroll
+     */
     setRowScrollAnchorToLimit() {
         const dimension = this.verticalScrollDimension;
         this.setRowScrollAnchor(dimension.startScrollAnchorLimitIndex, dimension.startScrollAnchorLimitOffset);
     }
 
+    /**
+     * @group Scroll
+     */
     scrollRowsBy(rowScrollCount: number) {
         const newIndex = this._rowScrollAnchorIndex + rowScrollCount;
         return this.setRowScrollAnchor(newIndex, 0);
     }
 
+    /**
+     * @group Scroll
+     */
     scrollVerticalViewportBy(delta: number) {
         return this.scrollRowsBy(delta);
     }
 
+    /**
+     * @group Scroll
+     */
     setVerticalViewportStart(viewportStart: number){
         this.setRowScrollAnchor(viewportStart - this._preMainRowCount, 0);
     }
 
     /**
-     * Ensures that the specified row index is visible within the viewport of the grid.
+     * Ensures that the specified row index is within the viewport of the grid.
      * If the row is within the fixed rows, no scrolling occurs. Otherwise, the method
      * scrolls the grid to bring the row into view, considering whether the scrolling
      * should be maximal (i.e., align the row at the top of the viewport) and handling
      * edge cases where the viewport size is not an exact multiple of the row height.
      *
-     * @param mainSubgridRowIndex - The index of the row in the main subgrid to ensure is visible.
-     * @param maximally - If `true`, ensure the row is fully in view; otherwise do not scroll if it is already partially visible.
+     * @param mainSubgridRowIndex - The index of the row in the main subgrid to ensure in viewport.
+     * @param maximally - If `true`, ensure the row is maximally in view; otherwise do not scroll if it is already partially in view.
      * @returns `true` if scrolling was performed to bring the row into view; `false` otherwise.
      * @throws If the scrollable row indices are inconsistent.
+     * @group Scroll
      */
     ensureRowIsInView(mainSubgridRowIndex: number, maximally: boolean): boolean {
         const fixedRowCount = this._gridSettings.fixedRowCount;
@@ -992,18 +1168,18 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
                         if (mainSubgridRowIndex < lastScrollableRowSubgridRowIndex) {
                             return false;
                         } else {
-                            const maximallyButLastLineIsNotMaximal = maximally && !this._verticalScrollDimension.viewportSizeExactMultiple;
+                            const maximallyButLastLineIsNotMaximal = maximally && !this.verticalScrollDimension.viewportSizeExactMultiple;
                             if (mainSubgridRowIndex === lastScrollableRowSubgridRowIndex) {
                                 if (!maximallyButLastLineIsNotMaximal) {
                                     return false;
                                 } else {
-                                    const newFirstIndex = mainSubgridRowIndex - this._verticalScrollDimension.viewportSize + 1;
+                                    const newFirstIndex = mainSubgridRowIndex - this.verticalScrollDimension.viewportSize + 1;
                                     this.setRowScrollAnchor(newFirstIndex, 0);
                                     return true;
                                 }
                             } else {
                                 const lastPosition = maximallyButLastLineIsNotMaximal ? 2 : 1;
-                                const newFirstIndex = mainSubgridRowIndex - this._verticalScrollDimension.viewportSize + lastPosition;
+                                const newFirstIndex = mainSubgridRowIndex - this.verticalScrollDimension.viewportSize + lastPosition;
                                 this.setRowScrollAnchor(newFirstIndex, 0);
                                 return true;
                             }
@@ -1015,23 +1191,10 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
     }
 
     /**
-     * @returns Answer how many rows we rendered
-     */
-    getRowsCount() {
-        return this._rows.length - 1;
-    }
-
-    /**
-     * @returns Number of columns we just rendered.
-     */
-    getColumnsCount() {
-        return this._columns.length;
-    }
-
-    /**
      * @param x - Grid column coordinate.
      * @param y - Grid row coordinate.
      * @returns Bounding rect of cell with the given coordinates.
+     * @group Bounds
      */
     getBoundsOfCell(x: number, y: number): RevRectangle {
         const vc = this._columns[x];
@@ -1046,9 +1209,10 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
     }
 
     /**
-     * the index of the column whose edge is closest to the coordinate at pixelX
+     * Get the index of the column whose edge is closest to the coordinate at pixelX
      * @param pixelX - The horizontal coordinate.
      * @returns The column index under the coordinate at pixelX.
+     * @group Column
      */
     getActiveColumnWidthEdgeClosestToPixelX(pixelX: number): number {
         const fixedColumnCount = this._columnsManager.getFixedColumnCount();
@@ -1095,6 +1259,7 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
      * @param canvasXOffset - x position on canvas.
      * @param canvasYOffset - y position on canvas.
      * @returns Cell at co-ordinate or undefined if none.
+     * @group Cell
      */
     findLinedHoverCellAtCanvasOffset(canvasXOffset: number, canvasYOffset: number): RevLinedHoverCell<BCS, SF> | undefined {
         this.ensureComputedOutsideAnimationFrame();
@@ -1118,6 +1283,9 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
         }
     }
 
+    /**
+     * @group Cell
+     */
     findScrollableCellClosestToCanvasOffset(canvasOffsetX: number, canvasOffsetY: number) {
         const columnIndex = this.findIndexOfScrollableColumnClosestToCanvasOffset(canvasOffsetX);
         if (columnIndex < 0) {
@@ -1132,6 +1300,9 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
         }
     }
 
+    /**
+     * @group Column
+     */
     findLeftGridLineInclusiveColumnOfCanvasOffset(canvasOffsetX: number) {
         const index = this.findLeftGridLineInclusiveColumnIndexOfCanvasOffset(canvasOffsetX);
         if (index < 0) {
@@ -1141,6 +1312,9 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
         }
     }
 
+    /**
+     * @group Column
+     */
     findLeftGridLineInclusiveColumnIndexOfCanvasOffset(canvasOffsetX: number) {
         const columns = this._columns;
         const columnCount = columns.length;
@@ -1157,6 +1331,9 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
         }
     }
 
+    /**
+     * @group Column
+     */
     findColumnIndexOfCanvasOffset(canvasOffsetX: number) {
         // called from within animation frame
         const columns = this._columns;
@@ -1178,11 +1355,14 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
         }
     }
 
+    /**
+     * @group Column
+     */
     findIndexOfScrollableColumnClosestToCanvasOffset(canvasOffsetX: number) {
-        if (!this._horizontalScrollDimension.scrollable) {
+        if (!this.horizontalScrollDimension.scrollable) {
             return -1;
         } else {
-            const firstScrollableColumnViewLeft = this._horizontalScrollDimension.start;
+            const firstScrollableColumnViewLeft = this.horizontalScrollDimension.start;
             if (canvasOffsetX < firstScrollableColumnViewLeft) {
                 const firstScrollableColumnIndex = this._firstScrollableColumnIndex;
                 if (firstScrollableColumnIndex === undefined) {
@@ -1211,6 +1391,9 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
         }
     }
 
+    /**
+     * @group Row
+     */
     findTopGridLineInclusiveRowOfCanvasOffset(canvasOffsetY: number) {
         const index = this.findTopGridLineInclusiveRowIndexOfCanvasOffset(canvasOffsetY);
         if (index < 0) {
@@ -1220,6 +1403,9 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
         }
     }
 
+    /**
+     * @group Row
+     */
     findTopGridLineInclusiveRowIndexOfCanvasOffset(canvasOffsetY: number) {
         const rows = this._rows;
         const rowCount = rows.length;
@@ -1236,6 +1422,9 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
         }
     }
 
+    /**
+     * @group Row
+     */
     findRowIndexOfCanvasOffset(canvasOffsetY: number) {
         const rows = this._rows;
         const rowCount = rows.length;
@@ -1256,6 +1445,9 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
         }
     }
 
+    /**
+     * @group Row
+     */
     findIndexOfScrollableRowClosestToOffset(y: number) {
         const firstScrollableRowViewTop = this.firstScrollableRowViewTop;
         if (firstScrollableRowViewTop === undefined) {
@@ -1335,9 +1527,10 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
     }
 
     /**
-     * Matrix of unformatted values of visible cells.
+     * Matrix of view values within cells in the viewport.
+     * @group Values
      */
-    getVisibleCellMatrix(): RevDataServer.ViewValue[][] {
+    getValuesInView(): RevDataServer.ViewValue[][] {
         const rows = Array<RevDataServer.ViewValue[]>(this._rows.length);
         for (let y = 0; y < rows.length; ++y) {
             rows[y] = Array<RevDataServer.ViewValue>(this._columns.length);
@@ -1356,26 +1549,27 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
     }
 
     /**
-     * Get the visibility of the column matching the provided grid column index.
-     * @remarks Requested column may not be visible due to being scrolled out of view.
-     * Determines if a column is visible.
+     * Indicates whether an active column is in view.
      * @param activeColumnIndex - the column index
-     * @returns The given column is visible.
+     * @returns `true` if the column is in view, `false` otherwise.
+     * @group Column
      */
-    isActiveColumnVisible(activeColumnIndex: number) {
+    isActiveColumnInView(activeColumnIndex: number) {
         return this.findColumnWithActiveIndex(activeColumnIndex) !== undefined;
     }
 
-    isActiveColumnFullyVisible(activeColumnIndex: number) {
-        return this.findFullyVisibleColumnWithActiveIndex(activeColumnIndex) !== undefined;
+    /**
+     * @group Column
+     */
+    isActiveColumnFullyInView(activeColumnIndex: number) {
+        return this.findFullyInViewColumnWithActiveIndex(activeColumnIndex) !== undefined;
     }
 
     /**
-     * Get the "visible column" object matching the provided grid column index.
-     * @remarks Requested column may not be visible due to being scrolled out of view.
-     * Find a visible column object.
+     * Get the column index matching the provided active column index.
      * @param activeColumnIndex - The grid column index.
-     * @returns The given column if visible or `undefined` if not.
+     * @returns The given column if in view or `undefined` if not.
+     * @group Column
      */
     findColumnWithActiveIndex(activeColumnIndex: number): RevViewLayoutColumn<BCS, SF> | undefined {
         const columns = this._columns;
@@ -1398,6 +1592,12 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
         }
     }
 
+    /**
+     * Get the column in viewport with the provided field index.
+     * @param fieldIndex - The grid column index.
+     * @returns The column if found and in viewport, otherwise `undefined`.
+     * @group Column
+     */
     findColumnWithFieldIndex(fieldIndex: number): RevViewLayoutColumn<BCS, SF> | undefined {
         const columns = this._columns;
         const columnCount = columns.length;
@@ -1410,7 +1610,14 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
         return undefined;
     }
 
-    findRowWithSubgridRowIndex(subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>) {
+    /**
+     * Get the row in viewport with the provided subgrid row index and subgrid.
+     * @param subgridRowIndex - The index of the row within the specified subgrid.
+     * @param subgrid - The subgrid to which the row belongs.
+     * @returns The given row if in viewport or `undefined` if not.
+     * @group Row
+     */
+    findRowWithSubgridRowIndex(subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): RevViewLayoutRow<BCS, SF> | undefined {
         const rows = this._rows;
         const rowCount = rows.length;
         for (let i = 0; i < rowCount; i++) {
@@ -1422,7 +1629,10 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
         return undefined;
     }
 
-    findFullyVisibleColumnWithActiveIndex(activeColumnIndex: number): RevViewLayoutColumn<BCS, SF> | undefined {
+    /**
+     * @group Column
+     */
+    findFullyInViewColumnWithActiveIndex(activeColumnIndex: number): RevViewLayoutColumn<BCS, SF> | undefined {
         const columns = this._columns;
         const columnCount = columns.length;
         if (columnCount === 0) {
@@ -1438,10 +1648,10 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
                     return undefined;
                 } else {
                     if (columnIndex === 0) {
-                        return this.firstScrollableVisibleColumnMaximallyVisible ? columns[columnIndex] : undefined;
+                        return this.firstScrollableColumnIsMaximallyInView ? columns[columnIndex] : undefined;
                     } else {
                         if (columnIndex === columnCount - 1) {
-                            return this.lastScrollableVisibleColumnMaximallyVisible ? columns[columnIndex] : undefined;
+                            return this.lastScrollableColumnIsMaximallyInView ? columns[columnIndex] : undefined;
                         } else {
                             return columns[columnIndex];
                         }
@@ -1452,28 +1662,22 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
     }
 
     /**
-     * Get the visibility of the column matching the provided data column index.
-     * @remarks Requested column may not be visible due to being scrolled out of view or if the column is inactive.
-     * Determines if a column is visible.
-     * @param columnIndex - the column index
+     * Check if a field column is in viewport.
+     * A column will not be in viewport if it is either not active or scrolled out of view.
+     * @param fieldIndex - the column's field index
+     * @group Column
      */
-    isDataColumnVisible(columnIndex: number) {
-        return this.tryGetColumnWithFieldIndex(columnIndex) !== undefined;
+    isFieldColumnInView(fieldIndex: number) {
+        return this.findColumnWithFieldIndex(fieldIndex) !== undefined;
     }
 
     /**
-     * Get the "visible column" object matching the provided data column index.
-     * @remarks Requested column may not be visible due to being scrolled out of view or if the column is inactive.
-     * Find a visible column object.
-     * @param columnIndex - The grid column index.
+     * Limit an active column index value to within the range of active column indices of columns that are scrollable.
+     * @param activeColumnIndex - The active column index to limit.
+     * @returns The passed `activeColumnIndex` if it is within the range of scrollable columns, or the active column index of the closest scrollable column or `undefined` if no scrollable columns are present.
+     * @group Column
      */
-    tryGetColumnWithFieldIndex(columnIndex: number) {
-        return this._columns.find((vc) => {
-            return vc.column.field.index === columnIndex;
-        });
-    }
-
-    limitActiveColumnIndexToView(activeColumnIndex: number) {
+    limitActiveColumnIndexToScrollableRange(activeColumnIndex: number) {
         const firstScrollableColumnIndex = this.firstScrollableColumnIndex;
         if (firstScrollableColumnIndex === undefined) {
             return undefined;
@@ -1485,8 +1689,8 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
                 activeColumnIndex = firstScrollableActiveColumnIndex;
             }
 
-            const visibleColumnCount = columns.length;
-            const lastScrollableColumn = columns[visibleColumnCount - 1];
+            const inViewColumnCount = columns.length;
+            const lastScrollableColumn = columns[inViewColumnCount - 1];
             const lastScrollableActiveColumnIndex = lastScrollableColumn.activeColumnIndex;
             if (activeColumnIndex > lastScrollableActiveColumnIndex) {
                 activeColumnIndex = lastScrollableActiveColumnIndex;
@@ -1497,64 +1701,39 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
     }
 
     /**
-     * Get the visibility of the row matching the provided grid row index.
-     * @remarks Requested row may not be visible due to being outside the bounds of the rendered grid.
-     * Determines visibility of a row.
-     * @param rowIndex - The grid row index.
-     * @returns The given row is visible.
+     * Check if a subgrid row is in view.
+     * @param rowIndex - The index of the row (within a subgrid) to check.
+     * @param subgrid - The subgrid to check against.
+     * @returns `true` if the row is in view, otherwise `false`.
+     * @group Row
      */
-    isRowVisible(rowIndex: number) {
-        return !!this._rows[rowIndex];
+    isSubgridRowInView(rowIndex: number, subgrid: RevSubgrid<BCS, SF>): boolean {
+        return this.findRowWithSubgridRowIndex(rowIndex, subgrid) !== undefined;
     }
 
     /**
-     * Get the "visible row" object matching the provided grid row index.
-     * @remarks Requested row may not be visible due to being outside the bounds of the rendered grid.
-     * Find a visible row object.
-     * @param rowIndex - The grid row index.
-     * @returns The given row if visible or `undefined` if not.
+     * Limit a row index value to within the range of indices of rows that are scrollable.
+     * @param rowIndex - The row index to limit.
+     * @returns The passed `rowIndex` if it is within the range of scrollable rows, or the index of the closest scrollable row or `undefined` if no scrollable rows are present.
+     * @group Row
      */
-    getVisibleRow(rowIndex: number) {
-        return this._rows[rowIndex];
-    }
-
-    isDataRowVisible(rowIndex: number, subgrid: RevSubgrid<BCS, SF>): boolean {
-        return this.getVisibleDataRow(rowIndex, subgrid) !== undefined;
-    }
-
-    /**
-     * Get the "visible row" object matching the provided data row index.
-     * @remarks Requested row may not be visible due to being scrolled out of view.
-     * Find a visible row object.
-     * @param rowIndex - The data row index within the given subgrid.
-     * @returns The given row if visible or `undefined` if not.
-     */
-    getVisibleDataRow(rowIndex: number, subgrid: RevSubgrid<BCS, SF>) {
-        for (const vr of this._rows) {
-            if (vr.subgridRowIndex === rowIndex && vr.subgrid === subgrid) {
-                return vr;
-            }
-        }
-        return undefined;
-    }
-
-    limitRowIndexToView(rowIndex: number) {
-        const firstScrollableVisibleRowIndex = this.firstScrollableRowIndex;
-        if (firstScrollableVisibleRowIndex === undefined) {
+    limitRowIndexToScrollableRange(rowIndex: number) {
+        const firstScrollableRowIndex = this.firstScrollableRowIndex;
+        if (firstScrollableRowIndex === undefined) {
             return undefined;
         } else {
             const rows = this._rows;
-            const firstScrollableRow = rows[firstScrollableVisibleRowIndex];
-            const firstScrollableRowIndex = firstScrollableRow.index;
-            if (rowIndex < firstScrollableRowIndex) {
-                rowIndex = firstScrollableRowIndex;
+            const firstScrollableRow = rows[firstScrollableRowIndex];
+            const redundantFirstScrollableRowIndex = firstScrollableRow.index; // should be same
+            if (rowIndex < redundantFirstScrollableRowIndex) {
+                rowIndex = redundantFirstScrollableRowIndex;
             }
 
             const rowCount = rows.length;
-            const lastScrollableVisibleRow = rows[rowCount - 1];
-            const lastScrollableVisibleRowIndex = lastScrollableVisibleRow.index;
-            if (rowIndex > lastScrollableVisibleRowIndex) {
-                rowIndex = lastScrollableVisibleRowIndex;
+            const lastScrollableRow = rows[rowCount - 1];
+            const lastScrollableRowIndex = lastScrollableRow.index;
+            if (rowIndex > lastScrollableRowIndex) {
+                rowIndex = lastScrollableRowIndex;
             }
 
             return rowIndex;
@@ -1575,26 +1754,17 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
     // }
 
     /**
-     * @returns Current vertical scroll value.
+     * @returns The last col was rendered (is in view)
+     * @group Column
      */
-    getScrollTop(): number {
-        if (this._verticalScrollDimension.scrollable) {
-            return this._rowScrollAnchorIndex;
-        } else {
-            throw new RevAssertError('VLGST60981');
-        }
-    }
-
-    /**
-     * @returns The last col was rendered (is visible)
-     */
-    isLastColumnVisible(): boolean {
+    isLastActiveColumnInView(): boolean {
         const lastColumnIndex = this._columnsManager.activeColumnCount - 1;
         return !!this._columns.find((vc) => { return vc.activeColumnIndex === lastColumnIndex; });
     }
 
     /**
      * @returns The rendered column width at index
+     * @group Bounds
      */
     getRenderedWidth(index: number) {
         const columns = this._columns;
@@ -1611,6 +1781,7 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
 
     /**
      * @returns The rendered row height at index
+     * @group Bounds
      */
     getRenderedHeight(index: number): number {
         const rows = this._rows;
@@ -1626,15 +1797,29 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
         return result;
     }
 
+    /**
+     * Calculates the scroll anchor for a page left scroll action.
+     * Warning: NOT IMPLEMENTED
+     * @returns A new scroll anchor which can be used for page left scrolling or `undefined` if a left scroll operation is not possible.
+     * @group Anchor
+     */
     calculatePageLeftColumnAnchor(): RevViewLayout.ScrollAnchor | undefined {
         return undefined;
     }
+
+    /**
+     * Calculates the scroll anchor for a page right scroll action.
+     * Warning: NOT IMPLEMENTED
+     * @returns A new scroll anchor which can be used for page right scrolling or `undefined` if a right scroll operation is not possible.
+     * @group Anchor
+     */
     calculatePageRightColumnAnchor(): RevViewLayout.ScrollAnchor | undefined {
         return undefined;
     }
 
     /**
      * @returns The row to go to for a page up.
+     * @group Anchor
      */
     calculatePageUpRowAnchor(): RevViewLayout.ScrollAnchor | undefined {
         const firstScrollableSubgridRowIndex = this.firstScrollableSubgridRowIndex;
@@ -1655,6 +1840,7 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
 
     /**
      * @returns The row to goto for a page down.
+     * @group Anchor
      */
     calculatePageDownRowAnchor(): RevViewLayout.ScrollAnchor | undefined {
         const lastScrollableRowSubgridRowIndex = this.lastScrollableRowSubgridRowIndex;
@@ -1677,6 +1863,15 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
         }
     }
 
+    /**
+     * Finds a cell at the specified grid row and column.
+     * @param activeColumnIndex - index of active column within grid
+     * @param subgridRowIndex - index of row within its subgrid within the grid
+     * @param subgrid - the subgrid to search within
+     * @param canComputePool - whether the pool can be recomputed (set to false if called from within animation frame)
+     * @returns the cell at the specified index, or undefined if not found
+     * @group Cell
+     */
     findCellAtGridPoint(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>, canComputePool: boolean) {
         const column = this.findColumnWithActiveIndex(activeColumnIndex);
         if (column === undefined) {
@@ -1691,8 +1886,16 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
         }
     }
 
-    findCellAtDataPoint(allColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>) {
-        const column = this.findColumnWithFieldIndex(allColumnIndex);
+    /**
+     * Finds a cell at the specified data point.
+     * @param fieldColumnIndex - index of field column within grid
+     * @param subgridRowIndex - index of row within its subgrid within the grid
+     * @param subgrid - the subgrid to search within
+     * @returns the cell at the specified index, or undefined if not found
+     * @group Cell
+     */
+    findCellAtDataPoint(fieldColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>) {
+        const column = this.findColumnWithFieldIndex(fieldColumnIndex);
         if (column === undefined) {
             return undefined;
         } else {
@@ -1705,6 +1908,14 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
         }
     }
 
+    /**
+     * Finds a cell at the specified viewport row and column.
+     * @param viewportColumnIndex - index of column within viewport
+     * @param viewportRowIndex - index of row within viewport
+     * @param canComputePool - whether the pool can be recomputed (set to false if called from within animation frame)
+     * @returns the cell at the specified index, or undefined if not found
+     * @group Cell
+     */
     findCellAtViewpointIndex(viewportColumnIndex: number, viewportRowIndex: number, canComputePool: boolean): RevViewCell<BCS, SF> {
         // called from within animation frame
         if (this._columnRowOrderedCellPoolComputationId === this._rowsColumnsComputationId) {
@@ -1739,6 +1950,13 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
         }
     }
 
+    /**
+     * Finds a cell at the specified canvas offset.
+     * @param x - The x-coordinate of the canvas offset.
+     * @param y - The y-coordinate of the canvas offset.
+     * @returns The cell at the specified canvas offset, or undefined if not found.
+     * @group Cell
+     */
     findCellAtCanvasOffset(x: number, y: number) {
         // do NOT call from within animation frame
         return this.findCellAtCanvasOffsetSpecifyRecompute(x, y, true);
@@ -1762,30 +1980,20 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
         }
     }
 
+    /**
+     * @group Pool
+     */
     resetAllCellPaintFingerprints() {
         this.resetPoolAllCellPaintFingerprints(this._columnRowOrderedCellPool);
         this.resetPoolAllCellPaintFingerprints(this._rowColumnOrderedCellPool);
     }
 
+    /**
+     * @group Pool
+     */
     resetAllCellPropertiesCaches() {
         this.resetPoolAllCellPropertiesCaches(this._columnRowOrderedCellPool);
         this.resetPoolAllCellPropertiesCaches(this._rowColumnOrderedCellPool);
-    }
-
-    beginUiControlTracking() {
-        if (this._uiControlTracking) {
-            throw new RevAssertError('VLBUCT11198');
-        } else {
-            this._uiControlTracking = true;
-        }
-    }
-
-    endUiControlTracking() {
-        if (!this._uiControlTracking) {
-            throw new RevAssertError('VLEUCT11198');
-        } else {
-            this._uiControlTracking = false;
-        }
     }
 
     /** @internal */
@@ -1885,7 +2093,7 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
         if (activeColumnCount > 0) {
             const gridSettings = this._gridSettings;
             const gridRightAligned = gridSettings.gridRightAligned;
-            const visibleColumnWidthAdjust = gridSettings.visibleColumnWidthAdjust;
+            const viewColumnWidthAdjust = gridSettings.viewColumnWidthAdjust;
             const gridLinesVWidth = gridSettings.verticalGridLinesWidth;
 
             const fixedColumnCount = this._columnsManager.getFixedColumnCount();
@@ -1915,16 +2123,16 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
 
             let viewportStart: number | undefined;
             let startX: number; // horizontal pixel loop index
-            let startActiveColumnIndex: number; // first visible index
+            let startActiveColumnIndex: number; // first column in view
             if (!gridRightAligned) {
                 startX = 0;
                 startActiveColumnIndex = 0;
             } else {
-                // We want to right align the grid in the canvas.  The last column (after scrolling) is always visible.  Work backwards to see which
-                // column is the first visible and what its x position is.
+                // We want to right align the grid in the canvas.  The last column (after scrolling) is always in the view.  Work backwards to see which
+                // column is the first in view and what its x position is.
 
                 startActiveColumnIndex = activeColumnCount;
-                viewportStart = this._horizontalScrollDimension.start + this._horizontalScrollDimension.size;
+                viewportStart = this.horizontalScrollDimension.start + this.horizontalScrollDimension.size;
                 startX = gridWidth;
                 let first = true;
 
@@ -1944,7 +2152,7 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
                                 viewportStart -= gridLinesVWidth;
                             }
                             startX -= columnWidth - columnScrollAnchorOffset;
-                            viewportStart -= (columnScrollAnchorOffset + this._horizontalScrollDimension.viewportSize);
+                            viewportStart -= (columnScrollAnchorOffset + this.horizontalScrollDimension.viewportSize);
                         } else {
                             // cannot be first as must have columnScrollAnchorIndex
                             if (startActiveColumnIndex === lastFixedColumnIndex) {
@@ -1959,12 +2167,12 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
                 } while (startActiveColumnIndex > 0 && startX > 0);
             }
 
-            // Now that start has been calculated, can calculate visible column values
+            // Now that start has been calculated, can calculate view column values
             columns.length = activeColumnCount - startActiveColumnIndex; // maximum length
             let x = startX;
             let nonFixedStartX = startX < 0 ? 0 : startX;
             let scrollX = nonFixedStartX;
-            let visibleColumnCount = 0;
+            let viewColumnCount = 0;
             let isFirstNonFixedColumn = startActiveColumnIndex >= fixedColumnCount;
             let fixedColumnsViewWidth = 0;
             let scrollableColumnsViewWidth = 0;
@@ -1996,72 +2204,72 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
                             left = x;
                         }
 
-                        let visibleWidth: number;
+                        let inViewWidth: number;
                         if (!isFirstNonFixedColumn) {
-                            visibleWidth = activeColumnWidth;
+                            inViewWidth = activeColumnWidth;
                         } else {
-                            this._firstScrollableColumnIndex = visibleColumnCount;
+                            this._firstScrollableColumnIndex = viewColumnCount;
                             if (gridRightAligned) {
                                 // if nonFixedStartX is defined, then first non fixed column is
                                 if (left < nonFixedStartX) {
                                     const overflow = nonFixedStartX - left;
                                     this._unanchoredColumnOverflow = overflow;
-                                    if (visibleColumnWidthAdjust) {
-                                        visibleWidth = activeColumnWidth - overflow;
+                                    if (viewColumnWidthAdjust) {
+                                        inViewWidth = activeColumnWidth - overflow;
                                         left = nonFixedStartX;
                                     } else {
-                                        visibleWidth = activeColumnWidth;
+                                        inViewWidth = activeColumnWidth;
                                     }
                                 } else {
                                     this._unanchoredColumnOverflow = 0;
-                                    visibleWidth = activeColumnWidth;
+                                    inViewWidth = activeColumnWidth;
                                 }
                             } else {
                                 if (left < x) {
                                     const offset = x - left;
-                                    if (visibleColumnWidthAdjust) {
+                                    if (viewColumnWidthAdjust) {
                                         left = x;
-                                        visibleWidth = activeColumnWidth - offset;
+                                        inViewWidth = activeColumnWidth - offset;
                                         viewportStart = scrollX + offset;
                                     } else {
-                                        visibleWidth = activeColumnWidth;
+                                        inViewWidth = activeColumnWidth;
                                         viewportStart = scrollX;
                                     }
                                 } else {
-                                    visibleWidth = activeColumnWidth;
+                                    inViewWidth = activeColumnWidth;
                                     viewportStart = scrollX;
                                 }
                             }
                         }
-                        // if (visibleColumnWidthAdjust) {
+                        // if (viewColumnWidthAdjust) {
                         //     if (gridRightAligned) {
                         //         if (isFirstNonFixedColumn && left < 0) {
-                        //             visibleWidth += left;
+                        //             viewWidth += left;
                         //             left = 0;
                         //         }
                         //     } else {
                         //         if (isFirstNonFixedColumn && left < firstNonFixedColumnLeft) {
-                        //             visibleWidth -= (firstNonFixedColumnLeft - left);
+                        //             viewWidth -= (firstNonFixedColumnLeft - left);
                         //             left = firstNonFixedColumnLeft;
                         //         }
                         //     }
-                        //     if (left + visibleWidth > gridWidth) {
-                        //         visibleWidth = gridWidth - left;
+                        //     if (left + viewWidth > gridWidth) {
+                        //         viewWidth = gridWidth - left;
                         //     }
                         // }
-                        visibleWidth = Math.floor(visibleWidth);
+                        inViewWidth = Math.floor(inViewWidth);
 
-                        const rightPlus1 = left + visibleWidth;
+                        const rightPlus1 = left + inViewWidth;
 
                         const vc: RevViewLayoutColumn<BCS, SF> = {
-                            index: visibleColumnCount,
+                            index: viewColumnCount,
                             activeColumnIndex,
                             column: columnsManager.getActiveColumn(activeColumnIndex),
                             left,
-                            width: visibleWidth,
+                            width: inViewWidth,
                             rightPlus1
                         };
-                        columns[visibleColumnCount++] = vc;
+                        columns[viewColumnCount++] = vc;
 
                         if (isNonFixedColumn) {
                             if (gapLeft !== undefined) {
@@ -2097,39 +2305,39 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
                     }
                 }
             }
-            columns.length = visibleColumnCount;
-            if (visibleColumnCount > 0) {
-                const lastVisibleColumnIndex = visibleColumnCount - 1;
-                const lastVisibleColumn = columns[lastVisibleColumnIndex];
-                const lastVisibleColumnLeft = lastVisibleColumn.left;
-                const lastVisibleColumnOriginalAfterRight = lastVisibleColumnLeft + lastVisibleColumn.width;
-                if (lastVisibleColumnOriginalAfterRight > gridWidth) {
-                    const overflow = lastVisibleColumnOriginalAfterRight - gridWidth;
-                    if (visibleColumnWidthAdjust) {
-                        lastVisibleColumn.width -= overflow;
+            columns.length = viewColumnCount;
+            if (viewColumnCount > 0) {
+                const lastInViewColumnIndex = viewColumnCount - 1;
+                const lastInViewColumn = columns[lastInViewColumnIndex];
+                const lastInViewColumnLeft = lastInViewColumn.left;
+                const lastInViewColumnOriginalAfterRight = lastInViewColumnLeft + lastInViewColumn.width;
+                if (lastInViewColumnOriginalAfterRight > gridWidth) {
+                    const overflow = lastInViewColumnOriginalAfterRight - gridWidth;
+                    if (viewColumnWidthAdjust) {
+                        lastInViewColumn.width -= overflow;
                     }
 
                     if (!gridRightAligned) {
                         this._unanchoredColumnOverflow = overflow;
                     }
 
-                    scrollableColumnsViewWidth = lastVisibleColumnLeft + lastVisibleColumn.width - nonFixedStartX;
+                    scrollableColumnsViewWidth = lastInViewColumnLeft + lastInViewColumn.width - nonFixedStartX;
                 } else {
-                    if (lastVisibleColumnOriginalAfterRight === gridWidth) {
+                    if (lastInViewColumnOriginalAfterRight === gridWidth) {
                         if (!gridRightAligned) {
                             this._unanchoredColumnOverflow = 0;
                         }
                     }
-                    scrollableColumnsViewWidth = lastVisibleColumnOriginalAfterRight - nonFixedStartX;
+                    scrollableColumnsViewWidth = lastInViewColumnOriginalAfterRight - nonFixedStartX;
                 }
-                if (lastVisibleColumn.activeColumnIndex >= fixedColumnCount) {
-                    this._lastScrollableColumnIndex = lastVisibleColumnIndex;
+                if (lastInViewColumn.activeColumnIndex >= fixedColumnCount) {
+                    this._lastScrollableColumnIndex = lastInViewColumnIndex;
                 }
             } else {
                 scrollableColumnsViewWidth = gridWidth - nonFixedStartX; // may include last grid line
             }
 
-            this._horizontalScrollDimension.setViewportStart(viewportStart, withinAnimationFrame);
+            this.horizontalScrollDimension.setViewportStart(viewportStart, withinAnimationFrame);
             this.updateColumnsViewWidths(fixedColumnsViewWidth, scrollableColumnsViewWidth, fixedNonFixedBorderWidth, withinAnimationFrame);
         }
         this._rowsColumnsComputationId++;
@@ -2280,18 +2488,18 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
             }
         }
 
-        this._verticalScrollDimension.setViewportStart(viewportStart, withinAnimationFrame);
+        this.verticalScrollDimension.setViewportStart(viewportStart, withinAnimationFrame);
         this._rowsColumnsComputationId++;
     }
 
     /** @internal */
     private ensureComputedOutsideAnimationFrame() {
-        if (!this._horizontalScrollDimension.ensureComputedOutsideAnimationFrame()) {
+        if (!this.horizontalScrollDimension.ensureComputedOutsideAnimationFrame()) {
             // was previously not valid
             this._horizontalComputed = false;
         }
 
-        if (!this._verticalScrollDimension.ensureComputedOutsideAnimationFrame()) {
+        if (!this.verticalScrollDimension.ensureComputedOutsideAnimationFrame()) {
             // was previously not valid
             this._verticalComputed = false;
         }
@@ -2309,7 +2517,7 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
 
     /** @internal */
     private ensureHorizontalComputedOutsideAnimationFrame() {
-        if (!this._horizontalScrollDimension.ensureComputedOutsideAnimationFrame()) {
+        if (!this.horizontalScrollDimension.ensureComputedOutsideAnimationFrame()) {
             // was previously not valid
             this._horizontalComputed = false;
         }
@@ -2322,7 +2530,7 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
 
     /** @internal */
     private ensureVerticalComputedOutsideAnimationFrame() {
-        if (!this._verticalScrollDimension.ensureComputedOutsideAnimationFrame()) {
+        if (!this.verticalScrollDimension.ensureComputedOutsideAnimationFrame()) {
             // was previously not valid
             this._verticalComputed = false;
         }
@@ -2367,7 +2575,7 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
             const columnsViewWidthChangeds: RevViewLayout.ColumnsViewWidthChangeds = {
                 fixedChanged: fixedColumnsViewWidthChanged,
                 scrollableChanged: scrollableColumnsViewWidthChanged,
-                visibleChanged: columnsViewWidthChanged,
+                viewChanged: columnsViewWidthChanged,
             } as const;
             if (withinAnimationFrame) {
                 setTimeout(() => { this.columnsViewWidthsChangedEventer(columnsViewWidthChangeds); }, 0);
@@ -2442,25 +2650,25 @@ export namespace RevViewLayout {
     export interface ColumnsViewWidthChangeds {
         readonly fixedChanged: boolean,
         readonly scrollableChanged: boolean,
-        readonly visibleChanged: boolean,
+        readonly viewChanged: boolean,
     }
 
-    export class ViewLayoutColumnArray<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends Array<RevViewLayoutColumn<BCS, SF>> {
-        gap: ViewLayoutColumnArray.Gap | undefined;
+    export class ColumnArray<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends Array<RevViewLayoutColumn<BCS, SF>> {
+        gap: ColumnArray.Gap | undefined;
     }
 
-    export namespace ViewLayoutColumnArray {
+    export namespace ColumnArray {
         export interface Gap {
             left: number;
             rightPlus1: number;
         }
     }
 
-    export class ViewLayoutRowArray<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends Array<RevViewLayoutRow<BCS, SF>> {
-        gap: ViewLayoutRowArray.Gap | undefined;
+    export class RowArray<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends Array<RevViewLayoutRow<BCS, SF>> {
+        gap: RowArray.Gap | undefined;
     }
 
-    export namespace ViewLayoutRowArray {
+    export namespace RowArray {
         export interface Gap {
             top: number;
             bottom: number;

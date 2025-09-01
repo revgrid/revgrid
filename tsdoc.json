@@ -1,0 +1,47 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/tsdoc/v0/tsdoc.schema.json",
+
+  // Include the definitions that are required for API Extractor
+  "extends": ["@microsoft/api-extractor/extends/tsdoc-base.json"],
+
+  // noStandardTags: false,
+
+  "tagDefinitions": [
+    // Define a custom tag and specify how it should be parsed
+    {
+      "tagName": "@group",
+      "syntaxKind": "block",
+      "allowMultiple": false
+    },
+    {
+      "tagName": "@groupDescription",
+      "syntaxKind": "block",
+      "allowMultiple": false
+    },
+    {
+      "tagName": "@disableGroups",
+      "syntaxKind": "block",
+      "allowMultiple": false
+    },
+    {
+      "tagName": "@showGroups",
+      "syntaxKind": "block",
+      "allowMultiple": false
+    },
+    {
+      "tagName": "@hideGroups",
+      "syntaxKind": "block",
+      "allowMultiple": false
+    }
+  ],
+
+  "supportForTags": {
+    // Indicate that the custom tag is supported by your tooling.  (Without this, warnings may
+    // be reported saying that the tag is unsupported.)
+    "@group": true,
+    "@groupDescription": true,
+    "@disableGroups": true,
+    "@showGroups": true,
+    "@hideGroups": true
+  }
+}

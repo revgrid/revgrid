@@ -64,7 +64,7 @@ export class RevInMemoryBehavioredGridSettings extends RevInMemoryBehavioredSett
     private _horizontalWheelScrollingAllowed: RevHorizontalWheelScrollingAllowedId;
     private _minimumColumnWidth: number;
     private _maximumColumnWidth: number | undefined;
-    private _visibleColumnWidthAdjust: boolean;
+    private _viewColumnWidthAdjust: boolean;
     private _mouseLastSelectionAreaExtendingDragActiveCursorName: string | undefined;
     private _mouseLastSelectionAreaExtendingDragActiveTitleText: string | undefined;
     private _mouseAddToggleExtendSelectionAreaEnabled: boolean;
@@ -689,12 +689,12 @@ export class RevInMemoryBehavioredGridSettings extends RevInMemoryBehavioredSett
             this.endChange();
         }
     }
-    get visibleColumnWidthAdjust() { return this._visibleColumnWidthAdjust; }
-    set visibleColumnWidthAdjust(value: boolean) {
-        if (value !== this._visibleColumnWidthAdjust) {
+    get viewColumnWidthAdjust() { return this._viewColumnWidthAdjust; }
+    set viewColumnWidthAdjust(value: boolean) {
+        if (value !== this._viewColumnWidthAdjust) {
             this.beginChange();
-            this._visibleColumnWidthAdjust = value;
-            const invalidateType = revGridSettingChangeInvalidateTypeIds.visibleColumnWidthAdjust;
+            this._viewColumnWidthAdjust = value;
+            const invalidateType = revGridSettingChangeInvalidateTypeIds.viewColumnWidthAdjust;
             this.flagChanged(invalidateType);
             this.endChange();
         }
@@ -1392,10 +1392,10 @@ export class RevInMemoryBehavioredGridSettings extends RevInMemoryBehavioredSett
                         this.flagChanged(revGridSettingChangeInvalidateTypeIds.maximumColumnWidth);
                     }
                     break;
-                case 'visibleColumnWidthAdjust':
-                    if (this._visibleColumnWidthAdjust !== requiredSettings.visibleColumnWidthAdjust) {
-                        this._visibleColumnWidthAdjust = requiredSettings.visibleColumnWidthAdjust;
-                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.visibleColumnWidthAdjust);
+                case 'viewColumnWidthAdjust':
+                    if (this._viewColumnWidthAdjust !== requiredSettings.viewColumnWidthAdjust) {
+                        this._viewColumnWidthAdjust = requiredSettings.viewColumnWidthAdjust;
+                        this.flagChanged(revGridSettingChangeInvalidateTypeIds.viewColumnWidthAdjust);
                     }
                     break;
                 case 'mouseLastSelectionAreaExtendingDragActiveCursorName':

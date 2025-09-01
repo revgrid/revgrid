@@ -515,7 +515,7 @@ export function revCalculateAdjustmentForRangeMoved(value: number, oldRangeIndex
 // @internal (undocumented)
 export function revCalculateNumberArrayUniqueCount(array: number[]): number;
 
-// @public (undocumented)
+// @public
 export class RevCanvas<BGS extends RevBehavioredGridSettings> implements RevClientObject {
     // @internal
     constructor(clientId: string, internalParent: RevClientObject, hostElement: HTMLElement, canvasOverflowOverride: RevCssTypes.Overflow | undefined, canvasRenderingContext2DSettings: CanvasRenderingContext2DSettings | undefined,
@@ -998,8 +998,6 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     // (undocumented)
     getOneCellSelectionAreaType(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>): RevSelectionAreaType | undefined;
     // (undocumented)
-    getRenderedData(): RevDataServer.ViewValue[][];
-    // (undocumented)
     getRenderedHeight(rowIndex: Integer): Integer;
     // (undocumented)
     getRenderedWidth(colIndex: Integer): Integer;
@@ -1023,13 +1021,11 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     getSelectedSubgridDynamicAllRowIndices(subgrid?: RevMainSubgrid<BCS, SF>): Integer[];
     getSingletonViewDataRow(subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>): RevDataServer.ViewRow;
     getSubgridRowCount(subgrid: RevSubgrid<BCS, SF>): number;
+    // (undocumented)
+    getValuesInView(): RevDataServer.ViewValue[][];
     getViewData(): readonly RevDataServer.ViewRow[];
     // (undocumented)
     getViewValue(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>): unknown;
-    // (undocumented)
-    getVisibleColumnsCount(): number;
-    // (undocumented)
-    getVisibleRowsCount(): number;
     // (undocumented)
     hideActiveColumn(activeColumnIndex: Integer, ui?: boolean): void;
     // (undocumented)
@@ -1040,18 +1036,17 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     readonly id: string;
     // (undocumented)
     readonly internalParent: RevClientObject | undefined;
+    isActiveColumnInView(activeColumnIndex: Integer): boolean;
     // (undocumented)
     isActiveDocumentElement(): boolean;
     // (undocumented)
+    isCellInView(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: RevMainSubgrid<BCS, SF>): boolean;
+    // (undocumented)
     isCellSelected(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>): boolean;
-    // (undocumented)
-    isCellVisible(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: RevMainSubgrid<BCS, SF>): boolean;
-    // (undocumented)
-    isColumnVisible(activeColumnIndex: Integer): boolean;
     isOnlyThisCellSelected(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>): boolean | undefined;
     // (undocumented)
     isSelectedCellTheOnlySelectedCell(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid: RevSubgrid<BCS, SF>, selectedType?: RevSelectionAreaType): boolean;
-    isSubgridRowVisible(subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>): boolean;
+    isSubgridRowInView(subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>): boolean;
     // (undocumented)
     readonly mainDataServer: RevDataServer<SF>;
     // (undocumented)
@@ -1145,7 +1140,6 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     showHideColumns(indexesAreActive: boolean, fieldColumnIndexes?: Integer | Integer[], insertIndex?: Integer, allowDuplicateColumns?: boolean, ui?: boolean): void;
     // (undocumented)
     readonly subgridsManager: RevSubgridsManager<BCS, SF>;
-    // (undocumented)
     swapActiveColumns(source: Integer, target: Integer): void;
     // (undocumented)
     toggleSelectCell(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>): boolean;
@@ -1750,7 +1744,7 @@ export namespace RevColumnResizingUiController {
 // @public (undocumented)
 export type RevColumnSettings = RevOnlyColumnSettings;
 
-// @public (undocumented)
+// @public
 export class RevColumnsManager<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {
     // @internal
     constructor(clientId: string, internalParent: RevClientObject, schemaServer: RevSchemaServer<SF>, gridSettings: RevGridSettings, getSettingsForNewColumnEventer: RevColumnsManager.GetSettingsForNewColumnEventer<BCS, SF>);
@@ -3481,7 +3475,7 @@ export abstract class RevGridPainter<BGS extends RevBehavioredGridSettings, BCS 
     // (undocumented)
     protected readonly _focus: RevFocus<BGS, BCS, SF>;
     // (undocumented)
-    getColumnBundles(viewLayoutColumns: RevViewLayoutColumn<BCS, SF>[]): (RevGridPainter.ColumnBundle | undefined)[];
+    getColumnBundles(viewLayoutColumns: readonly RevViewLayoutColumn<BCS, SF>[]): (RevGridPainter.ColumnBundle | undefined)[];
     // (undocumented)
     protected readonly _gridSettings: RevGridSettings;
     // (undocumented)
@@ -3642,15 +3636,18 @@ export const enum RevHorizontalAlignId {
     Start = 3
 }
 
-// @public (undocumented)
+// @public
 export class RevHorizontalScrollDimension<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevScrollDimension<BGS> {
-    constructor(gridSettings: RevGridSettings, canvas: RevCanvas<BGS>, _columnsManager: RevColumnsManager<BCS, SF>);
+    // @internal
+    constructor(gridSettings: RevGridSettings, canvas: RevCanvas<BGS>,
+    _columnsManager: RevColumnsManager<BCS, SF>);
+    // @internal
     calculateColumnScrollAnchorToScrollIntoView(activeColumnIndex: number, gridRightAligned: boolean): RevScrollDimension.Anchor;
-    // (undocumented)
+    // @internal (undocumented)
     calculateHorizontalScrollableLeft(columnScrollAnchorIndex: number, columnScrollAnchorOffset: number): number;
-    // (undocumented)
+    // @internal (undocumented)
     calculateLimitedScrollAnchorFromViewportStart(viewportStart: number): RevScrollDimension.Anchor;
-    // (undocumented)
+    // @internal (undocumented)
     protected compute(): void;
 }
 
@@ -4029,8 +4026,8 @@ export class RevInMemoryBehavioredGridSettings extends RevInMemoryBehavioredSett
     get verticalGridLinesWidth(): number;
     set verticalGridLinesWidth(value: number);
     // (undocumented)
-    get visibleColumnWidthAdjust(): boolean;
-    set visibleColumnWidthAdjust(value: boolean);
+    get viewColumnWidthAdjust(): boolean;
+    set viewColumnWidthAdjust(value: boolean);
     // (undocumented)
     get visibleVerticalGridLinesDrawnInFixedAndPreMainOnly(): boolean;
     set visibleVerticalGridLinesDrawnInFixedAndPreMainOnly(value: boolean);
@@ -4247,7 +4244,7 @@ export namespace RevModifierKey {
     export function isDownInEvent(key: RevModifierKey | undefined, event: MouseEvent | KeyboardEvent): boolean;
 }
 
-// @public (undocumented)
+// @public
 export class RevMouse<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {
     // @internal
     constructor(clientId: string, internalParent: RevClientObject,
@@ -4504,8 +4501,7 @@ export interface RevOnlyGridSettings {
     verticalGridLinesColor: RevOnlyGridSettings.Color;
     verticalGridLinesVisible: boolean;
     verticalGridLinesWidth: number;
-    // (undocumented)
-    visibleColumnWidthAdjust: boolean;
+    viewColumnWidthAdjust: boolean;
     // (undocumented)
     visibleVerticalGridLinesDrawnInFixedAndPreMainOnly: boolean;
     // (undocumented)
@@ -5921,72 +5917,65 @@ export namespace RevSchemaServer {
     }
 }
 
-// @public (undocumented)
+// @public
 export abstract class RevScrollDimension<BGS extends RevBehavioredGridSettings> {
-    constructor(horizontalVertical: RevScrollDimension.AxisId, _gridSettings: RevGridSettings, _canvas: RevCanvas<BGS>);
-    // (undocumented)
+    // @internal
+    constructor(
+    horizontalVertical: RevScrollDimension.AxisId,
+    _gridSettings: RevGridSettings,
+    _canvas: RevCanvas<BGS>);
     get after(): number;
-    // (undocumented)
+    // @internal (undocumented)
     calculateLimitedScrollAnchor(index: number, offset: number): RevScrollDimension.Anchor;
-    // (undocumented)
+    // @internal (undocumented)
     calculateLimitedScrollAnchorIfRequired(index: number, offset: number, gridRightAlignedPossible: boolean): RevScrollDimension.Anchor | undefined;
-    // (undocumented)
+    // @internal (undocumented)
     protected readonly _canvas: RevCanvas<BGS>;
-    // (undocumented)
+    // @internal (undocumented)
     changedEventer: RevScrollDimension.ChangedEventer;
-    // (undocumented)
+    // @internal (undocumented)
     protected abstract compute(): void;
-    // (undocumented)
+    // @internal (undocumented)
     computedEventer: RevScrollDimension.ComputedEventer;
-    // (undocumented)
+    // @internal (undocumented)
     ensureComputedInsideAnimationFrame(): boolean;
-    // (undocumented)
+    // @internal (undocumented)
     ensureComputedOutsideAnimationFrame(): boolean;
-    // (undocumented)
+    // @internal (undocumented)
     eventBehaviorTargettedViewportStartChangedEventer: RevScrollDimension.ViewportStartChangedEventer;
-    // (undocumented)
     get finish(): number;
     // (undocumented)
     get finishScrollAnchorLimitIndex(): number;
     // (undocumented)
     get finishScrollAnchorLimitOffset(): number;
-    // (undocumented)
+    // @internal (undocumented)
     protected readonly _gridSettings: RevGridSettings;
-    // (undocumented)
     readonly horizontalVertical: RevScrollDimension.AxisId;
-    // (undocumented)
+    // @internal (undocumented)
     invalidate(): void;
     // (undocumented)
     isScrollAnchorWithinFinishLimit(index: number, offset: number): boolean;
     // (undocumented)
     isScrollAnchorWithinStartLimit(index: number, offset: number): boolean;
-    // (undocumented)
+    // @internal (undocumented)
     reset(): void;
-    // (undocumented)
     get scrollable(): boolean;
-    // (undocumented)
+    // @internal (undocumented)
     scrollerTargettedViewportStartChangedEventer: RevScrollDimension.ViewportStartChangedEventer;
-    // (undocumented)
+    // @internal (undocumented)
     protected setComputedValues(start: number, size: number, viewportSize: number, viewportSizeExactMultiple: boolean, viewportCoverageExtent: RevScrollDimension.ViewportCoverageExtent, startAnchorLimit: RevScrollDimension.Anchor, finishAnchorLimit: RevScrollDimension.Anchor): void;
-    // (undocumented)
+    // @internal (undocumented)
     setViewportStart(value: number | undefined, withinAnimationFrame: boolean): void;
-    // (undocumented)
     get size(): number;
-    // (undocumented)
     get start(): number;
     // (undocumented)
     get startScrollAnchorLimitIndex(): number;
     // (undocumented)
     get startScrollAnchorLimitOffset(): number;
-    // (undocumented)
     get viewportCoverageExtent(): RevScrollDimension.ViewportCoverageExtent;
-    // (undocumented)
     get viewportFinish(): number;
-    // (undocumented)
     get viewportSize(): number;
-    // (undocumented)
     get viewportSizeExactMultiple(): boolean;
-    // (undocumented)
     get viewportStart(): number | undefined;
 }
 
@@ -5994,9 +5983,7 @@ export abstract class RevScrollDimension<BGS extends RevBehavioredGridSettings> 
 export namespace RevScrollDimension {
     // (undocumented)
     export interface Anchor {
-        // (undocumented)
         readonly index: number;
-        // (undocumented)
         readonly offset: number;
     }
     // (undocumented)
@@ -6035,11 +6022,8 @@ export namespace RevScrollDimension {
     }
     // (undocumented)
     export enum ViewportCoverageExtent {
-        // (undocumented)
-        Full = 2,// Viewport does not cover any of ScrollDimension (Scrolling not active)
-        // (undocumented)
-        None = 0,// Viewport does not cover all of ScrollDimension (Scrolling active)
-        // (undocumented)
+        Full = 2,
+        None = 0,
         Partial = 1
     }
     // (undocumented)
@@ -7940,7 +7924,7 @@ export class RevSubgridSelectionRangeList<BCS extends RevBehavioredColumnSetting
     readonly subgrid: RevSubgrid<BCS, SF>;
 }
 
-// @public (undocumented)
+// @public
 export class RevSubgridsManager<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {
     // @internal
     constructor(clientId: string, internalParent: RevClientObject,
@@ -9071,12 +9055,14 @@ export class RevUnreachableCaseError extends UnreachableCaseInternalError {
     constructor(code: string, value: never);
 }
 
-// @public (undocumented)
+// @public
 export class RevVerticalScrollDimension<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevScrollDimension<BGS> {
-    constructor(gridSettings: RevGridSettings, canvas: RevCanvas<BGS>, _subgridsManager: RevSubgridsManager<BCS, SF>);
-    // (undocumented)
+    // @internal
+    constructor(gridSettings: RevGridSettings, canvas: RevCanvas<BGS>,
+    _subgridsManager: RevSubgridsManager<BCS, SF>);
+    // @internal (undocumented)
     calculateLimitedScrollAnchor(index: number, _offset: number): RevScrollDimension.Anchor;
-    // (undocumented)
+    // @internal (undocumented)
     protected compute(): void;
 }
 
@@ -9186,21 +9172,19 @@ export class RevViewCellImplementation<BCS extends RevBehavioredColumnSettings, 
     get viewValue(): unknown;
 }
 
-// @public (undocumented)
+// @public
 export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {
     // @internal
-    constructor(clientId: string, internalParent: RevClientObject,
+    constructor(
+    clientId: string,
+    internalParent: RevClientObject,
     _gridSettings: BGS,
     _canvas: RevCanvas<BGS>,
     _columnsManager: RevColumnsManager<BCS, SF>,
     _subgridsManager: RevSubgridsManager<BCS, SF>);
     // (undocumented)
-    beginUiControlTracking(): void;
-    // (undocumented)
     calculatePageDownRowAnchor(): RevViewLayout.ScrollAnchor | undefined;
-    // (undocumented)
     calculatePageLeftColumnAnchor(): RevViewLayout.ScrollAnchor | undefined;
-    // (undocumented)
     calculatePageRightColumnAnchor(): RevViewLayout.ScrollAnchor | undefined;
     // (undocumented)
     calculatePageUpRowAnchor(): RevViewLayout.ScrollAnchor | undefined;
@@ -9210,12 +9194,12 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
     cellPoolComputedEventerForMouse: RevViewLayout.CellPoolComputedEventer;
     // (undocumented)
     readonly clientId: string;
-    // (undocumented)
     get columnCount(): number;
     // (undocumented)
     get columnRowCellPoolComputationInvalid(): boolean;
-    // (undocumented)
-    get columns(): RevViewLayout.ViewLayoutColumnArray<BCS, SF>;
+    get columns(): readonly RevViewLayoutColumn<BCS, SF>[] & {
+        gap: RevViewLayout.ColumnArray.Gap | undefined;
+    };
     get columnScrollAnchorIndex(): number;
     get columnScrollAnchorOffset(): number;
     // (undocumented)
@@ -9224,31 +9208,24 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
     columnsViewWidthsChangedEventer: RevViewLayout.ColumnsViewWidthsChangedEventer;
     // @internal (undocumented)
     createUnusedSpaceColumn(): RevViewLayoutColumn<BCS, SF> | undefined;
-    // (undocumented)
-    endUiControlTracking(): void;
+    ensureCellIsInView(activeColumnIndex: number, mainSubgridRowIndex: number, maximally: boolean): boolean;
     // (undocumented)
     ensureColumnIsInView(activeColumnIndex: number, maximally: boolean): boolean;
-    ensureColumnRowAreInView(activeColumnIndex: number, mainSubgridRowIndex: number, maximally: boolean): boolean;
     // @internal (undocumented)
     ensureComputedInsideAnimationFrame(): void;
     ensureRowIsInView(mainSubgridRowIndex: number, maximally: boolean): boolean;
-    // (undocumented)
     findCellAtCanvasOffset(x: number, y: number): RevViewCell<BCS, SF> | undefined;
     // @internal (undocumented)
     findCellAtCanvasOffsetSpecifyRecompute(x: number, y: number, canComputePool: boolean): RevViewCell<BCS, SF> | undefined;
-    // (undocumented)
-    findCellAtDataPoint(allColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): RevViewCell<BCS, SF> | undefined;
-    // (undocumented)
+    findCellAtDataPoint(fieldColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): RevViewCell<BCS, SF> | undefined;
     findCellAtGridPoint(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>, canComputePool: boolean): RevViewCell<BCS, SF> | undefined;
-    // (undocumented)
     findCellAtViewpointIndex(viewportColumnIndex: number, viewportRowIndex: number, canComputePool: boolean): RevViewCell<BCS, SF>;
     // (undocumented)
     findColumnIndexOfCanvasOffset(canvasOffsetX: number): number;
     findColumnWithActiveIndex(activeColumnIndex: number): RevViewLayoutColumn<BCS, SF> | undefined;
-    // (undocumented)
     findColumnWithFieldIndex(fieldIndex: number): RevViewLayoutColumn<BCS, SF> | undefined;
     // (undocumented)
-    findFullyVisibleColumnWithActiveIndex(activeColumnIndex: number): RevViewLayoutColumn<BCS, SF> | undefined;
+    findFullyInViewColumnWithActiveIndex(activeColumnIndex: number): RevViewLayoutColumn<BCS, SF> | undefined;
     // (undocumented)
     findIndexOfScrollableColumnClosestToCanvasOffset(canvasOffsetX: number): number;
     // (undocumented)
@@ -9260,7 +9237,6 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
     findLinedHoverCellAtCanvasOffset(canvasXOffset: number, canvasYOffset: number): RevLinedHoverCell<BCS, SF> | undefined;
     // (undocumented)
     findRowIndexOfCanvasOffset(canvasOffsetY: number): number;
-    // (undocumented)
     findRowWithSubgridRowIndex(subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): RevViewLayoutRow<BCS, SF> | undefined;
     // (undocumented)
     findScrollableCellClosestToCanvasOffset(canvasOffsetX: number, canvasOffsetY: number): RevViewCell<BCS, SF> | undefined;
@@ -9270,20 +9246,15 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
     findTopGridLineInclusiveRowOfCanvasOffset(canvasOffsetY: number): RevViewLayoutRow<BCS, SF> | undefined;
     // (undocumented)
     get firstScrollableActiveColumnIndex(): number | undefined;
-    // (undocumented)
     get firstScrollableColumn(): RevViewLayoutColumn<BCS, SF> | undefined;
-    // (undocumented)
     get firstScrollableColumnIndex(): number | undefined;
+    get firstScrollableColumnIsMaximallyInView(): boolean;
     // (undocumented)
     get firstScrollableColumnLeftOverflow(): number | undefined;
-    // (undocumented)
     get firstScrollableRowIndex(): number | undefined;
     // (undocumented)
     get firstScrollableRowViewTop(): number | undefined;
-    // (undocumented)
     get firstScrollableSubgridRowIndex(): number | undefined;
-    // (undocumented)
-    get firstScrollableVisibleColumnMaximallyVisible(): boolean;
     // (undocumented)
     get fixedColumnsViewWidth(): number;
     getActiveColumnWidthEdgeClosestToPixelX(pixelX: number): number;
@@ -9292,22 +9263,13 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
     // (undocumented)
     getColumnRowOrderedCellPool(): RevViewCell<BCS, SF>[];
     // (undocumented)
-    getColumnsCount(): number;
-    // (undocumented)
     getRenderedHeight(index: number): number;
     // (undocumented)
     getRenderedWidth(index: number): number;
     // (undocumented)
     getRowColumnOrderedCellPool(): RevViewCell<BCS, SF>[];
-    // (undocumented)
-    getRowsCount(): number;
-    // (undocumented)
-    getScrollTop(): number;
-    getVisibleCellMatrix(): RevDataServer.ViewValue[][];
-    getVisibleDataRow(rowIndex: number, subgrid: RevSubgrid<BCS, SF>): RevViewLayoutRow<BCS, SF> | undefined;
-    getVisibleRow(rowIndex: number): RevViewLayoutRow<BCS, SF>;
-    // @internal (undocumented)
-    get horizontalScrollDimension(): RevHorizontalScrollDimension<BGS, BCS, SF>;
+    getValuesInView(): RevDataServer.ViewValue[][];
+    readonly horizontalScrollDimension: RevHorizontalScrollDimension<BGS, BCS, SF>;
     // (undocumented)
     readonly internalParent: RevClientObject;
     // @internal (undocumented)
@@ -9339,33 +9301,29 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
     // (undocumented)
     invalidateVerticalAll(scrollDimensionAsWell: boolean): void;
     // (undocumented)
-    isActiveColumnFullyVisible(activeColumnIndex: number): boolean;
-    isActiveColumnVisible(activeColumnIndex: number): boolean;
-    isDataColumnVisible(columnIndex: number): boolean;
+    isActiveColumnFullyInView(activeColumnIndex: number): boolean;
+    isActiveColumnInView(activeColumnIndex: number): boolean;
+    isFieldColumnInView(fieldIndex: number): boolean;
     // (undocumented)
-    isDataRowVisible(rowIndex: number, subgrid: RevSubgrid<BCS, SF>): boolean;
-    // (undocumented)
-    isLastColumnVisible(): boolean;
-    isRowVisible(rowIndex: number): boolean;
+    isLastActiveColumnInView(): boolean;
+    isSubgridRowInView(rowIndex: number, subgrid: RevSubgrid<BCS, SF>): boolean;
     // (undocumented)
     get lastScrollableActiveColumnIndex(): number | undefined;
     // (undocumented)
     get lastScrollableColumn(): RevViewLayoutColumn<BCS, SF> | undefined;
     // (undocumented)
     get lastScrollableColumnIndex(): number | undefined;
+    get lastScrollableColumnIsMaximallyInView(): boolean;
     // (undocumented)
     get lastScrollableColumnRightOverflow(): number | undefined;
     get lastScrollableRowIndex(): number | undefined;
     get lastScrollableRowSubgridRowIndex(): number | undefined;
-    // (undocumented)
-    get lastScrollableVisibleColumnMaximallyVisible(): boolean;
     // @internal (undocumented)
     layoutInvalidatedEventer: RevViewLayout.LayoutInvalidatedEventer;
-    // (undocumented)
-    limitActiveColumnIndexToView(activeColumnIndex: number): number | undefined;
-    // (undocumented)
-    limitRowIndexToView(rowIndex: number): number | undefined;
-    // (undocumented)
+    limitActiveColumnIndexToScrollableRange(activeColumnIndex: number): number | undefined;
+    limitRowIndexToScrollableRange(rowIndex: number): number | undefined;
+    // @internal (undocumented)
+    get possiblyNotVerticallyComputedPreMainRowCount(): number;
     get preMainRowCount(): number;
     // @internal (undocumented)
     reset(): void;
@@ -9375,27 +9333,20 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
     resetAllCellPropertiesCaches(): void;
     // (undocumented)
     get rowColumnCellPoolComputationInvalid(): boolean;
-    // (undocumented)
     get rowCount(): number;
-    // (undocumented)
-    get rows(): RevViewLayout.ViewLayoutRowArray<BCS, SF>;
-    // (undocumented)
+    get rows(): readonly RevViewLayoutRow<BCS, SF>[] & {
+        gap: RevViewLayout.RowArray.Gap | undefined;
+    };
     get rowsColumnsComputationId(): number;
     // (undocumented)
     get rowScrollAnchorIndex(): number;
-    // (undocumented)
     get scrollableCanvasBounds(): RevCornerRectangle | undefined;
-    // (undocumented)
-    get scrollableCanvasLeft(): number;
-    // (undocumented)
     get scrollableColumnCount(): number;
     // (undocumented)
     get scrollableColumnsViewWidth(): number;
     // (undocumented)
     get scrollableRowCount(): number;
-    // (undocumented)
     scrollColumnsBy(scrollColumnCount: number): boolean;
-    // (undocumented)
     scrollColumnsRowsBy(columnCount: number, rowCount: number): boolean;
     // (undocumented)
     scrollHorizontalViewportBy(delta: number): void;
@@ -9405,7 +9356,6 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
     scrollVerticalViewportBy(delta: number): boolean;
     // (undocumented)
     setColumnScrollAnchor(activeColumnIndex: number, offset: number): boolean;
-    // (undocumented)
     setColumnScrollAnchorToLimit(): void;
     // (undocumented)
     setHorizontalViewportStart(value: number): boolean;
@@ -9415,13 +9365,8 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
     setRowScrollAnchorToLimit(): void;
     // (undocumented)
     setVerticalViewportStart(viewportStart: number): void;
-    tryGetColumnWithFieldIndex(columnIndex: number): RevViewLayoutColumn<BCS, SF> | undefined;
-    // (undocumented)
-    get uiControlTracking(): boolean;
-    // (undocumented)
     get unanchoredColumnOverflow(): number | undefined;
-    // @internal (undocumented)
-    get verticalScrollDimension(): RevVerticalScrollDimension<BGS, BCS, SF>;
+    readonly verticalScrollDimension: RevVerticalScrollDimension<BGS, BCS, SF>;
 }
 
 // @public (undocumented)
@@ -9453,13 +9398,28 @@ export namespace RevViewLayout {
     // @internal (undocumented)
     export type CellPoolComputedEventer = (this: void) => void;
     // (undocumented)
+    export class ColumnArray<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends Array<RevViewLayoutColumn<BCS, SF>> {
+        // (undocumented)
+        gap: ColumnArray.Gap | undefined;
+    }
+    // (undocumented)
+    export namespace ColumnArray {
+        // (undocumented)
+        export interface Gap {
+            // (undocumented)
+            left: number;
+            // (undocumented)
+            rightPlus1: number;
+        }
+    }
+    // (undocumented)
     export interface ColumnsViewWidthChangeds {
         // (undocumented)
         readonly fixedChanged: boolean;
         // (undocumented)
         readonly scrollableChanged: boolean;
         // (undocumented)
-        readonly visibleChanged: boolean;
+        readonly viewChanged: boolean;
     }
     // @internal (undocumented)
     export type ColumnsViewWidthsChangedEventer = (this: void, changeds: ColumnsViewWidthChangeds) => void;
@@ -9537,6 +9497,21 @@ export namespace RevViewLayout {
         readonly type: InvalidateAction.TypeId.Loaded;
     }
     // (undocumented)
+    export class RowArray<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends Array<RevViewLayoutRow<BCS, SF>> {
+        // (undocumented)
+        gap: RowArray.Gap | undefined;
+    }
+    // (undocumented)
+    export namespace RowArray {
+        // (undocumented)
+        export interface Gap {
+            // (undocumented)
+            bottom: number;
+            // (undocumented)
+            top: number;
+        }
+    }
+    // (undocumented)
     export interface ScrollAnchor {
         // (undocumented)
         index: number;
@@ -9563,39 +9538,9 @@ export namespace RevViewLayout {
         // (undocumented)
         contentSize: number;
     }
-    // (undocumented)
-    export class ViewLayoutColumnArray<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends Array<RevViewLayoutColumn<BCS, SF>> {
-        // (undocumented)
-        gap: ViewLayoutColumnArray.Gap | undefined;
-    }
-    // (undocumented)
-    export namespace ViewLayoutColumnArray {
-        // (undocumented)
-        export interface Gap {
-            // (undocumented)
-            left: number;
-            // (undocumented)
-            rightPlus1: number;
-        }
-    }
-    // (undocumented)
-    export class ViewLayoutRowArray<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends Array<RevViewLayoutRow<BCS, SF>> {
-        // (undocumented)
-        gap: ViewLayoutRowArray.Gap | undefined;
-    }
-    // (undocumented)
-    export namespace ViewLayoutRowArray {
-        // (undocumented)
-        export interface Gap {
-            // (undocumented)
-            bottom: number;
-            // (undocumented)
-            top: number;
-        }
-    }
 }
 
-// @public (undocumented)
+// @public
 export interface RevViewLayoutColumn<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> {
     activeColumnIndex: Integer;
     // (undocumented)
@@ -9606,7 +9551,7 @@ export interface RevViewLayoutColumn<BCS extends RevBehavioredColumnSettings, SF
     width: Integer;
 }
 
-// @public (undocumented)
+// @public
 export interface RevViewLayoutRow<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> {
     bottomPlus1: number;
     height: number;

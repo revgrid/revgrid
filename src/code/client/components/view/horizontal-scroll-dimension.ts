@@ -4,10 +4,17 @@ import { RevCanvas } from '../canvas/canvas';
 import { RevColumnsManager } from '../column/columns-manager';
 import { RevScrollDimension } from './scroll-dimension';
 
+/**
+ * Tracks viewport size, position and scrollability in horizontal scroll dimension
+ * @public
+ * @see [View Layout Component 🗎](../../../../../Architecture/Client/Components/View_Layout/)
+ */
 export class RevHorizontalScrollDimension<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevScrollDimension<BGS> {
+    /** @internal */
     constructor(
         gridSettings: RevGridSettings,
         canvas: RevCanvas<BGS>,
+        /** @internal */
         private readonly _columnsManager: RevColumnsManager<BCS, SF>,
     ) {
         super(
@@ -24,6 +31,7 @@ export class RevHorizontalScrollDimension<BGS extends RevBehavioredGridSettings,
     //     super.reset();
     // }
 
+    /** @internal */
     calculateLimitedScrollAnchorFromViewportStart(viewportStart: number): RevScrollDimension.Anchor {
         const anchor = this.calculateScrollAnchorFromViewportStart(viewportStart);
         return this.calculateLimitedScrollAnchor(anchor.index, anchor.offset);
@@ -33,6 +41,7 @@ export class RevHorizontalScrollDimension<BGS extends RevBehavioredGridSettings,
      * Calculate the scroll anchor to bring a column just but fully into the view. Note, only use when column is on the opposite side of scroll anchor
      * @param activeColumnIndex - index of column to bring into view
      * @returns Scroll Anchor which will ensure the column is displayed
+     * @internal
      */
     calculateColumnScrollAnchorToScrollIntoView(activeColumnIndex: number, gridRightAligned: boolean): RevScrollDimension.Anchor {
         this.ensureComputedOutsideAnimationFrame();
@@ -112,6 +121,7 @@ export class RevHorizontalScrollDimension<BGS extends RevBehavioredGridSettings,
         }
     }
 
+    /** @internal */
     calculateHorizontalScrollableLeft(columnScrollAnchorIndex: number, columnScrollAnchorOffset: number): number {
         const gridRightAligned = this._gridSettings.gridRightAligned;
         if (gridRightAligned) {
@@ -122,6 +132,7 @@ export class RevHorizontalScrollDimension<BGS extends RevBehavioredGridSettings,
         }
     }
 
+    /** @internal */
     protected override compute() {
         // called within Animation Frame
 
@@ -180,6 +191,7 @@ export class RevHorizontalScrollDimension<BGS extends RevBehavioredGridSettings,
         );
     }
 
+    /** @internal */
     private calculateScrollStart (): number {
         const gridSettings = this._gridSettings;
         const fixedColumnCount = gridSettings.fixedColumnCount;
@@ -192,6 +204,7 @@ export class RevHorizontalScrollDimension<BGS extends RevBehavioredGridSettings,
         }
     }
 
+    /** @internal */
     private calculateNotRightAlignedGridRightAnchorLimit(scrollStart: number, viewportSize: number): RevScrollDimension.ScrollSizeAndAnchor {
         const gridSettings = this._gridSettings;
         const fixedColumnCount = gridSettings.fixedColumnCount;
@@ -250,6 +263,7 @@ export class RevHorizontalScrollDimension<BGS extends RevBehavioredGridSettings,
         }
     }
 
+    /** @internal */
     private calculateRightAlignedGridLeftAnchorLimit(scrollStart: number, viewportSize: number): RevScrollDimension.ScrollSizeAndAnchor {
         const gridSettings = this._gridSettings;
         const fixedColumnCount = gridSettings.fixedColumnCount;
@@ -309,6 +323,7 @@ export class RevHorizontalScrollDimension<BGS extends RevBehavioredGridSettings,
         }
     }
 
+    /** @internal */
     private calculateActiveNonFixedColumnsWidth() {
         const gridLinesVWidth = this._gridSettings.verticalGridLinesWidth;
         const columnCount = this._columnsManager.activeColumnCount;
@@ -328,6 +343,7 @@ export class RevHorizontalScrollDimension<BGS extends RevBehavioredGridSettings,
         return result;
     }
 
+    /** @internal */
     private calculateScrollAnchorFromViewportStart(viewportStart: number): RevScrollDimension.Anchor {
         this.ensureComputedOutsideAnimationFrame();
 

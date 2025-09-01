@@ -22,7 +22,7 @@ import { RevSelectionRows } from './selection-rows';
  * @typeParam BCS - Type of the column settings.
  * @typeParam SF - Type of the schema field.
  *
- * @see [Selection Component Documentation](../../../../../Architecture/Client/Components/Selection/)
+ * @see [Selection Component 🗎](../../../../../Architecture/Client/Components/Selection/)
  * @public
  */
 export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {

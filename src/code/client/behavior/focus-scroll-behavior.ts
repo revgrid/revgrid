@@ -27,7 +27,7 @@ export class RevFocusScrollBehavior<BGS extends RevBehavioredGridSettings, BCS e
         if (columnFocusable) {
             if (rowFocusable) {
                 if (this.isColumnScrollable(activeColumnIndex) && this.isRowScrollable(subgridRowIndex, subgrid)) {
-                    this._viewLayout.ensureColumnRowAreInView(activeColumnIndex, subgridRowIndex, true);
+                    this._viewLayout.ensureCellIsInView(activeColumnIndex, subgridRowIndex, true);
                 }
                 return this._focus.trySetColumnRow(activeColumnIndex, subgridRowIndex, subgrid, cell, undefined, undefined);
             } else {

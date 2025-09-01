@@ -1,7 +1,14 @@
 import { RevAssertError, RevCachedCanvasRenderingContext2D, RevClientObject, RevCssTypes, RevPoint, RevRectangle, RevUnreachableCaseError } from '../../../common';
 import { RevBehavioredGridSettings } from '../../settings';
 
-/** @public */
+/**
+ * Encapsulates a grid's HTML canvas element and manages its rendering and user interaction.
+ *
+ * @typeParam BGS - Behaviored grid settings type.
+ *
+ * @see [Canvas Component 🗎](../../../../../Architecture/Client/Components/Canvas/)
+ * @public
+ */
 export class RevCanvas<BGS extends RevBehavioredGridSettings> implements RevClientObject {
     readonly element: HTMLCanvasElement;
     readonly gc: RevCachedCanvasRenderingContext2D;

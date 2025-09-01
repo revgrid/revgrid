@@ -3,7 +3,10 @@ import { RevBehavioredColumnSettings } from '../settings';
 // eslint-disable-next-line import-x/no-cycle
 import { RevSubgrid } from './subgrid';
 
-/** @public */
+/**
+ * Defines a row in the view layout.
+ * @public
+ */
 export interface RevViewLayoutRow<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> {
     /** A back reference to the element's array index in {@link client/components/view/view-layout!RevViewLayout:class#rows}. */
     index: number;

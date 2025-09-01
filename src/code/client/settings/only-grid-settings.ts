@@ -139,6 +139,7 @@ export interface RevOnlyGridSettings {
     /**
      * Number of columns at left of the grid which will not scroll.
      * @see [Columns Manager Client Component 🗎](../../../../Architecture/Client/Components/Columns_Manager/)
+     * @see [View Layout Component 🗎](../../../../Architecture/Client/Components/View_Layout/)
      */
     fixedColumnCount: number;
     /**
@@ -156,6 +157,7 @@ export interface RevOnlyGridSettings {
      * Define this property to style rule lines between non-scrollable rows and scrollable rows differently from {@link horizontalGridLinesWidth}.
      * Undefine it to show normal grid line in that position.
      * @see [Subgrids Manager Client Component 🗎](../../../../Architecture/Client/Components/Subgrids_Manager/)
+     * @see [View Layout Component 🗎](../../../../Architecture/Client/Components/View_Layout/)
      */
     horizontalFixedLineWidth: number | undefined;
     /**
@@ -173,16 +175,22 @@ export interface RevOnlyGridSettings {
     /**
      * Define this property to style rule lines between non-scrollable columns and scrollable columns differently from {@link verticalGridLinesWidth}.
      * Undefine it to show normal grid line in that position.
+     * @see [View Layout Component 🗎](../../../../Architecture/Client/Components/View_Layout/)
      */
     verticalFixedLineWidth: number | undefined;
     /**
      * Number of rows at the top of a scrollable subgrid which will not scroll.
      * @see [Subgrids Manager Client Component 🗎](../../../../Architecture/Client/Components/Subgrids_Manager/)
+     * @see [View Layout Component 🗎](../../../../Architecture/Client/Components/View_Layout/)
      */
     fixedRowCount: number;
     /**
-     * Instead of visible columns starting from left side of canvas, they end at the right side of canvas
-     * So last column is always visible and the first one visible is dependent on the width of the canvas
+     * Specifies whether the grid view is aligned to the right of the canvas.
+     * If `true` the grid is aligned to the right and in view columns end at the right side of the canvas
+     * (that is, instead starting from left side of canvas).
+     * In this case, the last column is always in view (if canvas is wide enough) and the first will be partially in view
+     * unless it exactly fits into the space available for it (in the width of the canvas).
+     * @see [View Layout Component 🗎](../../../../Architecture/Client/Components/View_Layout/)
      */
     gridRightAligned: boolean;
     /** Color of horizontal grid lines. */
@@ -190,6 +198,7 @@ export interface RevOnlyGridSettings {
     /**
      * Thickness of horizontal grid lines (pixels). Ignored if {@link horizontalGridLinesVisible} is false
      * @see [Subgrids Manager Client Component 🗎](../../../../Architecture/Client/Components/Subgrids_Manager/)
+     * @see [View Layout Component 🗎](../../../../Architecture/Client/Components/View_Layout/)
      */
     horizontalGridLinesWidth: number;
     /** Specifies whether horizontal grid lines are drawn */
@@ -303,9 +312,19 @@ export interface RevOnlyGridSettings {
     /**
      * Thickness of vertical grid lines (pixels). Is ignored if {@link verticalGridLinesVisible} is false
      * @see [Columns Manager Client Component 🗎](../../../../Architecture/Client/Components/Columns_Manager/)
+     * @see [View Layout Component 🗎](../../../../Architecture/Client/Components/View_Layout/)
      */
     verticalGridLinesWidth: number;
-    visibleColumnWidthAdjust: boolean;
+    /**
+     * Whether the width of view columns should be adjusted to reflect their width in the view.
+     * Cell painters use the view column width to determine how to render cell content. If this is `true` (default),
+     * then the rendering of cells in columns that are partially in view, will better reflect the visible width of those
+     * columns.
+     * If it is `false`, then the rendering of cells in these columns does not change with scrolling however
+     * clipping will be needed.
+     * @see [View Layout Component 🗎](../../../../Architecture/Client/Components/View_Layout/)
+     */
+    viewColumnWidthAdjust: boolean;
     visibleVerticalGridLinesDrawnInFixedAndPreMainOnly: boolean;
     wheelHFactor: number;
     wheelVFactor: number;

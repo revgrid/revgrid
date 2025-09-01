@@ -34,7 +34,7 @@ export class Main {
     private readonly _rightHalignCheckboxElement: HTMLInputElement;
     private readonly _gridRightAlignedCheckboxElement: HTMLInputElement;
     private readonly _scrollHorizontallySmoothlyCheckboxElement: HTMLInputElement;
-    private readonly _visibleColumnWidthAdjustCheckboxElement: HTMLInputElement;
+    private readonly _viewColumnWidthAdjustCheckboxElement: HTMLInputElement;
     private readonly _deleteRowButtonElement: HTMLButtonElement;
     private readonly _deleteRowIndexTextboxElement: HTMLInputElement;
     private readonly _addFishButtonElement: HTMLButtonElement;
@@ -125,13 +125,13 @@ export class Main {
             };
         }
 
-        const visibleColumnWidthAdjustCheckboxElement = document.querySelector('#visibleColumnWidthAdjustCheckbox');
-        if (visibleColumnWidthAdjustCheckboxElement === null) {
-            throw new Error('visibleColumnWidthAdjustCheckBoxElement not found');
+        const viewColumnWidthAdjustCheckboxElement = document.querySelector('#viewColumnWidthAdjustCheckbox');
+        if (viewColumnWidthAdjustCheckboxElement === null) {
+            throw new Error('viewColumnWidthAdjustCheckBoxElement not found');
         } else {
-            this._visibleColumnWidthAdjustCheckboxElement = visibleColumnWidthAdjustCheckboxElement as HTMLInputElement;
-            this._visibleColumnWidthAdjustCheckboxElement.onchange = () => {
-                this._grid.settings.visibleColumnWidthAdjust = this._visibleColumnWidthAdjustCheckboxElement.checked;
+            this._viewColumnWidthAdjustCheckboxElement = viewColumnWidthAdjustCheckboxElement as HTMLInputElement;
+            this._viewColumnWidthAdjustCheckboxElement.onchange = () => {
+                this._grid.settings.viewColumnWidthAdjust = this._viewColumnWidthAdjustCheckboxElement.checked;
             };
         }
 
@@ -187,7 +187,7 @@ export class Main {
         gridSettings.fixedColumnCount = defaultFixedColumnCount;
         gridSettings.gridRightAligned = defaultGridRightAligned;
         gridSettings.scrollHorizontallySmoothly = defaultScrollHorizontallySmoothly;
-        gridSettings.visibleColumnWidthAdjust = defaultVisibleColumnWidthAdjust;
+        gridSettings.viewColumnWidthAdjust = defaultviewColumnWidthAdjust;
         gridSettings.rowStripeBackgroundColor = 'gainsboro';
         gridSettings.horizontalGridLinesVisible = false;
 
@@ -245,7 +245,7 @@ export class Main {
         this._rightHalignCheckboxElement.checked = this._grid.settings.horizontalAlign === RevHorizontalAlign.right;
         this._gridRightAlignedCheckboxElement.checked = this._grid.settings.gridRightAligned;
         this._scrollHorizontallySmoothlyCheckboxElement.checked = this._grid.settings.scrollHorizontallySmoothly;
-        this._visibleColumnWidthAdjustCheckboxElement.checked = this._grid.settings.visibleColumnWidthAdjust;
+        this._viewColumnWidthAdjustCheckboxElement.checked = this._grid.settings.viewColumnWidthAdjust;
         this._deleteRowIndexTextboxElement.value = '0';
 
         this._grid.addEventListener('rev-column-sort', (event) => {
@@ -348,7 +348,7 @@ export class Main {
 
 const defaultGridRightAligned = revDefaultGridSettings.gridRightAligned;
 const defaultScrollHorizontallySmoothly = revDefaultGridSettings.scrollHorizontallySmoothly;
-const defaultVisibleColumnWidthAdjust = revDefaultGridSettings.visibleColumnWidthAdjust;
+const defaultviewColumnWidthAdjust = revDefaultGridSettings.viewColumnWidthAdjust;
 const defaultCellPadding = revSimpleDefaultGridSettings.cellPadding;
 const defaultFixedColumnCount: typeof revDefaultGridSettings.fixedColumnCount = 2;
 const defaultHorizontalAlign: typeof revSimpleDefaultGridSettings.horizontalAlign = 'left';

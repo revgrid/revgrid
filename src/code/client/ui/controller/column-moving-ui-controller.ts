@@ -260,7 +260,7 @@ export class RevColumnMovingUiController<BGS extends RevBehavioredGridSettings, 
             };
         } else {
             const scrollable = viewLayout.horizontalScrollDimension.scrollable;
-            const firstScrollableColumnViewLeft = viewLayout.scrollableCanvasLeft;
+            const firstScrollableColumnViewLeft = viewLayout.horizontalScrollDimension.start;
             const updatedDragColumn = viewLayout.findColumnWithActiveIndex(dragColumn.activeColumnIndex)
             const sourceDragColumn = updatedDragColumn !== undefined ? updatedDragColumn : dragColumn;
             const offsetX = event.offsetX;

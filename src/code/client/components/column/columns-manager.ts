@@ -4,7 +4,15 @@ import { RevColumn, RevColumnAutoSizeableWidth } from '../../interfaces/column';
 import { RevBehavioredColumnSettings, RevColumnSettings, RevGridSettings } from '../../settings';
 import { RevColumnImplementation } from './column-implementation';
 
-/** @public */
+/**
+ * The central class for managing the structure, visibility, sizing, and settings of columns in the grid, ensuring that the grid view and data schema remain synchronized.
+ *
+ * @typeParam BCS - Type of the column settings.
+ * @typeParam SF - Type of the schema field.
+ *
+ * @see [Columns Manager Component 🗎](../../../../../Architecture/Client/Components/Columns_Manager/)
+ * @public
+ */
 export class RevColumnsManager<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {
     /** @internal */
     invalidateHorizontalViewLayoutEventer: RevColumnsManager.InvalidateHorizontalViewLayoutEventer;

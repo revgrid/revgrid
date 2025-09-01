@@ -25,7 +25,7 @@ Manages the structure, visibility, sizing, and settings of columns in the grid, 
 * **[Subgrids Manager](./subgrids-manager/index.md)**\
 Manages all subgrids within the grid component.
 * **[View Layout](./view-layout/index.md)**\
-ToDo
+Responsible for managing the visual layout of the grid, including the arrangement and sizing of rows and columns, scroll positions, and mapping between data and view coordinates.
 * **[Focus](./focus/index.md)**\
 Manages cell focus and cell editing within a grid component.
 * **[Mouse](./mouse/index.md)**\

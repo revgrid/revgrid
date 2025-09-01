@@ -6,7 +6,15 @@ import { RevColumnsManager } from '../column/columns-manager';
 import { RevMainSubgridImplementation } from './main-subgrid-implementation';
 import { RevSubgridImplementation } from './subgrid-implementation';
 
-/** @public */
+/**
+ * Manages all subgrids within the grid component.
+ *
+ * @typeParam BCS - Type of the column settings.
+ * @typeParam SF - Type of the schema field.
+ *
+ * @see [Subgrids Manager Component 🗎](../../../../../Architecture/Client/Components/Subgrids_Manager/)
+ * @public
+ */
 export class RevSubgridsManager<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {
     readonly subgrids: RevSubgrid<BCS, SF>[];
     readonly mainSubgrid: RevMainSubgrid<BCS, SF>;

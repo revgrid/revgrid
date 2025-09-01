@@ -67,8 +67,6 @@ export class RevScroller<BGS extends RevBehavioredGridSettings, BCS extends RevB
     /** @internal */
     private _pointerScrollingState = RevScroller.PointerScrollingStateId.Inactive;
     /** @internal */
-    private _viewLayoutTrackingActive = false;
-    /** @internal */
     private _thumbVisibilityState = ThumbVisibilityStateId.Reduced;
     /** @internal */
     private _barPointerMoveListener: RevScroller.PointerEventListener | undefined;
@@ -260,8 +258,6 @@ export class RevScroller<BGS extends RevBehavioredGridSettings, BCS extends RevB
         this.bar.setPointerCapture(event.pointerId);
         this._barPointerCaptured = true;
 
-        this._viewLayout.beginUiControlTracking();
-        this._viewLayoutTrackingActive = true;
         this.updateThumbVisibility();
     }
 
@@ -283,11 +279,6 @@ export class RevScroller<BGS extends RevBehavioredGridSettings, BCS extends RevB
         if (this._barPointerCaptured) {
             this.bar.releasePointerCapture(event.pointerId);
             this._barPointerCaptured = false;
-        }
-
-        if (this._viewLayoutTrackingActive) {
-            this._viewLayout.endUiControlTracking();
-            this._viewLayoutTrackingActive = false;
         }
 
         document.documentElement.style.cursor = 'auto';

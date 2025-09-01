@@ -326,11 +326,12 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     }
 
     /**
-     * @param activeColumnIndex - The column index in question.
-     * @returns The given column is fully visible.
+     * Check if the specified active column is in the viewport.
+     * @param activeColumnIndex - The index of the active column to be checked.
+     * @returns `true` if the active column is in the viewport, otherwise `false`.
      */
-    isColumnVisible(activeColumnIndex: Integer) {
-        return this.viewLayout.isActiveColumnVisible(activeColumnIndex);
+    isActiveColumnInView(activeColumnIndex: Integer) {
+        return this.viewLayout.isActiveColumnInView(activeColumnIndex);
     }
 
     /**
@@ -340,12 +341,12 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
      * @param subgridRowIndex - The data row index.
      * @returns The given row is visible.
      */
-    isSubgridRowVisible(subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>) {
+    isSubgridRowInView(subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>) {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
 
-        return this.viewLayout.isDataRowVisible(subgridRowIndex, subgrid);
+        return this.viewLayout.isSubgridRowInView(subgridRowIndex, subgrid);
     }
 
     /**
@@ -353,8 +354,8 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
      * @param subgridRowIndex - The grid row index in question.
      * @returns The given cell is fully is visible.
      */
-    isCellVisible(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid = this.mainSubgrid): boolean {
-        return this.isSubgridRowVisible(subgridRowIndex, subgrid) && this.isColumnVisible(activeColumnIndex);
+    isCellInView(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid = this.mainSubgrid): boolean {
+        return this.isSubgridRowInView(subgridRowIndex, subgrid) && this.isActiveColumnInView(activeColumnIndex);
     }
 
     /**
@@ -700,8 +701,8 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     /**
      * @returns Objects with the values that were just rendered.
      */
-    getRenderedData(): RevDataServer.ViewValue[][] {
-        return this.viewLayout.getVisibleCellMatrix();
+    getValuesInView(): RevDataServer.ViewValue[][] {
+        return this.viewLayout.getValuesInView();
     }
 
     /**
@@ -734,20 +735,6 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     // setFocusable(canReceiveFocus: boolean) {
     //     this.canvas.setFocusable(canReceiveFocus);
     // }
-
-    /**
-     * @returns The number of columns that were just rendered
-     */
-    getVisibleColumnsCount() {
-        return this.viewLayout.getColumnsCount();
-    }
-
-    /**
-     * @returns The number of rows that were just rendered
-     */
-    getVisibleRowsCount() {
-        return this.viewLayout.getRowsCount();
-    }
 
     swapActiveColumns(source: Integer, target: Integer) {
         this.columnsManager.swapActiveColumns(source, target);

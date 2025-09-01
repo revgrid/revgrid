@@ -12,7 +12,7 @@ Defines the {@link client/components/subgrid/subgrids-manager!RevSubgridsManager
 * **Role Assignment**: Identifies and assigns special roles (main, header, footer, etc.) to subgrids for specialized grid behavior.
 * **Row and Height Calculations**: Provides methods to calculate row counts and pixel heights for different grid sections (pre-main, post-main, fixed rows, summaries, footers, etc.), including handling of grid lines between subgrids.
 * **Data Server Integration**: Associates each subgrid with its data server and allows lookup of subgrids by their data server.
-* **Destruction/Cleanup**: Cleans up all subgrid instances when the manager is destroyed.
+* **Destruction/Clean-up**: Cleans up all subgrid instances when the manager is destroyed.
 * **Utility Methods**: Offers helper methods for retrieving subgrids, calculating combined heights/counts, and resolving subgrid definitions.
 
 ## Row Height

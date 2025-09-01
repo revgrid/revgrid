@@ -4,10 +4,17 @@ import { RevCanvas } from '../canvas/canvas';
 import { RevSubgridsManager } from '../subgrid/subgrids-manager';
 import { RevScrollDimension } from './scroll-dimension';
 
+/**
+ * Tracks viewport size, position and scrollability in vertical scroll dimension
+ * @public
+ * @see [View Layout Component 🗎](../../../../../Architecture/Client/Components/View_Layout/)
+ */
 export class RevVerticalScrollDimension<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevScrollDimension<BGS> {
+    /** @internal */
     constructor(
         gridSettings: RevGridSettings,
         canvas: RevCanvas<BGS>,
+        /** @internal */
         private readonly _subgridsManager: RevSubgridsManager<BCS, SF>,
     ) {
         super(
@@ -17,6 +24,7 @@ export class RevVerticalScrollDimension<BGS extends RevBehavioredGridSettings, B
         );
     }
 
+    /** @internal */
     override calculateLimitedScrollAnchor(index: number, _offset: number): RevScrollDimension.Anchor {
         const startScrollAnchorLimitIndex = this.startScrollAnchorLimitIndex;
         if (index < startScrollAnchorLimitIndex) {
@@ -40,6 +48,7 @@ export class RevVerticalScrollDimension<BGS extends RevBehavioredGridSettings, B
         }
     }
 
+    /** @internal */
     protected override compute() {
         // called within Animation Frame
 

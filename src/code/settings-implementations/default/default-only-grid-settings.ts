@@ -116,7 +116,7 @@ export const revDefaultOnlyGridSettings: RevOnlyGridSettings = {
 
     maximumColumnWidth: undefined,
 
-    visibleColumnWidthAdjust: true,
+    viewColumnWidthAdjust: true,
 
     /**
      * Resizing a column through the UI (by clicking and dragging on the column's

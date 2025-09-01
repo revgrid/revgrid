@@ -5,7 +5,6 @@ import { RevCanvas } from '../canvas/canvas';
 import { RevColumnsManager } from '../column/columns-manager';
 import { RevViewLayout } from '../view/view-layout';
 
-/** @public */
 /**
  * Manages the focus state within a grid, including the currently focused cell, row, and column,
  * as well as the cell editor lifecycle and related events. Handles navigation, editing, and
@@ -16,6 +15,7 @@ import { RevViewLayout } from '../view/view-layout';
  * @typeParam SF - Schema field type.
  *
  * @see [Focus Component 🗎](../../../../../Architecture/Client/Components/Focus/)
+ * @public
  */
 export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {
     getCellEditorEventer: RevFocus.GetCellEditorEventer<BCS, SF> | undefined;

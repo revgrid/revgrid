@@ -4,7 +4,16 @@ import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevGridSettings
 import { RevCanvas } from '../canvas/canvas';
 import { RevViewLayout } from '../view/view-layout';
 
-/** @public */
+/**
+ * Manages mouse interactions for the grid component.
+ *
+ * @typeParam BGS - Behaviored grid settings type.
+ * @typeParam BCS - Behaviored column settings type.
+ * @typeParam SF - Schema field type.
+ *
+ * @see [Mouse Component 🗎](../../../../../Architecture/Client/Components/Mouse/)
+ * @public
+ */
 export class RevMouse<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {
     /** @internal */
     cellEnteredEventer: RevMouse.CellEnteredExitedEventer<BCS, SF>;
