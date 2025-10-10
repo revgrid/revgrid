@@ -7,6 +7,13 @@
         {
             "type": "chrome",
             "request": "launch",
+            "name": "Test App",
+            "url": "http://localhost:3001/",
+            "webRoot": "${workspaceFolder}"
+        },
+        {
+            "type": "chrome",
+            "request": "launch",
             "name": "API Website",
             "url": "http://localhost:3001/revgrid/",
             "webRoot": "${workspaceFolder}"

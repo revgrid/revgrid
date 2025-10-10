@@ -11,7 +11,7 @@
 		},
 		{
 			"type": "npm",
-			"script": "esm",
+			"script": "build",
 			"group": {
 				"kind": "build",
 				"isDefault": true
@@ -19,8 +19,8 @@
 			"problemMatcher": [
 				"$tsc"
 			],
-      "label": "npm: esm",
-      "detail": "tsc --build ./tsconfig.esm.json"
+      "label": "npm: build",
+      "detail": "tsc --build ./src/code/tsconfig.code.json"
 		},
 		{
 			"type": "npm",
