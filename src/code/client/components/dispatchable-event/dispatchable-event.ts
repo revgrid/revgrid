@@ -2,7 +2,7 @@ import { RevPoint, RevSchemaField } from '../../../common';
 import { RevLinedHoverCell } from '../../interfaces/lined-hover-cell';
 import { RevViewCell } from '../../interfaces/view-cell';
 import { RevBehavioredColumnSettings } from '../../settings';
-import { RevScroller } from '../scroller/scroller';
+import { RevStandardScroller } from '../scroller/standard-scroller';
 import { RevViewLayout } from '../view/view-layout';
 
 /** @public */
@@ -37,8 +37,8 @@ export namespace RevDispatchableEvent {
             'rev-touch-end': TouchEvent;
             'rev-horizontal-scroll-viewport-changed': undefined;
             'rev-vertical-scroll-viewport-changed': undefined;
-            'rev-horizontal-scroller-action': RevScroller.Action;
-            'rev-vertical-scroller-action': RevScroller.Action;
+            'rev-horizontal-scroller-action': RevStandardScroller.Action;
+            'rev-vertical-scroller-action': RevStandardScroller.Action;
             'rev-field-column-list-changed': undefined;
         }
 

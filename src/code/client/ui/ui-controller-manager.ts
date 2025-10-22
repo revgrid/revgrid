@@ -12,7 +12,7 @@ import { RevColumnsManager } from '../components/column/columns-manager';
 import { RevFocus } from '../components/focus/focus';
 import { RevMouse } from '../components/mouse/mouse';
 import { RevRenderer } from '../components/renderer/renderer';
-import { RevScroller } from '../components/scroller/scroller';
+import { RevStandardScroller } from '../components/scroller/standard-scroller';
 import { RevSelection } from '../components/selection/selection';
 import { RevSubgridsManager } from '../components/subgrid/subgrids-manager';
 import { RevViewLayout } from '../components/view/view-layout';
@@ -66,8 +66,8 @@ export class RevUiManager<BGS extends RevBehavioredGridSettings, BCS extends Rev
         viewLayout: RevViewLayout<BGS, BCS, SF>,
         renderer: RevRenderer<BGS, BCS, SF>,
         private readonly _mouse: RevMouse<BGS, BCS, SF>,
-        horizontalScroller: RevScroller<BGS, BCS, SF>,
-        verticalScroller: RevScroller<BGS, BCS, SF>,
+        horizontalScroller: RevStandardScroller<BGS, BCS, SF>,
+        verticalScroller: RevStandardScroller<BGS, BCS, SF>,
         focusScrollBehavior: RevFocusScrollBehavior<BGS, BCS, SF>,
         selectionBehavior: RevFocusSelectBehavior<BGS, BCS, SF>,
         rowPropertiesBehavior: RevRowPropertiesBehavior<BGS, BCS, SF>,
@@ -377,14 +377,14 @@ export class RevUiManager<BGS extends RevBehavioredGridSettings, BCS extends Rev
     }
 
     /** @internal */
-    private handleHorizontalScrollerActionEvent(eventDetail: RevScroller.Action) {
+    private handleHorizontalScrollerActionEvent(eventDetail: RevStandardScroller.Action) {
         if (this._enabled) {
             this._firstUiController.handleHorizontalScrollerAction(eventDetail);
         }
     }
 
     /** @internal */
-    private handleVerticalScrollerActionEvent(eventDetail: RevScroller.Action) {
+    private handleVerticalScrollerActionEvent(eventDetail: RevStandardScroller.Action) {
         if (this._enabled) {
             this._firstUiController.handleVerticalScrollerAction(eventDetail);
         }

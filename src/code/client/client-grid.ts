@@ -28,7 +28,7 @@ import { RevFocus } from './components/focus/focus';
 import { RevMouse } from './components/mouse/mouse';
 import { RevGridPainter } from './components/renderer/grid-painter/grid-painter';
 import { RevRenderer } from './components/renderer/renderer';
-import { RevScroller } from './components/scroller/scroller';
+import { RevStandardScroller } from './components/scroller/standard-scroller';
 import { RevLastSelectionArea } from './components/selection/last-selection-area';
 import { RevSelection } from './components/selection/selection';
 import { RevSelectionRows } from './components/selection/selection-rows';
@@ -58,8 +58,8 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     readonly subgridsManager: RevSubgridsManager<BCS, SF>;
     readonly viewLayout: RevViewLayout<BGS, BCS, SF>;
     readonly renderer: RevRenderer<BGS, BCS, SF>;
-    readonly horizontalScroller: RevScroller<BGS, BCS, SF>;
-    readonly verticalScroller: RevScroller<BGS, BCS, SF>;
+    readonly horizontalScroller: RevStandardScroller<BGS, BCS, SF>;
+    readonly verticalScroller: RevStandardScroller<BGS, BCS, SF>;
 
     readonly schemaServer: RevSchemaServer<SF>;
     readonly mainSubgrid: RevMainSubgrid<BCS, SF>;
@@ -1533,11 +1533,11 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
         // for descendants
     }
 
-    protected descendantProcessHorizontalScrollerAction(_event: RevScroller.Action) {
+    protected descendantProcessHorizontalScrollerAction(_event: RevStandardScroller.Action) {
         // for descendants
     }
 
-    protected descendantProcessVerticalScrollerAction(_event: RevScroller.Action) {
+    protected descendantProcessVerticalScrollerAction(_event: RevStandardScroller.Action) {
         // for descendants
     }
 

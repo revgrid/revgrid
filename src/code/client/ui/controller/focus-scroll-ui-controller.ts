@@ -1,7 +1,7 @@
 import { RevAssertError, RevHorizontalWheelScrollingAllowedId, RevSchemaField, RevUnreachableCaseError } from '../../../common';
 import { RevFocus } from '../../components/focus/focus';
 import { RevMouse } from '../../components/mouse/mouse';
-import { RevScroller } from '../../components/scroller/scroller';
+import { RevStandardScroller } from '../../components/scroller/standard-scroller';
 import { RevSubgrid } from '../../interfaces';
 import { RevLinedHoverCell } from '../../interfaces/lined-hover-cell';
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevGridSettings } from '../../settings';
@@ -219,21 +219,21 @@ export class RevFocusScrollUiController<BGS extends RevBehavioredGridSettings, B
         return cell;
     }
 
-    override handleHorizontalScrollerAction(action: RevScroller.Action) {
+    override handleHorizontalScrollerAction(action: RevStandardScroller.Action) {
         switch (action.type) {
-            case RevScroller.Action.TypeId.StepForward:
+            case RevStandardScroller.Action.TypeId.StepForward:
                 this._focusScrollBehavior.tryScrollRight();
                 break;
-            case RevScroller.Action.TypeId.StepBack:
+            case RevStandardScroller.Action.TypeId.StepBack:
                 this._focusScrollBehavior.tryScrollLeft();
                 break;
-            case RevScroller.Action.TypeId.PageForward:
+            case RevStandardScroller.Action.TypeId.PageForward:
                 this._focusScrollBehavior.tryScrollPageRight();
                 break;
-            case RevScroller.Action.TypeId.PageBack:
+            case RevStandardScroller.Action.TypeId.PageBack:
                 this._focusScrollBehavior.tryScrollPageLeft();
                 break;
-            case RevScroller.Action.TypeId.newViewportStart: {
+            case RevStandardScroller.Action.TypeId.newViewportStart: {
                 const viewportStart = action.viewportStart;
                 if (viewportStart === undefined) {
                     throw new RevAssertError('FUBPHSAV53009')
@@ -248,21 +248,21 @@ export class RevFocusScrollUiController<BGS extends RevBehavioredGridSettings, B
     }
 
 
-    override handleVerticalScrollerAction(action: RevScroller.Action) {
+    override handleVerticalScrollerAction(action: RevStandardScroller.Action) {
         switch (action.type) {
-            case RevScroller.Action.TypeId.StepForward:
+            case RevStandardScroller.Action.TypeId.StepForward:
                 this._focusScrollBehavior.tryScrollDown();
                 break;
-            case RevScroller.Action.TypeId.StepBack:
+            case RevStandardScroller.Action.TypeId.StepBack:
                 this._focusScrollBehavior.tryScrollUp();
                 break;
-            case RevScroller.Action.TypeId.PageForward:
+            case RevStandardScroller.Action.TypeId.PageForward:
                 this._focusScrollBehavior.tryScrollPageDown();
                 break;
-            case RevScroller.Action.TypeId.PageBack:
+            case RevStandardScroller.Action.TypeId.PageBack:
                 this._focusScrollBehavior.tryScrollPageUp();
                 break;
-            case RevScroller.Action.TypeId.newViewportStart: {
+            case RevStandardScroller.Action.TypeId.newViewportStart: {
                 const viewportStart = action.viewportStart;
                 if (viewportStart === undefined) {
                     throw new RevAssertError('FUBPHSAV53009')

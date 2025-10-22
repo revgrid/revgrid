@@ -1,2 +1,2 @@
-export * from './scroller';
+export * from './standard-scroller';
 

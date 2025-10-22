@@ -5,7 +5,7 @@ import { RevDispatchableEvent } from '../components/dispatchable-event/dispatcha
 import { RevFocus } from '../components/focus/focus';
 import { RevMouse } from '../components/mouse/mouse';
 import { RevRenderer } from '../components/renderer/renderer';
-import { RevScroller } from '../components/scroller/scroller';
+import { RevStandardScroller } from '../components/scroller/standard-scroller';
 import { RevSelection } from '../components/selection/selection';
 import { RevViewLayout } from '../components/view/view-layout';
 import { RevColumn } from '../interfaces/column';
@@ -81,9 +81,9 @@ export class RevEventBehavior<BGS extends RevBehavioredGridSettings, BCS extends
         /** @internal */
         private readonly _renderer: RevRenderer<BGS, BCS, SF>,
         /** @internal */
-        private readonly _horizontalScroller: RevScroller<BGS, BCS, SF>,
+        private readonly _horizontalScroller: RevStandardScroller<BGS, BCS, SF>,
         /** @internal */
-        private readonly _verticalScroller: RevScroller<BGS, BCS, SF>,
+        private readonly _verticalScroller: RevStandardScroller<BGS, BCS, SF>,
         /** @internal */
         private readonly _descendantEventer: RevEventBehavior.DescendantEventer<BCS, SF>,
         /** @internal */
@@ -510,7 +510,7 @@ export class RevEventBehavior<BGS extends RevBehavioredGridSettings, BCS extends
     }
 
     /** @internal */
-    private processHorizontalScrollerEvent(action: RevScroller.Action) {
+    private processHorizontalScrollerEvent(action: RevStandardScroller.Action) {
         this.uiHorizontalScrollerActionEventer(action);
 
         this._descendantEventer.horizontalScrollerAction(action);
@@ -521,7 +521,7 @@ export class RevEventBehavior<BGS extends RevBehavioredGridSettings, BCS extends
     }
 
     /** @internal */
-    private processVerticalScrollerEvent(action: RevScroller.Action) {
+    private processVerticalScrollerEvent(action: RevStandardScroller.Action) {
         this.uiVerticalScrollerActionEventer(action);
 
         this._descendantEventer.verticalScrollerAction(action);
@@ -668,7 +668,7 @@ export namespace RevEventBehavior {
         export type Touch = (this: void, event: TouchEvent) => void;
         export type ViewCellOnly<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> = (this: void, cell: RevViewCell<BCS, SF>) => void;
         export type Clipboard = (this: void, event: ClipboardEvent) => void;
-        export type ScrollerAction = (this: void, event: RevScroller.Action) => void;
+        export type ScrollerAction = (this: void, event: RevStandardScroller.Action) => void;
         export type CellFocusChanged = (this: void, oldPoint: RevPoint | undefined, newPoint: RevPoint | undefined) => void;
         export type RowFocusChanged = (this: void, oldSubgridRowIndex: number | undefined, newSubgridRowIndex: number | undefined) => void;
     }
@@ -712,7 +712,7 @@ export namespace RevEventBehavior {
     /** @internal */
     export type UiClipboardEventer = (this: void, clipboardEvent: ClipboardEvent) => void;
     /** @internal */
-    export type UiScrollerActionEventer = (this: void, action: RevScroller.Action) => void;
+    export type UiScrollerActionEventer = (this: void, action: RevStandardScroller.Action) => void;
 
     /** @internal */
     export function isSecondaryMouseButton(event: MouseEvent) {

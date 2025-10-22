@@ -12,7 +12,7 @@ import { RevColumnsManager } from '../../components/column/columns-manager';
 import { RevFocus } from '../../components/focus/focus';
 import { RevMouse } from '../../components/mouse/mouse';
 import { RevRenderer } from '../../components/renderer/renderer';
-import { RevScroller } from '../../components/scroller/scroller';
+import { RevStandardScroller } from '../../components/scroller/standard-scroller';
 import { RevSelection } from '../../components/selection/selection';
 import { RevSubgridsManager } from '../../components/subgrid/subgrids-manager';
 import { RevViewLayout } from '../../components/view/view-layout';
@@ -53,8 +53,8 @@ export abstract class RevUiController<BGS extends RevBehavioredGridSettings, BCS
     protected readonly _reindexBehavior: RevReindexBehavior<BGS, BCS, SF>;
 
     protected readonly _mouse: RevMouse<BGS, BCS, SF>;
-    protected readonly _horizontalScroller: RevScroller<BGS, BCS, SF>;
-    protected readonly _verticalScroller: RevScroller<BGS, BCS, SF>;
+    protected readonly _horizontalScroller: RevStandardScroller<BGS, BCS, SF>;
+    protected readonly _verticalScroller: RevStandardScroller<BGS, BCS, SF>;
 
     protected readonly _focusScrollBehavior: RevFocusScrollBehavior<BGS, BCS, SF>;
     protected readonly _focusSelectBehavior: RevFocusSelectBehavior<BGS, BCS, SF>;
@@ -281,14 +281,14 @@ export abstract class RevUiController<BGS extends RevBehavioredGridSettings, BCS
     }
 
     /** @internal */
-    handleHorizontalScrollerAction(action: RevScroller.Action) {
+    handleHorizontalScrollerAction(action: RevStandardScroller.Action) {
         if (this.next) {
             this.next.handleHorizontalScrollerAction(action);
         }
     }
 
     /** @internal */
-    handleVerticalScrollerAction(action: RevScroller.Action) {
+    handleVerticalScrollerAction(action: RevStandardScroller.Action) {
         if (this.next) {
             this.next.handleVerticalScrollerAction(action);
         }

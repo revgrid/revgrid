@@ -6,7 +6,7 @@ import { RevColumnsManager } from './column/columns-manager';
 import { RevFocus } from './focus/focus';
 import { RevMouse } from './mouse/mouse';
 import { RevRenderer } from './renderer/renderer';
-import { RevScroller } from './scroller/scroller';
+import { RevStandardScroller } from './scroller/standard-scroller';
 import { RevSelection } from './selection/selection';
 import { RevSubgridsManager } from './subgrid/subgrids-manager';
 import { RevViewLayout } from './view/view-layout';
@@ -22,8 +22,8 @@ export class RevComponentsManager<BGS extends RevBehavioredGridSettings, BCS ext
     readonly renderer: RevRenderer<BGS, BCS, SF>;
     readonly mouse: RevMouse<BGS, BCS, SF>;
 
-    readonly horizontalScroller: RevScroller<BGS, BCS, SF>;
-    readonly verticalScroller: RevScroller<BGS, BCS, SF>;
+    readonly horizontalScroller: RevStandardScroller<BGS, BCS, SF>;
+    readonly verticalScroller: RevStandardScroller<BGS, BCS, SF>;
 
     constructor(
         readonly clientId: string,
@@ -119,7 +119,7 @@ export class RevComponentsManager<BGS extends RevBehavioredGridSettings, BCS ext
                 this.mouse,
             );
 
-            this.verticalScroller = new RevScroller(
+            this.verticalScroller = new RevStandardScroller(
                 this.clientId,
                 this,
                 gridSettings,
@@ -132,7 +132,7 @@ export class RevComponentsManager<BGS extends RevBehavioredGridSettings, BCS ext
                 undefined,
             );
 
-            this.horizontalScroller = new RevScroller(
+            this.horizontalScroller = new RevStandardScroller(
                 this.clientId,
                 this,
                 gridSettings,
