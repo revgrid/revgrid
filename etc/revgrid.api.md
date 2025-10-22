@@ -6061,7 +6061,7 @@ export class RevScroller<BGS extends RevBehavioredGridSettings, BCS extends RevB
     _viewLayout: RevViewLayout<BGS, BCS, SF>,
     axis: RevScrollDimension.Axis,
     _trailing: boolean, // true: right/bottom of canvas, false: otherwise left/top of canvas
-    _spaceAccomodatedScroller: RevScroller<BGS, BCS, SF> | undefined);
+    _spaceAccommodatedScroller: RevScroller<BGS, BCS, SF> | undefined);
     // @internal (undocumented)
     actionEventer: RevScroller.ActionEventer;
     // @internal (undocumented)

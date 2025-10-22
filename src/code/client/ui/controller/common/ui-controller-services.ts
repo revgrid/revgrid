@@ -11,7 +11,7 @@ import { RevColumnsManager } from '../../../components/column/columns-manager';
 import { RevFocus } from '../../../components/focus/focus';
 import { RevMouse } from '../../../components/mouse/mouse';
 import { RevRenderer } from '../../../components/renderer/renderer';
-import { RevStandardScroller } from '../../../components/scroller/standard-scroller';
+import { RevScroller } from '../../../components/scroller';
 import { RevSelection } from '../../../components/selection/selection';
 import { RevSubgridsManager } from '../../../components/subgrid/subgrids-manager';
 import { RevViewLayout } from '../../../components/view/view-layout';
@@ -37,8 +37,8 @@ export class RevUiControllerServices<BGS extends RevBehavioredGridSettings, BCS 
         readonly renderer: RevRenderer<BGS, BCS, SF>,
 
         readonly mouse: RevMouse<BGS, BCS, SF>,
-        readonly horizontalScroller: RevStandardScroller<BGS, BCS, SF>,
-        readonly verticalScroller: RevStandardScroller<BGS, BCS, SF>,
+        readonly horizontalScroller: RevScroller,
+        readonly verticalScroller: RevScroller,
 
         readonly reindexBehavior: RevReindexBehavior<BGS, BCS, SF>,
         readonly focusScrollBehavior: RevFocusScrollBehavior<BGS, BCS, SF>,

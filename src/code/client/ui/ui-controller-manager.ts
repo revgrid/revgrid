@@ -12,7 +12,6 @@ import { RevColumnsManager } from '../components/column/columns-manager';
 import { RevFocus } from '../components/focus/focus';
 import { RevMouse } from '../components/mouse/mouse';
 import { RevRenderer } from '../components/renderer/renderer';
-import { RevStandardScroller } from '../components/scroller/standard-scroller';
 import { RevSelection } from '../components/selection/selection';
 import { RevSubgridsManager } from '../components/subgrid/subgrids-manager';
 import { RevViewLayout } from '../components/view/view-layout';
@@ -32,6 +31,7 @@ import { RevSelectionUiController } from './controller/selection-ui-controller';
 import { RevTouchScrollingUiController } from './controller/touch-scrolling-ui-controller';
 import { RevUiController } from './controller/ui-controller';
 import { RevUiControllerFactory } from './ui-controller-factory';
+import { RevScroller } from '../components/scroller';
 
 /** @public */
 export class RevUiManager<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {
@@ -66,8 +66,8 @@ export class RevUiManager<BGS extends RevBehavioredGridSettings, BCS extends Rev
         viewLayout: RevViewLayout<BGS, BCS, SF>,
         renderer: RevRenderer<BGS, BCS, SF>,
         private readonly _mouse: RevMouse<BGS, BCS, SF>,
-        horizontalScroller: RevStandardScroller<BGS, BCS, SF>,
-        verticalScroller: RevStandardScroller<BGS, BCS, SF>,
+        horizontalScroller: RevScroller,
+        verticalScroller: RevScroller,
         focusScrollBehavior: RevFocusScrollBehavior<BGS, BCS, SF>,
         selectionBehavior: RevFocusSelectBehavior<BGS, BCS, SF>,
         rowPropertiesBehavior: RevRowPropertiesBehavior<BGS, BCS, SF>,
@@ -377,14 +377,14 @@ export class RevUiManager<BGS extends RevBehavioredGridSettings, BCS extends Rev
     }
 
     /** @internal */
-    private handleHorizontalScrollerActionEvent(eventDetail: RevStandardScroller.Action) {
+    private handleHorizontalScrollerActionEvent(eventDetail: RevScroller.Action) {
         if (this._enabled) {
             this._firstUiController.handleHorizontalScrollerAction(eventDetail);
         }
     }
 
     /** @internal */
-    private handleVerticalScrollerActionEvent(eventDetail: RevStandardScroller.Action) {
+    private handleVerticalScrollerActionEvent(eventDetail: RevScroller.Action) {
         if (this._enabled) {
             this._firstUiController.handleVerticalScrollerAction(eventDetail);
         }

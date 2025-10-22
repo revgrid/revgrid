@@ -4,24 +4,25 @@ import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../../se
 import { RevCanvas } from '../canvas/canvas';
 import { RevScrollDimension } from '../view/scroll-dimension';
 import { RevViewLayout } from '../view/view-layout';
+import { RevScroller } from './scroller';
 
 // Following is the sole style requirement for bar and thumb elements.
 // Maintained in code so not dependent being in stylesheet.
 // const BAR_STYLE = 'position: absolute;';
 
 /** @public */
-export class RevStandardScroller<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {
-    readonly bar: HTMLDivElement;
-    readonly barCssClass: string;
-    readonly axisBarCssClass: string;
-    readonly thumbCssClass: string;
+export class RevStandardScroller<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevScroller {
+    private readonly bar: HTMLDivElement;
+    private readonly barCssClass: string;
+    private readonly axisBarCssClass: string;
+    private readonly thumbCssClass: string;
 
     /** @internal */
-    actionEventer: RevStandardScroller.ActionEventer;
+    actionEventer: RevScroller.ActionEventer;
     /** @internal */
-    wheelEventer: RevStandardScroller.WheelEventer | undefined;
+    wheelEventer: RevScroller.WheelEventer | undefined;
     /** @internal */
-    visibilityChangedEventer: RevStandardScroller.VisibilityChangedEventer | undefined;
+    visibilityChangedEventer: RevScroller.VisibilityChangedEventer | undefined;
 
     /**
      * The generated scrollbar thumb element.
@@ -109,12 +110,11 @@ export class RevStandardScroller<BGS extends RevBehavioredGridSettings, BCS exte
         private readonly _scrollDimension: RevScrollDimension<BGS>,
         /** @internal */
         private readonly _viewLayout: RevViewLayout<BGS, BCS, SF>,
-        /** @internal */
-        private readonly axis: RevScrollDimension.Axis,
+        readonly axis: RevScrollDimension.Axis,
         /** @internal */
         private _trailing: boolean, // true: right/bottom of canvas, false: otherwise left/top of canvas
         /** @internal */
-        private readonly _spaceAccomodatedScroller: RevStandardScroller<BGS, BCS, SF> | undefined,
+        private readonly _spaceAccommodatedScroller: RevScroller | undefined,
     ) {
         this._axisProperties = axesProperties[this.axis];
 
@@ -165,8 +165,8 @@ export class RevStandardScroller<BGS extends RevBehavioredGridSettings, BCS exte
             }
         }
 
-        if (this._spaceAccomodatedScroller !== undefined) {
-            this._spaceAccomodatedScroller.visibilityChangedEventer = () => { this.resize(); };
+        if (this._spaceAccommodatedScroller !== undefined) {
+            this._spaceAccommodatedScroller.visibilityChangedEventer = () => { this.resize(); };
         }
 
         this._hostElement.appendChild(bar);
@@ -422,21 +422,21 @@ export class RevStandardScroller<BGS extends RevBehavioredGridSettings, BCS exte
                 const thumbBox = this._thumb.getBoundingClientRect();
                 const goingUp = evt[this._axisProperties.client] < thumbBox[this._axisProperties.leading];
 
-                let actionType: RevStandardScroller.Action.TypeId;
+                let actionType: RevScroller.Action.TypeId;
                 if (goingUp) {
                     if (evt.altKey) {
-                        actionType = RevStandardScroller.Action.TypeId.StepBack;
+                        actionType = RevScroller.Action.TypeId.StepBack;
                     } else {
-                        actionType = RevStandardScroller.Action.TypeId.PageBack;
+                        actionType = RevScroller.Action.TypeId.PageBack;
                     }
                 } else {
                     if (evt.altKey) {
-                        actionType = RevStandardScroller.Action.TypeId.StepForward;
+                        actionType = RevScroller.Action.TypeId.StepForward;
                     } else {
-                        actionType = RevStandardScroller.Action.TypeId.PageForward;
+                        actionType = RevScroller.Action.TypeId.PageForward;
                     }
                 }
-                const action: RevStandardScroller.Action = {
+                const action: RevScroller.Action = {
                     type: actionType,
                     viewportStart: undefined,
                 };
@@ -523,8 +523,8 @@ export class RevStandardScroller<BGS extends RevBehavioredGridSettings, BCS exte
 
         this.setThumbPosition(viewportStart);
 
-        const action: RevStandardScroller.Action = {
-            type: RevStandardScroller.Action.TypeId.newViewportStart,
+        const action: RevScroller.Action = {
+            type: RevScroller.Action.TypeId.newViewportStart,
             viewportStart,
         };
 
@@ -544,7 +544,7 @@ export class RevStandardScroller<BGS extends RevBehavioredGridSettings, BCS exte
 
     /** @internal */
     private resize() {
-        const leadingTrailing = this.calculateLeadingTrailingForSpaceAccomodatedScroller();
+        const leadingTrailing = this.calculateLeadingTrailingForSpaceAccommodatedScroller();
         for (const key in leadingTrailing) {
             const value = leadingTrailing[key];
             if (value !== undefined) {
@@ -557,21 +557,21 @@ export class RevStandardScroller<BGS extends RevBehavioredGridSettings, BCS exte
     }
 
     /** @internal */
-    private calculateLeadingTrailingForSpaceAccomodatedScroller(): LeadingTrailing {
+    private calculateLeadingTrailingForSpaceAccommodatedScroller(): LeadingTrailing {
         const leadingTrailing: LeadingTrailing = {};
         const leadingKey = this._axisProperties.leading;
         const trailingKey = this._axisProperties.trailing;
-        const spaceAccomodatedScroller = this._spaceAccomodatedScroller;
-        if (spaceAccomodatedScroller === undefined) {
+        const spaceAccommodatedScroller = this._spaceAccommodatedScroller;
+        if (spaceAccommodatedScroller === undefined) {
             leadingTrailing[leadingKey] = '0';
             leadingTrailing[trailingKey] = '0';
         } else {
-            if (spaceAccomodatedScroller.hidden) {
+            if (spaceAccommodatedScroller.hidden) {
                 leadingTrailing[leadingKey] = '0';
                 leadingTrailing[trailingKey] = '0';
                 } else {
-                const insideOverlap = spaceAccomodatedScroller.insideOverlap;
-                if (spaceAccomodatedScroller.trailing) {
+                const insideOverlap = spaceAccommodatedScroller.insideOverlap;
+                if (spaceAccommodatedScroller.trailing) {
                     leadingTrailing[leadingKey] = '0';
                     leadingTrailing[trailingKey] = numberToPixels(insideOverlap);
                 } else {
@@ -803,34 +803,12 @@ export class RevStandardScroller<BGS extends RevBehavioredGridSettings, BCS exte
 
 /** @public */
 export namespace RevStandardScroller {
-    export type WheelEventer = (this: void, event: WheelEvent) => void;
 
     export const barCssSuffix = 'scroller';
     export const thumbCssSuffix = 'scroller-thumb';
 
     export const defaultInsideOffset = 3;
 
-    /** @public */
-    export interface Action {
-        readonly type: Action.TypeId;
-        readonly viewportStart: number | undefined;
-    }
-
-    /** @public */
-    export namespace Action {
-        export const enum TypeId {
-            StepForward,
-            StepBack,
-            PageForward,
-            PageBack,
-            newViewportStart,
-        }
-    }
-
-    /** @internal */
-    export type ActionEventer = (this: void, action: RevStandardScroller.Action) => void;
-    /** @internal */
-    export type VisibilityChangedEventer = (this: void) => void;
     /** @internal */
     export type PointerEventListener = (event: PointerEvent) => void;
 

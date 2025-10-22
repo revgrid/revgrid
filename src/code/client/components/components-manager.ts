@@ -1,4 +1,4 @@
-import { RevAssertError, RevClientObject, RevCssTypes, RevDataServer, RevSchemaField, RevSchemaServer } from '../../common';
+import { RevAssertError, RevClientObject, RevCssTypes, RevDataServer, RevOptionsError, RevSchemaField, RevSchemaServer, RevUnreachableCaseError } from '../../common';
 import { RevSubgrid } from '../interfaces/subgrid';
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../settings';
 import { RevCanvas } from './canvas/canvas';
@@ -6,6 +6,7 @@ import { RevColumnsManager } from './column/columns-manager';
 import { RevFocus } from './focus/focus';
 import { RevMouse } from './mouse/mouse';
 import { RevRenderer } from './renderer/renderer';
+import { RevScroller } from './scroller';
 import { RevStandardScroller } from './scroller/standard-scroller';
 import { RevSelection } from './selection/selection';
 import { RevSubgridsManager } from './subgrid/subgrids-manager';
@@ -22,8 +23,8 @@ export class RevComponentsManager<BGS extends RevBehavioredGridSettings, BCS ext
     readonly renderer: RevRenderer<BGS, BCS, SF>;
     readonly mouse: RevMouse<BGS, BCS, SF>;
 
-    readonly horizontalScroller: RevStandardScroller<BGS, BCS, SF>;
-    readonly verticalScroller: RevStandardScroller<BGS, BCS, SF>;
+    readonly horizontalScroller: RevScroller;
+    readonly verticalScroller: RevScroller;
 
     constructor(
         readonly clientId: string,
@@ -34,6 +35,7 @@ export class RevComponentsManager<BGS extends RevBehavioredGridSettings, BCS ext
         subgridDefinitions: RevSubgrid.Definition<BCS, SF>[],
         canvasOverflowOverride: RevCssTypes.Overflow | undefined,
         canvasRenderingContext2DSettings: CanvasRenderingContext2DSettings | undefined,
+        scrollerCreateFns: RevScroller.CreateFn<BGS, BCS, SF>[] | undefined,
         getSettingsForNewColumnEventer: RevColumnsManager.GetSettingsForNewColumnEventer<BCS, SF>,
     ) {
         // this.gridSettings = new AbstractMergableGridSettings();
@@ -119,31 +121,79 @@ export class RevComponentsManager<BGS extends RevBehavioredGridSettings, BCS ext
                 this.mouse,
             );
 
-            this.verticalScroller = new RevStandardScroller(
-                this.clientId,
-                this,
-                gridSettings,
-                hostElement,
-                this.canvas,
-                this.viewLayout.verticalScrollDimension,
-                this.viewLayout,
-                'vertical',
-                true,
-                undefined,
-            );
+            if (scrollerCreateFns === undefined) {
+                this.verticalScroller = new RevStandardScroller(
+                    this.clientId,
+                    this,
+                    gridSettings,
+                    hostElement,
+                    this.canvas,
+                    this.viewLayout.verticalScrollDimension,
+                    this.viewLayout,
+                    'vertical',
+                    true,
+                    undefined,
+                );
 
-            this.horizontalScroller = new RevStandardScroller(
-                this.clientId,
-                this,
-                gridSettings,
-                hostElement,
-                this.canvas,
-                this.viewLayout.horizontalScrollDimension,
-                this.viewLayout,
-                'horizontal',
-                true,
-                this.verticalScroller,
-            );
+                this.horizontalScroller = new RevStandardScroller(
+                    this.clientId,
+                    this,
+                    gridSettings,
+                    hostElement,
+                    this.canvas,
+                    this.viewLayout.horizontalScrollDimension,
+                    this.viewLayout,
+                    'horizontal',
+                    true,
+                    this.verticalScroller,
+                );
+            } else {
+                if (scrollerCreateFns.length !== 2) {
+                    throw new RevOptionsError('CMCSC43230', `Invalid number of scroller create functions: ${scrollerCreateFns.length}`);
+                } else {
+                    const spaceAccommodatedScroller = this.horizontalScroller = scrollerCreateFns[0](
+                        this.clientId,
+                        this,
+                        gridSettings,
+                        hostElement,
+                        this.canvas,
+                        this.viewLayout.horizontalScrollDimension,
+                        this.viewLayout,
+                        undefined,
+                    );
+                    const spaceRelinquishingScroller = this.horizontalScroller = scrollerCreateFns[1](
+                        this.clientId,
+                        this,
+                        gridSettings,
+                        hostElement,
+                        this.canvas,
+                        this.viewLayout.horizontalScrollDimension,
+                        this.viewLayout,
+                        spaceAccommodatedScroller,
+                    );
+
+                    switch (spaceAccommodatedScroller.axis) {
+                        case 'horizontal':
+                            this.horizontalScroller = spaceAccommodatedScroller;
+                            if (spaceRelinquishingScroller.axis !== 'vertical') {
+                                throw new RevOptionsError('CMCSC43231', `Mismatched scroller axes: ${spaceRelinquishingScroller.axis} cannot accompany horizontal scroller`);
+                            } else {
+                                this.verticalScroller = spaceRelinquishingScroller;
+                            }
+                            break;
+                        case 'vertical':
+                            this.verticalScroller = spaceAccommodatedScroller;
+                            if (spaceRelinquishingScroller.axis !== 'horizontal') {
+                                throw new RevOptionsError('CMCSC43232', `Mismatched scroller axes: ${spaceRelinquishingScroller.axis} cannot accompany vertical scroller`);
+                            } else {
+                                this.horizontalScroller = spaceRelinquishingScroller;
+                            }
+                            break;
+                        default:
+                            throw new RevUnreachableCaseError('CMCSC43233', spaceAccommodatedScroller.axis);
+                    }
+                }
+            }
         }
     }
 

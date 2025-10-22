@@ -1,4 +1,5 @@
 import { RevCssTypes, RevSchemaField } from '../common';
+import { RevScroller } from './components';
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from './settings';
 import { RevUiController } from './ui/controller/ui-controller';
 
@@ -20,5 +21,12 @@ export interface RevGridOptions<BGS extends RevBehavioredGridSettings, BCS exten
      * to `visible` when debugging painters. `canvasOverflowOverride` can be used to override the default value of this property.
      */
     canvasOverflowOverride?: RevCssTypes.Overflow;
+    /** Create functions to generate custom scrollbars */
+    scrollerCreateFns?: [
+        /** Will use all space along its axis */
+        spaceAccommodated: RevScroller.CreateFn<BGS, BCS, SF>,
+        /** Will relinquish space along its axis to make room for the space accommodated scrollbar */
+        spaceRelinquishing: RevScroller.CreateFn<BGS, BCS, SF>
+    ];
     customUiControllerDefinitions?: RevUiController.Definition<BGS, BCS, SF>[];
 }
