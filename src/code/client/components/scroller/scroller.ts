@@ -54,7 +54,6 @@ export namespace RevScroller {
         clientId: string,
         internalParent: RevClientObject,
         gridSettings: BGS,
-        hostElement: HTMLElement, // Revgrid host element
         canvas: RevCanvas<BGS>,
         scrollDimension: RevScrollDimension<BGS>,
         viewLayout: RevViewLayout<BGS, BCS, SF>,

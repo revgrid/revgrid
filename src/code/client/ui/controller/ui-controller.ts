@@ -40,7 +40,6 @@ export abstract class RevUiController<BGS extends RevBehavioredGridSettings, BCS
     detached: RevUiController<BGS, BCS, SF> | undefined;
 
     protected readonly _sharedState: RevUiControllerSharedState;
-    protected readonly _hostElement: HTMLElement;
 
     protected readonly _gridSettings: RevGridSettings;
     protected readonly _canvas: RevCanvas<BGS>;
@@ -72,7 +71,6 @@ export abstract class RevUiController<BGS extends RevBehavioredGridSettings, BCS
         this.internalParent = services.internalParent;
 
         this._sharedState = services.sharedState;
-        this._hostElement = services.hostElement;
 
         this._gridSettings = services.gridSettings;
         this._canvas = services.canvas;

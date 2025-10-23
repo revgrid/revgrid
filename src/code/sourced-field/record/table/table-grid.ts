@@ -96,13 +96,13 @@ export class RevTableGrid<
             TextFormattableValueTypeId,
             TextFormattableValueAttributeTypeId
         >,
-        gridHostElement: HTMLElement,
+        canvasElement: HTMLCanvasElement,
         definition: RevGridDefinition<BCS, RevRecordSourcedField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>>,
         settings: BGS,
         getSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, RevRecordSourcedField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>>,
         options?: RevGridOptions<BGS, BCS, RevRecordSourcedField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>>,
     ) {
-        super(gridHostElement, definition, settings, getSettingsForNewColumnEventer, options);
+        super(canvasElement, definition, settings, getSettingsForNewColumnEventer, options);
 
         if (!(this.recordStore instanceof RevTableRecordStore)) {
             throw new RevApiError('TGC50112', 'RecordStore is not a subtype of RevTableRecordStore');

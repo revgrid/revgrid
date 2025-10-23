@@ -19,12 +19,12 @@ export abstract class RevStandardElementCellEditor<
     }
 
     override tryOpenCell(_viewCell: RevViewCell<BCS, SF>, _openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined) {
-        this._grid.canvas.hostElement.appendChild(this._element);
+        this._grid.canvas.overlayElement.appendChild(this._element);
         return true;
     }
 
     override closeCell(_schemaColumn: SF, _dataServerRowIndex: number, _cancel: boolean) {
-        this._grid.canvas.hostElement.removeChild(this._element);
+        this._grid.canvas.overlayElement.removeChild(this._element);
     }
 
     focus() {

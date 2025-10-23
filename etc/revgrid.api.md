@@ -208,7 +208,7 @@ export namespace RevBehavioredSettings {
 //
 // @internal (undocumented)
 export class RevBehaviorManager<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {
-    constructor(clientId: string, internalParent: RevClientObject, gridSettings: BGS, canvas: RevCanvas<BGS>, columnsManager: RevColumnsManager<BCS, SF>, subgridsManager: RevSubgridsManager<BCS, SF>, viewLayout: RevViewLayout<BGS, BCS, SF>, focus: RevFocus<BGS, BCS, SF>, selection: RevSelection<BGS, BCS, SF>, mouse: RevMouse<BGS, BCS, SF>, renderer: RevRenderer<BGS, BCS, SF>, horizontalScroller: RevScroller<BGS, BCS, SF>, verticalScroller: RevScroller<BGS, BCS, SF>, descendantEventer: RevEventBehavior.DescendantEventer<BCS, SF>);
+    constructor(clientId: string, internalParent: RevClientObject, gridSettings: BGS, canvas: RevCanvas<BGS>, columnsManager: RevColumnsManager<BCS, SF>, subgridsManager: RevSubgridsManager<BCS, SF>, viewLayout: RevViewLayout<BGS, BCS, SF>, focus: RevFocus<BGS, BCS, SF>, selection: RevSelection<BGS, BCS, SF>, mouse: RevMouse<BGS, BCS, SF>, renderer: RevRenderer<BGS, BCS, SF>, horizontalScroller: RevScroller, verticalScroller: RevScroller, descendantEventer: RevEventBehavior.DescendantEventer<BCS, SF>);
     // (undocumented)
     get active(): boolean;
     set active(value: boolean);
@@ -518,7 +518,7 @@ export function revCalculateNumberArrayUniqueCount(array: number[]): number;
 // @public
 export class RevCanvas<BGS extends RevBehavioredGridSettings> implements RevClientObject {
     // @internal
-    constructor(clientId: string, internalParent: RevClientObject, hostElement: HTMLElement, canvasOverflowOverride: RevCssTypes.Overflow | undefined, canvasRenderingContext2DSettings: CanvasRenderingContext2DSettings | undefined,
+    constructor(clientId: string, internalParent: RevClientObject, element: HTMLCanvasElement, overlayElement: HTMLElement | undefined, canvasRenderingContext2DSettings: CanvasRenderingContext2DSettings | undefined,
     _gridSettings: BGS);
     // (undocumented)
     addExternalEventListener(eventName: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
@@ -561,8 +561,6 @@ export class RevCanvas<BGS extends RevBehavioredGridSettings> implements RevClie
     // (undocumented)
     get hasBounds(): boolean;
     // (undocumented)
-    readonly hostElement: HTMLElement;
-    // (undocumented)
     readonly internalParent: RevClientObject;
     // @internal (undocumented)
     isActiveDocumentElement(): boolean;
@@ -570,6 +568,8 @@ export class RevCanvas<BGS extends RevBehavioredGridSettings> implements RevClie
     keyDownEventer: RevCanvas.KeyEventer;
     // @internal (undocumented)
     keyUpEventer: RevCanvas.KeyEventer;
+    // (undocumented)
+    readonly overlayElement: HTMLElement;
     // @internal (undocumented)
     pointerDownEventer: RevCanvas.PointerEventer;
     // @internal (undocumented)
@@ -591,7 +591,7 @@ export class RevCanvas<BGS extends RevBehavioredGridSettings> implements RevClie
     // @internal (undocumented)
     repaintEventer: RevCanvas.RepaintEventer;
     // (undocumented)
-    resize(debounceEvent: boolean, hostRect?: DOMRect): void;
+    resize(debounceEvent: boolean, rect?: DOMRect): void;
     // @internal (undocumented)
     resizedEventerForEventBehavior: RevCanvas.ResizedEventer;
     // @internal (undocumented)
@@ -620,6 +620,8 @@ export class RevCanvas<BGS extends RevBehavioredGridSettings> implements RevClie
 export namespace RevCanvas {
     // @internal (undocumented)
     export type ClipboardEventer = (this: void, event: ClipboardEvent) => void;
+    // (undocumented)
+    export function createCanvasElement(): HTMLCanvasElement;
     // @internal (undocumented)
     export type DragEventer = (this: void, event: DragEvent) => void;
     // @internal (undocumented)
@@ -653,10 +655,10 @@ export namespace RevCanvas {
     export type ResizedEventer = (this: void) => void;
     // @internal (undocumented)
     export type TouchEventer = (this: void, event: TouchEvent) => void;
-    // @internal (undocumented)
-    export type WheelEventer = (this: void, event: WheelEvent) => void;
     const // (undocumented)
     canvasCssSuffix = "canvas";
+    // @internal (undocumented)
+    export type WheelEventer = (this: void, event: WheelEvent) => void;
 }
 
 // Warning: (ae-internal-missing-underscore) The name "RevCellClickUiController" should be prefixed with an underscore because the declaration is marked as @internal
@@ -796,7 +798,7 @@ export interface RevClickBoxCellPainter<BCS extends RevBehavioredColumnSettings,
 
 // @public (undocumented)
 export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> {
-    constructor(hostElement: string | HTMLElement | undefined, definition: RevGridDefinition<BCS, SF>, settings: BGS, getSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, SF>, options?: RevGridOptions<BGS, BCS, SF>);
+    constructor(canvasElement: HTMLCanvasElement | string | undefined, definition: RevGridDefinition<BCS, SF>, settings: BGS, getSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, SF>, options?: RevGridOptions<BGS, BCS, SF>);
     // (undocumented)
     activate(): void;
     // (undocumented)
@@ -1029,9 +1031,7 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     // (undocumented)
     hideActiveColumn(activeColumnIndex: Integer, ui?: boolean): void;
     // (undocumented)
-    readonly horizontalScroller: RevScroller<BGS, BCS, SF>;
-    // (undocumented)
-    readonly hostElement: HTMLElement;
+    readonly horizontalScroller: RevScroller;
     // (undocumented)
     readonly id: string;
     // (undocumented)
@@ -1198,7 +1198,7 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     // (undocumented)
     tryScrollUp(): boolean;
     // (undocumented)
-    readonly verticalScroller: RevScroller<BGS, BCS, SF>;
+    readonly verticalScroller: RevScroller;
     // (undocumented)
     readonly viewLayout: RevViewLayout<BGS, BCS, SF>;
 }
@@ -1895,7 +1895,7 @@ export namespace RevColumnSortingUiController {
 //
 // @internal (undocumented)
 export class RevComponentsManager<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {
-    constructor(clientId: string, internalParent: RevClientObject, gridSettings: BGS, hostElement: HTMLElement, schemaServer: RevSchemaServer<SF>, subgridDefinitions: RevSubgrid.Definition<BCS, SF>[], canvasOverflowOverride: RevCssTypes.Overflow | undefined, canvasRenderingContext2DSettings: CanvasRenderingContext2DSettings | undefined, getSettingsForNewColumnEventer: RevColumnsManager.GetSettingsForNewColumnEventer<BCS, SF>);
+    constructor(clientId: string, internalParent: RevClientObject, gridSettings: BGS, canvasElement: HTMLCanvasElement, schemaServer: RevSchemaServer<SF>, subgridDefinitions: RevSubgrid.Definition<BCS, SF>[], canvasOverlayElement: HTMLElement | undefined, canvasRenderingContext2DSettings: CanvasRenderingContext2DSettings | undefined, scrollerCreateFns: RevScroller.CreateFn<BGS, BCS, SF>[] | undefined, getSettingsForNewColumnEventer: RevColumnsManager.GetSettingsForNewColumnEventer<BCS, SF>);
     // (undocumented)
     readonly canvas: RevCanvas<BGS>;
     // (undocumented)
@@ -1908,7 +1908,7 @@ export class RevComponentsManager<BGS extends RevBehavioredGridSettings, BCS ext
     // (undocumented)
     getViewValue(activeColumnIndex: number, subgridRowIndex: number, subgrid: RevSubgrid<BCS, SF>): unknown;
     // (undocumented)
-    readonly horizontalScroller: RevScroller<BGS, BCS, SF>;
+    readonly horizontalScroller: RevScroller;
     // (undocumented)
     readonly internalParent: RevClientObject;
     // (undocumented)
@@ -1923,7 +1923,7 @@ export class RevComponentsManager<BGS extends RevBehavioredGridSettings, BCS ext
     // (undocumented)
     readonly subgridsManager: RevSubgridsManager<BCS, SF>;
     // (undocumented)
-    readonly verticalScroller: RevScroller<BGS, BCS, SF>;
+    readonly verticalScroller: RevScroller;
     // (undocumented)
     readonly viewLayout: RevViewLayout<BGS, BCS, SF>;
 }
@@ -2179,7 +2179,7 @@ export interface RevDataRowArrayField extends RevSchemaField {
 
 // @public (undocumented)
 export class RevDataRowArrayGrid<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevDataRowArrayField> extends RevColumnLayoutGrid<BGS, BCS, SF> {
-    constructor(gridHostElement: HTMLElement, definition: RevGridDefinition<BCS, SF>, settings: BGS, getSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, SF>, options?: RevGridOptions<BGS, BCS, SF>);
+    constructor(canvasElement: HTMLCanvasElement, definition: RevGridDefinition<BCS, SF>, settings: BGS, getSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, SF>, options?: RevGridOptions<BGS, BCS, SF>);
     // (undocumented)
     get allowedFields(): readonly SF[] | undefined;
     // (undocumented)
@@ -2772,8 +2772,8 @@ export class RevEventBehavior<BGS extends RevBehavioredGridSettings, BCS extends
     _selection: RevSelection<BGS, BCS, SF>,
     _mouse: RevMouse<BGS, BCS, SF>,
     _renderer: RevRenderer<BGS, BCS, SF>,
-    _horizontalScroller: RevScroller<BGS, BCS, SF>,
-    _verticalScroller: RevScroller<BGS, BCS, SF>,
+    _horizontalScroller: RevScroller,
+    _verticalScroller: RevScroller,
     _descendantEventer: RevEventBehavior.DescendantEventer<BCS, SF>,
     _dispatchEventEventer: RevEventBehavior.DispatchEventEventer);
     // (undocumented)
@@ -3452,13 +3452,17 @@ export interface RevGridDefinition<BCS extends RevBehavioredColumnSettings, SF e
 
 // @public (undocumented)
 export interface RevGridOptions<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> {
-    canvasOverflowOverride?: RevCssTypes.Overflow;
+    canvasOverlayElement?: HTMLElement | undefined;
     canvasRenderingContext2DSettings?: CanvasRenderingContext2DSettings;
     // (undocumented)
     customUiControllerDefinitions?: RevUiController.Definition<BGS, BCS, SF>[];
     externalParent?: unknown;
     firstGeneratedIdFromBaseIsAlsoNumbered?: boolean;
     id?: string;
+    scrollerCreateFns?: [
+    spaceAccommodated: RevScroller.CreateFn<BGS, BCS, SF>,
+    spaceRelinquishing: RevScroller.CreateFn<BGS, BCS, SF>
+    ];
 }
 
 // @public (undocumented)
@@ -4351,7 +4355,7 @@ export namespace RevMultiHeadingDataRowArraySourcedFieldDefinition {
 
 // @public (undocumented)
 export class RevMultiHeadingDataRowArraySourcedFieldGrid<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevMultiHeadingDataRowArraySourcedField> extends RevDataRowArrayGrid<BGS, BCS, SF> implements RevSourcedFieldGrid<BGS, BCS, SF> {
-    constructor(gridHostElement: HTMLElement, getHeaderCellPainterEventer: RevSubgrid.GetCellPainterEventer<BCS, SF>, getMainCellPainterEventer: RevSubgrid.GetCellPainterEventer<BCS, SF>, settings: BGS, getSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, SF>,
+    constructor(canvasElement: HTMLCanvasElement, getHeaderCellPainterEventer: RevSubgrid.GetCellPainterEventer<BCS, SF>, getMainCellPainterEventer: RevSubgrid.GetCellPainterEventer<BCS, SF>, settings: BGS, getSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, SF>,
     _createFieldEventer: RevMultiHeadingDataRowArraySourcedFieldGrid.CreateFieldEventer<SF>, options?: RevGridOptions<BGS, BCS, SF>);
     // (undocumented)
     createAllowedSourcedFieldsColumnLayoutDefinition(allowedFields: readonly SF[]): RevAllowedMultiHeadingDataRowArraySourcedFieldsColumnLayoutDefinition;
@@ -4855,7 +4859,7 @@ export abstract class RevRecordFunctionizeField implements RevRecordField {
 
 // @public (undocumented)
 export class RevRecordGrid<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevRecordField> extends RevColumnLayoutGrid<BGS, BCS, SF> implements RevColumnLayout.ChangeInitiator {
-    constructor(gridHostElement: HTMLElement, definition: RevGridDefinition<BCS, SF>, settings: BGS, getSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, SF>, options?: RevGridOptions<BGS, BCS, SF>);
+    constructor(canvasElement: HTMLCanvasElement, definition: RevGridDefinition<BCS, SF>, settings: BGS, getSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, SF>, options?: RevGridOptions<BGS, BCS, SF>);
     // (undocumented)
     get allowedFields(): readonly SF[] | undefined;
     // (undocumented)
@@ -6051,57 +6055,24 @@ export namespace RevScrollDimension {
 }
 
 // @public (undocumented)
-export class RevScroller<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {
-    // @internal
-    constructor(clientId: string, internalParent: RevClientObject,
-    _gridSettings: BGS,
-    _hostElement: HTMLElement, // Revgrid host element
-    _canvas: RevCanvas<BGS>,
-    _scrollDimension: RevScrollDimension<BGS>,
-    _viewLayout: RevViewLayout<BGS, BCS, SF>,
-    axis: RevScrollDimension.Axis,
-    _trailing: boolean, // true: right/bottom of canvas, false: otherwise left/top of canvas
-    _spaceAccommodatedScroller: RevScroller<BGS, BCS, SF> | undefined);
-    // @internal (undocumented)
+export interface RevScroller extends RevClientObject {
+    // (undocumented)
     actionEventer: RevScroller.ActionEventer;
-    // @internal (undocumented)
-    activatePointerScrolling(event: PointerEvent): void;
     // (undocumented)
-    readonly axisBarCssClass: string;
+    readonly axis: RevScrollDimension.Axis;
     // (undocumented)
-    readonly bar: HTMLDivElement;
-    // (undocumented)
-    readonly barCssClass: string;
-    // (undocumented)
-    readonly clientId: string;
-    // @internal (undocumented)
-    deactivatePointerScrolling(event: PointerEvent): void;
-    // @internal
     destroy(): void;
     // (undocumented)
-    get hidden(): boolean;
-    // @internal (undocumented)
-    get index(): number | undefined;
-    set index(idx: number | undefined);
+    readonly hidden: boolean;
     // (undocumented)
-    get insideOverlap(): number;
-    // (undocumented)
-    readonly internalParent: RevClientObject;
-    // (undocumented)
-    setAfterInsideOffset(offset: number): void;
-    // (undocumented)
-    setBeforeInsideOffset(offset: number): void;
+    readonly insideOverlap: number;
     // (undocumented)
     temporarilyGiveThumbFullVisibility(timePeriod: number): void;
     // (undocumented)
-    get thickness(): number;
+    readonly trailing: boolean;
     // (undocumented)
-    readonly thumbCssClass: string;
-    // (undocumented)
-    get trailing(): boolean;
-    // @internal (undocumented)
     visibilityChangedEventer: RevScroller.VisibilityChangedEventer | undefined;
-    // @internal (undocumented)
+    // (undocumented)
     wheelEventer: RevScroller.WheelEventer | undefined;
 }
 
@@ -6114,12 +6085,6 @@ export namespace RevScroller {
         // (undocumented)
         readonly viewportStart: number | undefined;
     }
-    const // (undocumented)
-    barCssSuffix = "scroller";
-    const // (undocumented)
-    thumbCssSuffix = "scroller-thumb";
-    const // (undocumented)
-    defaultInsideOffset = 3;
     // (undocumented)
     export namespace Action {
         // (undocumented)
@@ -6136,24 +6101,17 @@ export namespace RevScroller {
             StepForward = 0
         }
     }
-    // @internal (undocumented)
-    export type ActionEventer = (this: void, action: RevScroller.Action) => void;
-    // @internal (undocumented)
-    export type PointerEventListener = (event: PointerEvent) => void;
-    // @internal (undocumented)
-    export const enum PointerScrollingStateId {
-        // (undocumented)
-        Active = 2,
-        // (undocumented)
-        Armed = 1,
-        // (undocumented)
-        ClickWaiting = 3,
-        // (undocumented)
-        Inactive = 0
-    }
-    // @internal (undocumented)
-    export type VisibilityChangedEventer = (this: void) => void;
     // (undocumented)
+    export type ActionEventer = (this: void, action: Action) => void;
+    // (undocumented)
+    export type CreateFn<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> = (clientId: string, internalParent: RevClientObject, gridSettings: BGS, canvas: RevCanvas<BGS>, scrollDimension: RevScrollDimension<BGS>, viewLayout: RevViewLayout<BGS, BCS, SF>, spaceAccommodatedScroller: RevScroller | undefined) => RevScroller;
+    // (undocumented)
+    export type CreateFnPair<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> = [
+    spaceAccommodated: CreateFn<BGS, BCS, SF>,
+    spaceRelinquishing: CreateFn<BGS, BCS, SF>
+    ];
+    // (undocumented)
+    export type VisibilityChangedEventer = (this: void) => void;
     export type WheelEventer = (this: void, event: WheelEvent) => void;
 }
 
@@ -6602,7 +6560,7 @@ export interface RevSimpleColumnSettings extends RevSimpleOnlyColumnSettings, Re
 
 // @public (undocumented)
 export class RevSimpleDataRowArrayGrid extends RevDataRowArrayGrid<RevSimpleBehavioredGridSettings, RevSimpleBehavioredColumnSettings, RevSingleHeadingField> {
-    constructor(gridHostElement: HTMLElement, settings?: RevSimpleInMemoryBehavioredGridSettings, options?: RevGridOptions<RevSimpleBehavioredGridSettings, RevSimpleBehavioredColumnSettings, RevSingleHeadingField>);
+    constructor(canvasElement: HTMLCanvasElement, settings?: RevSimpleInMemoryBehavioredGridSettings, options?: RevGridOptions<RevSimpleBehavioredGridSettings, RevSimpleBehavioredColumnSettings, RevSingleHeadingField>);
 }
 
 // @public (undocumented)
@@ -6834,7 +6792,7 @@ export namespace RevSingleHeadingDataRowArraySourcedFieldDefinition {
 
 // @public (undocumented)
 export class RevSingleHeadingDataRowArraySourcedFieldGrid<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSingleHeadingDataRowArraySourcedField> extends RevDataRowArrayGrid<BGS, BCS, SF> implements RevSourcedFieldGrid<BGS, BCS, SF> {
-    constructor(gridHostElement: HTMLElement, getHeaderCellPainterEventer: RevSubgrid.GetCellPainterEventer<BCS, SF>, getMainCellPainterEventer: RevSubgrid.GetCellPainterEventer<BCS, SF>, settings: BGS, getSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, SF>,
+    constructor(canvasElement: HTMLCanvasElement, getHeaderCellPainterEventer: RevSubgrid.GetCellPainterEventer<BCS, SF>, getMainCellPainterEventer: RevSubgrid.GetCellPainterEventer<BCS, SF>, settings: BGS, getSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, SF>,
     _createFieldEventer: RevSingleHeadingDataRowArraySourcedFieldGrid.CreateFieldEventer<SF>, options?: RevGridOptions<BGS, BCS, SF>);
     // (undocumented)
     createAllowedSourcedFieldsColumnLayoutDefinition(allowedFields: readonly SF[]): RevAllowedSingleHeadingDataRowArraySourcedFieldsColumnLayoutDefinition;
@@ -7435,6 +7393,76 @@ export class RevStandardRangeInputCellEditor<BGS extends RevBehavioredGridSettin
     closeCell(field: SF, dataServerRowIndex: number, cancel: boolean): void;
     // (undocumented)
     tryOpenCell(cell: RevViewCell<BCS, SF>, openingKeyDownEvent: KeyboardEvent | undefined, _openingClickEvent: MouseEvent | undefined): boolean;
+}
+
+// @public (undocumented)
+export class RevStandardScroller<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevScroller {
+    // @internal
+    constructor(clientId: string, internalParent: RevClientObject,
+    _gridSettings: BGS,
+    _hostElement: HTMLElement, // Element to which the scrollbar bar element is appended
+    _canvas: RevCanvas<BGS>,
+    _scrollDimension: RevScrollDimension<BGS>, axis: RevScrollDimension.Axis,
+    _trailing: boolean, // true: right/bottom of canvas, false: otherwise left/top of canvas
+    _spaceAccommodatedScroller: RevScroller | undefined);
+    // @internal (undocumented)
+    actionEventer: RevScroller.ActionEventer;
+    // @internal (undocumented)
+    activatePointerScrolling(event: PointerEvent): void;
+    // (undocumented)
+    readonly axis: RevScrollDimension.Axis;
+    // (undocumented)
+    readonly clientId: string;
+    // @internal (undocumented)
+    deactivatePointerScrolling(event: PointerEvent): void;
+    // @internal
+    destroy(): void;
+    // (undocumented)
+    get hidden(): boolean;
+    // @internal (undocumented)
+    get index(): number | undefined;
+    set index(idx: number | undefined);
+    // (undocumented)
+    get insideOverlap(): number;
+    // (undocumented)
+    readonly internalParent: RevClientObject;
+    // (undocumented)
+    setAfterInsideOffset(offset: number): void;
+    // (undocumented)
+    setBeforeInsideOffset(offset: number): void;
+    // (undocumented)
+    temporarilyGiveThumbFullVisibility(timePeriod: number): void;
+    // (undocumented)
+    get thickness(): number;
+    // (undocumented)
+    get trailing(): boolean;
+    // @internal (undocumented)
+    visibilityChangedEventer: RevScroller.VisibilityChangedEventer | undefined;
+    // @internal (undocumented)
+    wheelEventer: RevScroller.WheelEventer | undefined;
+}
+
+// @public (undocumented)
+export namespace RevStandardScroller {
+    const // (undocumented)
+    barCssSuffix = "scroller";
+    const // (undocumented)
+    thumbCssSuffix = "scroller-thumb";
+    const // (undocumented)
+    defaultInsideOffset = 3;
+    // @internal (undocumented)
+    export type PointerEventListener = (event: PointerEvent) => void;
+    // @internal (undocumented)
+    export const enum PointerScrollingStateId {
+        // (undocumented)
+        Active = 2,
+        // (undocumented)
+        Armed = 1,
+        // (undocumented)
+        ClickWaiting = 3,
+        // (undocumented)
+        Inactive = 0
+    }
 }
 
 // @public
@@ -8329,7 +8357,7 @@ export interface RevTableFieldSourceDefinitionFactory<TypeId, TextFormattableVal
 
 // @public (undocumented)
 export class RevTableGrid<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId, BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings> extends RevRecordSourcedFieldGrid<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId, BGS, BCS, RevRecordSourcedField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>> {
-    constructor(_referenceableColumnLayouts: RevReferenceableColumnLayouts | undefined, tableFieldSourceDefinitionCachingFactory: RevTableFieldSourceDefinitionCachingFactory<TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, tableRecordSourceDefinitionFromJsonFactory: RevTableRecordSourceDefinitionFromJsonFactory<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, _referenceableDataSources: RevReferenceableDataSources<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> | undefined, _tableRecordSourceFactory: RevTableRecordSourceFactory<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, gridHostElement: HTMLElement, definition: RevGridDefinition<BCS, RevRecordSourcedField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>>, settings: BGS, getSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, RevRecordSourcedField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>>, options?: RevGridOptions<BGS, BCS, RevRecordSourcedField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>>);
+    constructor(_referenceableColumnLayouts: RevReferenceableColumnLayouts | undefined, tableFieldSourceDefinitionCachingFactory: RevTableFieldSourceDefinitionCachingFactory<TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, tableRecordSourceDefinitionFromJsonFactory: RevTableRecordSourceDefinitionFromJsonFactory<TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, _referenceableDataSources: RevReferenceableDataSources<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId> | undefined, _tableRecordSourceFactory: RevTableRecordSourceFactory<Badness, TableRecordSourceDefinitionTypeId, TableFieldSourceDefinitionTypeId, TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>, canvasElement: HTMLCanvasElement, definition: RevGridDefinition<BCS, RevRecordSourcedField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>>, settings: BGS, getSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, RevRecordSourcedField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>>, options?: RevGridOptions<BGS, BCS, RevRecordSourcedField<TextFormattableValueTypeId, TextFormattableValueAttributeTypeId>>);
     // (undocumented)
     applyColumnLayoutOrReferenceDefinition(definition: RevColumnLayoutOrReferenceDefinition): void;
     // (undocumented)
@@ -8912,9 +8940,7 @@ export abstract class RevUiController<BGS extends RevBehavioredGridSettings, BCS
     // @internal (undocumented)
     handleWheelMove(event: WheelEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined): RevLinedHoverCell<BCS, SF> | null | undefined;
     // (undocumented)
-    protected readonly _horizontalScroller: RevScroller<BGS, BCS, SF>;
-    // (undocumented)
-    protected readonly _hostElement: HTMLElement;
+    protected readonly _horizontalScroller: RevScroller;
     // @internal (undocumented)
     initialise(): void;
     // (undocumented)
@@ -8942,7 +8968,7 @@ export abstract class RevUiController<BGS extends RevBehavioredGridSettings, BCS
     // (undocumented)
     abstract readonly typeName: string;
     // (undocumented)
-    protected readonly _verticalScroller: RevScroller<BGS, BCS, SF>;
+    protected readonly _verticalScroller: RevScroller;
     // (undocumented)
     protected readonly _viewLayout: RevViewLayout<BGS, BCS, SF>;
 }
@@ -8973,7 +8999,7 @@ export class RevUiControllerFactory<BGS extends RevBehavioredGridSettings, BCS e
 // @public (undocumented)
 export class RevUiControllerServices<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {
     // @internal
-    constructor(clientId: string, internalParent: RevClientObject, sharedState: RevUiControllerSharedState, hostElement: HTMLElement, gridSettings: RevGridSettings, canvas: RevCanvas<BGS>, selection: RevSelection<BGS, BCS, SF>, focus: RevFocus<BGS, BCS, SF>, columnsManager: RevColumnsManager<BCS, SF>, subgridsManager: RevSubgridsManager<BCS, SF>, viewLayout: RevViewLayout<BGS, BCS, SF>, renderer: RevRenderer<BGS, BCS, SF>, mouse: RevMouse<BGS, BCS, SF>, horizontalScroller: RevScroller<BGS, BCS, SF>, verticalScroller: RevScroller<BGS, BCS, SF>, reindexBehavior: RevReindexBehavior<BGS, BCS, SF>, focusScrollBehavior: RevFocusScrollBehavior<BGS, BCS, SF>, focusSelectBehavior: RevFocusSelectBehavior<BGS, BCS, SF>, rowPropertiesBehavior: RevRowPropertiesBehavior<BGS, BCS, SF>, cellPropertiesBehavior: RevCellPropertiesBehavior<BGS, BCS, SF>, dataExtractBehavior: RevDataExtractBehavior<BGS, BCS, SF>, eventBehavior: RevEventBehavior<BGS, BCS, SF>);
+    constructor(clientId: string, internalParent: RevClientObject, sharedState: RevUiControllerSharedState, gridSettings: RevGridSettings, canvas: RevCanvas<BGS>, selection: RevSelection<BGS, BCS, SF>, focus: RevFocus<BGS, BCS, SF>, columnsManager: RevColumnsManager<BCS, SF>, subgridsManager: RevSubgridsManager<BCS, SF>, viewLayout: RevViewLayout<BGS, BCS, SF>, renderer: RevRenderer<BGS, BCS, SF>, mouse: RevMouse<BGS, BCS, SF>, horizontalScroller: RevScroller, verticalScroller: RevScroller, reindexBehavior: RevReindexBehavior<BGS, BCS, SF>, focusScrollBehavior: RevFocusScrollBehavior<BGS, BCS, SF>, focusSelectBehavior: RevFocusSelectBehavior<BGS, BCS, SF>, rowPropertiesBehavior: RevRowPropertiesBehavior<BGS, BCS, SF>, cellPropertiesBehavior: RevCellPropertiesBehavior<BGS, BCS, SF>, dataExtractBehavior: RevDataExtractBehavior<BGS, BCS, SF>, eventBehavior: RevEventBehavior<BGS, BCS, SF>);
     // (undocumented)
     readonly canvas: RevCanvas<BGS>;
     // (undocumented)
@@ -8995,9 +9021,7 @@ export class RevUiControllerServices<BGS extends RevBehavioredGridSettings, BCS 
     // (undocumented)
     readonly gridSettings: RevGridSettings;
     // (undocumented)
-    readonly horizontalScroller: RevScroller<BGS, BCS, SF>;
-    // (undocumented)
-    readonly hostElement: HTMLElement;
+    readonly horizontalScroller: RevScroller;
     // (undocumented)
     readonly internalParent: RevClientObject;
     // (undocumented)
@@ -9015,7 +9039,7 @@ export class RevUiControllerServices<BGS extends RevBehavioredGridSettings, BCS 
     // (undocumented)
     readonly subgridsManager: RevSubgridsManager<BCS, SF>;
     // (undocumented)
-    readonly verticalScroller: RevScroller<BGS, BCS, SF>;
+    readonly verticalScroller: RevScroller;
     // (undocumented)
     readonly viewLayout: RevViewLayout<BGS, BCS, SF>;
 }
@@ -9035,7 +9059,7 @@ export namespace RevUiControllerSharedState {
 // @public (undocumented)
 export class RevUiManager<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {
     // @internal
-    constructor(clientId: string, internalParent: RevClientObject, hostElement: HTMLElement, _gridSettings: BGS, canvas: RevCanvas<BGS>, focus: RevFocus<BGS, BCS, SF>, selection: RevSelection<BGS, BCS, SF>, columnsManager: RevColumnsManager<BCS, SF>, subgridsManager: RevSubgridsManager<BCS, SF>, viewLayout: RevViewLayout<BGS, BCS, SF>, renderer: RevRenderer<BGS, BCS, SF>, _mouse: RevMouse<BGS, BCS, SF>, horizontalScroller: RevScroller<BGS, BCS, SF>, verticalScroller: RevScroller<BGS, BCS, SF>, focusScrollBehavior: RevFocusScrollBehavior<BGS, BCS, SF>, selectionBehavior: RevFocusSelectBehavior<BGS, BCS, SF>, rowPropertiesBehavior: RevRowPropertiesBehavior<BGS, BCS, SF>, cellPropertiesBehavior: RevCellPropertiesBehavior<BGS, BCS, SF>, dataExtractBehavior: RevDataExtractBehavior<BGS, BCS, SF>, reindexBehavior: RevReindexBehavior<BGS, BCS, SF>, _eventBehavior: RevEventBehavior<BGS, BCS, SF>, customUiControllerDefinitions: RevUiController.Definition<BGS, BCS, SF>[] | undefined);
+    constructor(clientId: string, internalParent: RevClientObject, _gridSettings: BGS, canvas: RevCanvas<BGS>, focus: RevFocus<BGS, BCS, SF>, selection: RevSelection<BGS, BCS, SF>, columnsManager: RevColumnsManager<BCS, SF>, subgridsManager: RevSubgridsManager<BCS, SF>, viewLayout: RevViewLayout<BGS, BCS, SF>, renderer: RevRenderer<BGS, BCS, SF>, _mouse: RevMouse<BGS, BCS, SF>, horizontalScroller: RevScroller, verticalScroller: RevScroller, focusScrollBehavior: RevFocusScrollBehavior<BGS, BCS, SF>, selectionBehavior: RevFocusSelectBehavior<BGS, BCS, SF>, rowPropertiesBehavior: RevRowPropertiesBehavior<BGS, BCS, SF>, cellPropertiesBehavior: RevCellPropertiesBehavior<BGS, BCS, SF>, dataExtractBehavior: RevDataExtractBehavior<BGS, BCS, SF>, reindexBehavior: RevReindexBehavior<BGS, BCS, SF>, _eventBehavior: RevEventBehavior<BGS, BCS, SF>, customUiControllerDefinitions: RevUiController.Definition<BGS, BCS, SF>[] | undefined);
     // (undocumented)
     readonly clientId: string;
     // (undocumented)

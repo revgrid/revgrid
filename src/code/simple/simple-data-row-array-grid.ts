@@ -25,7 +25,7 @@ export class RevSimpleDataRowArrayGrid extends RevDataRowArrayGrid<
 
 
     constructor(
-        gridHostElement: HTMLElement,
+        canvasElement: HTMLCanvasElement,
         settings?: RevSimpleInMemoryBehavioredGridSettings,
         options?: RevGridOptions<RevSimpleBehavioredGridSettings, RevSimpleBehavioredColumnSettings, RevSingleHeadingField>,
     ) {
@@ -50,7 +50,7 @@ export class RevSimpleDataRowArrayGrid extends RevDataRowArrayGrid<
         };
 
         super(
-            gridHostElement,
+            canvasElement,
             definition,
             settings ?? new RevSimpleInMemoryBehavioredGridSettings,
             () => revSimpleReadonlyDefaultBehavioredColumnSettings,

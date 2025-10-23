@@ -26,7 +26,6 @@ export class RevUiControllerServices<BGS extends RevBehavioredGridSettings, BCS 
         readonly internalParent: RevClientObject,
 
         readonly sharedState: RevUiControllerSharedState,
-        readonly hostElement: HTMLElement,
         readonly gridSettings: RevGridSettings,
         readonly canvas: RevCanvas<BGS>,
         readonly selection: RevSelection<BGS, BCS, SF>,

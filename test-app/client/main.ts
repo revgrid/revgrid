@@ -38,7 +38,7 @@ export class Main {
     private readonly _deleteRowButtonElement: HTMLButtonElement;
     private readonly _deleteRowIndexTextboxElement: HTMLInputElement;
     private readonly _addFishButtonElement: HTMLButtonElement;
-    private readonly _gridHostElement: HTMLElement;
+    private readonly _gridCanvasElement: HTMLCanvasElement;
 
     private _gridSettings: RevSimpleBehavioredGridSettings = new RevSimpleInMemoryBehavioredGridSettings();
     private _schemaServer: AppSchemaServer;
@@ -53,11 +53,11 @@ export class Main {
     private _grid: RevClientGrid<RevSimpleBehavioredGridSettings, RevSimpleBehavioredColumnSettings, AppSchemaField>;
 
     constructor() {
-        const gridHostElement = document.querySelector('#gridHost');
-        if (gridHostElement === null) {
-            throw new Error('gridHostElement not found');
+        const gridCanvasElement = document.querySelector('#gridCanvas');
+        if (gridCanvasElement === null) {
+            throw new Error('gridCanvasElement not found');
         }
-        this._gridHostElement = gridHostElement as HTMLElement;
+        this._gridCanvasElement = gridCanvasElement as HTMLCanvasElement;
 
         const controlsElement = document.querySelector('#controls');
         if (controlsElement === null) {
@@ -230,7 +230,7 @@ export class Main {
             ],
         };
 
-        this._grid = new RevClientGrid(this._gridHostElement, definition, this._gridSettings, this._getSettingsForNewColumnListener, { externalParent: this });
+        this._grid = new RevClientGrid(this._gridCanvasElement, definition, this._gridSettings, this._getSettingsForNewColumnListener, { externalParent: this });
 
         this._headerCellPainter = new RevStandardHeaderTextCellPainter(this._grid, this._headerDataServer);
         this._textCellPainter = new RevSimpleAlphaTextCellPainter(this._grid, this._mainDataServer);

@@ -14,7 +14,7 @@ export class RevSingleHeadingDataRowArraySourcedFieldGrid<
     declare headerDataServer: RevSingleHeadingDataServer<SF>;
 
     constructor(
-        gridHostElement: HTMLElement,
+        canvasElement: HTMLCanvasElement,
         getHeaderCellPainterEventer: RevSubgrid.GetCellPainterEventer<BCS, SF>,
         getMainCellPainterEventer: RevSubgrid.GetCellPainterEventer<BCS, SF>,
         settings: BGS,
@@ -42,7 +42,7 @@ export class RevSingleHeadingDataRowArraySourcedFieldGrid<
                 },
             ],
         }
-        super(gridHostElement, definition, settings, getSettingsForNewColumnEventer, options);
+        super(canvasElement, definition, settings, getSettingsForNewColumnEventer, options);
     }
 
     createAllowedSourcedFieldsColumnLayoutDefinition(allowedFields: readonly SF[]) {

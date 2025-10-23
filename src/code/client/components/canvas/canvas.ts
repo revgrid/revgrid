@@ -1,4 +1,4 @@
-import { RevAssertError, RevCachedCanvasRenderingContext2D, RevClientObject, RevCssTypes, RevPoint, RevRectangle, RevUnreachableCaseError } from '../../../common';
+import { RevAssertError, RevCachedCanvasRenderingContext2D, RevClientObject, RevCssTypes, RevOptionsError, RevPoint, RevRectangle, RevUnreachableCaseError } from '../../../common';
 import { RevBehavioredGridSettings } from '../../settings';
 
 /**
@@ -10,7 +10,7 @@ import { RevBehavioredGridSettings } from '../../settings';
  * @public
  */
 export class RevCanvas<BGS extends RevBehavioredGridSettings> implements RevClientObject {
-    readonly element: HTMLCanvasElement;
+    readonly overlayElement: HTMLElement;
     readonly gc: RevCachedCanvasRenderingContext2D;
 
     /** @internal */
@@ -95,9 +95,9 @@ export class RevCanvas<BGS extends RevBehavioredGridSettings> implements RevClie
     /** @internal */
     private _devicePixelRatio = 1;
     /** @internal */
-    private _hostWidth: number;
+    private _width: number;
     /** @internal */
-    private _hostHeight: number;
+    private _height: number;
 
     /** @internal
      * Used in dragging when no drag image is wanted
@@ -117,27 +117,25 @@ export class RevCanvas<BGS extends RevBehavioredGridSettings> implements RevClie
     constructor(
         readonly clientId: string,
         readonly internalParent: RevClientObject,
-        readonly hostElement: HTMLElement,
-        canvasOverflowOverride: RevCssTypes.Overflow | undefined,
+        readonly element: HTMLCanvasElement,
+        overlayElement: HTMLElement | undefined,
         canvasRenderingContext2DSettings: CanvasRenderingContext2DSettings | undefined,
         /** @internal */
         private readonly _gridSettings: BGS,
     ) {
-        // create and append the canvas
-        this.element = document.createElement('canvas');
-        this.element.id = `${clientId}-${RevCanvas.canvasCssSuffix}`;
-        this.element.draggable = true;
-        this.element.tabIndex = 0;
-        this.element.style.display = RevCssTypes.Display.block;
-        this.element.style.outline = 'none';
-        this.element.style.margin = '0';
-        this.element.style.padding = '0';
-        this.element.style.overflow = canvasOverflowOverride === undefined ? RevCssTypes.Overflow.clip : canvasOverflowOverride;
-        this.element.classList.add(`${RevCssTypes.libraryName}-${RevCanvas.canvasCssSuffix}`);
+        canvasElementIds.add(this.element.id);
 
+        if (overlayElement !== undefined) {
+            this.overlayElement = overlayElement;
+        } else {
+            const parentElement = element.parentElement;
+            if (parentElement === null) {
+                throw new RevOptionsError('RCC50112', 'Canvas element must have a parent element to use as overlay element if canvasOverlayElement is not provided in options)');
+            } else {
+                this.overlayElement = parentElement;
+            }
+        }
         this.gc = this.createCachedContext(this.element, canvasRenderingContext2DSettings);
-
-        this.hostElement.appendChild(this.element);
 
         this._emptyImage = document.createElement('img');
         this._emptyImage.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
@@ -272,7 +270,7 @@ export class RevCanvas<BGS extends RevBehavioredGridSettings> implements RevClie
     /** @internal */
     start() {
         this._gridSettings.resizeEventer = () => { this.resize(false); };
-        this._resizeObserver.observe(this.hostElement);
+        this._resizeObserver.observe(this.element);
         this._started = true;
     }
 
@@ -285,15 +283,15 @@ export class RevCanvas<BGS extends RevBehavioredGridSettings> implements RevClie
     }
 
     checksize() {
-        const hostRect = this.getHostBoundingClientRect();
-        if (hostRect.width !== this._hostWidth || hostRect.height !== this._hostHeight) {
-            this.resize(true, hostRect);
+        const rect = this.getBoundingClientRect();
+        if (rect.width !== this._width || rect.height !== this._height) {
+            this.resize(true, rect);
         }
     }
 
-    resize(debounceEvent: boolean, hostRect?: DOMRect) {
-        if (hostRect === undefined) {
-            hostRect = this.getHostBoundingClientRect();
+    resize(debounceEvent: boolean, rect?: DOMRect) {
+        if (rect === undefined) {
+            rect = this.getBoundingClientRect();
         }
 
         const oldWidth = this._flooredBounds.width;
@@ -303,11 +301,11 @@ export class RevCanvas<BGS extends RevBehavioredGridSettings> implements RevClie
            imageData = this.gc.getImageData(0, 0, oldWidth * this._devicePixelRatio, oldHeight * this._devicePixelRatio);
         }
 
-        this._hostWidth = hostRect.width;
-        this._hostHeight = hostRect.height;
+        this._width = rect.width;
+        this._height = rect.height;
 
-        const flooredWidth = Math.floor(this._hostWidth);
-        const flooredHeight = Math.floor(this._hostHeight);
+        const flooredWidth = Math.floor(this._width);
+        const flooredHeight = Math.floor(this._height);
 
         this._flooredWidth = flooredWidth;
         this._flooredHeight = flooredHeight;
@@ -322,8 +320,8 @@ export class RevCanvas<BGS extends RevBehavioredGridSettings> implements RevClie
         this.element.width = Math.floor(flooredWidth * ratio);
         this.element.height = Math.floor(flooredHeight * ratio);
 
-        this.element.style.width = flooredWidth.toString(10) + 'px';
-        this.element.style.height = flooredHeight.toString(10) + 'px';
+        // this.element.style.width = flooredWidth.toString(10) + 'px';
+        // this.element.style.height = flooredHeight.toString(10) + 'px';
 
         if (imageData !== undefined && !ratioChanged) {
             this.gc.putImageData(imageData, 0, 0);
@@ -639,8 +637,8 @@ export class RevCanvas<BGS extends RevBehavioredGridSettings> implements RevClie
     }
 
     /** @internal */
-    private getHostBoundingClientRect() {
-        return this.hostElement.getBoundingClientRect();
+    private getBoundingClientRect() {
+        return this.element.getBoundingClientRect();
     }
 
     /** @internal */
@@ -687,4 +685,35 @@ export namespace RevCanvas {
     }
 
     export const canvasCssSuffix = 'canvas';
+
+    export function createCanvasElement(): HTMLCanvasElement {
+        const element = document.createElement('canvas');
+        element.id = generateUniqueCanvasElementId();
+        element.draggable = true;
+        element.tabIndex = 0;
+        element.style.display = RevCssTypes.Display.block;
+        element.style.position = RevCssTypes.Position.relative; // allow scrollers to be positioned
+        element.style.height = '100%'; // take up all space
+        element.style.width = '100%'; // take up all space
+        element.style.outline = 'none';
+        element.style.margin = '0';
+        element.style.padding = '0';
+        element.style.overflow = RevCssTypes.Overflow.clip;
+        element.classList.add(`${RevCssTypes.libraryName}-${RevCanvas.canvasCssSuffix}`);
+        element.setAttribute('tabindex', '0'); // make focusable
+        element.setAttribute('draggable', 'true'); // make draggable
+        return element;
+    }
+}
+
+const canvasElementIds = new Set<string>();
+function generateUniqueCanvasElementId(): string {
+    let canvasElementId: string;
+    let suffix = 1;
+    do {
+        canvasElementId = `${RevCssTypes.libraryName}-${RevCanvas.canvasCssSuffix}-${suffix}`;
+        suffix++;
+    } while (canvasElementIds.has(canvasElementId));
+    canvasElementIds.add(canvasElementId);
+    return canvasElementId;
 }

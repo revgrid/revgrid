@@ -3,7 +3,6 @@ import { RevAssertError, RevClientObject, RevCssTypes, RevSchemaField, RevSizeUn
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../../settings';
 import { RevCanvas } from '../canvas/canvas';
 import { RevScrollDimension } from '../view/scroll-dimension';
-import { RevViewLayout } from '../view/view-layout';
 import { RevScroller } from './scroller';
 
 // Following is the sole style requirement for bar and thumb elements.
@@ -103,13 +102,11 @@ export class RevStandardScroller<BGS extends RevBehavioredGridSettings, BCS exte
         /** @internal */
         private readonly _gridSettings: BGS,
         /** @internal */
-        private readonly _hostElement: HTMLElement, // Revgrid host element
+        private readonly _hostElement: HTMLElement, // Element to which the scrollbar bar element is appended
         /** @internal */
         private readonly _canvas: RevCanvas<BGS>,
         /** @internal */
         private readonly _scrollDimension: RevScrollDimension<BGS>,
-        /** @internal */
-        private readonly _viewLayout: RevViewLayout<BGS, BCS, SF>,
         readonly axis: RevScrollDimension.Axis,
         /** @internal */
         private _trailing: boolean, // true: right/bottom of canvas, false: otherwise left/top of canvas

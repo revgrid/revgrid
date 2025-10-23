@@ -48,7 +48,6 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     readonly internalParent: RevClientObject | undefined = undefined;
     // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
     readonly externalParent: unknown | undefined;
-    readonly hostElement: HTMLElement;
 
     readonly mouse: RevMouse<BGS, BCS, SF>;
     readonly selection: RevSelection<BGS, BCS, SF>;
@@ -86,18 +85,17 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     private _destroyed = false;
 
     constructor(
-        hostElement: string | HTMLElement | undefined,
+        canvasElement: HTMLCanvasElement | string | undefined,
         definition: RevGridDefinition<BCS, SF>,
         readonly settings: BGS,
         getSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, SF>,
         options?: RevGridOptions<BGS, BCS, SF>
     ) {
-        //Set up the host for a grid instance
-        this.hostElement = this.prepareHost(hostElement);
+        canvasElement = this.resolveCanvasElement(canvasElement);
 
         options = options ?? {};
 
-        const id = RevClientGrid.idGenerator.generateId(options.id, this.hostElement.id, options.firstGeneratedIdFromBaseIsAlsoNumbered);
+        const id = RevClientGrid.idGenerator.generateId(options.id, canvasElement.id, options.firstGeneratedIdFromBaseIsAlsoNumbered);
         this.id = id;
         this.clientId = this.id;
         this.externalParent = options.externalParent;
@@ -113,10 +111,10 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
             this.clientId,
             this,
             settings,
-            this.hostElement,
+            canvasElement,
             schemaServer,
             definition.subgrids,
-            options.canvasOverflowOverride,
+            options.canvasOverlayElement,
             options.canvasRenderingContext2DSettings,
             options.scrollerCreateFns,
             getSettingsForNewColumnEventer,
@@ -164,7 +162,6 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
         this._uiManager = new RevUiManager(
             this.clientId,
             this,
-            this.hostElement,
             this.settings,
             this.canvas,
             this.focus,
@@ -236,13 +233,6 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
         this.deactivate();
 
         this._behaviorManager.destroy();
-
-        const hostElement = this.hostElement;
-        let firstChild = hostElement.firstChild;
-        while (firstChild !== null) {
-            hostElement.removeChild(firstChild);
-            firstChild = hostElement.firstChild;
-        }
 
         this._destroyed = true;
     }
@@ -1543,37 +1533,35 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     }
 
     /** @internal */
-    private prepareHost(hostElement: string | HTMLElement | undefined): HTMLElement {
-        let resolvedHostElement: HTMLElement;
-        if (hostElement === undefined) {
-            let foundOrCreatedElement = document.getElementById(RevCssTypes.libraryName);
+    private resolveCanvasElement(canvasElement: HTMLCanvasElement | string | undefined): HTMLCanvasElement {
+        let resolvedCanvasElement: HTMLCanvasElement;
+        if (canvasElement === undefined) {
+            let foundOrCreatedElement = document.getElementById(RevCssTypes.libraryName) as HTMLCanvasElement;
 
-            if (foundOrCreatedElement === null || foundOrCreatedElement.childElementCount > 0) {
-                // is not found or being used.  Create a new host
-                foundOrCreatedElement = document.createElement('div');
-                foundOrCreatedElement.style.display = RevCssTypes.Display.inline; // other display values would probably also work
-                foundOrCreatedElement.style.position = RevCssTypes.Position.relative; // allow scrollers to be positioned
-                foundOrCreatedElement.style.margin = '0'; // size of canvas must match host
-                foundOrCreatedElement.style.padding = '0'; // size of canvas must match host
-                foundOrCreatedElement.style.height = '100%'; // take up all space
-                foundOrCreatedElement.style.width = '100%'; // take up all space
+            if (foundOrCreatedElement === null || foundOrCreatedElement.tagName !== 'CANVAS') {
+                // is not found or not canvas.  Create a new host
+                foundOrCreatedElement = RevCanvas.createCanvasElement() as HTMLCanvasElement;
                 document.body.appendChild(foundOrCreatedElement);
             }
-            resolvedHostElement = foundOrCreatedElement;
+            resolvedCanvasElement = foundOrCreatedElement;
         } else {
-            if (typeof hostElement === 'string') {
-                const queriedHostElement = document.querySelector(hostElement);
+            if (typeof canvasElement === 'string') {
+                const queriedHostElement = document.querySelector(canvasElement);
                 if (queriedHostElement === null) {
-                    throw new RevAssertError('RIC55998', `Host element not found: ${hostElement}`);
+                    throw new RevAssertError('RIC55998', `Host element not found: ${canvasElement}`);
                 } else {
-                    resolvedHostElement = queriedHostElement as HTMLElement;
+                    if (queriedHostElement.tagName !== 'CANVAS') {
+                        throw new RevAssertError('RIC55999', `Host element is not a canvas: ${canvasElement}`);
+                    } else {
+                        resolvedCanvasElement = queriedHostElement as HTMLCanvasElement;
+                    }
                 }
             } else {
-                resolvedHostElement = hostElement;
+                resolvedCanvasElement = canvasElement;
             }
         }
 
-        return resolvedHostElement;
+        return resolvedCanvasElement;
     }
 
     /** @internal */

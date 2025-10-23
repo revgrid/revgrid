@@ -38,13 +38,13 @@ export class RevRecordGrid<
     private _firstUsableRenderViewAnchor: RevRecordGrid.ViewAnchor | undefined;
 
     constructor(
-        gridHostElement: HTMLElement,
+        canvasElement: HTMLCanvasElement,
         definition: RevGridDefinition<BCS, SF>,
         settings: BGS,
         getSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, SF>,
         options?: RevGridOptions<BGS, BCS, SF>,
     ) {
-        super(gridHostElement, definition, settings, getSettingsForNewColumnEventer, options);
+        super(canvasElement, definition, settings, getSettingsForNewColumnEventer, options);
 
         const subgridsManager = this.subgridsManager;
         const mainSubgrid = subgridsManager.mainSubgrid;

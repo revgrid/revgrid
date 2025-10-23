@@ -73,7 +73,7 @@ export class RevColumnMovingUiController<BGS extends RevBehavioredGridSettings, 
                     this._dragOverlay.style.left = '0px';
                     this._dragOverlay.style.display = 'none';
 
-                    this._hostElement.appendChild(this._dragOverlay);
+                    this._canvas.overlayElement.appendChild(this._dragOverlay);
 
                     this._dragColumn = viewCell.viewLayoutColumn;
                     this._dragOverlay.width = this._canvas.flooredWidth;
@@ -103,7 +103,7 @@ export class RevColumnMovingUiController<BGS extends RevBehavioredGridSettings, 
                 this.endGridScrolling();
                 this.endDragColumn(dragAction);
                 this._reindexBehavior.unstash(true);
-                this._hostElement.removeChild(dragOverlay);
+                this._canvas.overlayElement.removeChild(dragOverlay);
                 // requestAnimationFrame(() => this.render(undefined));
                 this.setMouseDragging(false);
             }

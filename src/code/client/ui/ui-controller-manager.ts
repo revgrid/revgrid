@@ -56,7 +56,6 @@ export class RevUiManager<BGS extends RevBehavioredGridSettings, BCS extends Rev
     constructor(
         readonly clientId: string,
         readonly internalParent: RevClientObject,
-        hostElement: HTMLElement,
         private readonly _gridSettings: BGS,
         canvas: RevCanvas<BGS>,
         focus: RevFocus<BGS, BCS, SF>,
@@ -87,7 +86,6 @@ export class RevUiManager<BGS extends RevBehavioredGridSettings, BCS extends Rev
             this.clientId,
             this.internalParent,
             this._sharedState,
-            hostElement,
             this._gridSettings,
             canvas,
             selection,

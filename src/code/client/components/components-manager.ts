@@ -1,4 +1,4 @@
-import { RevAssertError, RevClientObject, RevCssTypes, RevDataServer, RevOptionsError, RevSchemaField, RevSchemaServer, RevUnreachableCaseError } from '../../common';
+import { RevAssertError, RevClientObject, RevDataServer, RevOptionsError, RevSchemaField, RevSchemaServer, RevUnreachableCaseError } from '../../common';
 import { RevSubgrid } from '../interfaces/subgrid';
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../settings';
 import { RevCanvas } from './canvas/canvas';
@@ -30,10 +30,10 @@ export class RevComponentsManager<BGS extends RevBehavioredGridSettings, BCS ext
         readonly clientId: string,
         readonly internalParent: RevClientObject,
         gridSettings: BGS,
-        hostElement: HTMLElement,
+        canvasElement: HTMLCanvasElement,
         schemaServer: RevSchemaServer<SF>,
         subgridDefinitions: RevSubgrid.Definition<BCS, SF>[],
-        canvasOverflowOverride: RevCssTypes.Overflow | undefined,
+        canvasOverlayElement: HTMLElement | undefined,
         canvasRenderingContext2DSettings: CanvasRenderingContext2DSettings | undefined,
         scrollerCreateFns: RevScroller.CreateFn<BGS, BCS, SF>[] | undefined,
         getSettingsForNewColumnEventer: RevColumnsManager.GetSettingsForNewColumnEventer<BCS, SF>,
@@ -47,8 +47,8 @@ export class RevComponentsManager<BGS extends RevBehavioredGridSettings, BCS ext
         this.canvas = new RevCanvas(
             this.clientId,
             this,
-            hostElement,
-            canvasOverflowOverride,
+            canvasElement,
+            canvasOverlayElement,
             canvasRenderingContext2DSettings,
             gridSettings,
         );
@@ -126,10 +126,9 @@ export class RevComponentsManager<BGS extends RevBehavioredGridSettings, BCS ext
                     this.clientId,
                     this,
                     gridSettings,
-                    hostElement,
+                    this.canvas.overlayElement,
                     this.canvas,
                     this.viewLayout.verticalScrollDimension,
-                    this.viewLayout,
                     'vertical',
                     true,
                     undefined,
@@ -139,10 +138,9 @@ export class RevComponentsManager<BGS extends RevBehavioredGridSettings, BCS ext
                     this.clientId,
                     this,
                     gridSettings,
-                    hostElement,
+                    this.canvas.overlayElement,
                     this.canvas,
                     this.viewLayout.horizontalScrollDimension,
-                    this.viewLayout,
                     'horizontal',
                     true,
                     this.verticalScroller,
@@ -155,7 +153,6 @@ export class RevComponentsManager<BGS extends RevBehavioredGridSettings, BCS ext
                         this.clientId,
                         this,
                         gridSettings,
-                        hostElement,
                         this.canvas,
                         this.viewLayout.horizontalScrollDimension,
                         this.viewLayout,
@@ -165,7 +162,6 @@ export class RevComponentsManager<BGS extends RevBehavioredGridSettings, BCS ext
                         this.clientId,
                         this,
                         gridSettings,
-                        hostElement,
                         this.canvas,
                         this.viewLayout.horizontalScrollDimension,
                         this.viewLayout,
