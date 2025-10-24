@@ -1577,16 +1577,43 @@ export class RevViewLayout<BGS extends RevBehavioredGridSettings, BCS extends Re
         if (columnCount === 0) {
             return undefined;
         } else {
-            const firstColumn = columns[0];
-            const firstActiveColumnIndex = firstColumn.activeColumnIndex;
-            if (activeColumnIndex < firstActiveColumnIndex) {
-                return undefined
+            if (columnCount < 12) {
+                // for small number of columns, linear search is faster
+                for (let i = 0; i < columnCount; i++) {
+                    const column = columns[i];
+                    if (column.activeColumnIndex === activeColumnIndex) {
+                        return column;
+                    }
+                }
+                return undefined;
             } else {
-                const columnIndex = activeColumnIndex - firstActiveColumnIndex;
-                if (columnIndex >= columnCount) {
+                let columnIndex: number | undefined;
+                // Check scrollable columns first
+                const firstScrollableColumnIndex = this._firstScrollableColumnIndex;
+                if (firstScrollableColumnIndex !== undefined) {
+                    const firstScrollableActiveColumnIndex = columns[firstScrollableColumnIndex].activeColumnIndex;
+                    if (activeColumnIndex >= firstScrollableActiveColumnIndex) {
+                        columnIndex = firstScrollableColumnIndex + (activeColumnIndex - firstScrollableActiveColumnIndex);
+                    }
+                }
+
+                if (columnIndex === undefined) {
+                    // Check fixed columns
+                    const firstColumn = columns[0];
+                    const firstActiveColumnIndex = firstColumn.activeColumnIndex;
+                    if (activeColumnIndex >= firstActiveColumnIndex) {
+                        columnIndex = activeColumnIndex - firstActiveColumnIndex;
+                    }
+                }
+
+                if (columnIndex === undefined) {
                     return undefined;
                 } else {
-                    return columns[columnIndex];
+                    if (columnIndex >= columnCount) {
+                        return undefined;
+                    } else {
+                        return columns[columnIndex];
+                    }
                 }
             }
         }
