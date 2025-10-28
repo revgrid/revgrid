@@ -689,19 +689,19 @@ export namespace RevCanvas {
     export function createCanvasElement(): HTMLCanvasElement {
         const element = document.createElement('canvas');
         element.id = generateUniqueCanvasElementId();
-        element.draggable = true;
-        element.tabIndex = 0;
         element.style.display = RevCssTypes.Display.block;
-        element.style.position = RevCssTypes.Position.relative; // allow scrollers to be positioned
         element.style.height = '100%'; // take up all space
         element.style.width = '100%'; // take up all space
         element.style.outline = 'none';
         element.style.margin = '0';
         element.style.padding = '0';
+        element.style.borderWidth = '0';
         element.style.overflow = RevCssTypes.Overflow.clip;
         element.classList.add(`${RevCssTypes.libraryName}-${RevCanvas.canvasCssSuffix}`);
         element.setAttribute('tabindex', '0'); // make focusable
+        element.tabIndex = 0;
         element.setAttribute('draggable', 'true'); // make draggable
+        element.draggable = true;
         return element;
     }
 }

@@ -42,6 +42,7 @@ module.exports = {
 
     plugins: [
         new HtmlWebpackPlugin({
+            favicon: path.resolve(__dirname, "revgrid-icon.svg"),
             template: path.resolve(__dirname, "index.html")
         }),
     ],

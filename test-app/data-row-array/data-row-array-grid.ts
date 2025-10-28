@@ -36,7 +36,7 @@ export class DataRowArrayGrid extends RevMultiHeadingDataRowArraySourcedFieldGri
     >;
 
     constructor(
-        gridElement: HTMLElement,
+        gridCanvasElement: HTMLCanvasElement,
         externalParent: unknown,
     ) {
         const gridSettings: RevSimpleBehavioredGridSettings = {
@@ -47,7 +47,7 @@ export class DataRowArrayGrid extends RevMultiHeadingDataRowArraySourcedFieldGri
         };
 
         super(
-            gridElement,
+            gridCanvasElement,
             (viewCell) => this.getHeaderCellPainter(viewCell),
             (viewCell) => this.getMainCellPainter(viewCell),
             gridSettings,

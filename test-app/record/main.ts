@@ -27,7 +27,7 @@ import { RecordGrid } from './record-grid';
 import { RecordStore } from './record-store';
 
 export class Main {
-    private readonly _gridHostElement: HTMLElement;
+    private readonly _gridCanvasElement: HTMLCanvasElement;
 
     private readonly _recordStore: RecordStore;
     private readonly _schemaServer: RevRecordSchemaServer<GridField>;
@@ -52,12 +52,12 @@ export class Main {
     private readonly _controls: Controls;
 
     constructor() {
-        const gridHostElement = document.querySelector('#gridHost') as HTMLElement;
+        const gridCanvasElement = document.querySelector('#gridCanvas') as HTMLCanvasElement;
         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-        if (gridHostElement === null) {
-            throw new Error('gridHost not found');
+        if (gridCanvasElement === null) {
+            throw new Error('gridCanvas not found');
         }
-        this._gridHostElement = gridHostElement;
+        this._gridCanvasElement = gridCanvasElement;
 
         const initialSettings: AppGridSettings = {
             ...defaultAppGridSettings,
@@ -120,7 +120,7 @@ export class Main {
         }
 
         this._grid = new RecordGrid(
-            this._gridHostElement,
+            this._gridCanvasElement,
             definition,
             this._gridSettings,
             () => new RevSimpleInMemoryBehavioredColumnSettings(this._gridSettings),

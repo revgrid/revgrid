@@ -30,7 +30,6 @@ body {
     position: relative;
     height: 100%;
     width: 100%;
-    min-width: 0;
     margin: 0;
     padding: 0;
     outline: none;
@@ -42,6 +41,7 @@ body {
     width: 100%;
     margin: 0;
     padding: 0;
+    border-width: 0;
     outline: none;
     overflow: clip;
 }

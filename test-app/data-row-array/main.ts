@@ -7,9 +7,9 @@ export class Main {
     private readonly _grid: DataRowArrayGrid;
 
     constructor() {
-        const gridHostElement = document.querySelector('#gridHost') as HTMLElement;
-        if (gridHostElement === null) {
-            throw new Error('gridHost not found');
+        const gridCanvasElement = document.querySelector('#gridCanvas') as HTMLCanvasElement;
+        if (gridCanvasElement === null) {
+            throw new Error('gridCanvas not found');
         }
 
         const loadStocksButtonElement = document.querySelector('#loadStocksButton') as HTMLButtonElement;
@@ -30,13 +30,13 @@ export class Main {
         }
         loadManyButtonElement.onclick = () => this.loadMany();
 
-        this._grid = this.createGrid(gridHostElement);
+        this._grid = this.createGrid(gridCanvasElement);
 
         this.loadStocks();
     }
 
-    private createGrid(hostElement: HTMLElement) {
-        const grid = new DataRowArrayGrid(hostElement, this);
+    private createGrid(canvasElement: HTMLCanvasElement) {
+        const grid = new DataRowArrayGrid(canvasElement, this);
 
         grid.cellFocusEventer = (newPoint, oldPoint) => this.handleCellFocusEvent(newPoint, oldPoint)
         grid.clickEventer = (columnIndex, recordIndex) => this.handleCellClickEvent(columnIndex, recordIndex);
