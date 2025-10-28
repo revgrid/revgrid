@@ -16,11 +16,8 @@ export class RevStandardScroller<BGS extends RevBehavioredGridSettings, BCS exte
     private readonly axisBarCssClass: string;
     private readonly thumbCssClass: string;
 
-    /** @internal */
     actionEventer: RevScroller.ActionEventer;
-    /** @internal */
     wheelEventer: RevScroller.WheelEventer | undefined;
-    /** @internal */
     visibilityChangedEventer: RevScroller.VisibilityChangedEventer | undefined;
 
     /**
@@ -211,7 +208,6 @@ export class RevStandardScroller<BGS extends RevBehavioredGridSettings, BCS exte
     /**
      * Remove the scrollbar.
      * @remarks Unhooks all the event handlers and then removes the element from the DOM. Always call this method prior to disposing of the scrollbar object.
-     * @internal
      */
     destroy() {
         this._gridSettings.unsubscribeChangedEvent(this._settingsChangedListener);

@@ -6067,6 +6067,10 @@ export interface RevScroller extends RevClientObject {
     // (undocumented)
     readonly insideOverlap: number;
     // (undocumented)
+    setAfterInsideOffset(offset: number): void;
+    // (undocumented)
+    setBeforeInsideOffset(offset: number): void;
+    // (undocumented)
     temporarilyGiveThumbFullVisibility(timePeriod: number): void;
     // (undocumented)
     readonly trailing: boolean;
@@ -7405,7 +7409,7 @@ export class RevStandardScroller<BGS extends RevBehavioredGridSettings, BCS exte
     _scrollDimension: RevScrollDimension<BGS>, axis: RevScrollDimension.Axis,
     _trailing: boolean, // true: right/bottom of canvas, false: otherwise left/top of canvas
     _spaceAccommodatedScroller: RevScroller | undefined);
-    // @internal (undocumented)
+    // (undocumented)
     actionEventer: RevScroller.ActionEventer;
     // @internal (undocumented)
     activatePointerScrolling(event: PointerEvent): void;
@@ -7415,7 +7419,6 @@ export class RevStandardScroller<BGS extends RevBehavioredGridSettings, BCS exte
     readonly clientId: string;
     // @internal (undocumented)
     deactivatePointerScrolling(event: PointerEvent): void;
-    // @internal
     destroy(): void;
     // (undocumented)
     get hidden(): boolean;
@@ -7436,9 +7439,9 @@ export class RevStandardScroller<BGS extends RevBehavioredGridSettings, BCS exte
     get thickness(): number;
     // (undocumented)
     get trailing(): boolean;
-    // @internal (undocumented)
+    // (undocumented)
     visibilityChangedEventer: RevScroller.VisibilityChangedEventer | undefined;
-    // @internal (undocumented)
+    // (undocumented)
     wheelEventer: RevScroller.WheelEventer | undefined;
 }
 

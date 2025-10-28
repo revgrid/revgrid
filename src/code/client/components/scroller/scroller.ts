@@ -20,7 +20,10 @@ export interface RevScroller extends RevClientObject {
     readonly hidden: boolean;
     readonly insideOverlap: number;
 
-    destroy(): void;
+    destroy(): void; // Called by RevClientGrid when the scroller is to be removed.
+
+    setBeforeInsideOffset(offset: number): void;
+    setAfterInsideOffset(offset: number): void;
     temporarilyGiveThumbFullVisibility(timePeriod: number): void;
 }
 
