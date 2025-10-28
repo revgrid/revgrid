@@ -798,7 +798,7 @@ export interface RevClickBoxCellPainter<BCS extends RevBehavioredColumnSettings,
 
 // @public (undocumented)
 export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> {
-    constructor(canvasElement: HTMLCanvasElement | string | undefined, definition: RevGridDefinition<BCS, SF>, settings: BGS, getSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, SF>, options?: RevGridOptions<BGS, BCS, SF>);
+    constructor(canvasElement: HTMLCanvasElement | string, definition: RevGridDefinition<BCS, SF>, settings: BGS, getSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, SF>, options?: RevGridOptions<BGS, BCS, SF>);
     // (undocumented)
     activate(): void;
     // (undocumented)

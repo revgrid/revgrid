@@ -2,9 +2,7 @@ import { Integer } from '@pbkware/js-utils';
 import {
     RevApiError,
     RevAssertError,
-    RevClientObject,
-    RevCssTypes,
-    RevDataServer,
+    RevClientObject, RevDataServer,
     RevEnsureFullyInViewEnum,
     RevListChangedTypeId,
     RevMetaServer,
@@ -12,7 +10,7 @@ import {
     RevRectangle,
     RevSchemaField,
     RevSchemaServer,
-    RevSelectionAreaType,
+    RevSelectionAreaType
 } from '../common';
 import { RevBehaviorManager } from './behavior/behavior-manager';
 import { RevCellPropertiesBehavior } from './behavior/cell-properties-behavior';
@@ -84,8 +82,28 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
 
     private _destroyed = false;
 
+    /**
+     * Creates a new RevClientGrid instance.
+     *
+     * @param canvasElement - The HTML canvas element to render the grid on, or a string selector for the canvas element
+     * @param definition - The grid definition containing schema server and subgrid configurations
+     * @param settings - The grid settings object of type BGS
+     * @param getSettingsForNewColumnEventer - Event handler for obtaining settings when new columns are created
+     * @param options - Optional configuration options for the grid including ID, external parent, canvas overlay, and UI controller definitions
+     *
+     * @remarks
+     * This constructor initializes all the core grid components including:
+     * - Components manager for handling canvas, focus, selection, mouse, columns, subgrids, view layout, and renderer
+     * - Behavior manager for focus scroll, focus select, row properties, cell properties, and data extract behaviors
+     * - UI manager for handling user interactions and custom UI controllers
+     *
+     * The schema server can be provided as either an instance or a constructor function.
+     * A unique ID is generated for the grid instance using the provided options.
+     *
+     * @see [Client Grid 🗎](../../../Architecture/Client/Grid/)
+     */
     constructor(
-        canvasElement: HTMLCanvasElement | string | undefined,
+        canvasElement: HTMLCanvasElement | string,
         definition: RevGridDefinition<BCS, SF>,
         readonly settings: BGS,
         getSettingsForNewColumnEventer: RevClientGrid.GetSettingsForNewColumnEventer<BCS, SF>,
@@ -1533,32 +1551,21 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     }
 
     /** @internal */
-    private resolveCanvasElement(canvasElement: HTMLCanvasElement | string | undefined): HTMLCanvasElement {
+    private resolveCanvasElement(canvasElement: HTMLCanvasElement | string): HTMLCanvasElement {
         let resolvedCanvasElement: HTMLCanvasElement;
-        if (canvasElement === undefined) {
-            let foundOrCreatedElement = document.getElementById(RevCssTypes.libraryName) as HTMLCanvasElement;
-
-            if (foundOrCreatedElement === null || foundOrCreatedElement.tagName !== 'CANVAS') {
-                // is not found or not canvas.  Create a new host
-                foundOrCreatedElement = RevCanvas.createCanvasElement() as HTMLCanvasElement;
-                document.body.appendChild(foundOrCreatedElement);
-            }
-            resolvedCanvasElement = foundOrCreatedElement;
-        } else {
-            if (typeof canvasElement === 'string') {
-                const queriedHostElement = document.querySelector(canvasElement);
-                if (queriedHostElement === null) {
-                    throw new RevAssertError('RIC55998', `Host element not found: ${canvasElement}`);
-                } else {
-                    if (queriedHostElement.tagName !== 'CANVAS') {
-                        throw new RevAssertError('RIC55999', `Host element is not a canvas: ${canvasElement}`);
-                    } else {
-                        resolvedCanvasElement = queriedHostElement as HTMLCanvasElement;
-                    }
-                }
+        if (typeof canvasElement === 'string') {
+            const queriedHostElement = document.querySelector(canvasElement);
+            if (queriedHostElement === null) {
+                throw new RevAssertError('RIC55998', `Canvas element specified by selector not found: ${canvasElement}`);
             } else {
-                resolvedCanvasElement = canvasElement;
+                if (queriedHostElement.tagName !== 'CANVAS') {
+                    throw new RevAssertError('RIC55999', `Selector does not specify a canvas element: ${canvasElement}`);
+                } else {
+                    resolvedCanvasElement = queriedHostElement as HTMLCanvasElement;
+                }
             }
+        } else {
+            resolvedCanvasElement = canvasElement;
         }
 
         return resolvedCanvasElement;

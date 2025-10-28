@@ -25,6 +25,7 @@ It is recommended to set focus with methods in {@link client/behavior/focus-sele
 When sorting or filtering a grid, the location of focus in the grid may change. To ensure that the same cell remains focused after the sort or filter operation, a 'stash' of the focus location is created prior to the operation and then the focus is restored using the 'stash' after the operation. In order to generate the stash, it is necessary to implement the {@link common/server-interfaces/data/data-server!RevDataServer | RevDataServer} {@link common/server-interfaces/data/data-server!RevDataServer#getRowIndexFromId | getRowIndexFromId()} function. If this is not implemented, focus will be lost after sort or filter operations. When restoring focus from a 'stash', the {@link common/server-interfaces/data/data-server!RevDataServer#getRowIndexFromId | getRowIndexFromId()} function will be used if it is implemented. Otherwise, the {@link common/server-interfaces/data/data-server!RevDataServer#getRowIdFromIndex | getRowIdFromIndex()} will be used.
 
 ## Settings used
+
 * {@link client/settings/only-grid-settings!RevOnlyGridSettings#editOnFocusCell | editOnFocusCell}
 * {@link client/settings/only-grid-settings!RevOnlyGridSettings#editKey | editKey}
 * {@link client/settings/only-grid-settings!RevOnlyGridSettings#editOnKeyDown | editOnKeyDown}
