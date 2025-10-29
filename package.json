@@ -5,6 +5,7 @@
   "module": "dist/code/index.js",
   "browser": "dist/code/index.js",
   "typings": "dist/types/public-api.d.ts",
+  "sideEffects": false,
   "homepage": "https://revgrid.github.io/revgrid/",
   "repository": {
     "type": "git",
