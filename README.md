@@ -6,32 +6,8 @@ Revgrid is a canvas based virtual grid focusing on real-time data display and pe
 
 ## Features
 
-* Realtime
-* Speed
-* Virtual (supporting display of very large data sets)
-* Event driven (low CPU usage)
-* Multiple selections (rectangle, row and column)
-* Focus
-* Drawing
-* Editing
-* Smooth horizontal scrolling
-* Multiple sub-grids (eg. header, main, footer)
-* Fixed (non scrolling) rows and columns
-* Sorting and filtering
-* Highlight recent changes
-* Extendable settings
-* Fields can be of any type
-* Plug in cell painters
-* Plug in grid painters
-* Plug in cell editors
-* Plug in UI controllers
-* Comes with several predefined servers:
-    * Data Row Array
-    * Record
-    * Table
-    * Single Heading
-    * Multiple Heading
-* JavaScript grid implementations (no generic parameters)
+Revgrid's main features are its high performance and snappy UI. However its overall feature set is limited compared to HTML based grids.\
+See [summary](https://revgrid.github.io/revgrid/Overview/Features)
 
 ## Example
 
@@ -41,4 +17,10 @@ More examples are available in the [Examples](https://revgrid.github.io/revgrid/
 
 ## Documentation
 
-[https://revgrid.github.io/revgrid/Overview/](https://revgrid.github.io/revgrid/Overview/)
+* [Overview/Architecture/Guides/Reference](https://revgrid.github.io/revgrid/Overview/)
+* [News](https://revgrid.github.io/revgrid/Overview/News/)
+
+## Breaking changes
+
+* **[0.11.0](https://revgrid.github.io/revgrid/Overview/Breaking_Changes/#0110)** - Canvas element provided to Revgrid constructor
+* **[0.10.0](https://revgrid.github.io/revgrid/Overview/Breaking_Changes/#0100)** - Selection and Focus API Changes

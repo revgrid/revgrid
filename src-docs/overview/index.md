@@ -3,6 +3,7 @@ title: Overview
 children:
     - ./features.md
     - ./news.md
+    - ./breaking-changes.md
     - ./history.md
 ---
 
