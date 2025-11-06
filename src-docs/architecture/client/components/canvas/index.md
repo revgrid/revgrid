@@ -51,11 +51,11 @@ Prevent outline when canvas is focused
 
 ## Overlay Element
 
-Some operations require that other HTML elements be overlayed over the canvas element.  This includes operations such as cell editing (which may involve overlaying an &gt;input&lt; element) or dragging columns (which uses an overlayed &gt;canvas&lt; element to show where the column will be dropped). In order to position these elements in the correct place, an `overlay` element must exist over the `canvas` element.  The overlay element can almost any type of HTML element however, its client area must be the same size as the `canvas` client area and the overlay element must be positioned (ie not have `[static](https://developer.mozilla.org/en-US/docs/Web/CSS/position#static)` [position](https://developer.mozilla.org/en-US/docs/Web/CSS/position)).
+Some operations require that other HTML elements be overlayed over the canvas element.  This includes operations such as cell editing (which may involve overlaying an &lt;input&gt; element) or dragging columns (which uses an overlayed &gt;canvas&lt; element to show where the column will be dropped). In order to position these elements in the correct place, an `overlay` element must exist over the `canvas` element.  The overlay element can almost any type of HTML element however, its client area must be the same size as the `canvas` client area and the overlay element must be positioned (ie not have [`static`](https://developer.mozilla.org/en-US/docs/Web/CSS/position#static) [position](https://developer.mozilla.org/en-US/docs/Web/CSS/position)).
 
 The overlay element can optionally be passed in as a parameter in the constructor via [Revgrid options](../../grid/options/index.md). If this is not provided, then the `canvas` element's parent element will be used as the overlay element.
 
-If the `canvas` uses the recommended properties, then the parent element can easily be used. It only requires `[position](https://developer.mozilla.org/en-US/docs/Web/CSS/position)` to not be `[static](https://developer.mozilla.org/en-US/docs/Web/CSS/position#static)` and `padding` to be 0. If you do want some non zero padding, then this can be set provided that the `canvas` element's margin properties are set to the same value(s).
+If the `canvas` uses the recommended properties, then the parent element can easily be used. It only requires [`position`](https://developer.mozilla.org/en-US/docs/Web/CSS/position) to not be [`static`](https://developer.mozilla.org/en-US/docs/Web/CSS/position#static) and `padding` to be 0. If you do want some non zero padding, then this can be set provided that the `canvas` element's margin properties are set to the same value(s).
 
 ## Rendering context
 

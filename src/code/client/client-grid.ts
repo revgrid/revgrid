@@ -204,6 +204,15 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
 
     get destroyed() { return this._destroyed; }
 
+    /**
+     * Gets or sets whether the grid is active.
+     * Setting active to `true` will:
+     * - Enable events from {@link RevUiControllerManager | UI Controller Manager}
+     * - Begin monitoring the size of the {@link RevCanvas.start | canvas}
+     * - Hook the {@link RevRenderer | renderer} into the animation frame cycle
+     * - Resize the canvas, which will invalidate all and cause a full repaint
+     * Setting active to `false` will do the reverse (except for resizing the canvas).
+     */
     get active() { return this._behaviorManager.active; }
     set active(value: boolean) {
         this._behaviorManager.active = value;
@@ -212,10 +221,14 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
             this.canvas.stop();
             this._uiManager.disable();
         } else {
-            this._uiManager.enable();
-            this.canvas.start();
-            this.renderer.start();
-            this.canvas.resize(false); // Will invalidate all and cause a repaint
+            if (this._destroyed) {
+                throw new RevAssertError('CGSA50114', 'RevClientGrid.active: Cannot activate a grid that has been destroyed.');
+            } else {
+                this._uiManager.enable();
+                this.canvas.start();
+                this.renderer.start();
+                this.canvas.resize(false); // Will invalidate all and cause a repaint
+            }
         }
     }
 
@@ -243,22 +256,29 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     get activeColumnCount() { return this.columnsManager.activeColumnCount; }
 
     /**
-     * Be a responsible citizen and call this function on instance disposal!
-     * If multiple grids are used in an application (simultaneously or not), then `destroy()` must be called otherwise
-     * canvase paint loop will continue to run
+     * Needs to be called when instance is no longer needed. Will release resources including:
+     * - {@link deactivate | deactivating} the grid (setting {@link active} to false)
+     * - unsubscribing from DataServer notifications
+     * - disabling dispatching of custom events
      */
     destroy() {
-        this.deactivate();
-
-        this._behaviorManager.destroy();
-
-        this._destroyed = true;
+        if (!this._destroyed) {
+            this.deactivate();
+            this._behaviorManager.destroy();
+            this._destroyed = true;
+        }
     }
 
+    /** Sets the grid's {@link active} property to true */
     activate() {
-        this.active = true;
+        if (this._destroyed) {
+            throw new RevAssertError('CGA50114', 'RevClientGrid.activate: Cannot activate a grid that has been destroyed.');
+        } else {
+            this.active = true;
+        }
     }
 
+    /** Sets the grid's {@link active} property to false */
     deactivate() {
         this.active = false;
     }
@@ -362,6 +382,7 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
      * @param activeColumnIndex - The column index in question.
      * @param subgridRowIndex - The grid row index in question.
      * @returns The given cell is fully is visible.
+     * @group ViewLayout
      */
     isCellInView(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid = this.mainSubgrid): boolean {
         return this.isSubgridRowInView(subgridRowIndex, subgrid) && this.isActiveColumnInView(activeColumnIndex);
@@ -371,6 +392,8 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
      * Find cell under offset position in canvas
      * @param canvasXOffset - X position of pixel in canvas.
      * @param canvasYOffset - Y position of pixel in canvas.
+     * @see RevViewLayout.findLinedHoverCellAtCanvasOffset
+     * @group ViewLayout
      */
     findLinedHoverCellAtCanvasOffset(canvasXOffset: Integer, canvasYOffset: Integer) {
         return this.viewLayout.findLinedHoverCellAtCanvasOffset(canvasXOffset, canvasYOffset);
@@ -379,6 +402,7 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     /**
      * @param gridCell - The pixel location of the mouse in physical grid coordinates.
      * @returns The pixel based bounds rectangle given a data cell point.
+     * @group ViewLayout
      */
     getBoundsOfCell(gridCell: RevPoint): RevRectangle {
         return this.viewLayout.getBoundsOfCell(gridCell.x, gridCell.y);
