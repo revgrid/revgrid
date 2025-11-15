@@ -17,7 +17,12 @@ import { RevGridPainterRepository } from './grid-painter/grid-painter-repository
 import { RevRenderAction } from './render-action';
 import { RevRenderActionQueue } from './render-action-queue';
 
-/** @public */
+/**
+ * Manages the visual display and painting of the grid.
+ *
+ * @see [Renderer Component 🗎](../../../../../Architecture/Client/Components/Renderer/)
+ * @public
+ */
 export class RevRenderer<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {
     /** @internal */
     renderedEventer: RevRenderer.RenderedEventer;
