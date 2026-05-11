@@ -18,6 +18,7 @@ import { MultiEvent } from '@pbkware/js-utils';
 import { NamedLocker } from '@pbkware/js-utils';
 import { NamedOpener } from '@pbkware/js-utils';
 import { Result } from '@pbkware/js-utils';
+import { RevEventBehavior as RevEventBehavior_2 } from '../../behavior/event-behavior';
 import { UnreachableCaseInternalError } from '@pbkware/js-utils';
 import { UsableListChangeTypeId } from '@pbkware/js-utils';
 
@@ -1695,7 +1696,7 @@ export class RevColumnMovingUiController<BGS extends RevBehavioredGridSettings, 
     // (undocumented)
     handlePointerDragEnd(event: PointerEvent, cell: RevLinedHoverCell<BCS, SF> | null | undefined): RevLinedHoverCell<BCS, SF> | null | undefined;
     // (undocumented)
-    handlePointerDragStart(event: DragEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined): import("../../behavior/event-behavior").RevEventBehavior.UiPointerDragStartResult<BCS, SF>;
+    handlePointerDragStart(event: DragEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined): RevEventBehavior_2.UiPointerDragStartResult<BCS, SF>;
     // (undocumented)
     handlePointerMove(event: PointerEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined): RevLinedHoverCell<BCS, SF> | null | undefined;
     // (undocumented)
@@ -6475,7 +6476,7 @@ export class RevSelectionUiController<BGS extends RevBehavioredGridSettings, BCS
     // (undocumented)
     handlePointerDragEnd(event: PointerEvent, cell: RevLinedHoverCell<BCS, SF> | null | undefined): RevLinedHoverCell<BCS, SF> | null | undefined;
     // (undocumented)
-    handlePointerDragStart(event: DragEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined): import("../../behavior/event-behavior").RevEventBehavior.UiPointerDragStartResult<BCS, SF>;
+    handlePointerDragStart(event: DragEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined): RevEventBehavior_2.UiPointerDragStartResult<BCS, SF>;
     // (undocumented)
     readonly typeName = "selection";
 }
