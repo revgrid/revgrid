@@ -17,3 +17,13 @@ It includes:
 1. [Standard Table Field Source Definition Caching Factory Service](./table-field-source-definition-caching-factory-service/index.md).
 
 These modules are intended to reduce boilerplate while keeping extension points open.
+
+## Primary Public Symbols
+
+1. {@link standard:module standard}
+1. {@link standard/cell-painter:module standard/cell-painter}
+1. {@link standard/cell-editor:module standard/cell-editor}
+1. {@link standard/painters:module standard/painters}
+1. {@link standard/server/services:module standard/server/services}
+
+Use API Reference module pages above for complete class/interface/type/constant/member coverage.
