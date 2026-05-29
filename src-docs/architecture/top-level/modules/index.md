@@ -50,31 +50,31 @@ The sidebar on the left shows the API for each of these modules.
 
 ## Public API Surface Inventory
 
-Revgrid publishes public symbols from the root entry module ({@link index:module index}) and the submodules listed below. For each module, generated API Reference pages include classes, interfaces, type aliases, enums, namespaces, constants, and member signatures.
+Revgrid publishes public symbols from the root entry module (`index`) and the submodules listed below. For each module, generated API Reference pages include classes, interfaces, type aliases, enums, namespaces, constants, and member signatures.
 
-1. Client ({@link client:module client})
+1. Client (`client`)
 Includes grid classes, behavior classes, components, interfaces, settings contracts, and UI controller types.
-1. Common ({@link common:module common})
+1. Common (`common`)
 Includes server interface contracts and shared utility types/enums/constants.
-1. Data Row Array ({@link data-row-array:module data-row-array})
+1. Data Row Array (`data-row-array`)
 Includes array-backed server classes and grid wrappers.
-1. Record ({@link record:module record})
+1. Record (`record`)
 Includes record model classes, definitions, schema/data servers, and helpers.
-1. Column Layout ({@link column-layout:module column-layout})
+1. Column Layout (`column-layout`)
 Includes layout/reference definitions and supporting server/grid abstractions.
-1. Header ({@link header:module header})
+1. Header (`header`)
 Includes single-heading and multi-heading server implementations.
-1. Sourced Field ({@link sourced-field:module sourced-field})
+1. Sourced Field (`sourced-field`)
 Includes sourced-field definitions, record/table/data-row-array variants, and related servers.
-1. Standard ({@link standard:module standard})
+1. Standard (`standard`)
 Includes standard painters, editors, and server-side helper services.
-1. Simple ({@link simple:module simple})
+1. Simple (`simple`)
 Includes simple grid wrappers, settings, and simple painter utilities.
-1. JS ({@link js:module js})
+1. JS (`js`)
 Includes JavaScript-first wrappers that reduce generic complexity.
-1. Settings Implementations ({@link settings-implementations:module settings-implementations})
+1. Settings Implementations (`settings-implementations`)
 Includes default, in-memory, and readonly settings classes.
-1. Cell Content ({@link cell-content:module cell-content})
+1. Cell Content (`cell-content`)
 Includes text/formatting enums and helpers for value presentation.
 
 ### How To Navigate Comprehensive Member Docs

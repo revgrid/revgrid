@@ -19,7 +19,7 @@ Behavior modules cover focus/selection coordination, reindexing, server notifica
 
 ## Public Behavior Classes
 
-1. {@link client/behavior/behavior-manager!RevBehaviorManager:class RevBehaviorManager}
+1. `RevBehaviorManager` (internal orchestration class)
 1. {@link client/behavior/cell-properties-behavior!RevCellPropertiesBehavior:class RevCellPropertiesBehavior}
 1. {@link client/behavior/data-extract-behavior!RevDataExtractBehavior:class RevDataExtractBehavior}
 1. {@link client/behavior/event-behavior!RevEventBehavior:class RevEventBehavior}

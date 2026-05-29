@@ -14,13 +14,13 @@ These interfaces are consumed by grid construction and runtime behavior modules,
 
 ## Primary Public Symbols
 
-1. {@link client/settings/grid-settings!RevGridSettings:interface RevGridSettings}
-1. {@link client/settings/column-settings!RevColumnSettings:interface RevColumnSettings}
+1. {@link client/settings/grid-settings!RevGridSettings:type RevGridSettings}
+1. {@link client/settings/column-settings!RevColumnSettings:type RevColumnSettings}
 1. {@link client/settings/behaviored-grid-settings!RevBehavioredGridSettings:interface RevBehavioredGridSettings}
 1. {@link client/settings/behaviored-column-settings!RevBehavioredColumnSettings:interface RevBehavioredColumnSettings}
 1. {@link client/settings/only-grid-settings!RevOnlyGridSettings:interface RevOnlyGridSettings}
-1. {@link client/settings/only-column-settings!RevOnlyColumnSettings:interface RevOnlyColumnSettings}
+1. {@link client/settings/only-column-settings!RevOnlyColumnSettings:type RevOnlyColumnSettings}
 1. {@link client/settings/behaviored-settings!RevBehavioredSettings:interface RevBehavioredSettings}
-1. {@link client/settings/grid-setting-change-invalidate-types!RevGridSettingChangeInvalidateTypeId:type RevGridSettingChangeInvalidateTypeId}
+1. {@link client/settings/grid-setting-change-invalidate-types!RevGridSettingChangeInvalidateTypeId:enum RevGridSettingChangeInvalidateTypeId}
 
 Generated API Reference pages include complete property lists and member-level descriptions for each interface and related type.

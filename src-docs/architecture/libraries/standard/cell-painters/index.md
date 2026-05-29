@@ -17,7 +17,8 @@ Use them as-is, subclass for targeted behavior changes, or implement custom pain
 1. {@link standard/cell-painter/standard-slider-cell-painter!RevStandardSliderCellPainter:class RevStandardSliderCellPainter}
 1. {@link standard/cell-painter/standard-spark-bar-cell-painter!RevStandardSparkBarCellPainter:class RevStandardSparkBarCellPainter}
 1. {@link standard/cell-painter/standard-spark-line-cell-painter!RevStandardSparkLineCellPainter:class RevStandardSparkLineCellPainter}
-1. {@link standard/cell-painter/standard-tag-cell-painter!RevStandardTagCellPainter:class RevStandardTagCellPainter}
+
+`RevStandardTagCellPainter` is currently internal and not part of the published API surface.
 
 ## Supporting Painter Utilities
 

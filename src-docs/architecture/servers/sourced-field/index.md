@@ -10,7 +10,7 @@ Sourced-field modules also provide specialized record and data-row-array variant
 
 ## Primary Public Symbols
 
-1. {@link sourced-field/sourced-field/server/sourced-field!RevSourcedField:class RevSourcedField}
+1. {@link sourced-field/sourced-field/server/sourced-field!RevSourcedField:interface RevSourcedField}
 1. {@link sourced-field/sourced-field/server/sourced-field-custom-headings!RevSourcedFieldCustomHeadings:interface RevSourcedFieldCustomHeadings}
 1. {@link sourced-field/sourced-field/server/definition/sourced-field-definition!RevSourcedFieldDefinition:interface RevSourcedFieldDefinition}
 1. {@link sourced-field/sourced-field/server/definition/sourced-field-source-definition!RevSourcedFieldSourceDefinition:interface RevSourcedFieldSourceDefinition}

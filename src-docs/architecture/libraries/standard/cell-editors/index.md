@@ -23,6 +23,7 @@ Each editor follows a common lifecycle: activate, capture input, validate/transf
 
 ## Related Namespaces/Types
 
-1. {@link standard/cell-editor/effects/effects!RevStandardCellEditorEffects:namespace RevStandardCellEditorEffects}
+1. {@link standard/cell-editor/effects/effects!RevStandardCellEffect:class RevStandardCellEffect}
+1. {@link standard/cell-editor/effects/effects!RevStandardCellEffectFactory:class RevStandardCellEffectFactory}
 
 Use API Reference pages for full editor member signatures and inherited members.

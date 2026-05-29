@@ -16,12 +16,12 @@ This model is useful when data has rich record identity semantics or requires co
 
 1. {@link record/server/record-data-server!RevRecordDataServer:class RevRecordDataServer}
 1. {@link record/server/record-schema-server!RevRecordSchemaServer:class RevRecordSchemaServer}
-1. {@link record/server/record-store!RevRecordStore:class RevRecordStore}
+1. {@link record/server/record-store!RevRecordStore:interface RevRecordStore}
 1. {@link record/server/record!RevRecord:type RevRecord}
 1. {@link record/server/record-field!RevRecordField:interface RevRecordField}
 1. {@link record/server/record-definition!RevRecordDefinition:interface RevRecordDefinition}
-1. {@link record/server/record-sort-definition!RevRecordSortDefinition:interface RevRecordSortDefinition}
-1. {@link record/server/record-row-order-definition!RevRecordRowOrderDefinition:interface RevRecordRowOrderDefinition}
+1. {@link record/server/record-sort-definition!RevRecordSortDefinition:namespace RevRecordSortDefinition}
+1. {@link record/server/record-row-order-definition!RevRecordRowOrderDefinition:class RevRecordRowOrderDefinition}
 1. {@link record/server/record-recent-change!RevRecordRecentChange:type RevRecordRecentChange}
 1. {@link record/server/record-recent-changes!RevRecordRecentChanges:class RevRecordRecentChanges}
 
