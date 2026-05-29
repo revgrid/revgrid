@@ -94,7 +94,6 @@ export class RevRenderer<BGS extends RevBehavioredGridSettings, BCS extends RevB
 
     get painting() {
         const animator = this._animator;
-        // eslint-disable-next-line @typescript-eslint/prefer-optional-chain
         return animator !== undefined && animator.animating;
     }
     get lastServerNotificationId() { return this._lastServerNotificationId; }

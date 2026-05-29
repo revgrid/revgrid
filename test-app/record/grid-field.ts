@@ -207,7 +207,7 @@ export class StatusIdValGridField extends GridField {
     }
 
     override modifyValue(record: RecordStore.Record): RevRecordValueRecentChangeTypeId | undefined {
-        const newValue = Math.floor(Math.random() * 5) as RecordStore.TDataItemStatusId;
+        const newValue = Math.floor(Math.random() * 5);
         const valueRecentChangeTypeId = RevRecordValueRecentChangeTypeId.Update;
         record.data[RecordStore.Record.Data.statusIdIndex] = newValue;
         return valueRecentChangeTypeId;

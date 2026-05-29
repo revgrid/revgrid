@@ -281,20 +281,15 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
     getFocusedEditValue() {
         const current = this._current;
         if (current === undefined) {
-            throw new RevAssertError('FGFDV17778');
+            throw new RevAssertError('FGFDV17779');
         } else {
-            const current = this._current;
-            if (current === undefined) {
-                throw new RevAssertError('FGFDV17779');
-            } else {
-                const dataServer = current.subgrid.dataServer;
+            const dataServer = current.subgrid.dataServer;
 
-                if (dataServer.getEditValue === undefined) {
-                    throw new RevAssertError('FGFDV17780');
-                } else {
-                    const column = this._columnsManager.getActiveColumn(current.x);
-                    return dataServer.getEditValue(column.field, current.y);
-                }
+            if (dataServer.getEditValue === undefined) {
+                throw new RevAssertError('FGFDV17780');
+            } else {
+                const column = this._columnsManager.getActiveColumn(current.x);
+                return dataServer.getEditValue(column.field, current.y);
             }
         }
     }
@@ -620,13 +615,13 @@ export class RevFocus<BGS extends RevBehavioredGridSettings, BCS extends RevBeha
             if (this._editor !== undefined && this._editor.invalidateValue !== undefined) {
                 const editorActiveColumnIndex = editorPoint.x;
                 const editorSubgridRowIndex = editorPoint.y;
-                if (editorSubgridRowIndex === undefined || editorActiveColumnIndex === undefined) {
-                    throw new RevAssertError('FISC40199');
-                } else {
+                // if (editorSubgridRowIndex === undefined || editorActiveColumnIndex === undefined) {
+                //     throw new RevAssertError('FISC40199');
+                // } else {
                     if (subgridRowIndex === editorSubgridRowIndex && activeColumnIndex === editorActiveColumnIndex) {
                         this._editor.invalidateValue();
                     }
-                }
+                // }
             }
         }
     }
@@ -1162,6 +1157,7 @@ export namespace RevFocus {
 
     /** @internal */
     export namespace Stash {
+        // eslint-disable-next-line @typescript-eslint/no-shadow
         export interface Point<BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> {
             readonly fieldName: string;
             readonly rowId: unknown;

@@ -50,7 +50,7 @@ export class RevFiltersUiController<BGS extends RevBehavioredGridSettings, BCS e
     }
 
     handleRIGHT(cellEvent: RevViewCell<BCS, SF>) {
-        this.moveLaterally(cellEvent, +1);
+        this.moveLaterally(cellEvent, 1);
     }
 
     handleUP(cellEvent: RevViewCell<BCS, SF>) {
@@ -64,7 +64,6 @@ export class RevFiltersUiController<BGS extends RevBehavioredGridSettings, BCS e
         if (hoverCell === null) {
             hoverCell = this.tryGetHoverCellFromMouseEvent(event);
         }
-        // eslint-disable-next-line @typescript-eslint/prefer-optional-chain
         if (hoverCell !== undefined && hoverCell.viewCell.isFilter) {
             // this.grid.onEditorActivate(cell);
             return hoverCell;
@@ -77,7 +76,6 @@ export class RevFiltersUiController<BGS extends RevBehavioredGridSettings, BCS e
         if (cell === null) {
             cell = this.tryGetHoverCellFromMouseEvent(event);
         }
-        // eslint-disable-next-line @typescript-eslint/prefer-optional-chain
         if (cell !== undefined && cell.viewCell.isFilter) {
             // this.grid.onEditorActivate(cell);
             return cell;

@@ -132,9 +132,9 @@ export class RevDataExtractBehavior<BGS extends RevBehavioredGridSettings, BCS e
             const subgridIndicesArrayCount = subgridIndicesArray.length;
             let result: RevDataServer.ViewValue[][] = new Array<RevDataServer.ViewValue[]>();
             for (let i = 0; i < subgridIndicesArrayCount; i++) {
-                const {subgrid, indices} = subgridIndicesArray[i];
+                const {subgrid: indexSubgrid, indices} = subgridIndicesArray[i];
                 if (indices.length > 0) {
-                    const subgridMatrix = this.getRowIndicesMatrix(subgrid, indices);
+                    const subgridMatrix = this.getRowIndicesMatrix(indexSubgrid, indices);
                     result = [...result, ...subgridMatrix];
                 }
             }
@@ -156,9 +156,9 @@ export class RevDataExtractBehavior<BGS extends RevBehavioredGridSettings, BCS e
             const subgridIndicesArrayCount = subgridIndicesArray.length;
             let result: RevDataServer.ViewValue[][] = new Array<RevDataServer.ViewValue[]>();
             for (let i = 0; i < subgridIndicesArrayCount; i++) {
-                const {subgrid, indices} = subgridIndicesArray[i];
+                const {subgrid: indexSubgrid, indices} = subgridIndicesArray[i];
                 if (indices.length > 0) {
-                    const subgridMatrix = this.getRowIndicesMatrix(subgrid, indices, hiddenColumns);
+                    const subgridMatrix = this.getRowIndicesMatrix(indexSubgrid, indices, hiddenColumns);
                     result = [...result, ...subgridMatrix];
                 }
             }

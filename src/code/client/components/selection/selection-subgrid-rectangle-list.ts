@@ -8,11 +8,11 @@ export class RevSelectionSubgridRectangleList<BCS extends RevBehavioredColumnSet
     private readonly _flattenedX = new Array<RevCornerRectangle>();
     private readonly _flattenedY = new Array<RevCornerRectangle>();
 
-    get has() { return this.rectangles.length !== 0; }
-    get areaCount() { return this.rectangles.length; }
-
     constructor(readonly subgrid: RevSubgrid<BCS, SF>) {
     }
+
+    get has() { return this.rectangles.length !== 0; }
+    get areaCount() { return this.rectangles.length; }
 
     assign(other: RevSelectionSubgridRectangleList<BCS, SF>): void {
         const count = other.areaCount;

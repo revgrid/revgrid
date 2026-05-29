@@ -805,10 +805,10 @@ export class Controls {
 
     private getRandomRecordData(): RecordStore.Record.Data {
         const intVal = Math.floor(Math.random() * 200);
-        const strVal = 'Ins' + Number(Math.random() * 900).toString();
+        const strVal = 'Ins' + (Math.random() * 900).toString();
         const dblVal = Math.random() * (10000.0 / 300.0);
         const dateVal = new Date(2018, 6, Math.floor(Math.random() * 20));
-        const enumVal = Math.floor(Math.random() * 5) as RecordStore.TDataItemStatusId;
+        const enumVal = Math.floor(Math.random() * 5);
         return [intVal, strVal, dblVal, dateVal, enumVal];
     }
 

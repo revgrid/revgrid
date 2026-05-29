@@ -3,9 +3,10 @@
 import eslint from '@eslint/js';
 import { createTypeScriptImportResolver } from 'eslint-import-resolver-typescript';
 import { importX } from 'eslint-plugin-import-x';
+import { defineConfig } from 'eslint/config';
 import tseslint from 'typescript-eslint';
 
-export default tseslint.config(
+export default defineConfig(
     eslint.configs.recommended,
     tseslint.configs.strictTypeChecked,
     tseslint.configs.stylisticTypeChecked,
@@ -14,6 +15,7 @@ export default tseslint.config(
     {
         ignores: [
             'eslint.config.mjs',
+            'node_modules/**/*',
             'webpack.bundles.js',
             'webpack.docs-dev.js',
             'docs/**/*',
@@ -50,11 +52,15 @@ export default tseslint.config(
                 checkLoops: false,
             }],
             "quotes": ["error",
-                "single", {"avoidEscape": true, "allowTemplateLiterals": true }
+                "single", { "avoidEscape": true, "allowTemplateLiterals": true }
             ],
             "@typescript-eslint/consistent-type-definitions": "error",
             "@typescript-eslint/no-unnecessary-condition": ["error", {
                 allowConstantLoopConditions: true,
+            }],
+            "@typescript-eslint/no-unnecessary-type-assertion": ["error", {
+                checkLiteralConstAssertions: true,
+                typesToIgnore: ["RevSourcedField.FieldId"]
             }],
             "@typescript-eslint/no-confusing-void-expression": ["error", {
                 ignoreArrowShorthand: true,
@@ -73,7 +79,7 @@ export default tseslint.config(
             "@typescript-eslint/prefer-nullish-coalescing": ["off", {
                 ignoreTernaryTests: true,
             }],
-            "@typescript-eslint/preferprefer-optional-chain": ["warn", {
+            "@typescript-eslint/prefer-optional-chain": ["off", {
                 checkBoolean: true,
             }],
             // "@typescript-eslint/no-empty-object-type": ["warn", {

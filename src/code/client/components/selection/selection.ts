@@ -257,7 +257,6 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
                     return lastArea;
                 }
             } else {
-                const index = this._dynamicAllSubgrids.indexOf(subgrid);
                 if (this._dynamicAllSubgrids.includes(subgrid)) {
                     return undefined; // already selected this subgrid
                 } else {
@@ -1128,11 +1127,11 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
                 return false;
             } else {
                 if (subgrid === undefined) {
-                    const subgrids = this._dynamicAllSubgrids;
-                    const subgridCount = subgrids.length;
+                    const dynamicAllSubgrids = this._dynamicAllSubgrids;
+                    const subgridCount = dynamicAllSubgrids.length;
                     for (let i = 0; i < subgridCount; i++) {
-                        const subgrid = subgrids[i];
-                        if (subgrid.getRowCount() > 0) {
+                        const dynamicAllSubgrid = dynamicAllSubgrids[i];
+                        if (dynamicAllSubgrid.getRowCount() > 0) {
                             return true;
                         }
                     }
@@ -1162,8 +1161,8 @@ export class RevSelection<BGS extends RevBehavioredGridSettings, BCS extends Rev
                 const notDynamicAllSubgrids = subtractArrays(this._subgridsManager.subgrids, this._dynamicAllSubgrids);
                 const notDynamicAllSubgridCount = notDynamicAllSubgrids.length;
                 for (let i = 0; i < notDynamicAllSubgridCount; i++) {
-                    const subgrid = notDynamicAllSubgrids[i];
-                    const count = this._rows.getIndexCount(subgrid);
+                    const notDynamicAllSubgrid = notDynamicAllSubgrids[i];
+                    const count = this._rows.getIndexCount(notDynamicAllSubgrid);
                     result += count;
                 }
 

@@ -1,4 +1,5 @@
 import { RevAssertError, RevSchemaField, RevUnreachableCaseError } from '../../../common';
+import { RevEventBehavior } from '../../behavior/event-behavior';
 import { RevMouse } from '../../components/mouse/mouse';
 import { RevLinedHoverCell } from '../../interfaces/lined-hover-cell';
 import { RevViewLayoutColumn } from '../../interfaces/view-layout-column';
@@ -48,7 +49,7 @@ export class RevColumnMovingUiController<BGS extends RevBehavioredGridSettings, 
     private _scrolling = false;
     private _scrollVelocity = 0;
 
-    override handlePointerDragStart(event: DragEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined) {
+    override handlePointerDragStart(event: DragEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined): RevEventBehavior.UiPointerDragStartResult<BCS, SF> {
         if (!this._gridSettings.columnsReorderable) {
             return super.handlePointerDragStart(event, hoverCell);
         } else {

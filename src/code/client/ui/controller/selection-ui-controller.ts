@@ -1,5 +1,6 @@
 
-import { RevAssertError, RevEnsureFullyInViewEnum, RevModifierKey, RevSchemaField, RevSelectionAreaTypeId, RevStartLength, RevUnreachableCaseError } from '../../../common';
+import { RevAssertError, RevEnsureFullyInView, RevModifierKey, RevSchemaField, RevSelectionAreaTypeId, RevStartLength, RevUnreachableCaseError } from '../../../common';
+import { RevEventBehavior } from '../../behavior/event-behavior';
 import { RevFocus } from '../../components/focus/focus';
 import { RevMouse } from '../../components/mouse/mouse';
 import { RevLastSelectionArea } from '../../components/selection/last-selection-area';
@@ -93,7 +94,7 @@ export class RevSelectionUiController<BGS extends RevBehavioredGridSettings, BCS
         }
     }
 
-    override handlePointerDragStart(event: DragEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined) {
+    override handlePointerDragStart(event: DragEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined): RevEventBehavior.UiPointerDragStartResult<BCS, SF> {
         let dragAllowed: boolean;
         if (!this._focusSelectBehavior.isMouseAddToggleExtendSelectionAreaAllowed(event)) {
             dragAllowed = false;
@@ -301,7 +302,7 @@ export class RevSelectionUiController<BGS extends RevBehavioredGridSettings, BCS
                         focusSelectionBehavior.selectColumn(activeColumnIndex);
                     }
                 } else {
-                    focusSelectionBehavior.focusOnlySelectColumn(activeColumnIndex, RevEnsureFullyInViewEnum.Always);
+                    focusSelectionBehavior.focusOnlySelectColumn(activeColumnIndex, RevEnsureFullyInView.Always);
                 }
             }
 
@@ -349,7 +350,7 @@ export class RevSelectionUiController<BGS extends RevBehavioredGridSettings, BCS
                         focusSelectionBehavior.selectRow(subgridRowIndex, subgrid);
                     }
                 } else {
-                    focusSelectionBehavior.focusOnlySelectRow(subgridRowIndex, subgrid, RevEnsureFullyInViewEnum.Always);
+                    focusSelectionBehavior.focusOnlySelectRow(subgridRowIndex, subgrid, RevEnsureFullyInView.Always);
                 }
             }
 
@@ -644,7 +645,7 @@ export class RevSelectionUiController<BGS extends RevBehavioredGridSettings, BCS
         subgridRowIndex = Math.min(lastSubgridRowIndex, Math.max(0, subgridRowIndex));
 
         this._selection.beginChange();
-        this._focusSelectBehavior.focusOnlySelectCell(activeColumnIndex, subgridRowIndex, subgrid, RevEnsureFullyInViewEnum.Always);
+        this._focusSelectBehavior.focusOnlySelectCell(activeColumnIndex, subgridRowIndex, subgrid, RevEnsureFullyInView.Always);
         if (focusLinked) {
             this._selection.clearOnNextFocusChange = true;
         }

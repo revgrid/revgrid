@@ -3,7 +3,7 @@ import {
     RevApiError,
     RevAssertError,
     RevClientObject, RevDataServer,
-    RevEnsureFullyInViewEnum,
+    RevEnsureFullyInView,
     RevListChangedTypeId,
     RevMetaServer,
     RevPoint,
@@ -26,6 +26,7 @@ import { RevFocus } from './components/focus/focus';
 import { RevMouse } from './components/mouse/mouse';
 import { RevGridPainter } from './components/renderer/grid-painter/grid-painter';
 import { RevRenderer } from './components/renderer/renderer';
+import { RevScroller } from './components/scroller/scroller';
 import { RevLastSelectionArea } from './components/selection/last-selection-area';
 import { RevSelection } from './components/selection/selection';
 import { RevSelectionRows } from './components/selection/selection-rows';
@@ -37,7 +38,6 @@ import { RevIdGenerator } from './id-generator';
 import { RevCellMetaSettings, RevColumn, RevColumnAutoSizeableWidth, RevLinedHoverCell, RevMainSubgrid, RevSubgrid, RevViewCell } from './interfaces';
 import { RevBehavioredColumnSettings, RevBehavioredGridSettings, RevColumnSettings } from './settings';
 import { RevUiManager } from './ui/ui-controller-manager';
-import { RevScroller } from './components/scroller/scroller';
 
 /** @public */
 export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> {
@@ -1321,7 +1321,7 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
         width: Integer,
         height: Integer,
         subgrid?: RevSubgrid<BCS, SF>,
-        ensureFullyInView = RevEnsureFullyInViewEnum.Never
+        ensureFullyInView = RevEnsureFullyInView.Never
     ): void {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
@@ -1329,7 +1329,7 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
         this._focusSelectBehavior.focusOnlySelectRectangle(leftOrExRightActiveColumnIndex, topOrExBottomSubgridRowIndex, width, height, subgrid, ensureFullyInView);
     }
 
-    focusOnlySelectCell(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>, ensureFullyInView = RevEnsureFullyInViewEnum.Never): void {
+    focusOnlySelectCell(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>, ensureFullyInView = RevEnsureFullyInView.Never): void {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
@@ -1340,14 +1340,14 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
         this._focusSelectBehavior.onlySelectViewCell(viewLayoutColumnIndex, viewLayoutRowIndex);
     }
 
-    focusSelectCell(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>, ensureFullyInView = RevEnsureFullyInViewEnum.Never): void {
+    focusSelectCell(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>, ensureFullyInView = RevEnsureFullyInView.Never): void {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
         this._focusSelectBehavior.focusSelectCell(activeColumnIndex, subgridRowIndex, subgrid, ensureFullyInView);
     }
 
-    focusToggleSelectCell(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>, ensureFullyInView = RevEnsureFullyInViewEnum.Never): boolean {
+    focusToggleSelectCell(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>, ensureFullyInView = RevEnsureFullyInView.Never): boolean {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
         }
@@ -1365,7 +1365,7 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
         width: Integer,
         height: Integer,
         subgrid?: RevSubgrid<BCS, SF>,
-        ensureFullyInView = RevEnsureFullyInViewEnum.Never,
+        ensureFullyInView = RevEnsureFullyInView.Never,
     ): void {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;
@@ -1380,7 +1380,7 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
         width: Integer,
         height: Integer,
         subgrid?: RevSubgrid<BCS, SF>,
-        ensureFullyInView = RevEnsureFullyInViewEnum.Never,
+        ensureFullyInView = RevEnsureFullyInView.Never,
     ): void {
         if (subgrid === undefined) {
             subgrid = this.mainSubgrid;

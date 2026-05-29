@@ -3,12 +3,12 @@
  * @public
  */
 
-import { RevSchemaField } from "../../../common";
-import { RevClientObject } from "../../../common/types-utils";
-import { RevBehavioredGridSettings, RevBehavioredColumnSettings } from "../../settings";
-import { RevCanvas } from "../canvas";
-import { RevViewLayout } from "../view";
-import { RevScrollDimension } from "../view/scroll-dimension";
+import { RevSchemaField } from '../../../common';
+import { RevClientObject } from '../../../common/types-utils';
+import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../../settings';
+import { RevCanvas } from '../canvas';
+import { RevViewLayout } from '../view';
+import { RevScrollDimension } from '../view/scroll-dimension';
 
 export interface RevScroller extends RevClientObject {
     actionEventer: RevScroller.ActionEventer;

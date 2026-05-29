@@ -234,7 +234,6 @@ export class RevContiguousIndexRangeList {
         } else {
             after = startOrExEnd;
             start = after + length; // length is negative
-            length = - length;
         }
         const ranges = this.ranges;
         const oldCount = this.ranges.length;
@@ -470,7 +469,6 @@ export class RevContiguousIndexRangeList {
         } else {
             after = startOrExEnd;
             start = after + length; // length is negative
-            length = -length;
         }
         const ranges = this.ranges;
         const rangeCount = ranges.length;

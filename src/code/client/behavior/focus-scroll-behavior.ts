@@ -528,7 +528,7 @@ export class RevFocusScrollBehavior<BGS extends RevBehavioredGridSettings, BCS e
                 return this._viewLayout.scrollVerticalViewportBy(-1);
             } else {
                 if (directionCanvasOffsetY >= scrollableBounds.exclusiveBottom) {
-                    return this._viewLayout.scrollVerticalViewportBy(+1);
+                    return this._viewLayout.scrollVerticalViewportBy(1);
                 } else {
                     return false;
                 }

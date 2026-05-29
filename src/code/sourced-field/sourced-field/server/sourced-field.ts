@@ -74,7 +74,7 @@ export namespace RevSourcedField {
         export function checkOrder() {
             for (let i = 0; i < idCount; i++) {
                 const info = infos[i];
-                if (info.id !== i as FieldId) {
+                if (info.id !== i as RevSourcedField.FieldId) {
                     throw new EnumInfoOutOfOrderError('RevField.FieldId', i, idToName(i));
                 }
             }

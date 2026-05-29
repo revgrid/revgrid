@@ -153,8 +153,9 @@ export class RevAnimation {
                 count: 1,
                 handle: setInterval(() => { this.requestAnimationFrame(); }, backgroundAnimateTimeInterval),
             }
+            this._backgroundIntervaliserMap.set(backgroundAnimateTimeInterval, backgroundIntervaliser);
         }
-}
+    }
 
     private decrementBackgroundIntervaliserCount(backgroundAnimateTimeInterval: number) {
         const backgroundIntervaliser = this._backgroundIntervaliserMap.get(backgroundAnimateTimeInterval);

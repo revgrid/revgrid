@@ -1,6 +1,6 @@
 import { numberToPixels } from '@pbkware/js-utils';
-import { RevAssertError, RevClientObject, RevCssTypes, RevSchemaField, RevSizeUnitId, RevSizeWithUnit, RevUnreachableCaseError } from '../../../common';
-import { RevBehavioredColumnSettings, RevBehavioredGridSettings } from '../../settings';
+import { RevAssertError, RevClientObject, RevCssTypes, RevSizeUnitId, RevSizeWithUnit, RevUnreachableCaseError } from '../../../common';
+import { RevBehavioredGridSettings } from '../../settings';
 import { RevCanvas } from '../canvas/canvas';
 import { RevScrollDimension } from '../view/scroll-dimension';
 import { RevScroller } from './scroller';
@@ -10,15 +10,15 @@ import { RevScroller } from './scroller';
 // const BAR_STYLE = 'position: absolute;';
 
 /** @public */
-export class RevStandardScroller<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevScroller {
+export class RevStandardScroller<BGS extends RevBehavioredGridSettings> implements RevScroller {
+    actionEventer: RevScroller.ActionEventer;
+    wheelEventer: RevScroller.WheelEventer | undefined;
+    visibilityChangedEventer: RevScroller.VisibilityChangedEventer | undefined;
+
     private readonly bar: HTMLDivElement;
     private readonly barCssClass: string;
     private readonly axisBarCssClass: string;
     private readonly thumbCssClass: string;
-
-    actionEventer: RevScroller.ActionEventer;
-    wheelEventer: RevScroller.WheelEventer | undefined;
-    visibilityChangedEventer: RevScroller.VisibilityChangedEventer | undefined;
 
     /**
      * The generated scrollbar thumb element.

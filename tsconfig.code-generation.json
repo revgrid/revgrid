@@ -1,7 +1,7 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "target": "ES2022",
+    "target": "ES2024",
     "lib": ["ES2023", "dom"],
     "module": "preserve",
     "strict": true,
@@ -25,5 +25,6 @@
     // "verbatimModuleSyntax": true,
 
    // "resolveJsonModule": true,
+   
   },
 }

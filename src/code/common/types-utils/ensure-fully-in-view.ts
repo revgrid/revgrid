@@ -4,18 +4,18 @@
  * This enum is used to determine when a cell should be scrolled into view.
  * @public
  */
-export const enum RevEnsureFullyInViewEnum {
+export const RevEnsureFullyInView = {
     /** Never ensure the cell is fully in view */
-    Never = 'Never',
+    Never: 'Never',
     /** Ensure the cell is fully in view only if it is currently not visible */
-    IfNotVisible = 'IfNotVisible',
+    IfNotVisible: 'IfNotVisible',
     /** Always ensure the cell is fully in view, regardless of its current visibility */
-    Always = 'Always',
-}
+    Always: 'Always',
+} as const;
 
 /**
- * Represents the possible string keys of the {@link RevEnsureFullyInViewEnum} enumeration.
+ * Represents the possible string keys of the {@link RevEnsureFullyInView} enumeration.
  * Use this type to restrict values to valid enum keys for ensuring a cell is fully in view.
  * @public
  */
-export type RevEnsureFullyInView = keyof typeof RevEnsureFullyInViewEnum;
+export type RevEnsureFullyInView = keyof typeof RevEnsureFullyInView;

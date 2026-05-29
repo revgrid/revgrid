@@ -16,6 +16,7 @@ node_modules
 
 npm-debug.log
 debug.log
+trace.log
 /debug.log
 /test-app/client/dist
 /test-app/client/out-tsc

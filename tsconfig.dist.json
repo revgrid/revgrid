@@ -8,5 +8,6 @@
     "sourceMap": true,
     "inlineSourceMap": false,
     "rootDir": "./src/code",
+    "typeRoots": [],
   },
 }

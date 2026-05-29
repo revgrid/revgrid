@@ -163,7 +163,6 @@ export class RevSubgridImplementation<BCS extends RevBehavioredColumnSettings, S
     }
 
     setRowMetadata(subgridRowIndex: number, newMetadata: RevMetaServer.RowMetadata | undefined) {
-        // eslint-disable-next-line @typescript-eslint/prefer-optional-chain
         if (this.metaServer !== undefined && this.metaServer.setRowMetadata !== undefined) {
             this.metaServer.setRowMetadata(subgridRowIndex, newMetadata);
         }

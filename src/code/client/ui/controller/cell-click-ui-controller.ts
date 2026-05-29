@@ -68,6 +68,7 @@ export class RevCellClickUiController<BGS extends RevBehavioredGridSettings, BCS
      * | _otherwise_ | A `window` reference returned by a successful call to `grid.windowOpen`. |
      */
     openLink(viewCell: RevViewCell<BCS, SF>): boolean | null | undefined | Window {
+        // eslint-disable-next-line no-unassigned-vars
         let result: boolean | null | undefined | Window;
         let unknownUrl: unknown;
         const rowIndex = viewCell.viewLayoutRow.subgridRowIndex;

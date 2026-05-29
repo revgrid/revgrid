@@ -44,7 +44,7 @@
     "dist": "npm run clean && npm run force-api && copyfiles -f src/style/revgrid.css dist/css",
     "bundles": "webpack --config ./webpack.bundles.js",
     "clienttestapp": "tsc --project ./test-app/client/tsconfig.json",
-    "clienttestapp:build": "webpack --config ./test-app/client/webpack.docs.js",
+    "clienttestapp:build": "webpack --config ./test-app/client/webpack.docs.cjs",
     "clienttestapp:serve": "webpack serve --config ./test-app/client/webpack.dev.js",
     "recordtestapp": "tsc --project ./test-app/record/tsconfig.json",
     "recordtestapp:build": "webpack --config ./test-app/record/webpack.docs.js",
@@ -62,16 +62,16 @@
     "copyfiles": "2.4.1",
     "css-loader": "7.1.4",
     "del-cli": "7.0.0",
-    "eslint": "9.28.0",
-    "eslint-import-resolver-typescript": "4.4.3",
-    "eslint-plugin-import-x": "4.15.1",
+    "eslint": "10.4.0",
+    "eslint-import-resolver-typescript": "4.4.4",
+    "eslint-plugin-import-x": "4.16.2",
     "html-webpack-plugin": "5.6.7",
     "source-map-loader": "5.0.0",
     "style-loader": "4.0.0",
     "ts-loader": "9.5.2",
     "typedoc": "0.28.19",
     "typescript": "6.0.3",
-    "typescript-eslint": "8.33.1",
+    "typescript-eslint": "8.60.0",
     "update-browserslist-db": "1.2.3",
     "webpack": "5.99.9",
     "webpack-cli": "6.0.1",
@@ -86,6 +86,7 @@
     "Firefox ESR"
   ],
   "dependencies": {
+    "@eslint/js": "10.0.1",
     "@pbkware/js-utils": "0.9.1"
   }
 }

@@ -68,7 +68,7 @@ export class RevStandardCheckboxCellPainter<
 
         let oldFingerprint: Partial<RevStandardCheckboxCellPainter.PaintFingerprint> | undefined;
         if (prefillColor === undefined) {
-            oldFingerprint = cell.paintFingerprint as RevStandardCheckboxCellPainter.PaintFingerprint | undefined;
+            oldFingerprint = cell.paintFingerprint;
         } else {
             oldFingerprint = {
                 backgroundColor: prefillColor,

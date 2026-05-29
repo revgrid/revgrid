@@ -952,17 +952,17 @@ export class RevClientGrid<BGS extends RevBehavioredGridSettings, BCS extends Re
     // (undocumented)
     readonly focus: RevFocus<BGS, BCS, SF>;
     // (undocumented)
-    focusOnlySelectCell(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>, ensureFullyInView?: RevEnsureFullyInViewEnum): void;
+    focusOnlySelectCell(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>, ensureFullyInView?: "Never"): void;
     // (undocumented)
-    focusOnlySelectRectangle(leftOrExRightActiveColumnIndex: Integer, topOrExBottomSubgridRowIndex: Integer, width: Integer, height: Integer, subgrid?: RevSubgrid<BCS, SF>, ensureFullyInView?: RevEnsureFullyInViewEnum): void;
+    focusOnlySelectRectangle(leftOrExRightActiveColumnIndex: Integer, topOrExBottomSubgridRowIndex: Integer, width: Integer, height: Integer, subgrid?: RevSubgrid<BCS, SF>, ensureFullyInView?: "Never"): void;
     // (undocumented)
-    focusReplaceLastArea(areaType: RevSelectionAreaType, leftOrExRightActiveColumnIndex: Integer, topOrExBottomSubgridRowIndex: Integer, width: Integer, height: Integer, subgrid?: RevSubgrid<BCS, SF>, ensureFullyInView?: RevEnsureFullyInViewEnum): void;
+    focusReplaceLastArea(areaType: RevSelectionAreaType, leftOrExRightActiveColumnIndex: Integer, topOrExBottomSubgridRowIndex: Integer, width: Integer, height: Integer, subgrid?: RevSubgrid<BCS, SF>, ensureFullyInView?: "Never"): void;
     // (undocumented)
-    focusReplaceLastAreaWithRectangle(leftOrExRightActiveColumnIndex: Integer, topOrExBottomSubgridRowIndex: Integer, width: Integer, height: Integer, subgrid?: RevSubgrid<BCS, SF>, ensureFullyInView?: RevEnsureFullyInViewEnum): void;
+    focusReplaceLastAreaWithRectangle(leftOrExRightActiveColumnIndex: Integer, topOrExBottomSubgridRowIndex: Integer, width: Integer, height: Integer, subgrid?: RevSubgrid<BCS, SF>, ensureFullyInView?: "Never"): void;
     // (undocumented)
-    focusSelectCell(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>, ensureFullyInView?: RevEnsureFullyInViewEnum): void;
+    focusSelectCell(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>, ensureFullyInView?: "Never"): void;
     // (undocumented)
-    focusToggleSelectCell(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>, ensureFullyInView?: RevEnsureFullyInViewEnum): boolean;
+    focusToggleSelectCell(activeColumnIndex: Integer, subgridRowIndex: Integer, subgrid?: RevSubgrid<BCS, SF>, ensureFullyInView?: "Never"): boolean;
     // (undocumented)
     getActiveColumn(activeIndex: Integer): RevColumn<BCS, SF>;
     // (undocumented)
@@ -1695,7 +1695,7 @@ export class RevColumnMovingUiController<BGS extends RevBehavioredGridSettings, 
     // (undocumented)
     handlePointerDragEnd(event: PointerEvent, cell: RevLinedHoverCell<BCS, SF> | null | undefined): RevLinedHoverCell<BCS, SF> | null | undefined;
     // (undocumented)
-    handlePointerDragStart(event: DragEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined): import("../../behavior/event-behavior").RevEventBehavior.UiPointerDragStartResult<BCS, SF>;
+    handlePointerDragStart(event: DragEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined): RevEventBehavior.UiPointerDragStartResult<BCS, SF>;
     // (undocumented)
     handlePointerMove(event: PointerEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined): RevLinedHoverCell<BCS, SF> | null | undefined;
     // (undocumented)
@@ -2752,14 +2752,14 @@ export namespace RevDispatchableEvent {
 }
 
 // @public
-export type RevEnsureFullyInView = keyof typeof RevEnsureFullyInViewEnum;
+export const RevEnsureFullyInView: {
+    readonly Never: "Never";
+    readonly IfNotVisible: "IfNotVisible";
+    readonly Always: "Always";
+};
 
 // @public
-export const enum RevEnsureFullyInViewEnum {
-    Always = "Always",
-    IfNotVisible = "IfNotVisible",
-    Never = "Never"
-}
+export type RevEnsureFullyInView = keyof typeof RevEnsureFullyInView;
 
 // @public (undocumented)
 export class RevEventBehavior<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevClientObject {
@@ -6475,7 +6475,7 @@ export class RevSelectionUiController<BGS extends RevBehavioredGridSettings, BCS
     // (undocumented)
     handlePointerDragEnd(event: PointerEvent, cell: RevLinedHoverCell<BCS, SF> | null | undefined): RevLinedHoverCell<BCS, SF> | null | undefined;
     // (undocumented)
-    handlePointerDragStart(event: DragEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined): import("../../behavior/event-behavior").RevEventBehavior.UiPointerDragStartResult<BCS, SF>;
+    handlePointerDragStart(event: DragEvent, hoverCell: RevLinedHoverCell<BCS, SF> | null | undefined): RevEventBehavior.UiPointerDragStartResult<BCS, SF>;
     // (undocumented)
     readonly typeName = "selection";
 }
@@ -7400,7 +7400,7 @@ export class RevStandardRangeInputCellEditor<BGS extends RevBehavioredGridSettin
 }
 
 // @public (undocumented)
-export class RevStandardScroller<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> implements RevScroller {
+export class RevStandardScroller<BGS extends RevBehavioredGridSettings> implements RevScroller {
     // @internal
     constructor(clientId: string, internalParent: RevClientObject,
     _gridSettings: BGS,
