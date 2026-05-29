@@ -23,12 +23,12 @@ Servers provide schema and data to the [client grid](./client/index.md).  Revgri
 1. [**Common**](./common/index.md)\
 Utilities and interfaces common to client, server and libraries.
 1. [**Settings**](./settings/index.md)\
-Todo
+Describes the setting interfaces and implementations that control rendering, interaction and behavior.
 1. [**Cell Painter**](./cell-painter/index.md)\
-Todo
+Explains the painter contract and how cells are rendered on the canvas.
 1. [**Cell Editor**](./cell-editor/index.md)\
-Todo
+Explains editor lifecycle, commit/cancel behavior, and standard editor implementations.
 1. [**Libraries**](./libraries/index.md)\
-Todo
+Documents prebuilt library layers (`standard`, `simple`, `js`) built on top of core client and server modules.
 1. [**flows**](./flows/index.md)\
-Todo
+Step-by-step interaction flows from user input or server notifications to invalidation and repaint.

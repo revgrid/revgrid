@@ -11,4 +11,8 @@ children:
     - ./server-notification/index.md
 ---
 
-ToDo
+Behaviors coordinate cross-component actions and expose higher-level operations.
+
+They are the preferred integration surface for custom workflows because they combine component updates in a consistent order.
+
+Behavior modules cover focus/selection coordination, reindexing, server notification handling, event forwarding, and property/value extraction helpers.

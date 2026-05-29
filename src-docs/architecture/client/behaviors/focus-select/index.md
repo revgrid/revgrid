@@ -2,4 +2,6 @@
 title: Focus Select Behavior
 ---
 
-ToDo
+Focus-select behavior keeps focus and selection state in sync.
+
+It applies keyboard/mouse modifier semantics and ensures range selections, anchor updates, and focused-cell updates follow predictable rules.

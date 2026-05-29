@@ -31,8 +31,8 @@ Manages cell focus and cell editing within a grid component.
 * **[Mouse](./mouse/index.md)**\
 Manages mouse interactions for the grid component.
 * **[Scroller (Horizontal & Vertical)](./scroller/index.md)**\
-ToDo
+Maintains scroll state, dimensions, and input synchronization between view layout and visual scroll affordances.
 * **[Selection](./selection/index.md)**\
 Manages selection logic for a grid component.
 * **[Renderer](./renderer/index.md)**\
-ToDo
+Consumes view/layout state and painters to draw visible cells efficiently onto the canvas.

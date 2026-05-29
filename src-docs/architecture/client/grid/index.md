@@ -25,3 +25,13 @@ Specifies a callback which returns the initial settings for a new column. See [C
 Specifies options for the grid. See [Grid Options](./options/index.md) for more information.
 
 ## Generic Parameters
+
+`RevClientGrid` is generic so the grid can carry strongly typed settings and schema definitions end-to-end.
+
+1. `BGS` - Grid settings type.
+1. `BCS` - Column settings type.
+1. `SF` - Schema field type.
+
+Most descendant grid classes pre-bind one or more generics so application code can use simpler constructor signatures.
+
+See API Reference entries for `RevClientGrid` and `RevGridDefinition` for the full constructor, inherited members, events, methods, and static helpers.
