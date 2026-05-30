@@ -7,9 +7,23 @@
         {
             "type": "chrome",
             "request": "launch",
-            "name": "Test App",
+            "name": "Client Test App",
             "url": "http://localhost:3001/",
-            "webRoot": "${workspaceFolder}"
+            "webRoot": "${workspaceFolder}/test-app/client"
+        },
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Record Test App",
+            "url": "http://localhost:3001/",
+            "webRoot": "${workspaceFolder}/test-app/record"
+        },
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Data Row Array Test App",
+            "url": "http://localhost:3001/",
+            "webRoot": "${workspaceFolder}/test-app/data-row-array"
         },
         {
             "type": "chrome",
@@ -17,6 +31,6 @@
             "name": "API Website",
             "url": "http://localhost:3001/revgrid/",
             "webRoot": "${workspaceFolder}"
-        },
-    ],
+        }
+    ]
 }

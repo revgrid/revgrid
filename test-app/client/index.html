@@ -1,45 +1,51 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8" />
-        <title>Revgrid Client Test App</title>
-    </head>
-    <body>
-        <p id="heading">Revgrid Client Test App</p>
-        <section id="controlsAndGrid">
-            <section id="controls">
-                <section>
-                    <button id="newGridButton">New Grid</button>
-                </section>
-                <section class="labelledTextbox">
-                    Fixed column count <input id="fixedColumnCountTextbox" type="text" size="3">
-                </section>
-                <section class="labelledTextbox">
-                    Cell padding (not working)<input id="cellPaddingTextbox" type="text" size="3">
-                </section>
-                <section class="labelledCheckbox">
-                    <input id="rightHalignCheckbox" type="checkbox">Cells aligned right
-                </section>
-                <section class="labelledCheckbox">
-                    <input id="gridRightAlignedCheckbox" type="checkbox">Grid right aligned
-                </section>
-                <section class="labelledCheckbox">
-                    <input id="scrollHorizontallySmoothlyCheckbox" type="checkbox">Smooth horizontal scrolling<br>
-                </section>
-                <section class="labelledCheckbox">
-                    <input id="viewColumnWidthAdjustCheckbox" type="checkbox">View column width adjust<br>
-                </section>
-                <section class="buttonedTextbox">
-                    <button id="deleteRowButton">Delete Row</button>
-                    <input id="deleteRowIndexTextbox" type="text" size="3">
-                </section>
-                <section id="addFishButtons">
-                    <button id="addFishButton">Add Fish</button>
-                </section>
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Revgrid Client Test App</title>
+    <link rel="icon" type="image/svg+xml" href="./revgrid-icon.svg" />
+    <link rel="stylesheet" href="./styles.css" />
+</head>
+
+<body>
+    <p id="heading">Revgrid Client Test App</p>
+    <section id="controlsAndGrid">
+        <section id="controls">
+            <section>
+                <button id="newGridButton">New Grid</button>
             </section>
-            <section id="gridHost">
-                <canvas id="gridCanvas" tabindex="0" draggable="true"></canvas>
+            <section class="labelledTextbox">
+                Fixed column count <input id="fixedColumnCountTextbox" type="text" size="3">
+            </section>
+            <section class="labelledTextbox">
+                Cell padding (not working)<input id="cellPaddingTextbox" type="text" size="3">
+            </section>
+            <section class="labelledCheckbox">
+                <input id="rightHalignCheckbox" type="checkbox">Cells aligned right
+            </section>
+            <section class="labelledCheckbox">
+                <input id="gridRightAlignedCheckbox" type="checkbox">Grid right aligned
+            </section>
+            <section class="labelledCheckbox">
+                <input id="scrollHorizontallySmoothlyCheckbox" type="checkbox">Smooth horizontal scrolling<br>
+            </section>
+            <section class="labelledCheckbox">
+                <input id="viewColumnWidthAdjustCheckbox" type="checkbox">View column width adjust<br>
+            </section>
+            <section class="buttonedTextbox">
+                <button id="deleteRowButton">Delete Row</button>
+                <input id="deleteRowIndexTextbox" type="text" size="3">
+            </section>
+            <section id="addFishButtons">
+                <button id="addFishButton">Add Fish</button>
             </section>
         </section>
-    </body>
+        <section id="gridHost">
+            <canvas id="gridCanvas" tabindex="0" draggable="true"></canvas>
+        </section>
+    </section>
+    <script type="module" src="./index.ts"></script>
+</body>
+
 </html>

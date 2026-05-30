@@ -3,9 +3,12 @@
   "version": "0.11.1",
   "description": "Canvas based high performance grid",
   "type": "module",
-  "module": "dist/code/index.js",
-  "browser": "dist/code/index.js",
-  "typings": "dist/types/public-api.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/public.d.ts",
+      "import": "./dist/code/index.js"
+    }
+  },
   "sideEffects": false,
   "homepage": "https://revgrid.github.io/revgrid/",
   "repository": {
@@ -44,18 +47,18 @@
     "dist": "npm run clean && npm run force-api && copyfiles -f src/style/revgrid.css dist/css",
     "bundles": "webpack --config ./webpack.bundles.js",
     "clienttestapp": "tsc --project ./test-app/client/tsconfig.json",
-    "clienttestapp:build": "webpack --config ./test-app/client/webpack.docs.cjs",
-    "clienttestapp:serve": "webpack serve --config ./test-app/client/webpack.dev.js",
+    "clienttestapp:build": "vite build --config ./test-app/client/vite.docs.config.mjs",
+    "clienttestapp:serve": "vite --config ./test-app/client/vite.dev.config.mjs --host",
     "recordtestapp": "tsc --project ./test-app/record/tsconfig.json",
-    "recordtestapp:build": "webpack --config ./test-app/record/webpack.docs.js",
-    "recordtestapp:serve": "webpack serve --config ./test-app/record/webpack.dev.js",
+    "recordtestapp:build": "vite build --config ./test-app/record/vite.docs.config.mjs",
+    "recordtestapp:serve": "vite --config ./test-app/record/vite.dev.config.mjs --host",
     "dratestapp": "tsc --project ./test-app/data-row-array/tsconfig.json",
-    "dratestapp:build": "webpack --config ./test-app/data-row-array/webpack.docs.js",
-    "dratestapp:serve": "webpack serve --config ./test-app/data-row-array/webpack.dev.js",
+    "dratestapp:build": "vite build --config ./test-app/data-row-array/vite.docs.config.mjs",
+    "dratestapp:serve": "vite --config ./test-app/data-row-array/vite.dev.config.mjs --host",
     "docs:update": "typedoc --options ./typedoc.json --cleanOutputDir false",
     "docs:build": "typedoc --options ./typedoc.json",
     "docs:full": "npm run docs:build && npm run clienttestapp:build && npm run recordtestapp:build && npm run dratestapp:build",
-    "docs:serve": "webpack serve -c ./webpack.docs-dev.js"
+    "docs:serve": "vite --config ./vite.docs-dev.config.mjs --host"
   },
   "devDependencies": {
     "@microsoft/api-extractor": "7.58.7",
@@ -72,10 +75,7 @@
     "typedoc": "0.28.19",
     "typescript": "6.0.3",
     "typescript-eslint": "8.60.0",
-    "update-browserslist-db": "1.2.3",
-    "webpack": "5.99.9",
-    "webpack-cli": "6.0.1",
-    "webpack-dev-server": "5.2.2"
+    "vite": "8.0.14"
   },
   "browserslist": [
     "last 1 Chrome version",
