@@ -15,4 +15,5 @@ export * from './record-schema-server';
 export * from './record-sort-definition';
 export * from './record-store';
 export * from './record-types';
+export * from './record-value-recent-change-type-id';
 

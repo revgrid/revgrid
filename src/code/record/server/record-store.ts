@@ -1,5 +1,6 @@
 import { RevRecord, RevRecordData } from './record';
-import { RevRecordFieldIndex, RevRecordIndex, RevRecordInvalidatedValue, RevRecordValueRecentChangeTypeId } from './record-types';
+import { RevRecordFieldIndex, RevRecordIndex, RevRecordInvalidatedValue } from './record-types';
+import { RevRecordValueRecentChangeTypeId } from './record-value-recent-change-type-id';
 
 /**
  * An interface for providing access to records in a data store. Called by the Grid Adapter to retrieve data to display.

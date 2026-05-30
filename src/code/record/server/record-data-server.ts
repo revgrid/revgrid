@@ -9,7 +9,8 @@ import { RevRecordRow } from './record-row';
 import { RevRecordRowMap } from './record-row-map';
 import { RevRecordSchemaServer } from './record-schema-server';
 import { RevRecordStore } from './record-store';
-import { RevRecordFieldIndex, RevRecordIndex, RevRecordInvalidatedValue, RevRecordRecentChangeTypeId, RevRecordValueRecentChangeTypeId } from './record-types';
+import { RevRecordFieldIndex, RevRecordIndex, RevRecordInvalidatedValue, RevRecordRecentChangeTypeId } from './record-types';
+import { RevRecordValueRecentChangeTypeId } from './record-value-recent-change-type-id';
 
 /** @public */
 export class RevRecordDataServer<SF extends RevRecordField> implements RevDataServer<SF>, RevRecordStore.RecordsEventers {

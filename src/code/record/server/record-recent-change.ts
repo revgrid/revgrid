@@ -1,4 +1,5 @@
-import { RevRecordRecentChangeTypeId, RevRecordSysTick, RevRecordValueRecentChangeTypeId } from './record-types';
+import { RevRecordRecentChangeTypeId, RevRecordSysTick } from './record-types';
+import { RevRecordValueRecentChangeTypeId } from './record-value-recent-change-type-id';
 
 export interface RevRecordSearchableRecentChange {
     expiryTime: RevRecordSysTick.Time;

@@ -14,8 +14,8 @@ import {
     RevRecordInvalidatedValue,
     RevRecordRecentChangeTypeId,
     RevRecordSysTick,
-    RevRecordValueRecentChangeTypeId
 } from './record-types';
+import { RevRecordValueRecentChangeTypeId } from './record-value-recent-change-type-id';
 
 export class RevRecordRecentChanges {
     allChangedRecentDuration: RevRecordSysTick.Span = 250;

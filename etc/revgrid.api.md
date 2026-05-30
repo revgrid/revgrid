@@ -5114,14 +5114,14 @@ export namespace RevRecordRecentChanges {
 }
 
 // @public (undocumented)
-export const enum RevRecordRecentChangeTypeId {
-    // (undocumented)
-    Insert = 1,
-    // (undocumented)
-    Remove = 2,
-    // (undocumented)
-    Update = 0
-}
+export const RevRecordRecentChangeTypeId: {
+    readonly Update: 0;
+    readonly Insert: 1;
+    readonly Remove: 2;
+};
+
+// @public (undocumented)
+export type RevRecordRecentChangeTypeId = (typeof RevRecordRecentChangeTypeId)[keyof typeof RevRecordRecentChangeTypeId];
 
 // @public (undocumented)
 export interface RevRecordRow {
@@ -5515,14 +5515,14 @@ export interface RevRecordValueRecentChange extends RevRecordRecentChange {
 }
 
 // @public (undocumented)
-export const enum RevRecordValueRecentChangeTypeId {
-    // (undocumented)
-    Decrease = 2,
-    // (undocumented)
-    Increase = 1,
-    // (undocumented)
-    Update = 0
-}
+export const RevRecordValueRecentChangeTypeId: {
+    readonly Update: 0;
+    readonly Increase: 1;
+    readonly Decrease: 2;
+};
+
+// @public (undocumented)
+export type RevRecordValueRecentChangeTypeId = (typeof RevRecordValueRecentChangeTypeId)[keyof typeof RevRecordValueRecentChangeTypeId];
 
 // @public
 export interface RevRectangle {

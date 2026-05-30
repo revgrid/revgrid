@@ -1,3 +1,4 @@
+import { RevRecordValueRecentChangeTypeId } from './record-value-recent-change-type-id';
 
 /** Represents an index to a defined Field
  * @public
@@ -10,18 +11,14 @@ export type RevRecordFieldIndex = number;
 export type RevRecordIndex = number;
 
 /** @public */
-export const enum RevRecordValueRecentChangeTypeId {
-    Update,
-    Increase,
-    Decrease,
-}
+export const RevRecordRecentChangeTypeId = {
+    Update: 0,
+    Insert: 1,
+    Remove: 2,
+} as const;
 
 /** @public */
-export const enum RevRecordRecentChangeTypeId {
-    Update,
-    Insert,
-    Remove,
-}
+export type RevRecordRecentChangeTypeId = (typeof RevRecordRecentChangeTypeId)[keyof typeof RevRecordRecentChangeTypeId];
 
 /** @public */
 export interface RevRecordInvalidatedValue {
