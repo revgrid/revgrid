@@ -2,13 +2,15 @@ import { UnreachableCaseError } from '@pbkware/js-utils';
 import { RevApiError } from '../../common';
 
 /** @public */
-export const enum RevHorizontalAlignId {
-    Left,
-    Right,
-    Center,
-    Start,
-    End,
-}
+export const RevHorizontalAlignId = {
+    Left: 0,
+    Right: 1,
+    Center: 2,
+    Start: 3,
+    End: 4,
+} as const
+
+export type RevHorizontalAlignId = (typeof RevHorizontalAlignId)[keyof typeof RevHorizontalAlignId];
 
 /** @public */
 export type RevHorizontalAlign =
@@ -53,7 +55,7 @@ export namespace RevHorizontalAlign {
         }
     }
 
-    export function idToCanvasTextAlign(id: Id): CanvasTextAlign {
+    export function idToCanvasTextAlign(id: RevHorizontalAlignId): CanvasTextAlign {
         switch (id) {
             case RevHorizontalAlignId.Left: return 'left';
             case RevHorizontalAlignId.Right: return 'right';

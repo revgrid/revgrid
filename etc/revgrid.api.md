@@ -3619,7 +3619,7 @@ export namespace RevHorizontalAlign {
     const // (undocumented)
     end = "end";
     // (undocumented)
-    export function idToCanvasTextAlign(id: Id): CanvasTextAlign;
+    export function idToCanvasTextAlign(id: RevHorizontalAlignId): CanvasTextAlign;
     // (undocumented)
     export function toId(value: RevHorizontalAlign, noMatchFallbackId?: Id): Id;
     // (undocumented)
@@ -3627,18 +3627,16 @@ export namespace RevHorizontalAlign {
 }
 
 // @public (undocumented)
-export const enum RevHorizontalAlignId {
-    // (undocumented)
-    Center = 2,
-    // (undocumented)
-    End = 4,
-    // (undocumented)
-    Left = 0,
-    // (undocumented)
-    Right = 1,
-    // (undocumented)
-    Start = 3
-}
+export const RevHorizontalAlignId: {
+    readonly Left: 0;
+    readonly Right: 1;
+    readonly Center: 2;
+    readonly Start: 3;
+    readonly End: 4;
+};
+
+// @public (undocumented)
+export type RevHorizontalAlignId = (typeof RevHorizontalAlignId)[keyof typeof RevHorizontalAlignId];
 
 // @public
 export class RevHorizontalScrollDimension<BGS extends RevBehavioredGridSettings, BCS extends RevBehavioredColumnSettings, SF extends RevSchemaField> extends RevScrollDimension<BGS> {
